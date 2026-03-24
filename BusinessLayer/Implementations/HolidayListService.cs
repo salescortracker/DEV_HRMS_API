@@ -3,6 +3,7 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,7 @@ namespace BusinessLayer.Implementations
         // GET BY ID
         public async Task<ApiResponse<HolidayListDto?>> GetByIdAsync(int id)
         {
+
             var entity = await _unitOfWork.Repository<HolidayList>().GetByIdAsync(id);
 
             if (entity == null || entity.IsDeleted)
@@ -83,6 +85,7 @@ namespace BusinessLayer.Implementations
             };
 
             return new ApiResponse<HolidayListDto?>(dto, "Holiday retrieved successfully.");
+
         }
 
         // CREATE
@@ -123,12 +126,24 @@ namespace BusinessLayer.Implementations
             var entity = await _unitOfWork.Repository<HolidayList>()
                 .GetByIdAsync(dto.HolidayListID);
 
-            if (entity == null || entity.IsDeleted)
+            if (entity == null)
                 return new ApiResponse<string>(null!, "Holiday not found.", false);
 
+            // ✅ Duplicate check (excluding current record)
+            var duplicate = (await _unitOfWork.Repository<HolidayList>().FindAsync(x =>
+                !x.IsDeleted &&
+                x.HolidayListId != dto.HolidayListID &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.HolidayListName.ToLower() == dto.HolidayListName.ToLower()
+            )).Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!, "Duplicate Holiday exists.", false);
+
+            // ✅ Update existing entity
             entity.CompanyId = dto.CompanyID;
             entity.RegionId = dto.RegionID;
-
             entity.HolidayListName = dto.HolidayListName;
             entity.Date = dto.Date;
             entity.IsActive = dto.IsActive;
@@ -136,7 +151,6 @@ namespace BusinessLayer.Implementations
             entity.ModifiedBy = dto.UserId;
 
             _unitOfWork.Repository<HolidayList>().Update(entity);
-            await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<string>("Holiday updated successfully.");
         }

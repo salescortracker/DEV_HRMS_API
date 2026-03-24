@@ -1237,6 +1237,9 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> CreateHoliday([FromBody] CreateUpdateHolidayListDto dto)
         {
             var result = await _holidayListService.CreateAsync(dto);
+               if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
 
@@ -1244,6 +1247,10 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> UpdateHoliday([FromBody] CreateUpdateHolidayListDto dto)
         {
             var result = await _holidayListService.UpdateAsync(dto);
+
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
 
@@ -1408,14 +1415,21 @@ namespace HRMS_Backend.Controllers
         public IActionResult CreateResignation([FromForm] ResignationDto dto, [FromQuery] int userId)
         {
             var success = _resignationService.Create(dto, userId);
-            return success ? Ok(new { message = "Created successfully" }) : BadRequest();
+            if (!success)
+                return BadRequest(new { message = "Resignation type already exists!" });
+
+            return Ok(new { message = "Created successfully" });
         }
 
         [HttpPost("UpdateResignation/{id:int}")]
         public IActionResult UpdateResignation(int id, [FromForm] ResignationDto dto, [FromQuery] int userId)
         {
             var success = _resignationService.Update(id, dto, userId);
-            return success ? Ok(new { message = "Updated successfully" }) : NotFound();
+
+            if (!success)
+                return BadRequest(new { message = "Resignation type already exists!" });
+
+            return Ok(new { message = "Updated successfully" });
         }
 
         [HttpPost("DeleteResignation/{id:int}")]
