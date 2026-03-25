@@ -13,5 +13,6 @@ namespace BusinessLayer.Interfaces
     int regionId);
         Task<bool> DeleteLeaveTypeAsync(int id);
         Task<List<LeaveTypeDto>> GetLeaveTypesByuserIdAsync(int userId);
+        Task<List<DesignationDTO>> GetDesignationsAsync(int companyId, int regionId);
     }
 }

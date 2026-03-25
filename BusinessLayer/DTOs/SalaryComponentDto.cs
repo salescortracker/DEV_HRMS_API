@@ -24,7 +24,7 @@ namespace BusinessLayer.DTOs
 
         public string? ModifiedBy { get; set; }
 
-        public int? UserId { get; set; }
+        public int UserId { get; set; }
 
         public string? CompanyId { get; set; }
 

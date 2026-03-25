@@ -292,5 +292,19 @@ namespace BusinessLayer.Implementations
         }
 
 
+        public async Task<List<DesignationDTO>> GetDesignationsAsync(int companyId, int regionId)
+        {
+            return await _context.Set<Designation>()
+             .Where(d => d.CompanyId == companyId
+            && d.RegionId == regionId
+            && !d.IsDeleted
+            && d.IsActive)
+             .Select(d => new DesignationDTO
+             {
+                 DesignationID = d.DesignationId,
+                 DesignationName = d.DesignationName
+             })
+             .ToListAsync();
+        }
     }
 }

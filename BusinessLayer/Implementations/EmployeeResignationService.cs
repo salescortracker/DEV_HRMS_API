@@ -382,25 +382,31 @@ namespace BusinessLayer.Implementations
 
         public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForReportingManagerAsync(int managerUserId)
         {
-            var employees = await _unitOfWork.Repository<User>()
-                .FindAsync(u => u.ReportingTo == managerUserId && u.Status == "Active");
+            // 🔥 GET ALL USERS + RESIGNATIONS (LIKE EXPENSE FLOW)
+            var users = await _unitOfWork.Repository<User>().GetAllAsync();
+            var resignations = await _unitOfWork.Repository<EmployeeResignation>().GetAllAsync();
 
-            var employeeUserIds = employees.Select(x => x.UserId).ToList();
+            // 🔥 JOIN + FILTER (IMPORTANT)
+            var result = (
+                from r in resignations
+                join u in users on r.UserId equals u.UserId
+                where u.ReportingTo == managerUserId 
+                orderby r.Status == "Pending" ? 0 : 1, r.CreatedAt descending
+                select new EmployeeResignationDto
+                {
+                    ResignationId = r.ResignationId,
+                    EmployeeId = u.EmployeeCode, // ✅ Correct mapping
+                    ResignationType = r.ResignationType,
+                    NoticePeriod = r.NoticePeriod,
+                    LastWorkingDay = r.LastWorkingDay,
+                    ResignationReason = r.ResignationReason,
+                    Status = r.Status,
+                    ManagerReason = r.ManagerReason
+                }
+            ).ToList();
 
-            if (!employeeUserIds.Any())
-                return Enumerable.Empty<EmployeeResignationDto>();
-
-            var resignations = await _unitOfWork.Repository<EmployeeResignation>()
-                .FindAsync(r =>
-                    r.UserId.HasValue &&
-                    employeeUserIds.Contains(r.UserId.Value)
-                ); // ✅ NO STATUS FILTER
-
-            return resignations
-                .OrderByDescending(r => r.CreatedAt)
-                .Select(MapToDto);
+            return result;
         }
-
         public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForHRAsync(
     int companyId,
     int regionId)
