@@ -2420,6 +2420,14 @@ public class UpdateResignationStatusRequest
 
         #endregion
 
+        //[HttpGet("GetResignationsForManager")]
+        //public async Task<IActionResult> GetResignationsForManager(int managerUserId)
+        //{
+        //    var data = await _resignationService
+        //        .GetResignationsForReportingManagerAsync(managerUserId);
+
+        //    return Ok(data);
+        //}
         [HttpGet("GetResignationsForManager")]
         public async Task<IActionResult> GetResignationsForManager(int managerUserId)
         {
