@@ -264,11 +264,15 @@ namespace BusinessLayer.Implementations
                 })
                 .ToListAsync();
         }
-        public async Task<List<CreateExpenseDto>> GetAllExpensesAsync()
+        public async Task<List<CreateExpenseDto>> GetAllExpensesAsync(int companyId, int regionId)
         {
             var expenses = await _context.Expenses
                 .AsNoTracking()
-                .Include(e => e.ExpenseCategory) // Include category info
+                .Include(e => e.ExpenseCategory)
+                .Where(e =>
+            e.CompanyId == companyId &&
+            e.RegionId == regionId
+        )// Include category info
                 .OrderByDescending(e => e.CreatedDate)
                 .ToListAsync();
 
