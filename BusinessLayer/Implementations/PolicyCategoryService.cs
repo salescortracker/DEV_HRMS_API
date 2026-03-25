@@ -26,12 +26,28 @@ namespace BusinessLayer.Implementations
                 .FindAsync(x => !x.IsDeleted && x.UserId == userId))
                 .OrderByDescending(x => x.PolicyCategoryId)
                 .ToList();
+            var companyIds = list.Select(x => x.CompanyId).Distinct().ToList();
+            var regionIds = list.Select(x => x.RegionId).Distinct().ToList();
+
+            var companies = (await _unitOfWork.Repository<Company>()
+                .FindAsync(c => companyIds.Contains(c.CompanyId)))
+                .ToList();
+
+            var regions = (await _unitOfWork.Repository<Region>()
+                .FindAsync(r => regionIds.Contains(r.RegionId)))
+                .ToList();
 
             var dto = list.Select(x => new CreateUpdatePolicyCategoryDto
             {
                 PolicyCategoryId = x.PolicyCategoryId,
                 CompanyId = x.CompanyId,
                 RegionId = x.RegionId,
+                CompanyName = companies
+        .FirstOrDefault(c => c.CompanyId == x.CompanyId)?.CompanyName,
+
+                RegionName = regions
+        .FirstOrDefault(r => r.RegionId == x.RegionId && r.CompanyId == x.CompanyId)?.RegionName,
+
                 PolicyCategoryName = x.PolicyCategoryName,
                 Description = x.Description,
                 IsActive = x.IsActive,
