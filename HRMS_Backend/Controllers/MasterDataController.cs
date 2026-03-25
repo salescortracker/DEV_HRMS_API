@@ -3528,12 +3528,12 @@ int regionId)
         }
 
         #endregion
-        [HttpGet("GetDesignationsbycompanycode")]
-        public async Task<IActionResult> GetDesignationsbycompanycode(int companyId, int regionId)
-        {
-            var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
-            return Ok(data);
-        }
+        //[HttpGet("GetDesignationsbycompanycode")]
+        //public async Task<IActionResult> GetDesignationsbycompanycode(int companyId, int regionId)
+        //{
+        //    var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
+        //    return Ok(data);
+        //}
 
     }
 }
