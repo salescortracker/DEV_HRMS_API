@@ -18,21 +18,48 @@ namespace BusinessLayer.Implementations
         public async Task<ApiResponse<IEnumerable<ExpenseCategoryDto>>> GetAllAsync(
           int userId)
         {
+            var list = await (from x in _context.ExpenseCategories
+                              join c in _context.Companies
+                                  on x.CompanyId equals c.CompanyId into comp
+                              from c in comp.DefaultIfEmpty()
 
-            var list = await _context.ExpenseCategories
-                .Where(x => x.UserId == userId)
-                .OrderBy(x => x.SortOrder)
-                .Select(x => new ExpenseCategoryDto
-                {
-                    ExpenseCategoryID = x.ExpenseCategoryId,
-                    ExpenseCategoryName = x.ExpenseCategoryName,
-                    IsActive = x.IsActive,
-                    SortOrder = x.SortOrder,
-                    Description = x.Description,
-                    CompanyId = x.CompanyId,
-                    RegionId = x.RegionId
-                })
-                .ToListAsync();
+                              join r in _context.Regions
+                                  on x.RegionId equals r.RegionId into reg
+                              from r in reg.DefaultIfEmpty()
+
+                              where x.UserId == userId
+                              orderby x.SortOrder
+                              select new ExpenseCategoryDto
+                              {
+                                  ExpenseCategoryID = x.ExpenseCategoryId,
+                                  ExpenseCategoryName = x.ExpenseCategoryName,
+                                  IsActive = x.IsActive,
+                                  SortOrder = x.SortOrder,
+                                  Description = x.Description,
+                                  CompanyId = x.CompanyId,
+                                  RegionId = x.RegionId,
+                                  userId = (int)x.UserId,
+
+                                  // ✅ Added fields
+                                  CompanyName = c != null ? c.CompanyName : null,
+                                  RegionName = r != null ? r.RegionName : null
+                              }).ToListAsync();
+
+            //var list = await _context.ExpenseCategories
+            //    .Where(x => x.UserId == userId)
+            //    .OrderBy(x => x.SortOrder)
+            //    .Select(x => new ExpenseCategoryDto
+            //    {
+            //        ExpenseCategoryID = x.ExpenseCategoryId,
+            //        ExpenseCategoryName = x.ExpenseCategoryName,
+            //        IsActive = x.IsActive,
+            //        SortOrder = x.SortOrder,
+            //        Description = x.Description,
+            //        CompanyId = x.CompanyId,
+            //        RegionId = x.RegionId,
+            //        userId = (int)x.UserId,
+            //    })
+            //    .ToListAsync();
 
             return new ApiResponse<IEnumerable<ExpenseCategoryDto>>(list);
         }
