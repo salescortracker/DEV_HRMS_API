@@ -3,11 +3,7 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BusinessLayer.Implementations
 {
@@ -99,6 +95,21 @@ namespace BusinessLayer.Implementations
             if (entity == null || entity.IsDeleted)
                 return new ApiResponse<string>(null!, "Not found", false);
 
+            // ✅ DUPLICATE CHECK (EXCLUDE CURRENT RECORD)
+            var duplicate = (await _unitOfWork.Repository<Employmenttype>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.CompanyId == dto.CompanyID &&
+                    x.RegionId == dto.RegionID &&
+                    x.EmploymenttypeName.ToLower() == dto.EmploymenttypeName.ToLower() &&
+                    x.EmploymenttypeId != dto.EmploymenttypeID))
+                .Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!,
+                    "Duplicate Employment Type exists.", false);
+
+            // ✅ UPDATE
             entity.CompanyId = dto.CompanyID;
             entity.RegionId = dto.RegionID;
             entity.EmploymenttypeName = dto.EmploymenttypeName;
