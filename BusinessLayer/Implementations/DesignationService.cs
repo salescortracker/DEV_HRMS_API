@@ -3,6 +3,7 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
 {
@@ -55,36 +56,274 @@ namespace BusinessLayer.Implementations
             }
         }
 
+        //public async Task<ApiResponse<IEnumerable<DesignationDTO>>> GetAllAsync(int userId)
+        //{
+        //    try
+        //    {
+        //        var list = await _unitOfWork.Repository<Designation>()
+        //            .FindAsync(d => !d.IsDeleted && d.UserId == userId);
+
+        //        var dto = list.Select(d => new DesignationDTO
+        //        {
+        //            DesignationID = d.DesignationId,
+        //            CompanyID = d.CompanyId,
+        //            RegionID = d.RegionId,
+        //            DepartmentID = d.DepartmentId,
+        //            DesignationName = d.DesignationName,
+        //            IsActive = d.IsActive,
+        //            companyName = _hrmsContext.Companies
+        //                            .Where(x => x.CompanyId == d.CompanyId)
+        //                            .Select(x => x.CompanyName)
+        //                            .FirstOrDefault(),
+        //            regionName = _hrmsContext.Regions
+        //                            .Where(x => x.RegionId == d.RegionId)
+        //                            .Select(x => x.RegionName)
+        //                            .FirstOrDefault(),
+        //            departmentName = _hrmsContext.Departments
+        //                            .Where(x => x.DepartmentId == d.DepartmentId)
+        //                            .Select(x => x.DepartmentName)
+        //                            .FirstOrDefault()
+        //        });
+
+        //        return new ApiResponse<IEnumerable<DesignationDTO>>(dto, "Success");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<IEnumerable<DesignationDTO>>(null!, ex.Message, false);
+        //    }
+        //}
+
+        //public async Task<ApiResponse<DesignationDTO?>> GetByIdAsync(int id)
+        //{
+        //    try
+        //    {
+        //        var d = await _unitOfWork.Repository<Designation>().GetByIdAsync(id);
+        //        if (d == null || d.IsDeleted)
+        //            return new ApiResponse<DesignationDTO?>(null, "Designation not found.", false);
+
+        //        var dto = new DesignationDTO
+        //        {
+        //            DesignationID = d.DesignationId,
+        //            CompanyID = d.CompanyId,
+        //            RegionID = d.RegionId,
+        //            DesignationName = d.DesignationName,
+        //            //Description = d.Description,
+        //            IsActive = d.IsActive
+        //        };
+        //        return new ApiResponse<DesignationDTO?>(dto, "Designation retrieved.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<DesignationDTO?>(null, $"Failed to get designation. {ex.Message}", false);
+        //    }
+        //}
+
+        //public async Task<ApiResponse<DesignationDTO>> CreateAsync(CreateUpdateDesignationDto dto)
+        //{
+        //    try
+        //    {
+        //        var exists = (await _unitOfWork.Repository<Designation>().FindAsync(d =>
+        //            !d.IsDeleted &&
+        //            d.CompanyId == dto.CompanyID &&
+        //            d.RegionId == dto.RegionID &&
+        //            d.DesignationName.ToLower() == dto.DesignationName.ToLower()))
+        //            .Any();
+
+        //        if (exists)
+        //            return new ApiResponse<DesignationDTO>(null!, "Duplicate designation exists.", false);
+
+        //        var entity = new Designation
+        //        {
+        //            CompanyId = dto.CompanyID,
+        //            RegionId = dto.RegionID,
+        //            DepartmentId = dto.DepartmentID,
+        //            DesignationName = dto.DesignationName,
+        //            IsActive = dto.IsActive,
+        //            CreatedBy = dto.createdBy,
+        //            CreatedAt = DateTime.UtcNow,
+        //            UserId = dto.userId
+        //        };
+
+        //        await _unitOfWork.Repository<Designation>().AddAsync(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        var resultDto = new DesignationDTO
+        //        {
+        //            DesignationID = entity.DesignationId,
+        //            CompanyID = entity.CompanyId,
+        //            RegionID = entity.RegionId,
+        //            DesignationName = entity.DesignationName,
+        //            //Description = entity.Description,
+        //            IsActive = entity.IsActive
+        //        };
+
+        //        return new ApiResponse<DesignationDTO>(resultDto, "Designation created successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<DesignationDTO>(null!, $"Create failed. {ex.Message}", false);
+        //    }
+        //}
+
+        //public async Task<ApiResponse<DesignationDTO>> UpdateAsync(int id, CreateUpdateDesignationDto dto)
+        //{
+        //    try
+        //    {
+        //        var entity = await _unitOfWork.Repository<Designation>().GetByIdAsync(id);
+        //        if (entity == null || entity.IsDeleted)
+        //            return new ApiResponse<DesignationDTO>(null!, "Designation not found.", false);
+
+        //        var dup = (await _unitOfWork.Repository<Designation>().FindAsync(d =>
+        //            !d.IsDeleted &&
+        //            d.DesignationId != id &&
+        //            d.CompanyId == dto.CompanyID &&
+        //            d.RegionId == dto.RegionID &&
+        //            d.DesignationName.ToLower() == dto.DesignationName.ToLower())).Any();
+
+        //        if (dup)
+        //            return new ApiResponse<DesignationDTO>(null!, "Duplicate designation exists.", false);
+
+        //        entity.CompanyId = dto.CompanyID;
+        //        entity.RegionId = dto.RegionID;
+        //        entity.DepartmentId = dto.DepartmentID;
+        //        entity.DesignationName = dto.DesignationName;
+        //        entity.IsActive = dto.IsActive;
+        //        entity.ModifiedBy = dto.modifiedBy;
+        //        entity.ModifiedAt = DateTime.UtcNow;
+
+        //        _unitOfWork.Repository<Designation>().Update(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        var resDto = new DesignationDTO
+        //        {
+        //            DesignationID = entity.DesignationId,
+        //            CompanyID = entity.CompanyId,
+        //            RegionID = entity.RegionId,
+        //            DesignationName = entity.DesignationName,
+        //            //Description = entity.Description,
+        //            IsActive = entity.IsActive
+        //        };
+
+        //        return new ApiResponse<DesignationDTO>(resDto, "Designation updated successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<DesignationDTO>(null!, $"Update failed. {ex.Message}", false);
+        //    }
+        //}
+
+        //public async Task<ApiResponse<object>> SoftDeleteAsync(int id)
+        //{
+        //    try
+        //    {
+        //        var entity = await _unitOfWork.Repository<Designation>().GetByIdAsync(id);
+        //        if (entity == null || entity.IsDeleted)
+        //            return new ApiResponse<object>(null!, "Designation not found.", false);
+
+        //        entity.IsDeleted = true;
+        //        entity.ModifiedBy = entity.ModifiedBy;
+        //        entity.ModifiedAt = DateTime.UtcNow;
+
+        //        _unitOfWork.Repository<Designation>().Update(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return new ApiResponse<object>(null!, "Designation deleted successfully (soft delete).");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<object>(null!, $"Delete failed. {ex.Message}", false);
+        //    }
+        //}
+
+        //public async Task<ApiResponse<(int inserted, int duplicates, int failed)>> BulkInsertAsync(IEnumerable<CreateUpdateDesignationDto> items, int createdBy)
+        //{
+        //    int inserted = 0, duplicates = 0, failed = 0;
+        //    try
+        //    {
+        //        foreach (var dto in items)
+        //        {
+        //            try
+        //            {
+        //                var exists = (await _unitOfWork.Repository<Designation>().FindAsync(d =>
+        //                    !d.IsDeleted &&
+        //                    d.CompanyId == dto.CompanyID &&
+        //                    d.RegionId == dto.RegionID &&
+        //                    d.DesignationName.ToLower() == dto.DesignationName.ToLower()))
+        //                    .Any();
+
+        //                if (exists)
+        //                {
+        //                    duplicates++;
+        //                    continue;
+        //                }
+
+        //                var entity = new Designation
+        //                {
+        //                    CompanyId = dto.CompanyID,
+        //                    RegionId = dto.RegionID,
+        //                    DesignationName = dto.DesignationName,
+        //                    //Description = dto.Description,
+        //                    IsActive = dto.IsActive,
+        //                    CreatedBy = createdBy,
+        //                    CreatedAt = DateTime.UtcNow
+        //                };
+
+        //                await _unitOfWork.Repository<Designation>().AddAsync(entity);
+        //                inserted++;
+        //            }
+        //            catch
+        //            {
+        //                failed++;
+        //            }
+        //        }
+
+        //        await _unitOfWork.CompleteAsync();
+        //        return new ApiResponse<(int, int, int)>((inserted, duplicates, failed),
+        //            $"{inserted} inserted, {duplicates} duplicates, {failed} failed");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<(int, int, int)>((inserted, duplicates, failed),
+        //            $"Bulk insert failed. {ex.Message}", false);
+        //    }
+        //}
         public async Task<ApiResponse<IEnumerable<DesignationDTO>>> GetAllAsync(int userId)
         {
             try
             {
-                var list = await _unitOfWork.Repository<Designation>()
-                    .FindAsync(d => !d.IsDeleted && d.UserId == userId);
+                var result = await (
+                    from d in _hrmsContext.Designations
+                    join c in _hrmsContext.Companies on d.CompanyId equals c.CompanyId into cj
+                    from c in cj.DefaultIfEmpty()
+                    join r in _hrmsContext.Regions on d.RegionId equals r.RegionId into rj
+                    from r in rj.DefaultIfEmpty()
+                    join dept in _hrmsContext.Departments on d.DepartmentId equals dept.DepartmentId into dj
+                    from dept in dj.DefaultIfEmpty()
 
-                var dto = list.Select(d => new DesignationDTO
-                {
-                    DesignationID = d.DesignationId,
-                    CompanyID = d.CompanyId,
-                    RegionID = d.RegionId,
-                    DepartmentID = d.DepartmentId,
-                    DesignationName = d.DesignationName,
-                    IsActive = d.IsActive,
-                    companyName = _hrmsContext.Companies
-                                    .Where(x => x.CompanyId == d.CompanyId)
-                                    .Select(x => x.CompanyName)
-                                    .FirstOrDefault(),
-                    regionName = _hrmsContext.Regions
-                                    .Where(x => x.RegionId == d.RegionId)
-                                    .Select(x => x.RegionName)
-                                    .FirstOrDefault(),
-                    departmentName = _hrmsContext.Departments
-                                    .Where(x => x.DepartmentId == d.DepartmentId)
-                                    .Select(x => x.DepartmentName)
-                                    .FirstOrDefault()
-                });
+                    join g in _hrmsContext.Grades on d.GradeId equals g.GradeId into gj
+                    from g in gj.DefaultIfEmpty()
 
-                return new ApiResponse<IEnumerable<DesignationDTO>>(dto, "Success");
+                    where !d.IsDeleted && d.UserId == userId
+
+                    select new DesignationDTO
+                    {
+                        DesignationID = d.DesignationId,
+                        CompanyID = d.CompanyId,
+                        RegionID = d.RegionId,
+                        DepartmentID = d.DepartmentId,
+                        GradeID = d.GradeId,
+                        GradeName = g.GradeName,
+
+                        DesignationName = d.DesignationName,
+                        IsActive = d.IsActive,
+
+                        companyName = c.CompanyName,
+                        regionName = r.RegionName,
+                        departmentName = dept.DepartmentName
+                    }
+                ).ToListAsync();
+
+                return new ApiResponse<IEnumerable<DesignationDTO>>(result, "Success");
             }
             catch (Exception ex)
             {
@@ -124,7 +363,7 @@ namespace BusinessLayer.Implementations
                 var exists = (await _unitOfWork.Repository<Designation>().FindAsync(d =>
                     !d.IsDeleted &&
                     d.CompanyId == dto.CompanyID &&
-                    d.RegionId == dto.RegionID &&
+                    d.RegionId == dto.RegionID && d.GradeId == dto.GradeID &&
                     d.DesignationName.ToLower() == dto.DesignationName.ToLower()))
                     .Any();
 
@@ -140,7 +379,8 @@ namespace BusinessLayer.Implementations
                     IsActive = dto.IsActive,
                     CreatedBy = dto.createdBy,
                     CreatedAt = DateTime.UtcNow,
-                    UserId = dto.userId
+                    UserId = dto.userId,
+                    GradeId = dto.GradeID
                 };
 
                 await _unitOfWork.Repository<Designation>().AddAsync(entity);
@@ -176,7 +416,7 @@ namespace BusinessLayer.Implementations
                     !d.IsDeleted &&
                     d.DesignationId != id &&
                     d.CompanyId == dto.CompanyID &&
-                    d.RegionId == dto.RegionID &&
+                    d.RegionId == dto.RegionID && d.GradeId == dto.GradeID &&
                     d.DesignationName.ToLower() == dto.DesignationName.ToLower())).Any();
 
                 if (dup)
@@ -189,6 +429,7 @@ namespace BusinessLayer.Implementations
                 entity.IsActive = dto.IsActive;
                 entity.ModifiedBy = dto.modifiedBy;
                 entity.ModifiedAt = DateTime.UtcNow;
+                entity.GradeId = dto.GradeID;
 
                 _unitOfWork.Repository<Designation>().Update(entity);
                 await _unitOfWork.CompleteAsync();

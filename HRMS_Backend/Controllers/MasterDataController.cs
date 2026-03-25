@@ -69,6 +69,7 @@ namespace HRMS_Backend.Controllers
             _interviewLevelService = interviewLevelService;
             _companyNewsCategoryService = companyNewsCategoryService;
             _employmentTypeService = employmentTypeService;
+            _gradeService = GradeService;
         }
         //        #region InterviewLevels
 
@@ -3482,7 +3483,57 @@ int regionId)
         }
 
         #endregion
-    
 
-}
+        #region Grade
+
+        [HttpGet("GetGradeAll")]
+        public async Task<IActionResult> GetGradeAll(int companyId)
+        {
+            var result = await _gradeService.GetAllAsync(companyId);
+            return Ok(result);
+        }
+
+        [HttpGet("GetGradeById/{id}")]
+        public async Task<IActionResult> GetGradeById(int id)
+        {
+            var data = await _gradeService.GetByIdAsync(id);
+            if (data == null) return NotFound();
+            return Ok(data);
+        }
+
+        [HttpPost("CreateGrade")]
+        public async Task<IActionResult> CreateGrade([FromBody] GradeDto dto)
+        {
+            var result = await _gradeService.AddAsync(dto);
+            if (result == null)
+                return Ok(new { message = "Duplicate Record Found" });
+
+            return Ok(new { message = "Grade created", data = result });
+        }
+
+        [HttpPost("UpdateGrade")]
+        public async Task<IActionResult> UpdateGrade([FromBody] GradeDto dto)
+        {
+            var result = await _gradeService.UpdateAsync(dto);
+            return Ok(new { message = "Grade updated", data = result });
+        }
+
+        [HttpPost("DeleteGrade")]
+        public async Task<IActionResult> DeleteGrade(int id)
+        {
+            var success = await _gradeService.DeleteAsync(id);
+            if (!success) return NotFound();
+
+            return Ok(new { message = "Deleted successfully" });
+        }
+
+        #endregion
+        [HttpGet("GetDesignationsbycompanycode")]
+        public async Task<IActionResult> GetDesignationsbycompanycode(int companyId, int regionId)
+        {
+            var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
+            return Ok(data);
+        }
+
+    }
 }
