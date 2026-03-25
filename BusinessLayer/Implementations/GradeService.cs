@@ -25,7 +25,7 @@ namespace BusinessLayer.Implementations
         public async Task<ApiResponse<IEnumerable<GradeDto>>> GetAllAsync(int companyId)
         {
             var list = await _unitOfWork.Repository<Grade>()
-                .FindAsync(x => !x.IsDeleted);
+                .FindAsync(x => !x.IsDeleted && x.UserId == companyId);
 
             var data = list.Select(g => new GradeDto
             {
