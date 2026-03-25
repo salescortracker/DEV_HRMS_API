@@ -69,6 +69,7 @@ namespace HRMS_Backend.Controllers
             _interviewLevelService = interviewLevelService;
             _companyNewsCategoryService = companyNewsCategoryService;
             _employmentTypeService = employmentTypeService;
+            _gradeService = GradeService;
         }
         #region InterviewLevels
 
@@ -928,7 +929,10 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> UpdateLeaveType([FromBody] LeaveTypeDto dto)
         {
             var result = await _leaveTypeService.UpdateLeaveTypeAsync(dto);
-            return result ? Ok() : BadRequest();
+            if (!result)
+                return NotFound("Leave Type not found");
+
+            return Ok(new { success = true, message = "Updated successfully" });
         }
 
         [HttpPost("DeleteLeaveType")]
