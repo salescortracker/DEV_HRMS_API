@@ -51,19 +51,33 @@ namespace HRMS_Backend.Controllers
         }
 
         // PUT: api/EmployeePayRoll/components/1/5
-        [HttpPut("components/{id}/{userId}")]
-        public async Task<IActionResult> UpdateComponent(int id, int userId, [FromBody] SalaryComponentDto dto)
+        //[HttpPut("components/{id}/{userId}")]
+        //public async Task<IActionResult> UpdateComponent(int id, int userId, [FromBody] SalaryComponentDto dto)
+        //{
+        //    var result = await _salaryComponentService.UpdateAsync(id, dto, userId);
+        //    if (result == null) return NotFound();
+        //    return Ok(result);
+        //}
+        [HttpPost("components/update")]
+        public async Task<IActionResult> UpdateComponent([FromBody] SalaryComponentDto dto)
         {
-            var result = await _salaryComponentService.UpdateAsync(id, dto, userId);
+            var result = await _salaryComponentService.UpdateAsync(dto.ComponentId, dto, dto.UserId);
             if (result == null) return NotFound();
             return Ok(result);
         }
 
         // DELETE: api/EmployeePayRoll/components/1/5
-        [HttpDelete("components/{id}/{userId}")]
-        public async Task<IActionResult> DeleteComponent(int id, int userId)
+        //[HttpDelete("components/{id}/{userId}")]
+        //public async Task<IActionResult> DeleteComponent(int id, int userId)
+        //{
+        //    var result = await _salaryComponentService.DeleteAsync(id, userId);
+        //    if (!result) return NotFound();
+        //    return Ok(new { message = "Deleted Successfully" });
+        //}
+        [HttpPost("components/delete")]
+        public async Task<IActionResult> DeleteComponent([FromBody] DeleteComponentDto model)
         {
-            var result = await _salaryComponentService.DeleteAsync(id, userId);
+            var result = await _salaryComponentService.DeleteAsync(model.ComponentId, model.UserId);
             if (!result) return NotFound();
             return Ok(new { message = "Deleted Successfully" });
         }
