@@ -145,6 +145,7 @@ namespace BusinessLayer.Implementations
                     Description = dto.Description,
                     IsActive = dto.IsActive,
                     IsDeleted = false,
+                    UserId = dto.UserId,
                     CreatedBy = dto.CreatedBy,
                     CreatedAt = DateTime.UtcNow
                 };
