@@ -201,11 +201,11 @@ namespace HRMS_Backend.Controllers
         }
 
         [HttpGet("GetExpensesAll")]
-        public async Task<IActionResult> GetExpensesAll()
+        public async Task<IActionResult> GetExpensesAll(int companyId, int regionId)
         {
             try
             {
-                var expenses = await _expenseService.GetAllExpensesAsync();
+                var expenses = await _expenseService.GetAllExpensesAsync(companyId, regionId);
 
                 return Ok(new
                 {
