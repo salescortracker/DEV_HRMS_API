@@ -19,14 +19,19 @@ namespace BusinessLayer.Implementations
         {
             try
             {
-                var list = await _unitOfWork.Repository<Department>().FindAsync(d => !d.IsDeleted);
+                //var list = await _unitOfWork.Repository<Department>().FindAsync(d => !d.IsDeleted);
+                var list = await _unitOfWork.Repository<Department>()
+                    .FindAsync(d =>
+                        !d.IsDeleted &&
+                        d.UserId == userId 
+                    );
                 var dto = list.Where(x => x.UserId == userId).Select(d => new DepartmentDto
                 {
                     departmentId = d.DepartmentId,
 
                     companyId = d.CompanyId,
                     regionId = d.RegionId,
-                    description = d.DepartmentName,
+                    departmentName = d.DepartmentName,
                     isActive = d.IsActive
                 });
                 return new ApiResponse<IEnumerable<DepartmentDto>>(dto, "Departments retrieved successfully.");
