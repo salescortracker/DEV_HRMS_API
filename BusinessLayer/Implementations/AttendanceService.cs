@@ -119,6 +119,9 @@ namespace BusinessLayer.Implementations
 
             var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
 
+            var shiftAllocations = await _unitOfWork.Repository<ShiftAllocation>().GetAllAsync();
+            var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
+
             // Get existing attendance records for that date
             var existingRecords = (await repo.GetAllAsync())
                 .Where(x => x.CompanyId == dto.CompanyId &&
@@ -128,6 +131,33 @@ namespace BusinessLayer.Implementations
 
             foreach (var emp in dto.Employees)
             {
+                // ===== GET SHIFT DETAILS (you must fetch from your shift table/service) =====
+                // ✅ JOIN ShiftAllocation + ShiftMaster
+
+                var shiftAlloc = shiftAllocations
+                    .FirstOrDefault(s => s.EmployeeCode == emp.EmployeeCode && s.IsActive == true);
+
+                var shiftMaster = shiftMasters
+                    .FirstOrDefault(sm => sm.ShiftId == shiftAlloc?.ShiftId);
+
+                TimeOnly? shiftStart = shiftMaster?.ShiftStartTime;
+                TimeOnly? shiftEnd = shiftMaster?.ShiftEndTime;
+                string shiftName = shiftMaster?.ShiftName;
+
+                // ===== CALCULATE LATE =====
+                int? lateMinutes = null;
+
+                if (!string.IsNullOrEmpty(emp.ClockIn) && shiftStart.HasValue)
+                {
+                    var clockIn = TimeOnly.Parse(emp.ClockIn);
+
+                    var graceTime = shiftStart.Value.AddMinutes(15);
+
+                    if (clockIn > graceTime)
+                    {
+                        lateMinutes = (int)(clockIn - graceTime).TotalMinutes;
+                    }
+                }
                 var existing = existingRecords
                     .FirstOrDefault(x => x.EmployeeCode == emp.EmployeeCode);
 
@@ -148,6 +178,10 @@ namespace BusinessLayer.Implementations
 
                     existing.ModifiedBy = userId.ToString();
                     existing.ModifiedAt = DateTime.Now;
+                    existing.ShiftName = shiftName;
+                    existing.ShiftStartTime = shiftStart;
+                    existing.ShiftEndTime = shiftEnd;
+                    existing.LateMinutes = lateMinutes;
                 }
                 else
                 {
@@ -170,9 +204,15 @@ namespace BusinessLayer.Implementations
                             : TimeOnly.Parse(emp.ClockOut),
 
                         GrossTime = emp.GrossTime,
+                        // 🔥 NEW FIELDS
+                        ShiftName = shiftName,
+                        ShiftStartTime = shiftStart,
+                        ShiftEndTime = shiftEnd,
+                        LateMinutes = lateMinutes,
 
                         CreatedBy = userId,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = DateTime.Now,
+
                     };
 
                     await repo.AddAsync(entity);
@@ -274,7 +314,14 @@ namespace BusinessLayer.Implementations
 
                 ClockIn = entity.ClockInTime?.ToString("HH:mm"),
                 ClockOut = entity.ClockOutTime?.ToString("HH:mm"),
-                GrossTime = entity.GrossTime
+                GrossTime = entity.GrossTime,
+                ShiftName = entity.ShiftName,
+
+                ShiftStartTime = entity.ShiftStartTime?.ToString("HH:mm"),
+
+                ShiftEndTime = entity.ShiftEndTime?.ToString("HH:mm"),
+
+                LateMinutes = entity.LateMinutes
             };
         }
 

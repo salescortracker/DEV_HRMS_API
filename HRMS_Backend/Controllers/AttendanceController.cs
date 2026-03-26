@@ -154,13 +154,18 @@ namespace HRMS_Backend.Controllers
             return status ? Ok("Allocation updated successfully") : NotFound("Allocation not found");
         }
 
-        [HttpDelete("DeleteAllocation/{id}")]
+        //[HttpDelete("DeleteAllocation/{id}")]
+        //public async Task<IActionResult> DeleteAllocation(int id)
+        //{
+        //    var status = await _shiftAllocationService.DeleteAllocationAsync(id);
+        //    return status ? Ok("Allocation deleted") : NotFound("Allocation not found");
+        //}
+        [HttpPost("DeleteAllocation/{id}")]
         public async Task<IActionResult> DeleteAllocation(int id)
         {
             var status = await _shiftAllocationService.DeleteAllocationAsync(id);
             return status ? Ok("Allocation deleted") : NotFound("Allocation not found");
         }
-
 
 
 
@@ -232,6 +237,17 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> GetEmployeeShift(string employeeCode)
         {
             var result = await _shiftAllocationService.GetEmployeeShiftByEmployeeCodeAsync(employeeCode);
+
+            if (result == null)
+                return NotFound(new { message = "Shift not allocated for this employee" });
+
+            return Ok(result);
+        }
+        [HttpGet("getShiftallocationNameForClockInOut/{employeeCode}/{companyId}/{regionId}")]
+        public async Task<IActionResult> GetEmployeeShift(string employeeCode, int companyId, int regionId)
+        {
+            var result = await _shiftAllocationService
+                .GetEmployeeShiftByEmployeeCodeAsync(employeeCode, companyId, regionId);
 
             if (result == null)
                 return NotFound(new { message = "Shift not allocated for this employee" });
@@ -527,7 +543,7 @@ namespace HRMS_Backend.Controllers
         #endregion
         //--------------------------company policy-------------------------------------//
 
-        #region
+        #region  Policies
         [HttpPost]
         [Route("GetAllPolicies")]
         public async Task<IActionResult> GetAllPolicies()
