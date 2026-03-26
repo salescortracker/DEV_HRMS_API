@@ -38,7 +38,8 @@ namespace HRMS_Backend.Controllers
         private readonly ICompanyNewsCategoryService _companyNewsCategoryService;
         private readonly IEmploymentTypeService _employmentTypeService;
         private readonly IGradeService _gradeService;
-        public MasterDataController(IGradeService GradeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService)
+        private readonly IAttachmentTypeService _attachmentTypeService;
+        public MasterDataController(IGradeService GradeService,IAttachmentTypeService attachmentTypeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -69,6 +70,7 @@ namespace HRMS_Backend.Controllers
             _interviewLevelService = interviewLevelService;
             _companyNewsCategoryService = companyNewsCategoryService;
             _employmentTypeService = employmentTypeService;
+            _attachmentTypeService = attachmentTypeService;
         }
         #region InterviewLevels
 
@@ -1828,5 +1830,65 @@ int regionId)
         //    return Ok(data);
         //}
 
+
+
+        #region AttachmnentType 
+        
+        [HttpGet("GetByUserAttachment")]
+        public async Task<IActionResult> GetByUserAttachmentType(int userId)
+        {
+            var data = await _attachmentTypeService.GetAllByUserAttachmentTypeAsync(userId);
+            return Ok(data);
+        }
+
+        [HttpPost("CreateAttachmnet")]
+        public async Task<IActionResult> CreateAttachmentType([FromBody] AttachmentTypeDto dto)
+        {
+            try
+            {
+                var result = await _attachmentTypeService.CreateAttachmentTypeAsync(dto);
+
+                if (!result)
+                    return BadRequest("Create failed");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+        }
+
+        [HttpPut("UpdateAttachmnet")]
+        public async Task<IActionResult> UpdateAttachmentType([FromBody] AttachmentTypeDto dto)
+        {
+            var result = await _attachmentTypeService.UpdateAttachmentTypeAsync(dto);
+            if (!result) return BadRequest("Update failed");
+            return Ok();
+        }
+
+        [HttpDelete("DeleteAttachmnet/{id}")]
+        public async Task<IActionResult> DeleteAttachmentType(int id)
+        {
+            var result = await _attachmentTypeService.DeleteAttachmentTypeAsync(id);
+            if (!result) return BadRequest("Delete failed");
+            return Ok();
+        }
+
+        [HttpGet("GetAttachmentByCategory")]
+        public async Task<IActionResult> GetAttachmentByCategory(string category)
+        {
+            var data = await _attachmentTypeService.GetByCategoryAsync(category);
+            return Ok(data);
+        }
+
+
+
+
+        #endregion
     }
 }
