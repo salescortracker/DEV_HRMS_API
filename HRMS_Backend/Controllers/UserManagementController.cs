@@ -367,14 +367,14 @@ namespace HRMS_Backend.Controllers
 
 
 
-        [HttpDelete("DeleteUser/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpPost("DeleteUser")]
+        public async Task<IActionResult> DeleteUser([FromBody] int id)
         {
             var deleted = await _userService.DeleteUserAsync(id);
             if (!deleted)
                 return NotFound();
 
-            return NoContent();
+            return Ok(new { message = "User deleted successfully." });
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)

@@ -31,6 +31,6 @@ namespace BusinessLayer.DTOs
         public DateTime? ModifiedAt { get; set; }
 
 
-        public int UserID { get; set; }
+        public int UserId { get; set; }
     }
 }
