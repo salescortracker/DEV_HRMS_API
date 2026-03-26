@@ -1298,6 +1298,16 @@ public partial class HRMSContext : DbContext
                 .HasMaxLength(200)
                 .IsUnicode(false);
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.ShiftName)
+       .HasMaxLength(100);
+
+            entity.Property(e => e.ShiftStartTime)
+                .HasColumnType("time");
+
+            entity.Property(e => e.ShiftEndTime)
+                .HasColumnType("time");
+
+            entity.Property(e => e.LateMinutes);
         });
 
         modelBuilder.Entity<EmployeeBankDetail>(entity =>
