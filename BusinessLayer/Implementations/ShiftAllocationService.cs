@@ -338,5 +338,22 @@ namespace BusinessLayer.Implementations
                 }
             ).FirstOrDefaultAsync();
         }
+        public async Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(string employeeCode, int companyId, int regionId)
+        {
+            return await (
+                from s in _context.ShiftAllocations
+                join sm in _context.ShiftMasters
+                    on s.ShiftId equals sm.ShiftId
+                where s.EmployeeCode == employeeCode
+                      && s.CompanyId == companyId
+                      && s.RegionId == regionId
+                select new EmployeeShiftDto
+                {
+                    ShiftName = sm.ShiftName,
+                    ShiftStartTime = sm.ShiftStartTime,
+                    ShiftEndTime = sm.ShiftEndTime
+                }
+            ).FirstOrDefaultAsync();
+        }
     }
 }
