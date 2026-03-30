@@ -30,5 +30,6 @@ namespace BusinessLayer.DTOs
         public string? ShiftEndTime { get; set; }
 
         public int? LateMinutes { get; set; }
+        
     }
 }

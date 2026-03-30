@@ -13,7 +13,7 @@ public partial class ShiftMaster
 
     public TimeOnly ShiftEndTime { get; set; }
 
-    public int? GraceTime { get; set; }
+    public TimeOnly? GraceTime { get; set; } // ✅ CORRECT
 
     public bool IsActive { get; set; }
 
