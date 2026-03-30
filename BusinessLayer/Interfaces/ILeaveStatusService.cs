@@ -10,7 +10,7 @@ namespace BusinessLayer.Interfaces
 {public interface ILeaveStatusService
     {
         Task<ApiResponse<IEnumerable<LeaveStatusDto>>>
-           GetAllLeaveStatusAsync(int companyId, int regionId);
+           GetAllLeaveStatusAsync(int userId);
 
         Task<ApiResponse<LeaveStatusDto?>>
             GetByIdAsync(int id);
