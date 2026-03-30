@@ -15,23 +15,24 @@ namespace BusinessLayer.Implementations
             _unitOfWork = unitOfWork;
             _hRMSContext = hRMSContext;
         }
-        public async Task<ApiResponse<IEnumerable<GenderDto>>> GetAllAsync(int companyId, int regionId,int userId)
+
+        public async Task<ApiResponse<IEnumerable<GenderDto>>> GetAllAsync(int companyId, int regionId, int userId)
         {
-            //&&            g.CompanyId == companyId &&            g.RegionId == regionId
+           
             try
             {
                 var list = await _unitOfWork.Repository<Gender>().FindAsync(g =>
-                    !g.IsDeleted && g.UserId==userId );
+                    !g.IsDeleted && g.UserId == userId);
 
                 var dto = list.Select(g => new GenderDto
                 {
                     genderID = g.GenderId,
                     genderName = g.GenderName,
                     companyID = g.CompanyId,
-                    regionId = g.RegionId,                   
+                    regionId = g.RegionId,
                     IsActive = g.IsActive,
-                    companyName=g.CompanyId!=null?_hRMSContext.Companies.Where(x=>x.CompanyId==g.CompanyId).FirstOrDefault().CompanyName:null,
-                    regionName=g.RegionId!=null?_hRMSContext.Regions.Where(x=>x.RegionId==g.RegionId).FirstOrDefault().RegionName:null
+                    companyName = g.CompanyId != null ? _hRMSContext.Companies.Where(x => x.CompanyId == g.CompanyId).FirstOrDefault().CompanyName : null,
+                    regionName = g.RegionId != null ? _hRMSContext.Regions.Where(x => x.RegionId == g.RegionId).FirstOrDefault().RegionName : null
                 });
 
                 return new ApiResponse<IEnumerable<GenderDto>>(dto, "Genders retrieved successfully.");
@@ -42,6 +43,33 @@ namespace BusinessLayer.Implementations
                     $"Failed to get genders. {ex.Message}", false);
             }
         }
+        //public async Task<ApiResponse<IEnumerable<GenderDto>>> GetAllAsync(int companyId, int regionId,int userId)
+        //{
+        //    //&&            g.CompanyId == companyId &&            g.RegionId == regionId
+        //    try
+        //    {
+        //        var list = await _unitOfWork.Repository<Gender>().FindAsync(g =>
+        //            !g.IsDeleted && g.UserId==userId );
+
+        //        var dto = list.Select(g => new GenderDto
+        //        {
+        //            genderID = g.GenderId,
+        //            genderName = g.GenderName,
+        //            companyID = g.CompanyId,
+        //            regionId = g.RegionId,                   
+        //            IsActive = g.IsActive,
+        //            companyName=g.CompanyId!=null?_hRMSContext.Companies.Where(x=>x.CompanyId==g.CompanyId).FirstOrDefault().CompanyName:null,
+        //            regionName=g.RegionId!=null?_hRMSContext.Regions.Where(x=>x.RegionId==g.RegionId).FirstOrDefault().RegionName:null
+        //        });
+
+        //        return new ApiResponse<IEnumerable<GenderDto>>(dto, "Genders retrieved successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<IEnumerable<GenderDto>>(null!,
+        //            $"Failed to get genders. {ex.Message}", false);
+        //    }
+        //}
         public async Task<IEnumerable<GenderDto>> GetAllGendersAsync()
         {
             var genders = await _unitOfWork.Repository<Gender>().GetAllAsync();

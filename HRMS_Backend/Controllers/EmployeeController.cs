@@ -1495,6 +1495,15 @@ public class UpdateResignationStatusRequest
         // ---------------------------------------------------------
         // GET PERSONAL DETAILS BY USER ID
         // ---------------------------------------------------------
+        [HttpGet("GetProfilePicture/{userId}")]
+        public async Task<IActionResult> GetProfilePicture(int userId)
+        {
+            if (userId <= 0)
+                return BadRequest("Invalid UserId");
+
+            var profilePictureName = await _employeeService.GetProfilePictureByUserIdAsync(userId);
+            return Ok(profilePictureName); 
+        }
         [HttpGet("GetByUserIdempProfile/{userId}")]
         public async Task<IActionResult> GetByUserIdempProfile(int userId)
         {

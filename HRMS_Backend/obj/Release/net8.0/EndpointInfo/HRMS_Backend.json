@@ -4523,18 +4523,6 @@
         }
       }
     },
-    "/api/Employee/GetVisaTypes": {
-      "get": {
-        "tags": [
-          "Employee"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/Employee/GetStatuses": {
       "get": {
         "tags": [
@@ -9450,30 +9438,10 @@
         }
       }
     },
-    "/api/EmployeePayRoll/components/{id}/{userId}": {
-      "put": {
+    "/api/EmployeePayRoll/components/update": {
+      "post": {
         "tags": [
           "EmployeePayRoll"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
         ],
         "requestBody": {
           "content": {
@@ -9499,31 +9467,32 @@
             "description": "OK"
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/api/EmployeePayRoll/components/delete": {
+      "post": {
         "tags": [
           "EmployeePayRoll"
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteComponentDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteComponentDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteComponentDto"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -12070,22 +12039,14 @@
         }
       }
     },
-    "/api/MasterData/certification-types": {
+    "/api/MasterData/certification-type-list": {
       "get": {
         "tags": [
           "MasterData"
         ],
         "parameters": [
           {
-            "name": "companyId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "regionId",
+            "name": "userId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -12100,37 +12061,7 @@
         }
       }
     },
-    "/api/MasterData/GetCmpregionAllAsync": {
-      "get": {
-        "tags": [
-          "MasterData"
-        ],
-        "parameters": [
-          {
-            "name": "companyId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "regionId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/MasterData/certification-types/{id}": {
+    "/api/MasterData/certification-type/{id}": {
       "get": {
         "tags": [
           "MasterData"
@@ -12237,14 +12168,22 @@
         }
       }
     },
-    "/api/MasterData/certification-types/bulk": {
-      "post": {
+    "/api/MasterData/GetCmpregionAllAsync": {
+      "get": {
         "tags": [
           "MasterData"
         ],
         "parameters": [
           {
-            "name": "createdBy",
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -12252,34 +12191,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/CreateUpdateCertificationTypeDto"
-                }
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/CreateUpdateCertificationTypeDto"
-                }
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/CreateUpdateCertificationTypeDto"
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK"
@@ -12613,8 +12524,10 @@
             "description": "OK"
           }
         }
-      },
-      "put": {
+      }
+    },
+    "/api/MasterData/UpdateProject/{id}": {
+      "post": {
         "tags": [
           "MasterData"
         ],
@@ -12653,8 +12566,10 @@
             "description": "OK"
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/api/MasterData/DeleteProject/{id}": {
+      "post": {
         "tags": [
           "MasterData"
         ],
@@ -12947,15 +12862,7 @@
         ],
         "parameters": [
           {
-            "name": "companyId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "regionId",
+            "name": "userId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -13025,19 +12932,9 @@
       }
     },
     "/api/MasterData/UpdateAttendanceStatus": {
-      "put": {
+      "post": {
         "tags": [
           "MasterData"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
         ],
         "requestBody": {
           "content": {
@@ -13066,7 +12963,7 @@
       }
     },
     "/api/MasterData/DeleteAttendanceStatus/{id}": {
-      "delete": {
+      "post": {
         "tags": [
           "MasterData"
         ],
@@ -14873,6 +14770,165 @@
         "parameters": [
           {
             "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/GetGradeAll": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/GetGradeById/{id}": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/CreateGrade": {
+      "post": {
+        "tags": [
+          "MasterData"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/UpdateGrade": {
+      "post": {
+        "tags": [
+          "MasterData"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GradeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/DeleteGrade": {
+      "post": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/GetDesignationsbycompanycode": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -19342,6 +19398,11 @@
             "format": "date-time",
             "nullable": true
           },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "company": {
             "$ref": "#/components/schemas/Company"
           },
@@ -19398,7 +19459,7 @@
             "format": "date-time",
             "nullable": true
           },
-          "userID": {
+          "userId": {
             "type": "integer",
             "format": "int32"
           }
@@ -20554,6 +20615,71 @@
         },
         "additionalProperties": false
       },
+      "CertificationType": {
+        "type": "object",
+        "properties": {
+          "certificationTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "certificationTypeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
+          "employeeCertifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmployeeCertification"
+            },
+            "nullable": true
+          },
+          "region": {
+            "$ref": "#/components/schemas/Region"
+          }
+        },
+        "additionalProperties": false
+      },
       "ClockInOutCreateDto": {
         "type": "object",
         "properties": {
@@ -20676,6 +20802,14 @@
             "type": "string",
             "nullable": true
           },
+          "companyContact": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyAddress": {
+            "type": "string",
+            "nullable": true
+          },
           "assetStatuses": {
             "type": "array",
             "items": {
@@ -20701,6 +20835,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BloodGroup"
+            },
+            "nullable": true
+          },
+          "certificationTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CertificationType"
             },
             "nullable": true
           },
@@ -20834,6 +20975,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Relationship"
+            },
+            "nullable": true
+          },
+          "roleMasters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleMaster"
             },
             "nullable": true
           },
@@ -21402,6 +21550,15 @@
           "regionName": {
             "type": "string",
             "nullable": true
+          },
+          "gradeID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "gradeName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -21533,6 +21690,28 @@
           },
           "isActive": {
             "type": "boolean"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "regionName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeleteComponentDto": {
+        "type": "object",
+        "properties": {
+          "componentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -21695,11 +21874,19 @@
             "format": "int32",
             "nullable": true
           },
+          "gradeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "company": {
             "$ref": "#/components/schemas/Company"
           },
           "department": {
             "$ref": "#/components/schemas/Department"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
           },
           "region": {
             "$ref": "#/components/schemas/Region"
@@ -21794,6 +21981,69 @@
           "upiid": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmployeeCertification": {
+        "type": "object",
+        "properties": {
+          "certificationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "certificationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "certificationTypeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modifiedDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "certificationType": {
+            "$ref": "#/components/schemas/CertificationType"
           }
         },
         "additionalProperties": false
@@ -23502,6 +23752,104 @@
         },
         "additionalProperties": false
       },
+      "Grade": {
+        "type": "object",
+        "properties": {
+          "gradeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gradeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "designations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Designation"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GradeDto": {
+        "type": "object",
+        "properties": {
+          "gradeID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gradeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "regionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "HelpDeskCategory": {
         "type": "object",
         "properties": {
@@ -25141,6 +25489,13 @@
             },
             "nullable": true
           },
+          "certificationTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CertificationType"
+            },
+            "nullable": true
+          },
           "company": {
             "$ref": "#/components/schemas/Company"
           },
@@ -25267,6 +25622,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Relationship"
+            },
+            "nullable": true
+          },
+          "roleMasters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleMaster"
             },
             "nullable": true
           },
@@ -25455,6 +25817,9 @@
             "format": "int32",
             "nullable": true
           },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          },
           "employeeMasters": {
             "type": "array",
             "items": {
@@ -25468,6 +25833,9 @@
               "$ref": "#/components/schemas/MenuRoleMaster"
             },
             "nullable": true
+          },
+          "region": {
+            "$ref": "#/components/schemas/Region"
           }
         },
         "additionalProperties": false
@@ -25598,8 +25966,7 @@
           },
           "userId": {
             "type": "integer",
-            "format": "int32",
-            "nullable": true
+            "format": "int32"
           },
           "companyId": {
             "type": "string",

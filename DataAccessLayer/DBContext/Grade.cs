@@ -28,4 +28,6 @@ public partial class Grade
     public int? UserId { get; set; }
 
     public virtual ICollection<Designation> Designations { get; set; } = new List<Designation>();
+
+    public virtual ICollection<LeaveTypeGrade> LeaveTypeGrades { get; set; } = new List<LeaveTypeGrade>();
 }

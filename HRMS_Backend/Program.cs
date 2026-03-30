@@ -59,6 +59,7 @@ builder.Services.AddScoped<ICertificationTypeService, CertificationTypeService>(
 builder.Services.AddScoped<IClockInOutService, ClockInOutService>();
 builder.Services.AddScoped<IShiftAllocationService, ShiftAllocationService>();
 builder.Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
+builder.Services.AddScoped<IAttachmentTypeService, AttachmentTypeService>();
 builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -102,6 +103,9 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
+builder.Services.AddScoped<IAssetTypeService, AssetTypeService>();
+builder.Services.AddScoped<IAssetCategoryService, AssetCategoryService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

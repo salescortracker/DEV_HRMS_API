@@ -8,32 +8,57 @@ namespace BusinessLayer.Implementations
 {
     public class AssetApprovalService:IAssetApprovalService
     {
+        private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
 
-        public AssetApprovalService(HRMSContext context)
+        public AssetApprovalService(HRMSContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // 🔹 Manager sees team pending assets
         public async Task<List<AssetApprovalDto>> GetPendingAssetsForManagerAsync(int managerUserId)
         {
-            return await _context.Assets
-                .Where(a => a.ReportingTo == managerUserId &&
-                            a.ApprovalStatus == "Pending")
-                .Select(a => new AssetApprovalDto
-                {
-                    AssetID = a.AssetId,
-                    AssetName = a.AssetName,
-                    AssetCode = a.AssetCode,
-                    AssetLocation = a.AssetLocation,
-                    AssetCost = a.AssetCost,
-                    CurrencyCode = a.CurrencyCode,
-                    ApprovalStatus = a.ApprovalStatus,
-                    EmployeeName = a.EmployeeName
-                })
-                .OrderByDescending(a => a.AssetID)
-                .ToListAsync();
+            return await (
+         from a in _context.AssetRequests
+
+         join at in _context.AssetTypes
+             on a.AssetTypeId equals at.AssetTypeId into atJoin
+         from at in atJoin.DefaultIfEmpty()
+
+         join p in _context.Priorities
+             on a.PriorityId equals p.PriorityId into pJoin
+         from p in pJoin.DefaultIfEmpty()
+
+         where a.ReportingTo == managerUserId &&
+               a.Status == "Pending"
+
+         select new AssetApprovalDto
+         {
+             AssetID = a.RequestId,
+             AssetName = a.EmployeeName,
+             AssetCode = a.EmployeeCode,
+             AssetLocation = a.Department,
+             AssetCost = 0,
+             CurrencyCode = "",
+             ApprovalStatus = a.Status,
+             EmployeeName = a.EmployeeName,
+
+             // ✅ IDs
+             AssetType = a.AssetTypeId,
+             Priority = a.PriorityId,
+
+             // ✅ NAMES (THIS FIXES YOUR ISSUE)
+             AssetTypeName = at.AssetTypeName,   // 🔥
+             PriorityName = p.PriorityName,      // 🔥
+
+             AssetCategory = a.AssetCategoryId,
+             RequiredDate = a.RequiredDate.ToDateTime(TimeOnly.MinValue)
+         }
+     )
+     .OrderByDescending(a => a.AssetID)
+     .ToListAsync();
         }
 
         // 🔹 Single API → Approve / Reject
@@ -66,57 +91,117 @@ namespace BusinessLayer.Implementations
         }
         public async Task ApproveRejectAssetsAsync(ApproveRejectAssetDto dto)
         {
-            var assetsData = await (
-                from a in _context.Assets
-                join u in _context.Users on a.UserId equals u.UserId
-                where dto.AssetIds.Contains(a.AssetId)
-                select new
-                {
-                    Asset = a,
-                    EmployeeName = u.FullName,
-                    EmployeeEmail = u.Email
-                }
-            ).ToListAsync();
+            var requests = await (
+        from r in _context.AssetRequests
+        join u in _context.Users on r.UserId equals u.UserId
+        where dto.AssetIds.Contains(r.RequestId)
+        select new
+        {
+            Request = r,
+            EmployeeName = u.FullName,
+            EmployeeEmail = u.Email
+        }
+    ).ToListAsync();
 
-            if (!assetsData.Any())
-                throw new Exception("No assets found");
+            if (!requests.Any())
+                throw new Exception("No requests found");
 
-            // -------------------------
-            // UPDATE STATUS
-            // -------------------------
-            foreach (var item in assetsData)
+            // ✅ UPDATE STATUS
+            foreach (var item in requests)
             {
-                item.Asset.ApprovalStatus = dto.Action;
-                item.Asset.ApprovedBy = dto.ManagerId;
-                item.Asset.ApprovedAt = DateTime.Now;
+                item.Request.Status = dto.Action; // Approved / Rejected
+                item.Request.ModifiedBy = dto.ManagerId;
+                item.Request.ModifiedAt = DateTime.Now;
             }
 
             await _context.SaveChangesAsync();
+          
 
-            // -------------------------
-            // EMAIL TO EMPLOYEE
-            // -------------------------
-            foreach (var item in assetsData)
+
+            // ✅ SEND EMAIL TO EMPLOYEE
+            foreach (var item in requests)
             {
                 if (!string.IsNullOrWhiteSpace(item.EmployeeEmail))
                 {
-                    var body = BuildAssetEmail(
-                        item.EmployeeName,
-                        item.Asset.AssetName,
-                        item.Asset.AssetCode,
-                        item.Asset.AssetCost,
-                        item.Asset.CurrencyCode,
-                        dto.Action
-                    );
+                      var assetTypeName = await _context.AssetTypes
+    .Where(x => x.AssetTypeId == item.Request.AssetTypeId)
+    .Select(x => x.AssetTypeName)
+    .FirstOrDefaultAsync();
 
-                    //await _emailService.SendEmailAsync(
-                    //    item.EmployeeEmail,
-                    //    $"Asset {dto.Action}",
-                    //    body
-                    //);
+            var categoryName = await _context.AssetCategories
+                .Where(x => x.AssetCategoryId == item.Request.AssetCategoryId)
+                .Select(x => x.AssetCategoryName)
+                .FirstOrDefaultAsync();
+
+            var priorityName = await _context.Priorities
+                .Where(x => x.PriorityId == item.Request.PriorityId)
+                .Select(x => x.PriorityName)
+                .FirstOrDefaultAsync();
+                    var body = $@"
+                <p>Dear {item.EmployeeName},</p>
+
+                <p>Your asset request has been <b>{dto.Action}</b>.</p>
+
+                <p><b>Request ID:</b> {item.Request.RequestId}</p>
+              <p><b>Asset Type:</b> {assetTypeName}</p>
+<p><b>Category:</b> {categoryName}</p>
+<p><b>Priority:</b> {priorityName}</p>
+
+                <p><b>Required Date:</b> {item.Request.RequiredDate:dd-MM-yyyy}</p>
+
+                <p>Status: <b>{dto.Action}</b></p>
+
+                <p>Regards,<br/>HRMS Team</p>
+            ";
+
+                    await _emailService.SendEmailAsync(
+                        item.EmployeeEmail,
+                        $"Asset Request {dto.Action}",
+                        body
+                    );
                 }
             }
         }
+        public async Task<List<AssetRequestDto>> GetApprovedRequestsAsync(int companyId, int regionId)
+        {
+            return await (
+                from r in _context.AssetRequests
+
+                join at in _context.AssetTypes
+                    on r.AssetTypeId equals at.AssetTypeId into atJoin
+                from at in atJoin.DefaultIfEmpty()
+
+                where r.CompanyId == companyId &&
+                      r.RegionId == regionId &&
+                      r.Status == "Approved"   // ✅ ONLY APPROVED
+
+                select new AssetRequestDto
+                {
+                    RequestID = r.RequestId,
+                    CompanyID = r.CompanyId,
+                    RegionID = r.RegionId,
+                    UserID = r.UserId,
+
+                    EmployeeName = r.EmployeeName,
+                    EmployeeCode = r.EmployeeCode,
+                    Department = r.Department,
+
+                    AssetType = r.AssetTypeId,
+                    AssetCategory = r.AssetCategoryId,
+
+                    RequiredDate = r.RequiredDate.ToDateTime(TimeOnly.MinValue),
+                    Priority = r.PriorityId,
+
+                    Reason = r.Reason,
+                    Status = r.Status,
+
+                    // 🔥 IMPORTANT (extra for UI)
+                    // add this if needed in DTO
+                    // AssetTypeName = at.AssetTypeName
+                }
+            ).OrderByDescending(x => x.RequestID).ToListAsync();
+        }
+
 
         private static string BuildAssetEmail(
     string employeeName,

@@ -2311,6 +2311,12 @@ namespace BusinessLayer.Implementations
 
             return all.Select(MapToDto).ToList();
         }
+        public async Task<string?> GetProfilePictureByUserIdAsync(int userId)
+        {
+            var entity = await _unitOfWork.Repository<EmployeePersonalDetail>().GetAllAsync();
+            var employee = entity.FirstOrDefault(x => x.UserId == userId);
+            return employee?.ProfilePictureName; 
+        }
         // GET by user id
         public async Task<PersonalDetailsDto?> GetByUserIdempProfileAsync(int userId)
         {
@@ -2460,6 +2466,7 @@ namespace BusinessLayer.Implementations
                 PreviousExperience = entity.PreviousExperienceText,
                 brandGrade = entity.BandGrade,
                 esicNumber = entity.EsicNumber,
+                ProfilePictureName = entity.ProfilePictureName,
                 pfNumber = entity.Pfnumber,
                 employmentType = entity.EmployeeType,
                 dateofJoining = entity.DateOfJoining,
