@@ -13,8 +13,6 @@ public partial class ShiftMaster
 
     public TimeOnly ShiftEndTime { get; set; }
 
-    public int? GraceTime { get; set; }
-
     public bool IsActive { get; set; }
 
     public int CompanyId { get; set; }
@@ -30,6 +28,8 @@ public partial class ShiftMaster
     public int? ModifiedBy { get; set; }
 
     public int? UserId { get; set; }
+
+    public TimeOnly? GraceTime { get; set; }
 
     public virtual ICollection<EmployeeDailyWorkingHourHeader> EmployeeDailyWorkingHourHeaders { get; set; } = new List<EmployeeDailyWorkingHourHeader>();
 }

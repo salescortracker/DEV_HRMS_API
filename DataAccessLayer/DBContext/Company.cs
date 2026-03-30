@@ -41,7 +41,11 @@ public partial class Company
 
     public string? CompanyAddress { get; set; }
 
+    public virtual ICollection<AssetCategory> AssetCategories { get; set; } = new List<AssetCategory>();
+
     public virtual ICollection<AssetStatus> AssetStatuses { get; set; } = new List<AssetStatus>();
+
+    public virtual ICollection<AssetType> AssetTypes { get; set; } = new List<AssetType>();
 
     public virtual ICollection<AttachmentType> AttachmentTypes { get; set; } = new List<AttachmentType>();
 
@@ -50,6 +54,8 @@ public partial class Company
     public virtual ICollection<BloodGroup> BloodGroups { get; set; } = new List<BloodGroup>();
 
     public virtual ICollection<CertificationType> CertificationTypes { get; set; } = new List<CertificationType>();
+
+    public virtual ICollection<Currency> Currencies { get; set; } = new List<Currency>();
 
     public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
 

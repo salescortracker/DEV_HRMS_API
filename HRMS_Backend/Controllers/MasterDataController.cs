@@ -1817,7 +1817,7 @@ namespace HRMS_Backend.Controllers
         //        //    var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
         //        //    return Ok(data);
         //        //}
-        }
+        //}
         #region InterviewLevels
 
         [HttpGet("interview-levels")]

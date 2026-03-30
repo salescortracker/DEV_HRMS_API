@@ -34,7 +34,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = x.ShiftName,
                     ShiftStartTime = x.ShiftStartTime.ToString("HH:mm"),
                     ShiftEndTime = x.ShiftEndTime.ToString("HH:mm"),
-                    GraceTime = x.GraceTime,
+                   // GraceTime = x.GraceTime,
                     CompanyName = x.CompanyId != null ? _context.Companies.Where(c => c.CompanyId == x.CompanyId).FirstOrDefault().CompanyName : null,
                     RegionName = x.RegionId != null ? _context.Regions.Where(r => r.RegionId == x.RegionId).FirstOrDefault().RegionName : null,
                     IsActive = x.IsActive,
@@ -58,7 +58,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = x.ShiftName,
                     ShiftStartTime = x.ShiftStartTime.ToString("HH:mm"),
                     ShiftEndTime = x.ShiftEndTime.ToString("HH:mm"),
-                    GraceTime = x.GraceTime,
+                  //  GraceTime = x.GraceTime,
                     IsActive = x.IsActive,
                     CompanyID = x.CompanyId,
                     RegionID = x.RegionId,
@@ -99,7 +99,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = dto.ShiftName,
                     ShiftStartTime = startTime,
                     ShiftEndTime = endTime,
-                    GraceTime = dto.GraceTime,
+                  //  GraceTime = dto.GraceTime,
                     CompanyId = dto.CompanyID,
                     RegionId = dto.RegionID,
                     IsActive = dto.IsActive,
@@ -127,7 +127,7 @@ namespace BusinessLayer.Implementations
             entity.ShiftName = dto.ShiftName;
             entity.ShiftStartTime = TimeOnly.Parse(dto.ShiftStartTime);
             entity.ShiftEndTime = TimeOnly.Parse(dto.ShiftEndTime);
-            entity.GraceTime = dto.GraceTime;
+           // entity.GraceTime = dto.GraceTime;
             entity.ModifiedAt = DateTime.Now;
             entity.ModifiedBy = dto.ModifiedBy;
             entity.UserId = dto.UserId;
