@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace BusinessLayer.DTOs
 {
@@ -43,6 +39,9 @@ namespace BusinessLayer.DTOs
         // ✅ New fields for reporting manager and approval workflow
         public int? ReportingTo { get; set; } // manager's UserID
         public string? ApprovalStatus { get; set; } // e.g., "Pending", "Approved", "Rejected" 
+        public int? AssetType { get; set; }
+        public int? AssetCategory { get; set; }
+
 
     }
 }

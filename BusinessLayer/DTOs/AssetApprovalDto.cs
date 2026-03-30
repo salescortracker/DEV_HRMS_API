@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class AssetApprovalDto
     {
@@ -16,5 +10,12 @@ namespace BusinessLayer.DTOs
         public string CurrencyCode { get; set; } = string.Empty;
         public string ApprovalStatus { get; set; } = string.Empty; // Pending / Approved / Rejected
         public string EmployeeName { get; set; } = string.Empty;
+        public int AssetType { get; internal set; }
+        public string AssetTypeName { get; set; } = string.Empty;   // ✅ NEW
+        public int? AssetCategory { get; internal set; }
+        public int? Priority { get; internal set; }
+        public string PriorityName { get; set; } = string.Empty;    // ✅ NEW
+
+        public DateTime RequiredDate { get; internal set; }
     }
 }
