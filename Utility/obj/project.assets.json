@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Cortracker projects\\HRMS_GIT\\HRMS_Dev_API\\Utility\\Utility.csproj",
+      "projectUniqueName": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj",
       "projectName": "Utility",
-      "projectPath": "D:\\Cortracker projects\\HRMS_GIT\\HRMS_Dev_API\\Utility\\Utility.csproj",
+      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj",
       "packagesPath": "C:\\Users\\HR\\.nuget\\packages\\",
-      "outputPath": "D:\\Cortracker projects\\HRMS_GIT\\HRMS_Dev_API\\Utility\\obj\\",
+      "outputPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

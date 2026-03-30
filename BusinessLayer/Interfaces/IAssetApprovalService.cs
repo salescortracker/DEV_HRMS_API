@@ -1,9 +1,4 @@
 ﻿using BusinessLayer.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLayer.Interfaces
 {
@@ -17,6 +12,8 @@ namespace BusinessLayer.Interfaces
             string action   // "Approve" or "Reject"
         );
         Task ApproveRejectAssetsAsync(ApproveRejectAssetDto dto);
+        Task<List<AssetRequestDto>> GetApprovedRequestsAsync(int companyId, int regionId);
+
 
     }
 }

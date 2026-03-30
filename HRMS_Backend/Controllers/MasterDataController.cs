@@ -19,7 +19,8 @@ namespace HRMS_Backend.Controllers
         private readonly IEmployeeMasterService _employeeService;
         private readonly ICertificationTypeService _certificationTypeService;
         private readonly ILeaveTypeService _leaveTypeService;
-        private readonly IExpenseCategoryService _expensecategoryservice; private readonly IAssetStatusService _assetStatusService;
+        private readonly IExpenseCategoryService _expensecategoryservice;
+        private readonly IAssetStatusService _assetStatusService;
         private readonly IHelpdeskCategoryAdminService _helpdeskCategoryAdminService;
         private readonly IProjectStatusAdminService _projectStatusAdminService;
         private readonly IPriorityService _priorityService;
@@ -38,7 +39,14 @@ namespace HRMS_Backend.Controllers
         private readonly ICompanyNewsCategoryService _companyNewsCategoryService;
         private readonly IEmploymentTypeService _employmentTypeService;
         private readonly IGradeService _gradeService;
+        private readonly IAssetTypeService _assetTypeService;
+        private readonly IAssetCategoryService _assetCategoryService;
+        private readonly ICurrencyService _currencyService;
+ 
         private readonly IAttachmentTypeService _attachmentTypeService;
+        private readonly AssetTypeService assetTypeService;
+        private readonly AssetCategoryService assetCategoryService;
+        private readonly CurrencyService currencyService;
         public MasterDataController(IGradeService GradeService,IAttachmentTypeService attachmentTypeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService)
         {
             _service = service;
@@ -73,6 +81,9 @@ namespace HRMS_Backend.Controllers
             _attachmentTypeService = attachmentTypeService;
         
             _gradeService = GradeService;
+            _assetTypeService = assetTypeService;
+            _assetCategoryService = assetCategoryService;
+            _currencyService = currencyService;
         }
         //        #region InterviewLevels
 
@@ -1817,7 +1828,7 @@ namespace HRMS_Backend.Controllers
         //        //    var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
         //        //    return Ok(data);
         //        //}
-        }
+        //}
         #region InterviewLevels
 
         [HttpGet("interview-levels")]
@@ -2509,52 +2520,32 @@ namespace HRMS_Backend.Controllers
             if (tree == null) return NotFound(new { message = "Manager not found" });
             return Ok(tree);
         }
-        // ===================== ASSET STATUS =====================
-
-        /// <summary>
-        /// Asset Status CRUD APIs
-        /// </summary>
         [HttpGet("asset-status")]
-        public async Task<IActionResult> GetAllAssetStatuses(
-        [FromQuery] int companyId,
-        [FromQuery] int regionId)
+        public async Task<IActionResult> GetAllAssetStatus(int userId)
         {
-            var result = await _assetStatusService.GetAllAsync(companyId, regionId);
-            return Ok(result);
+            return Ok(await _assetStatusService.GetAll(userId));
         }
 
-        /// <summary>
-        /// Creates a new asset status
-        /// </summary>
-        [HttpPost("asset-status")]
-        public async Task<IActionResult> CreateAssetStatus([FromBody] AssetStatusDto dto)
+        [HttpPost("CreateAssetStatus")]
+        public async Task<IActionResult> CreateAsssetStatus(AssetStatusDto dto)
         {
-            var id = await _assetStatusService.CreateAsync(dto);
-            return Ok(id);
+            return Ok(await _assetStatusService.CreateAsync(dto));
         }
 
-        /// <summary>
-        /// Updates an existing asset status
-        /// </summary>
-        [HttpPut("asset-status/{id}")]
-        public async Task<IActionResult> UpdateAssetStatus(int id, [FromBody] AssetStatusDto dto)
+        [HttpPost("UpdateAssetStatus")]
+        public async Task<IActionResult> UpdateAsssetStatus(AssetStatusDto dto)
         {
-            dto.AssetStatusId = id;
-            var updated = await _assetStatusService.UpdateAsync(dto);
-            return updated ? Ok() : NotFound();
+            return Ok(await _assetStatusService.UpdateAsync(dto));
+        }
+
+        [HttpPost("DeleteAssetStatus")]
+        public async Task<IActionResult> DeleteAsssetStatus(int id)
+        {
+            return Ok(await _assetStatusService.DeleteAsync(id));
         }
 
 
-        /// <summary>
-        /// Deletes (soft delete) an asset status
-        /// </summary>
-        [HttpDelete("asset-status/{id}")]
-        public async Task<IActionResult> DeleteAssetStatus(int id)
-        {
-            var deleted = await _assetStatusService.DeleteAsync(id);
-            return deleted ? Ok() : NotFound();
-        }
-
+        #region CertificationType
         #region ===================== CERTIFICATION TYPES =====================
 
         [HttpGet("certification-types")]
@@ -2649,13 +2640,13 @@ namespace HRMS_Backend.Controllers
             var data = await _leaveTypeService.GetLeaveTypesAsync();
             return Ok(data);
         }
-        [HttpGet("GetLeaveTypesByuserIdAsync")]
-        public async Task<IActionResult> GetLeaveTypesByuserIdAsync(int userId)
-        {
-            // call service without parameters
-            var data = await _leaveTypeService.GetLeaveTypesByuserIdAsync(userId);
-            return Ok(data);
-        }
+        //[HttpGet("GetLeaveTypesByuserIdAsync")]
+        //public async Task<IActionResult> GetLeaveTypesByuserIdAsync(int userId)
+        //{
+        //    // call service without parameters
+        //    var data = await _leaveTypeService.GetLeaveTypesByuserIdAsync(userId);
+        //    return Ok(data);
+        //}
         [HttpGet("GetCRLeaveTypesAsync")]
         public async Task<IActionResult> GetCRLeaveTypesAsync(
     int companyId,
@@ -2665,33 +2656,33 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
-        [HttpPost("CreateLeaveType")]
-        public async Task<IActionResult> CreateLeaveType([FromBody] LeaveTypeDto dto)
-        {
-            var result = await _leaveTypeService.CreateLeaveTypeAsync(dto);
-            return result ? Ok() : BadRequest();
-        }
+        //[HttpPost("CreateLeaveType")]
+        //public async Task<IActionResult> CreateLeaveType([FromBody] LeaveTypeDto dto)
+        //{
+        //    var result = await _leaveTypeService.CreateLeaveTypeAsync(dto);
+        //    return result ? Ok() : BadRequest();
+        //}
 
-        [HttpPost("UpdateLeaveType")]
-        public async Task<IActionResult> UpdateLeaveType([FromBody] LeaveTypeDto dto)
-        {
-            var result = await _leaveTypeService.UpdateLeaveTypeAsync(dto);
-            if (!result)
-                return NotFound("Leave Type not found");
+        //[HttpPost("UpdateLeaveType")]
+        //public async Task<IActionResult> UpdateLeaveType([FromBody] LeaveTypeDto dto)
+        //{
+        //    var result = await _leaveTypeService.UpdateLeaveTypeAsync(dto);
+        //    if (!result)
+        //        return NotFound("Leave Type not found");
 
-            return Ok(new { success = true, message = "Updated successfully" });
-        }
+        //    return Ok(new { success = true, message = "Updated successfully" });
+        //}
 
-        [HttpPost("DeleteLeaveType")]
-        public async Task<IActionResult> DeleteLeaveType([FromQuery] int id)
-        {
-            var result = await _leaveTypeService.DeleteLeaveTypeAsync(id);
+        //[HttpPost("DeleteLeaveType")]
+        //public async Task<IActionResult> DeleteLeaveType([FromQuery] int id)
+        //{
+        //    var result = await _leaveTypeService.DeleteLeaveTypeAsync(id);
 
-            if (!result)
-                return NotFound("Leave Type not found or already deleted");
+        //    if (!result)
+        //        return NotFound("Leave Type not found or already deleted");
 
-            return Ok(new { message = "Leave Type deleted successfully" });
-        }
+        //    return Ok(new { message = "Leave Type deleted successfully" });
+        //}
 
 
 
@@ -3574,10 +3565,123 @@ int regionId)
             return Ok(data);
         }
 
+        #region AssetType
+        [HttpGet("asset-types")]
+        public async Task<IActionResult> GetAssetTypes(int userId)
+        {
+            return Ok(await _assetTypeService.GetAll(userId));
+        }
+
+        [HttpPost("CreateAssetType")]
+        public async Task<IActionResult> CreateAssetType([FromBody] AssetTypeDto dto)
+        {
+            return Ok(await _assetTypeService.CreateAsync(dto));
+        }
+
+        [HttpPost("UpdateAssetType")]
+        public async Task<IActionResult> UpdateAssetType([FromBody] AssetTypeDto dto)
+        {
+            return Ok(await _assetTypeService.UpdateAsync(dto));
+        }
+
+        [HttpPost("DeleteAssetType")]
+        public async Task<IActionResult> DeleteAssetType(int id)
+        {
+            return Ok(await _assetTypeService.DeleteAsync(id));
+        }
+        [HttpGet("assettypesfilter")]
+        public async Task<IActionResult> GetByCompanyRegion(
+    int companyId,
+    int regionId)
+        {
+            return Ok(await _assetTypeService.GetByCompanyRegion(companyId, regionId));
+        }
+
+        #endregion
+
+        #region Asset Category
+
+        [HttpGet("asset-categories")]
+        public async Task<IActionResult> GetAssetCategories([FromQuery] int userId)
+        {
+            var result = await _assetCategoryService.GetAll(userId);
+            return Ok(result);
+        }
+
+        [HttpGet("asset-categories/{id:int}")]
+        public async Task<IActionResult> GetAssetCategoryById(int id)
+        {
+            var result = await _assetCategoryService.GetByIdAsync(id);
+            return Ok(result);
+        }
+
+        [HttpPost("CreateAssetCategory")]
+        public async Task<IActionResult> CreateAssetCategory([FromBody] AssetCategoryDto dto)
+        {
+            var result = await _assetCategoryService.CreateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("UpdateAssetCategory")]
+        public async Task<IActionResult> UpdateAssetCategory([FromBody] AssetCategoryDto dto)
+        {
+            var result = await _assetCategoryService.UpdateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("DeleteAssetCategory")]
+        public async Task<IActionResult> DeleteAssetCategory([FromQuery] int id)
+        {
+            var result = await _assetCategoryService.DeleteAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+        [HttpGet("assetcategoryfilter")]
+        public async Task<IActionResult> AssetCategoryDropDown(
+  int companyId,
+  int regionId)
+        {
+            return Ok(await _assetCategoryService.AssetCategoryDropDown(companyId, regionId));
+        }
+        #endregion
+
+        #region Currency
+        [HttpGet("currencies")]
+        public async Task<IActionResult> GetCurrencies([FromQuery] int userId)
+        {
+            return Ok(await _currencyService.GetAll(userId));
+        }
+
+        [HttpPost("CreateCurrency")]
+        public async Task<IActionResult> CreateCurrency([FromBody] CurrencyDto dto)
+        {
+            return Ok(await _currencyService.CreateAsync(dto));
+        }
+
+        [HttpPost("UpdateCurrency")]
+        public async Task<IActionResult> UpdateCurrency([FromBody] CurrencyDto dto)
+        {
+            return Ok(await _currencyService.UpdateAsync(dto));
+        }
+
+        [HttpPost("DeleteCurrency")]
+        public async Task<IActionResult> DeleteCurrency([FromQuery] int id)
+        {
+            return Ok(await _currencyService.DeleteAsync(id));
+        }
+        [HttpGet("currencyfilter")]
+        public async Task<IActionResult> CurrencyDropDown(
+   int companyId,
+   int regionId)
+        {
+            return Ok(await _currencyService.CurrencyDropDown(companyId, regionId));
+        }
+        #endregion
+
+        #endregion
 
 
         #region AttachmnentType 
-        
+
         [HttpGet("GetByUserAttachment")]
         public async Task<IActionResult> GetByUserAttachmentType(int userId)
         {

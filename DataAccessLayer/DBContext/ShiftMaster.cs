@@ -31,5 +31,7 @@ public partial class ShiftMaster
 
     public int? UserId { get; set; }
 
+    public TimeOnly? GraceTime { get; set; }
+
     public virtual ICollection<EmployeeDailyWorkingHourHeader> EmployeeDailyWorkingHourHeaders { get; set; } = new List<EmployeeDailyWorkingHourHeader>();
 }

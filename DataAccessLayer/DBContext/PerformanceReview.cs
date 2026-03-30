@@ -50,5 +50,6 @@ public partial class PerformanceReview
     public DateTime? ModifiedAt { get; set; }
 
     public int? ModifiedBy { get; set; }
+
     public virtual ICollection<PerformanceKpi> KPIs { get; set; }
 }
