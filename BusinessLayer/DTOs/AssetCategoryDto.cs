@@ -6,14 +6,20 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs
 {
-    public class AssetStatusDto
+    public class AssetCategoryDto
     {
-        public int AssetStatusId { get; set; }
+        public int AssetCategoryId { get; set; }
+
         public int CompanyId { get; set; }
+
         public int RegionId { get; set; }
-        public string AssetStatusName { get; set; } = string.Empty;
+
+        public string AssetCategoryName { get; set; } = string.Empty;
+
         public string? Description { get; set; }
+
         public bool IsActive { get; set; }
+
         public int UserId { get; set; }
     }
 }
