@@ -44,6 +44,8 @@ namespace HRMS_Backend.Controllers
         private readonly ICurrencyService _currencyService;
         public MasterDataController(IGradeService GradeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService, 
             IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService)
+        private readonly IAttachmentTypeService _attachmentTypeService;
+        public MasterDataController(IGradeService GradeService,IAttachmentTypeService attachmentTypeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -74,6 +76,8 @@ namespace HRMS_Backend.Controllers
             _interviewLevelService = interviewLevelService;
             _companyNewsCategoryService = companyNewsCategoryService;
             _employmentTypeService = employmentTypeService;
+            _attachmentTypeService = attachmentTypeService;
+        
             _gradeService = GradeService;
             _assetTypeService = assetTypeService;
             _assetCategoryService = assetCategoryService;
@@ -1822,6 +1826,7 @@ namespace HRMS_Backend.Controllers
         //        //    var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
         //        //    return Ok(data);
         //        //}
+        }
         #region InterviewLevels
 
         [HttpGet("interview-levels")]
@@ -1962,10 +1967,10 @@ namespace HRMS_Backend.Controllers
             {
                 var result = await _service.GetAllAsync(userId);
 
-                if (result == null)
+                if (result == null )
                     return NotFound(new { success = false, message = "No departments found." });
 
-                return Ok(new { success = true, message = "Departments retrieved successfully.", data = result });
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -2092,10 +2097,10 @@ namespace HRMS_Backend.Controllers
             {
                 var result = await _designationService.GetAllAsync(userId);
 
-                if (result == null)
+                if (result == null )
                     return NotFound(new { success = false, message = "No designations found." });
 
-                return Ok(new { success = true, message = "Designations retrieved successfully.", data = result });
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -2132,7 +2137,7 @@ namespace HRMS_Backend.Controllers
 
             try
             {
-                // 🔒 TODO: Replace with logged-in user later
+               // 🔒 TODO: Replace with logged-in user later
                 var result = await _designationService.CreateAsync(dto);
 
                 if (!result.Success)
@@ -2156,7 +2161,7 @@ namespace HRMS_Backend.Controllers
 
             try
             {
-                // 🔒 TODO: Replace with logged-in user later
+               // 🔒 TODO: Replace with logged-in user later
                 var result = await _designationService.UpdateAsync(id, dto);
 
                 if (!result.Success)
@@ -2177,7 +2182,7 @@ namespace HRMS_Backend.Controllers
         {
             try
             {
-                // 🔒 TODO: Replace with JWT user later
+                 // 🔒 TODO: Replace with JWT user later
                 var result = await _designationService.SoftDeleteAsync(id);
 
                 if (!result.Success)
@@ -2229,12 +2234,12 @@ namespace HRMS_Backend.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetGenderAll")]
-        public async Task<IActionResult> GetGenderAll(int companyId, int regionId, int userId)
+        public async Task<IActionResult> GetGenderAll(int companyId,int regionId,int userId)
         {
-            var result = await _genderService.GetAllAsync(companyId, regionId, userId);
+            var result = await _genderService.GetAllAsync(companyId, regionId,userId);
 
-
-            if (result == null)
+            
+            if (result==null)
                 return NotFound("No gender records found.");
 
             return Ok(result);
@@ -2303,9 +2308,9 @@ namespace HRMS_Backend.Controllers
 
         // GET ALL KPI CATEGORIES
         [HttpGet("kpi-categoriesbycmp")]
-        public async Task<IActionResult> GetKpiCategoriescmp(int companyId, int regionId)
+        public async Task<IActionResult> GetKpiCategoriescmp(int companyId,int regionId)
         {
-            var result = await _kpiCategoryService.GetAllbycmpreg(companyId, regionId);
+            var result = await _kpiCategoryService.GetAllbycmpreg(companyId,regionId);
             return Ok(result);
         }
         [HttpGet("kpi-categories")]
@@ -2364,9 +2369,9 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
         [HttpGet("GetAllCmpRegAsync")]
-        public async Task<IActionResult> GetAllCmpRegAsync(int companyId, int regionId)
+        public async Task<IActionResult> GetAllCmpRegAsync(int companyId,int regionId)
         {
-            var result = await _bloodGroupService.GetAllCmpRegAsync(companyId, regionId);
+            var result = await _bloodGroupService.GetAllCmpRegAsync(companyId,regionId);
 
             if (!result.Success)
                 return BadRequest(result);
@@ -2539,32 +2544,66 @@ namespace HRMS_Backend.Controllers
 
 
         #region CertificationType
+        #region ===================== CERTIFICATION TYPES =====================
 
-        [HttpGet("certification-type-list")]
-        public async Task<IActionResult> GetCertificationTypes([FromQuery] int userId)
+        [HttpGet("certification-types")]
+        //public async Task<IActionResult> GetCertificationTypes(
+        //    int companyId,
+        //    int regionId)
+        //{
+        //    var result = await _certificationTypeService
+        //        .GetAllAsync(companyId, regionId);
+
+        //    return Ok(result!=null?result.Data:result);
+        //}
+
+        [HttpGet("GetCmpregionAllAsync")]
+        public async Task<IActionResult> GetCmpregionAllAsync(
+           int companyId,
+           int regionId)
         {
-            var result = await _certificationTypeService.GetAll(userId);
-            return Ok(result);
+            var result = await _certificationTypeService
+                .GetCmpregionAllAsync(companyId, regionId);
+
+            return Ok(result != null ? result.Data : result);
         }
 
-        [HttpGet("certification-type/{id:int}")]
+        [HttpGet("certification-types/{id:int}")]
         public async Task<IActionResult> GetCertificationTypeById(int id)
         {
             var result = await _certificationTypeService.GetByIdAsync(id);
+
+            if (!result.Success)
+                return NotFound(result);
+
             return Ok(result);
         }
 
         [HttpPost("CreateCertificationType")]
-        public async Task<IActionResult> CreateCertificationType([FromBody] CreateUpdateCertificationTypeDto dto)
+        public async Task<IActionResult> CreateCertificationType(
+            [FromBody] CreateUpdateCertificationTypeDto dto
+            )
         {
             var result = await _certificationTypeService.CreateAsync(dto);
+
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
 
         [HttpPost("UpdateCertificationType")]
-        public async Task<IActionResult> UpdateCertificationType([FromBody] CreateUpdateCertificationTypeDto dto)
+        public async Task<IActionResult> UpdateCertificationType(
+           
+            [FromBody] CreateUpdateCertificationTypeDto dto
+            )
         {
-            var result = await _certificationTypeService.UpdateAsync(dto);
+            var result = await _certificationTypeService
+                .UpdateAsync( dto);
+
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
 
@@ -2572,20 +2611,25 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> DeleteCertificationType([FromQuery] int id)
         {
             var result = await _certificationTypeService.DeleteAsync(id);
-            return Ok(result);
-        }
-        [HttpGet("GetCmpregionAllAsync")]
-        public async Task<IActionResult> GetCmpregionAllAsync(
-    [FromQuery] int companyId,
-    [FromQuery] int regionId)
-        {
-            var result = await _certificationTypeService.GetCmpregionAllAsync(companyId, regionId);
+
+            if (!result.Success)
+                return NotFound(result);
+
             return Ok(result);
         }
 
+        [HttpPost("certification-types/bulk")]
+        public async Task<IActionResult> BulkInsertCertificationTypes(
+            [FromBody] IEnumerable<CreateUpdateCertificationTypeDto> dtos,
+            [FromQuery] int createdBy)
+        {
+            var result = await _certificationTypeService
+                .BulkInsertAsync(dtos, createdBy);
+
+            return Ok(result);
+        }
 
         #endregion
-
         #region LeaveType
         [HttpGet("GetLeaveType")]
         public async Task<IActionResult> GetLeaveType()
@@ -2704,7 +2748,7 @@ namespace HRMS_Backend.Controllers
         // ===============================
         // UPDATE
         // ===============================
-        [HttpPost("UpdateProject/{id}")]
+        [HttpPut("project-status/{id}")]
         public async Task<IActionResult> UpdateProject(int id, [FromBody] ProjectStatusDto dto)
         {
             dto.ProjectStatusId = id;
@@ -2715,7 +2759,7 @@ namespace HRMS_Backend.Controllers
         // ===============================
         // DELETE
         // ===============================
-        [HttpPost("DeleteProject/{id}")]
+        [HttpDelete("project-status/{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
             var result = await _projectStatusAdminService.DeleteProjectAsync(id);
@@ -2818,16 +2862,16 @@ namespace HRMS_Backend.Controllers
 
         #region AttendanceStatus
 
-        [HttpGet("GetAllAttendanceStatus")]
-        public async Task<IActionResult> GetAllAttendanceStatus(int userId)
-        {
-            var result = await _attendanceStatusService.GetAllAsync(userId);
+        //[HttpGet("GetAllAttendanceStatus")]
+        //public async Task<IActionResult> GetAll(int companyId, int regionId)
+        //{
+        //    var result = await _attendanceStatusService.GetAllAsync(companyId, regionId);
 
-            if (!result.Success)
-                return BadRequest(result);
+        //    if (!result.Success)
+        //        return BadRequest(result);
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         [HttpGet("GetAttendanceStatusById/{id}")]
         public async Task<IActionResult> GetAttendanceStatusById(int id)
@@ -2855,8 +2899,8 @@ namespace HRMS_Backend.Controllers
                 result);
         }
 
-        [HttpPost("UpdateAttendanceStatus")]
-        public async Task<IActionResult> UpdateAttendanceStatus([FromBody] AttendanceStatusDto dto)
+        [HttpPut("UpdateAttendanceStatus")]
+        public async Task<IActionResult> UpdateAttendanceStatus(int id, [FromBody] AttendanceStatusDto dto)
         {
 
             var result = await _attendanceStatusService.UpdateAsync(dto);
@@ -2867,7 +2911,7 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
-        [HttpPost("DeleteAttendanceStatus/{id}")]
+        [HttpDelete("DeleteAttendanceStatus/{id}")]
         public async Task<IActionResult> DeleteAttendanceStatus(int id)
         {
             return Ok(await _attendanceStatusService.DeleteAsync(id));
@@ -2933,9 +2977,6 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> CreateHoliday([FromBody] CreateUpdateHolidayListDto dto)
         {
             var result = await _holidayListService.CreateAsync(dto);
-               if (!result.Success)
-                return BadRequest(result);
-
             return Ok(result);
         }
 
@@ -2943,10 +2984,6 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> UpdateHoliday([FromBody] CreateUpdateHolidayListDto dto)
         {
             var result = await _holidayListService.UpdateAsync(dto);
-
-            if (!result.Success)
-                return BadRequest(result);
-
             return Ok(result);
         }
 
@@ -3077,19 +3114,28 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
-        [HttpPost("DeletePolicyCategory")]
-        public async Task<IActionResult> DeletePolicyCategory([FromQuery] int id)
-        {
-            var result = await _policyCategoryService.DeleteAsync(id);
-            return Ok(result);
-        }
+        //[HttpPost("DeletePolicyCategory")]
+        //public async Task<IActionResult> DeletePolicyCategory([FromQuery] int id)
+        //{
+        //    var result = await _policyCategoryService.DeleteAsync(id);
+        //    return Ok(result);
+        //}
+    
 
-        #endregion
-        //-------------------------------RESIGNATIONMASTER-------------------------------//
+    
+        [HttpPost("DeletePolicyCategory/{id}")]
+            public async Task<IActionResult> DeletePolicyCategory(int id)
+            {
+                var result = await _policyCategoryService.DeleteAsync(id);
+                return Ok(result);
+            }
 
-        #region Resignations
+    #endregion
+    //-------------------------------RESIGNATIONMASTER-------------------------------//
 
-        [HttpGet("GetResignations")]
+    #region Resignations
+
+    [HttpGet("GetResignations")]
         public IActionResult GetResignations(int companyId, int regionId)
         {
             var data = _resignationService.GetAll(companyId, regionId);
@@ -3111,21 +3157,14 @@ namespace HRMS_Backend.Controllers
         public IActionResult CreateResignation([FromForm] ResignationDto dto, [FromQuery] int userId)
         {
             var success = _resignationService.Create(dto, userId);
-            if (!success)
-                return BadRequest(new { message = "Resignation type already exists!" });
-
-            return Ok(new { message = "Created successfully" });
+            return success ? Ok(new { message = "Created successfully" }) : BadRequest();
         }
 
         [HttpPost("UpdateResignation/{id:int}")]
         public IActionResult UpdateResignation(int id, [FromForm] ResignationDto dto, [FromQuery] int userId)
         {
             var success = _resignationService.Update(id, dto, userId);
-
-            if (!success)
-                return BadRequest(new { message = "Resignation type already exists!" });
-
-            return Ok(new { message = "Updated successfully" });
+            return success ? Ok(new { message = "Updated successfully" }) : NotFound();
         }
 
         [HttpPost("DeleteResignation/{id:int}")]
@@ -3176,7 +3215,7 @@ namespace HRMS_Backend.Controllers
         [HttpPost("UpdateEvents")]
         public async Task<IActionResult> UpdateEvents([FromBody] EventDTO dto)
         {
-
+           
             var updatedEvent = await _Eventservice.UpdateAsync(dto);
 
             if (updatedEvent == null)
@@ -3473,7 +3512,6 @@ int regionId)
         }
 
         #endregion
-
         #region Grade
 
         [HttpGet("GetGradeAll")]
@@ -3638,5 +3676,65 @@ int regionId)
         #endregion
 
 
+
+
+        #region AttachmnentType 
+        
+        [HttpGet("GetByUserAttachment")]
+        public async Task<IActionResult> GetByUserAttachmentType(int userId)
+        {
+            var data = await _attachmentTypeService.GetAllByUserAttachmentTypeAsync(userId);
+            return Ok(data);
+        }
+
+        [HttpPost("CreateAttachmnet")]
+        public async Task<IActionResult> CreateAttachmentType([FromBody] AttachmentTypeDto dto)
+        {
+            try
+            {
+                var result = await _attachmentTypeService.CreateAttachmentTypeAsync(dto);
+
+                if (!result)
+                    return BadRequest("Create failed");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+        }
+
+        [HttpPut("UpdateAttachmnet")]
+        public async Task<IActionResult> UpdateAttachmentType([FromBody] AttachmentTypeDto dto)
+        {
+            var result = await _attachmentTypeService.UpdateAttachmentTypeAsync(dto);
+            if (!result) return BadRequest("Update failed");
+            return Ok();
+        }
+
+        [HttpDelete("DeleteAttachmnet/{id}")]
+        public async Task<IActionResult> DeleteAttachmentType(int id)
+        {
+            var result = await _attachmentTypeService.DeleteAttachmentTypeAsync(id);
+            if (!result) return BadRequest("Delete failed");
+            return Ok();
+        }
+
+        [HttpGet("GetAttachmentByCategory")]
+        public async Task<IActionResult> GetAttachmentByCategory(string category)
+        {
+            var data = await _attachmentTypeService.GetByCategoryAsync(category);
+            return Ok(data);
+        }
+
+
+
+
+        #endregion
     }
 }

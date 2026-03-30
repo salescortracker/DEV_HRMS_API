@@ -42,5 +42,6 @@ namespace BusinessLayer.DTOs
         public int CompanyId { get; set; }
         public int RegionId { get; set; }
         public int userId { get; set; }
+        public string? ProfilePictureName { get; set; }
     }
 }

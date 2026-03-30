@@ -59,6 +59,7 @@ builder.Services.AddScoped<ICertificationTypeService, CertificationTypeService>(
 builder.Services.AddScoped<IClockInOutService, ClockInOutService>();
 builder.Services.AddScoped<IShiftAllocationService, ShiftAllocationService>();
 builder.Services.AddScoped<ILeaveTypeService, LeaveTypeService>();
+builder.Services.AddScoped<IAttachmentTypeService, AttachmentTypeService>();
 builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategoryService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
