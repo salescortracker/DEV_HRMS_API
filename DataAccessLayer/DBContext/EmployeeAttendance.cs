@@ -40,4 +40,5 @@ public partial class EmployeeAttendance
     public TimeOnly? ShiftEndTime { get; set; }
 
     public int? LateMinutes { get; set; }
+
 }

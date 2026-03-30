@@ -11,5 +11,6 @@ namespace BusinessLayer.DTOs
         public string ShiftName { get; set; } = string.Empty;
         public TimeOnly ShiftStartTime { get; set; }
         public TimeOnly ShiftEndTime { get; set; }
+        public TimeOnly? GrassTime { get; set; }
     }
 }
