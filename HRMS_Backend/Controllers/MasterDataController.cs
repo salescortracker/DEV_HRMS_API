@@ -3575,6 +3575,12 @@ int regionId)
             return Ok(result);
         }
 
+        [HttpGet("employment-type/filter")]
+        public async Task<IActionResult> GetByCompanyRegion([FromQuery] int companyId,[FromQuery] int regionId)
+        {
+            var result = await _employmentTypeService.GetByCompanyRegion(companyId, regionId);
+            return Ok(result);
+        }
         [HttpPost("CreateEmploymentType")]
         public async Task<IActionResult> CreateEmploymentType([FromBody] EmploymentTypeDto dto)
         {

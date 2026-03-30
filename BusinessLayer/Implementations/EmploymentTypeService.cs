@@ -55,7 +55,30 @@ namespace BusinessLayer.Implementations
 
             return new ApiResponse<EmploymentTypeDto?>(dto, "Success");
         }
+        public async Task<ApiResponse<IEnumerable<EmploymentTypeDto>>> GetByCompanyRegion(
+        int companyId, int regionId)
+        {
+            var list = (await _unitOfWork.Repository<Employmenttype>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive))
+                .OrderBy(x => x.EmploymenttypeName)
+                .ToList();
 
+            var dto = list.Select(x => new EmploymentTypeDto
+            {
+                EmploymenttypeID = x.EmploymenttypeId,
+                CompanyID = x.CompanyId,
+                RegionID = x.RegionId,
+                EmploymenttypeName = x.EmploymenttypeName,
+                Description = x.Description,
+                IsActive = x.IsActive
+            });
+
+            return new ApiResponse<IEnumerable<EmploymentTypeDto>>(dto, "Filtered Employment Types");
+        }
         public async Task<ApiResponse<string>> CreateAsync(EmploymentTypeDto dto)
         {
             var duplicate = (await _unitOfWork.Repository<Employmenttype>().FindAsync(x =>
