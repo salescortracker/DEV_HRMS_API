@@ -102,6 +102,9 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
+builder.Services.AddScoped<IAssetTypeService, AssetTypeService>();
+builder.Services.AddScoped<IAssetCategoryService, AssetCategoryService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
