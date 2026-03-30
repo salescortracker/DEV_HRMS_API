@@ -42,9 +42,11 @@ namespace HRMS_Backend.Controllers
         private readonly IAssetTypeService _assetTypeService;
         private readonly IAssetCategoryService _assetCategoryService;
         private readonly ICurrencyService _currencyService;
-        public MasterDataController(IGradeService GradeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService, 
-            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService)
+ 
         private readonly IAttachmentTypeService _attachmentTypeService;
+        private readonly AssetTypeService assetTypeService;
+        private readonly AssetCategoryService assetCategoryService;
+        private readonly CurrencyService currencyService;
         public MasterDataController(IGradeService GradeService,IAttachmentTypeService attachmentTypeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService)
         {
             _service = service;
@@ -3675,11 +3677,11 @@ int regionId)
         }
         #endregion
 
-
+        #endregion
 
 
         #region AttachmnentType 
-        
+
         [HttpGet("GetByUserAttachment")]
         public async Task<IActionResult> GetByUserAttachmentType(int userId)
         {
