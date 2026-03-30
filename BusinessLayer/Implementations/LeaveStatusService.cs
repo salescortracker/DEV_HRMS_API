@@ -24,11 +24,11 @@ namespace BusinessLayer.Implementations
 
         #region Get All
         public async Task<ApiResponse<IEnumerable<LeaveStatusDto>>>
-      GetAllLeaveStatusAsync(int companyId, int regionId)
+      GetAllLeaveStatusAsync(int userId)
         {
             try
             {
-                if (companyId <= 0)
+                if (userId <= 0)
                     return new ApiResponse<IEnumerable<LeaveStatusDto>>(
                         null, "Invalid company id", false);
 
@@ -38,8 +38,7 @@ namespace BusinessLayer.Implementations
 
                 var result = data
                     .Where(x =>
-                        x.CompanyId == companyId &&
-                        x.RegionId == regionId &&
+                        x.CreatedBy==userId&&
                         !x.IsDeleted)
                     .Select(MapToDto)
                     .ToList();
@@ -113,7 +112,7 @@ namespace BusinessLayer.Implementations
                     .GetAllAsync())
                     .Any(x =>
                         x.LeaveStatusName.ToLower() == name &&
-                        x.CompanyId == dto.CompanyID &&
+                        x.CompanyId == dto.CompanyId &&
                         x.RegionId == dto.RegionID &&
                         !x.IsDeleted);
 
@@ -126,7 +125,7 @@ namespace BusinessLayer.Implementations
                 var entity = new LeaveStatus
                 {
                     LeaveStatusName = dto.LeaveStatusName.Trim(),
-                    CompanyId = dto.CompanyID,
+                    CompanyId = dto.CompanyId,
                     RegionId = dto.RegionID,
                     Description = dto.Description,
                     IsActive = dto.IsActive,
@@ -179,7 +178,7 @@ namespace BusinessLayer.Implementations
                     .Any(x =>
                         x.LeaveStatusId != dto.LeaveStatusID &&
                         x.LeaveStatusName.ToLower() == name &&
-                        x.CompanyId == dto.CompanyID &&
+                        x.CompanyId == dto.CompanyId &&
                         x.RegionId == dto.RegionID &&
                         !x.IsDeleted);
 
@@ -262,7 +261,7 @@ namespace BusinessLayer.Implementations
             {
                 LeaveStatusID = entity.LeaveStatusId,
                 LeaveStatusName = entity.LeaveStatusName,
-                CompanyID = entity.CompanyId,
+                CompanyId = entity.CompanyId,
                 RegionID = entity.RegionId,
                 Description = entity.Description,
                 IsActive = entity.IsActive

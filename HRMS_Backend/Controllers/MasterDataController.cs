@@ -1,7 +1,9 @@
 ﻿using BusinessLayer.DTOs;
 using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
+using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HRMS_Backend.Controllers
 {
@@ -39,7 +41,18 @@ namespace HRMS_Backend.Controllers
         private readonly IEmploymentTypeService _employmentTypeService;
         private readonly IGradeService _gradeService;
         private readonly IAttachmentTypeService _attachmentTypeService;
-        public MasterDataController(IGradeService GradeService,IAttachmentTypeService attachmentTypeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service, IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService,  ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService)
+        private readonly IUserService _userService;
+        private readonly HRMSContext _hRMSContext;
+        public MasterDataController(IGradeService GradeService,IAttachmentTypeService attachmentTypeService,IEmploymentTypeService employmentTypeService,ICompanyNewsCategoryService companyNewsCategoryService,IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService,
+            IInterviewLevelService interviewLevelService,ICompanyNewsPolicyService companyNewsPolicyService,IModeOfStudyService modeOfStudyService,
+            IEventService Eventservice,IResignationService resignationService,IPolicyCategoryService policyCategoryService,
+            ILeaveStatusService leaveStatusService,IHolidayListService holidayListService, IWeekoffService weekoffService,
+            IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice,IDepartmentService service,
+            IDesignationService designationService, IGenderService genderService,IadminService adminService, ILeaveTypeService leaveTypeService, 
+            ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService,
+            ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService,
+            IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
+            IUserService userService,  HRMSContext hrmscontext)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -71,8 +84,9 @@ namespace HRMS_Backend.Controllers
             _companyNewsCategoryService = companyNewsCategoryService;
             _employmentTypeService = employmentTypeService;
             _attachmentTypeService = attachmentTypeService;
-        
+            _userService = userService;
             _gradeService = GradeService;
+            _hRMSContext = hrmscontext;
         }
         //        #region InterviewLevels
 
@@ -1817,7 +1831,7 @@ namespace HRMS_Backend.Controllers
         //        //    var data = await _leaveTypeService.GetDesignationsAsync(companyId, regionId);
         //        //    return Ok(data);
         //        //}
-        }
+        //}
         #region InterviewLevels
 
         [HttpGet("interview-levels")]
@@ -3009,12 +3023,27 @@ namespace HRMS_Backend.Controllers
         #region LeaveStatus
 
         #region Get All
-        [HttpGet("GetAllLeaveStatus")]
-        public async Task<IActionResult> GetAllLeaveStatus(int companyId, int regionId)
-        {
+        //[HttpGet("GetAllLeaveStatus")]
+        //public async Task<IActionResult> GetAllLeaveStatus(int companyId, int regionId)
+        //{
 
+        //    var result = await _leaveStatusService
+        //        .GetAllLeaveStatusAsync(companyId, regionId);
+
+        //    if (result == null)
+        //        return StatusCode(500, "Service returned null response");
+
+        //    if (!result.Success)
+        //        return BadRequest(result);
+
+        //    return Ok(result);
+        //}
+
+        [HttpGet("GetAllLeaveStatus")]
+        public async Task<IActionResult> GetAllLeaveStatus( int userId)
+        {
             var result = await _leaveStatusService
-                .GetAllLeaveStatusAsync(companyId, regionId);
+                .GetAllLeaveStatusAsync( userId);
 
             if (result == null)
                 return StatusCode(500, "Service returned null response");
@@ -3024,7 +3053,20 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
+        //[HttpGet("GetAllLeaveStatus")]
+        //public async Task<IActionResult> GetAllLeaveStatus(int CompanyId, int RegionId, int userId)
+        //{
+        //    var result = await _leaveStatusService
+        //        .GetAllLeaveStatusAsync(CompanyId, RegionId, userId);
 
+        //    if (result == null)
+        //        return StatusCode(500, "Service returned null response");
+
+        //    if (!result.Success)
+        //        return BadRequest(result);
+
+        //    return Ok(result);
+        //}
         #endregion
 
 
@@ -3044,18 +3086,50 @@ namespace HRMS_Backend.Controllers
 
 
         #region Add
+
         [HttpPost("AddLeaveStatus")]
-        public async Task<IActionResult> AddLeaveStatus(
-            [FromBody] LeaveStatusDto dto)
+        public async Task<IActionResult> AddLeaveStatus([FromBody] LeaveStatusDto dto)
         {
-            var result = await _leaveStatusService
-                .CreateAsync(dto);
+            var data = await (
+                from u in _hRMSContext.Users
+                join c in _hRMSContext.Companies on u.CompanyId equals c.CompanyId
+                join r in _hRMSContext.Regions on u.UserId equals r.UserId   // 🔥 IMPORTANT FIX
+                where u.UserId == dto.UserID
+                select new
+                {
+                    CompanyId = c.CompanyId,
+                    RegionId = r.RegionId
+                }
+            ).FirstOrDefaultAsync();
+
+            if (data == null)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Invalid User / Company / Region mapping"
+                });
+            }
+
+            var result = await _leaveStatusService.CreateAsync(dto);
 
             if (!result.Success)
                 return BadRequest(result);
 
             return Ok(result);
         }
+        //[HttpPost("AddLeaveStatus")]
+        //public async Task<IActionResult> AddLeaveStatus(
+        //    [FromBody] LeaveStatusDto dto)
+        //{
+        //    var result = await _leaveStatusService
+        //        .CreateAsync(dto);
+
+        //    if (!result.Success)
+        //        return BadRequest(result);
+
+        //    return Ok(result);
+        //}
         #endregion
 
 
