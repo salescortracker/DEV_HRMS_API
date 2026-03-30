@@ -1,29 +1,24 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DataAccessLayer.Repositories.GeneralRepository;
 
 namespace BusinessLayer.Implementations
 {
-    public class AssetStatusService:IAssetStatusService
+    public class AssetStatusService : IAssetStatusService
     {
-        private readonly HRMSContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AssetStatusService(HRMSContext context)
+        public AssetStatusService(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<AssetStatusDto>> GetAllAsync(int companyId, int regionId)
+        public async Task<ApiResponse<IEnumerable<AssetStatusDto>>> GetAll(int userId)
         {
-            return await _context.AssetStatuses
-                .Where(x => !x.IsDeleted && x.CompanyId == companyId && x.RegionId == regionId)
-                .OrderBy(x => x.AssetStatusName)
+            var list = (await _unitOfWork.Repository<AssetStatus>()
+                .FindAsync(x => !x.IsDeleted && x.CreatedBy == userId))
                 .Select(x => new AssetStatusDto
                 {
                     AssetStatusId = x.AssetStatusId,
@@ -32,18 +27,23 @@ namespace BusinessLayer.Implementations
                     AssetStatusName = x.AssetStatusName,
                     Description = x.Description,
                     IsActive = x.IsActive,
-                })
-                .ToListAsync();
+                    UserId = x.CreatedBy
+                });
+
+            return new ApiResponse<IEnumerable<AssetStatusDto>>(list);
         }
 
-        public async Task<int> CreateAsync(AssetStatusDto dto)
+        public async Task<ApiResponse<string>> CreateAsync(AssetStatusDto dto)
         {
-            // Validate FK references
-            var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == dto.CompanyId);
-            var regionExists = await _context.Regions.AnyAsync(r => r.RegionId == dto.RegionId);
+            var duplicate = (await _unitOfWork.Repository<AssetStatus>().FindAsync(x =>
+                !x.IsDeleted &&
+                x.CompanyId == dto.CompanyId &&
+                x.RegionId == dto.RegionId &&
+                x.AssetStatusName.ToLower() == dto.AssetStatusName.ToLower()))
+                .Any();
 
-            if (!companyExists || !regionExists)
-                throw new Exception("Invalid CompanyId or RegionId. Ensure they exist in the database.");
+            if (duplicate)
+                return new ApiResponse<string>(null!, "Duplicate Asset Status exists", false);
 
             var entity = new AssetStatus
             {
@@ -54,45 +54,64 @@ namespace BusinessLayer.Implementations
                 IsActive = dto.IsActive,
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow,
+                CreatedBy = dto.UserId
             };
 
-            _context.AssetStatuses.Add(entity);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.Repository<AssetStatus>().AddAsync(entity);
+            await _unitOfWork.CompleteAsync();
 
-            return entity.AssetStatusId;
+            return new ApiResponse<string>("Created successfully");
         }
 
-        public async Task<bool> UpdateAsync(AssetStatusDto dto)
+        public async Task<ApiResponse<string>> UpdateAsync(AssetStatusDto dto)
         {
-            var entity = await _context.AssetStatuses
-                .FirstOrDefaultAsync(x => x.AssetStatusId == dto.AssetStatusId && !x.IsDeleted);
+            var entity = await _unitOfWork.Repository<AssetStatus>()
+                .GetByIdAsync(dto.AssetStatusId);
 
-            if (entity == null)
-                return false;
+            if (entity == null || entity.IsDeleted)
+                return new ApiResponse<string>(null!, "Not found", false);
+
+            var duplicate = (await _unitOfWork.Repository<AssetStatus>().FindAsync(x =>
+                !x.IsDeleted &&
+                x.AssetStatusId != dto.AssetStatusId &&
+                x.CompanyId == dto.CompanyId &&
+                x.RegionId == dto.RegionId &&
+                x.AssetStatusName.ToLower() == dto.AssetStatusName.ToLower()))
+                .Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!, "Duplicate exists", false);
+            entity.CompanyId = dto.CompanyId;
+            entity.RegionId = dto.RegionId;
 
             entity.AssetStatusName = dto.AssetStatusName;
             entity.Description = dto.Description;
             entity.IsActive = dto.IsActive;
             entity.ModifiedAt = DateTime.UtcNow;
+            entity.ModifiedBy = dto.UserId;
 
-            await _context.SaveChangesAsync();
-            return true;
+            _unitOfWork.Repository<AssetStatus>().Update(entity);
+            await _unitOfWork.CompleteAsync();
+
+            return new ApiResponse<string>("Updated successfully");
         }
 
-        public async Task<bool> DeleteAsync(int assetStatusId)
+        public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _context.AssetStatuses
-                .FirstOrDefaultAsync(x => x.AssetStatusId == assetStatusId && !x.IsDeleted);
+            var entity = await _unitOfWork.Repository<AssetStatus>().GetByIdAsync(id);
 
-            if (entity == null)
-                return false;
+            if (entity == null || entity.IsDeleted)
+                return new ApiResponse<string>(null!, "Not found", false);
 
             entity.IsDeleted = true;
             entity.ModifiedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
-            return true;
+            _unitOfWork.Repository<AssetStatus>().Update(entity);
+            await _unitOfWork.CompleteAsync();
+
+            return new ApiResponse<string>("Deleted successfully");
         }
+      
 
     }
 }

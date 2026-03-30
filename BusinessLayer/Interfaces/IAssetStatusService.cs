@@ -1,17 +1,14 @@
-﻿using BusinessLayer.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 namespace BusinessLayer.Interfaces
 {
     public interface IAssetStatusService
     {
-        Task<List<AssetStatusDto>> GetAllAsync(int companyId, int regionId);
-        Task<int> CreateAsync(AssetStatusDto dto);
-        Task<bool> UpdateAsync(AssetStatusDto dto);
-        Task<bool> DeleteAsync(int assetStatusId);
+        Task<ApiResponse<IEnumerable<AssetStatusDto>>> GetAll(int userId);
+        Task<ApiResponse<string>> CreateAsync(AssetStatusDto dto);
+        Task<ApiResponse<string>> UpdateAsync(AssetStatusDto dto);
+        Task<ApiResponse<string>> DeleteAsync(int id);
+       
+
     }
 }
