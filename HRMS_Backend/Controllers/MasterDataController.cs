@@ -3522,8 +3522,8 @@ int regionId)
         public async Task<IActionResult> DeleteGrade(int id)
         {
             var success = await _gradeService.DeleteAsync(id);
-            if (!success) return NotFound();
-
+            if (!success.Success)
+                return BadRequest(success);
             return Ok(new { message = "Deleted successfully" });
         }
 

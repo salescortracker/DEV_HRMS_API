@@ -10,10 +10,10 @@ namespace BusinessLayer.Interfaces
 {
     public interface IGradeService
     {
-        Task<ApiResponse<IEnumerable<GradeDto>>> GetAllAsync(int companyId);
-        Task<GradeDto?> GetByIdAsync(int id);
-        Task<GradeDto> AddAsync(GradeDto dto);
-        Task<GradeDto> UpdateAsync(GradeDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task<ApiResponse<IEnumerable<GradeDto>>> GetAllAsync(int userId);
+        Task<ApiResponse<GradeDto>> GetByIdAsync(int id);
+        Task<ApiResponse<GradeDto>> AddAsync(GradeDto dto);
+        Task<ApiResponse<GradeDto>> UpdateAsync(GradeDto dto);
+        Task<ApiResponse<bool>> DeleteAsync(int id);
     }
 }
