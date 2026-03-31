@@ -12,7 +12,7 @@ namespace BusinessLayer.DTOs
         public string? ShiftName { get; set; }
         public string? ShiftStartTime { get; set; }
         public string? ShiftEndTime { get; set; }
-        public int? GraceTime { get; set; }
+        public TimeOnly? GraceTime { get; set; } // ✅ CORRECT
         public bool IsActive { get; set; }
         public int CompanyID { get; set; }
         public int RegionID { get; set; }

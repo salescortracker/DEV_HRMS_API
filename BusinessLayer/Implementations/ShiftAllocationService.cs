@@ -127,6 +127,7 @@ namespace BusinessLayer.Implementations
             entity.ShiftName = dto.ShiftName;
             entity.ShiftStartTime = TimeOnly.Parse(dto.ShiftStartTime);
             entity.ShiftEndTime = TimeOnly.Parse(dto.ShiftEndTime);
+            entity.GraceTime = dto.GraceTime;   
            // entity.GraceTime = dto.GraceTime;
             entity.ModifiedAt = DateTime.Now;
             entity.ModifiedBy = dto.ModifiedBy;
@@ -351,7 +352,8 @@ namespace BusinessLayer.Implementations
                 {
                     ShiftName = sm.ShiftName,
                     ShiftStartTime = sm.ShiftStartTime,
-                    ShiftEndTime = sm.ShiftEndTime
+                    ShiftEndTime = sm.ShiftEndTime,
+                    GrassTime = sm.GraceTime
                 }
             ).FirstOrDefaultAsync();
         }
