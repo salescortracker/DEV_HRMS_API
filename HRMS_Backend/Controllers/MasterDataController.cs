@@ -42,8 +42,9 @@ namespace HRMS_Backend.Controllers
         private readonly IAssetTypeService _assetTypeService;
         private readonly IAssetCategoryService _assetCategoryService;
         private readonly ICurrencyService _currencyService;
+        private readonly IAttachmentTypeService _attachmentTypeService;
         public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
-            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService)
+            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -78,6 +79,7 @@ namespace HRMS_Backend.Controllers
             _assetTypeService = assetTypeService;
             _assetCategoryService = assetCategoryService;
             _currencyService = currencyService;
+            _attachmentTypeService = attachmentTypeService;
         }
         //        #region InterviewLevels
 
@@ -3643,6 +3645,63 @@ int regionId)
             return Ok(result);
         }
 
+        #region AttachmnentType 
 
+        [HttpGet("GetByUserAttachment")]
+        public async Task<IActionResult> GetByUserAttachmentType(int userId)
+        {
+            var data = await _attachmentTypeService.GetAllByUserAttachmentTypeAsync(userId);
+            return Ok(data);
+        }
+
+        [HttpPost("CreateAttachmnet")]
+        public async Task<IActionResult> CreateAttachmentType([FromBody] AttachmentTypeDto dto)
+        {
+            try
+            {
+                var result = await _attachmentTypeService.CreateAttachmentTypeAsync(dto);
+
+                if (!result)
+                    return BadRequest("Create failed");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+        }
+
+        [HttpPut("UpdateAttachmnet")]
+        public async Task<IActionResult> UpdateAttachmentType([FromBody] AttachmentTypeDto dto)
+        {
+            var result = await _attachmentTypeService.UpdateAttachmentTypeAsync(dto);
+            if (!result) return BadRequest("Update failed");
+            return Ok();
+        }
+
+        [HttpDelete("DeleteAttachmnet/{id}")]
+        public async Task<IActionResult> DeleteAttachmentType(int id)
+        {
+            var result = await _attachmentTypeService.DeleteAttachmentTypeAsync(id);
+            if (!result) return BadRequest("Delete failed");
+            return Ok();
+        }
+
+        [HttpGet("GetAttachmentByCategory")]
+        public async Task<IActionResult> GetAttachmentByCategory(string category)
+        {
+            var data = await _attachmentTypeService.GetByCategoryAsync(category);
+            return Ok(data);
+        }
+
+
+
+
+        #endregion
     }
 }
