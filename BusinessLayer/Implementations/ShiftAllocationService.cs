@@ -34,7 +34,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = x.ShiftName,
                     ShiftStartTime = x.ShiftStartTime.ToString("HH:mm"),
                     ShiftEndTime = x.ShiftEndTime.ToString("HH:mm"),
-                   // GraceTime = x.GraceTime,
+                   //GraceTime = x.GraceTime,
                     CompanyName = x.CompanyId != null ? _context.Companies.Where(c => c.CompanyId == x.CompanyId).FirstOrDefault().CompanyName : null,
                     RegionName = x.RegionId != null ? _context.Regions.Where(r => r.RegionId == x.RegionId).FirstOrDefault().RegionName : null,
                     IsActive = x.IsActive,

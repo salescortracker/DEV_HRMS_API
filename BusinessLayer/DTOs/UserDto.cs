@@ -21,7 +21,7 @@ namespace BusinessLayer.DTOs
         public int? UserCompanyId { get; set; }
         public string loginType { get; set; }
         public string Status { get; set; } = "Active";
-        public string reportingmanagername { get; set; }
+        public string? reportingmanagername { get; set; }
     }
 
     public class UserUpdateDto

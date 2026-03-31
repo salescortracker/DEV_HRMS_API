@@ -345,7 +345,7 @@ public class UpdateResignationStatusRequest
             var data = await _employeeService.getByUserIdEmpCertAsync(userId);
 
             if (data == null || !data.Any())
-                return NotFound(new { message = "No certifications found" });
+                return Ok(data);
 
             return Ok(data);
         }
@@ -491,7 +491,7 @@ public class UpdateResignationStatusRequest
             var data = await _employeeService.getByUserIdEmpJobAsync(userId);
 
             if (data == null || !data.Any())
-                return NotFound(new { message = "No job history found" });
+                return Ok(data);
 
             return Ok(data);
         }
