@@ -24,5 +24,6 @@ namespace BusinessLayer.DTOs
         public string? FilePath { get; set; }
 
         public List<TimesheetProjectDto> Projects { get; set; } = new();
+        public List<TimesheetRequestDto> Requests { get; set; } = new();
     }
 }
