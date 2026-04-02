@@ -329,7 +329,8 @@ namespace HRMS_Backend.Controllers
             return Ok(new { success = result });
         }
 
-        #region missedpunchrequests
+        #region Missed Punch Request Api's
+
         [HttpPost("createmissedpunchrequest")]
         public async Task<IActionResult> CreateMissedPunchRequest(
         CreateMissedPunchRequestDto dto)
@@ -338,11 +339,12 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
+     
         [HttpGet("getmissedpunchrequest")]
         public async Task<IActionResult> GetMissedPunchRequest(
-            int companyId, int? regionId)
+            int companyId, int? regionId, int userId)
         {
-            return Ok(await _service.GetMissedPunchRequest(companyId, regionId));
+            return Ok(await _service.GetMissedPunchRequest(companyId, regionId, userId));
         }
 
         [HttpGet("getapprovalmissedpunchrequest")]
