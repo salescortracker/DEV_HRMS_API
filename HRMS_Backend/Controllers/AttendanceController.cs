@@ -631,6 +631,27 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
+        // =============================
+        // GET EMPLOYEES BY DATE
+        // =============================
+        [HttpGet("GetEmployeesByDate")]
+        public async Task<IActionResult> GetEmployeesByDate(int companyId, int regionId, DateTime date)
+        {
+            var result = await _attendanceService.GetEmployeesByDate(companyId, regionId, date);
+            return Ok(result);
+        }
+
+
+        // =============================
+        // GET UNSAVED DATES
+        // =============================
+        [HttpGet("UnsavedDates")]
+        public async Task<IActionResult> GetUnsavedDates(int companyId, int regionId)
+        {
+            var result = await _attendanceService.GetUnsavedDates(companyId, regionId);
+            return Ok(result);
+        }
+
         #endregion
     }
 }

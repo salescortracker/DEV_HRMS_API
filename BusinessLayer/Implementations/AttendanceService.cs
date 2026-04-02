@@ -43,7 +43,7 @@ namespace BusinessLayer.Implementations
 
             foreach (var emp in users)
             {
-                string status = "Present";
+                string status = "Absent";
                 string clockInTime = null;
                 string clockOutTime = null;
                 string grossTime = null;
@@ -54,7 +54,7 @@ namespace BusinessLayer.Implementations
                     .FirstOrDefault(s => s.EmployeeCode == emp.EmployeeCode && s.IsActive);
 
                 var shiftMaster = shiftMasters
-                    .Where(sm => sm.CompanyId == companyId && sm.RegionId==regionId).FirstOrDefault();
+                    .Where(sm => sm.CompanyId == companyId && sm.RegionId == regionId).FirstOrDefault();
 
                 TimeOnly? shiftStart = shiftMaster.ShiftStartTime;
                 TimeOnly? shiftEnd = shiftMaster?.ShiftEndTime;
@@ -99,18 +99,25 @@ namespace BusinessLayer.Implementations
                         clockOutTime = clockOut.Value.ToString("HH:mm");
 
                     // ===== GROSS TIME =====
+                    // If ClockIn exists → at least Present
+                    if (clockIn != null)
+                    {
+                        status = "Present";
+                    }
+
+                    // If both exist → calculate properly
                     if (clockIn != null && clockOut != null)
                     {
                         var duration = clockOut.Value - clockIn.Value;
                         grossTime = duration.ToString(@"hh\:mm");
 
-                        if (duration.TotalHours >= 7)
+                        if (duration.TotalHours >= 5)
                             status = "Present";
                         else
                             status = "HalfDay";
                     }
 
-                    
+
                     // ===== LATE MINUTES =====
                     if (clockIn != null && shiftStart.HasValue)
                     {
@@ -385,6 +392,120 @@ namespace BusinessLayer.Implementations
 
                 LateMinutes = entity.LateMinutes
             };
+        }
+
+        public async Task<List<EmployeeAttendanceDto>> GetEmployeesByDate(int companyId, int regionId, DateTime date)
+        {
+            var today = DateOnly.FromDateTime(date); // ✅ CHANGED
+
+            var users = (await _unitOfWork.Repository<User>().GetAllAsync())
+                .Where(e => e.CompanyId == companyId
+                         && e.RegionId == regionId
+                         && !string.IsNullOrEmpty(e.EmployeeCode))
+                .ToList();
+
+            var clockRecords = await _unitOfWork.Repository<ClockInOut>().GetAllAsync();
+            var leaves = await _unitOfWork.Repository<LeaveRequest>().GetAllAsync();
+            var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
+            var leaveTypes = await _unitOfWork.Repository<LeaveType>().GetAllAsync();
+
+            var result = new List<EmployeeAttendanceDto>();
+
+            foreach (var emp in users)
+            {
+                string status = "Absent";
+                string clockInTime = null;
+                string clockOutTime = null;
+                string grossTime = null;
+                int? lateMinutes = null;
+
+                var shiftMaster = shiftMasters
+                    .FirstOrDefault(sm => sm.CompanyId == companyId && sm.RegionId == regionId);
+
+                TimeOnly? shiftStart = shiftMaster?.ShiftStartTime;
+                TimeOnly? shiftEnd = shiftMaster?.ShiftEndTime;
+
+                var leave = leaves.FirstOrDefault(l =>
+                    l.UserId == emp.UserId &&
+                    l.Status == "Approved" &&
+                    l.StartDate <= today &&
+                    l.EndDate >= today);
+
+                if (leave != null)
+                {
+                    var leaveType = leaveTypes
+                        .FirstOrDefault(t => t.LeaveTypeId == leave.LeaveTypeId);
+
+                    status = leaveType?.LeaveTypeName ?? "Leave";
+                }
+                else
+                {
+                    var records = clockRecords
+                        .Where(c =>
+                            c.EmployeeCode == emp.EmployeeCode &&
+                            c.CompanyId == companyId &&
+                            c.RegionId == regionId &&
+                            c.AttendanceDate == today)
+                        .OrderBy(c => c.ActionTime)
+                        .ToList();
+
+                    var clockIn = records.FirstOrDefault(r => r.ActionType == "ClockIn")?.ActionTime;
+                    var clockOut = records.LastOrDefault(r => r.ActionType == "ClockOut")?.ActionTime;
+
+                    if (clockIn != null)
+                    {
+                        clockInTime = clockIn.Value.ToString("HH:mm");
+                        status = "Present"; // ✅ KEY LOGIC
+                    }
+
+                    if (clockOut != null)
+                    {
+                        clockOutTime = clockOut.Value.ToString("HH:mm");
+                    }
+
+                    if (clockIn != null && clockOut != null)
+                    {
+                        var duration = clockOut.Value - clockIn.Value;
+                        grossTime = duration.ToString(@"hh\:mm");
+
+                        status = duration.TotalHours >= 5 ? "Present" : "HalfDay";
+                    }
+                }
+
+                result.Add(new EmployeeAttendanceDto
+                {
+                    EmployeeCode = emp.EmployeeCode,
+                    EmployeeName = emp.FullName,
+                    AttendanceDate = date,
+                    Status = status,
+                    ClockIn = clockInTime,
+                    ClockOut = clockOutTime,
+                    GrossTime = grossTime
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<List<DateTime>> GetUnsavedDates(int companyId, int regionId)
+        {
+            var attendanceData = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
+
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(d => DateTime.Today.AddDays(-d).Date)
+                .ToList();
+
+            var savedDates = attendanceData
+                .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+                .Select(x => x.AttendanceDate.Value.ToDateTime(TimeOnly.MinValue).Date)
+                .Distinct()
+                .ToList();
+
+            var unsavedDates = last7Days
+                .Where(d => !savedDates.Contains(d))
+                .ToList();
+
+            return unsavedDates;
         }
 
     }
