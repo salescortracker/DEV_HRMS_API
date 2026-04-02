@@ -18,5 +18,8 @@ namespace BusinessLayer.DTOs
         public int OtMinutes { get; set; }
         public string OtHoursText { get; set; }
         public List<TimesheetProjectDto> Projects { get; set; }
+        public string? FileName { get; set; }
+        public string? FilePath { get; set; }
+        public List<TimesheetRequestDto> Requests { get; set; }
     }
 }
