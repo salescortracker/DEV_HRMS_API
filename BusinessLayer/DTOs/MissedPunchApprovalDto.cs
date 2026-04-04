@@ -11,6 +11,6 @@ namespace BusinessLayer.DTOs
         public int MissedPunchRequestID { get; set; }
         public string Status { get; set; }   // Approved / Rejected
         public string? ManagerRemarks { get; set; }
-        public int ManagerID { get; set; }
+        public int? reportingTo { get; set; }
     }
 }

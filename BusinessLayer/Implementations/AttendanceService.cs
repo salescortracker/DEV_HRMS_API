@@ -394,6 +394,10 @@ namespace BusinessLayer.Implementations
             };
         }
 
+        // ================================
+        // GetEmployeesByDate
+        // ================================
+
         public async Task<List<EmployeeAttendanceDto>> GetEmployeesByDate(int companyId, int regionId, DateTime date)
         {
             var selectedDate = DateOnly.FromDateTime(date);
@@ -520,6 +524,10 @@ namespace BusinessLayer.Implementations
 
             return result;
         }
+
+        // ================================
+        // GetUnsavedDates
+        // ================================
         public async Task<List<DateTime>> GetUnsavedDates(int companyId, int regionId)
         {
             var attendanceData = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();

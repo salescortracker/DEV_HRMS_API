@@ -21,6 +21,7 @@ namespace BusinessLayer.DTOs
         public string Status { get; set; } = "Pending";
         public int CompanyID { get; set; }
         public int? RegionID { get; set; }
+        public string HrEmail { get; set; }
     }
     public class MissedPunchActionDto
     {
