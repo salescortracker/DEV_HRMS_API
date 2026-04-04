@@ -116,13 +116,19 @@ namespace HRMS_Backend.Controllers
         }
         [HttpGet("GetScreeningCandidatesTopTable")]
         public async Task<IActionResult> GetScreeningCandidatesTopTable(
-int companyId,
-int regionId,
-string department,
-string designation)
+int userId)
         {
+            //var userIdClaim = User.FindFirst("UserId")?.Value;
+
+            //if (string.IsNullOrEmpty(userIdClaim))
+            //{
+            //    return Unauthorized("UserId claim not found. Please login.");
+            //}
+
+            //int userId = int.Parse(userIdClaim);
+
             var result = await _service
-                .GetScreeningCandidatesTopTableAsync(companyId, regionId, department, designation);
+                .GetScreeningCandidatesTopTableAsync( userId);
 
             return Ok(result);
         }
@@ -156,13 +162,10 @@ string designation)
         ////////////Interview
         [HttpGet("GetScreeningCandidatesTopTableInterview")]
         public async Task<IActionResult> GetScreeningCandidatesTopTableInterview(
-int companyId,
-int regionId,
-string department,
-string designation)
+int userId)
         {
             var result = await _service
-                .GetScreeningCandidatesTopTableInterviewAsync(companyId, regionId, department, designation);
+                .GetScreeningCandidatesTopTableInterviewAsync(userId);
 
             return Ok(result);
         }
@@ -230,13 +233,14 @@ string designation)
         }
         [HttpGet("GetOfferCandidatesTopTable")]
         public async Task<IActionResult> GetOfferCandidatesTopTable(
-int companyId,
-int regionId,
-string department,
-string designation)
+//int companyId,
+//int regionId,
+//string department,
+//string designation
+ int userId)
         {
             var result = await _service
-                .GetOfferCandidatesTopTableAsync(companyId, regionId, department, designation);
+                .GetOfferCandidatesTopTableAsync(userId);
 
             return Ok(result);
         }
@@ -287,13 +291,14 @@ string designation)
 
         [HttpGet("GetonboardingCandidatesTopTable")]
         public async Task<IActionResult> getonboardingCandidatesTopTable(
-             int companyId,
-            int regionId,
-            string department,
-            string designation)
+            // int companyId,
+            //int regionId,
+            //string department,
+            //string designation
+            int userId )
         {
             var result = await _service
-                .GetOnboardingCandidatesTopTableAsync(companyId, regionId, department, designation);
+                .GetOnboardingCandidatesTopTableAsync(userId);
 
             return Ok(result);
         }
