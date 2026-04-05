@@ -8,10 +8,12 @@ namespace BusinessLayer.Implementations
     public class WorkFromHomeRequestService:IWorkFromHomeRequestService
     {
         private readonly HRMSContext _context;
+        private readonly IEmailService _emailService;
 
-        public WorkFromHomeRequestService(HRMSContext context)
+        public WorkFromHomeRequestService(HRMSContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // 🔹 CREATE WFH / REMOTE REQUEST
@@ -34,12 +36,55 @@ namespace BusinessLayer.Implementations
                     CompanyId = dto.CompanyID,
                     RegionId = dto.RegionID,
                     CreatedOn = DateTime.UtcNow,
-                    CreatedBy = dto.UserId
+                    CreatedBy = dto.UserId,
+                    HrEmail = dto.HrEmail // ✅ ADD THIS
                 };
 
                 _context.WfhremoteRequests.Add(entity);
+
+
+
+                // GET MANAGER EMAIL
+                var manager = await _context.Users
+                    .FirstOrDefaultAsync(u => u.UserId == dto.ManagerID);
+
+                if (manager != null && !string.IsNullOrEmpty(manager.Email))
+                {
+                    var subject = $"WFH Request Submitted - {dto.EmployeeName}";
+
+                    var body = $@"
+        <p>Dear Manager,</p>
+        <p>New WFH request submitted.</p>
+
+        <table>
+            <tr><td><b>Employee</b></td><td>: {dto.EmployeeName}</td></tr>
+            <tr><td><b>From</b></td><td>: {dto.FromDate}</td></tr>
+            <tr><td><b>To</b></td><td>: {dto.ToDate}</td></tr>
+            <tr><td><b>Type</b></td><td>: {dto.RequestType}</td></tr>
+            <tr><td><b>Reason</b></td><td>: {dto.Reason}</td></tr>
+        </table>
+    ";
+
+                    // ✅ CC LIST
+                    var ccList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList.Add(dto.HrEmail); // ✅ USER ENTERED EMAIL
+                    }
+
+                    await _emailService.SendEmailAsync(
+                        manager.Email,
+                        subject,
+                        body,
+                        ccList
+                    );
+                }
                 await _context.SaveChangesAsync();
                 return entity;
+
+
+
             }
             catch (Exception)
             {

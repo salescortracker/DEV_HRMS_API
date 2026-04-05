@@ -167,7 +167,8 @@ namespace BusinessLayer.Implementations
                 CompanyId = dto.CompanyId.Value,
                 RegionId = dto.RegionId.Value,
                 UserId = dto.UserId.Value,
-                RoleId = dto.RoleId
+                RoleId = dto.RoleId,
+                HrEmail = dto.HrEmail
             };
 
             await _unitOfWork.Repository<EmployeeResignation>().AddAsync(entity);
@@ -220,12 +221,47 @@ namespace BusinessLayer.Implementations
             // ✅ ONE EMAIL ONLY
             // TO  → Reporting Manager
             // CC  → HR
+            //await _emailService.SendEmailAsync(
+            //    manager.Email,
+            //    subject,
+            //    body,
+            //    hrCcEmails
+            //);
+
+            // ✅ Combine HR emails + UI CC emails
+            List<string> finalCcList = new List<string>();
+
+            // HR emails
+            if (hrCcEmails != null && hrCcEmails.Any())
+                finalCcList.AddRange(hrCcEmails);
+
+            // UI entered CC email
+            if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+            {
+                var uiCc = dto.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToList();
+
+                finalCcList.AddRange(uiCc);
+            }
+
+            // Remove duplicates
+            finalCcList = finalCcList.Distinct().ToList();
+
+            // ✅ Send main email
             await _emailService.SendEmailAsync(
                 manager.Email,
                 subject,
                 body,
-                hrCcEmails
+                finalCcList
             );
+
+            // 🔥 IMPORTANT (guarantee delivery)
+            foreach (var cc in finalCcList)
+            {
+                await _emailService.SendEmailAsync(cc, subject, body);
+            }
 
             return MapToDto(entity);
         }
