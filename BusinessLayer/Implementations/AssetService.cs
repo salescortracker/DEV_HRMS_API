@@ -254,7 +254,8 @@ namespace BusinessLayer.Implementations
 
                 Status = "Pending",
                 CreatedBy = dto.UserID,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                HrEmail = dto.HrEmail,
             };
 
             _context.AssetRequests.Add(entity);
@@ -300,10 +301,23 @@ namespace BusinessLayer.Implementations
         ";
 
                 // ✅ STEP 3: Send Email
+                //await _emailService.SendEmailAsync(
+                //    manager.Email,
+                //    "New Asset Request Approval",
+                //    body
+                //);
+                List<string> ccEmails = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                {
+                    ccEmails.Add(dto.HrEmail);
+                }
+
                 await _emailService.SendEmailAsync(
                     manager.Email,
                     "New Asset Request Approval",
-                    body
+                    body,
+                    ccEmails   // ✅ PASS CC
                 );
             }
 
