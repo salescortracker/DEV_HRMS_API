@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class CandidateInterviewDto
     {
@@ -34,5 +28,6 @@ namespace BusinessLayer.DTOs
         public decimal? ExpectedSalary { get; set; }
         public string? Department { get; internal set; }
         public string? Designation { get; internal set; }
+        public string? HrEmail { get; set; }
     }
 }

@@ -677,7 +677,8 @@ int userId)
                     Description = dto.Description,
                     Result = dto.Result ?? "Pending",
                     CreatedAt = DateTime.Now,
-                    CreatedBy = dto.UserId
+                    CreatedBy = dto.UserId,
+                    HrEmail = dto.HrEmail,
                 };
 
                 await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
@@ -748,7 +749,10 @@ int userId)
                     await _emailService.SendEmailAsync(
                         interviewer.Email,
                         interviewerSubject,
-                        interviewerBody
+                        interviewerBody,
+                         string.IsNullOrEmpty(dto.HrEmail)
+        ? null
+        : new List<string> { dto.HrEmail }
                     );
                 }
 
@@ -757,7 +761,10 @@ int userId)
                     await _emailService.SendEmailAsync(
                         candidate.Email,
                         candidateSubject,
-                        candidateBody
+                        candidateBody,
+                         string.IsNullOrEmpty(dto.HrEmail)
+        ? null
+        : new List<string> { dto.HrEmail }
                     );
                 }
 
@@ -1101,7 +1108,8 @@ int userId)
                     OfferLetterPath = dto.OfferLetterPath,
                     FilePath = dto.FilePath,
                     CreatedBy = dto.UserId,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    HrEmail = dto.HrEmail,
                 };
 
                 await _unitOfWork.Repository<CandidateOffer>().AddAsync(offer);
@@ -1208,7 +1216,7 @@ int userId)
             string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "OfferLetters");
             if (!Directory.Exists(root)) Directory.CreateDirectory(root);
 
-            string fileName = $"Offer_{candidate.FirstName}_{offer.OfferId}.html";
+            string fileName = $"Offer_{candidate.FirstName}_{offer.OfferId}";
             string fullPath = Path.Combine(root, fileName);
 
             string html = $@"
@@ -1242,7 +1250,9 @@ int userId)
 <p><a href='{downloadUrl}'>Click here to download your offer letter</a></p>
 <p>Regards,<br/>HR Team</p>";
 
-            await _emailService.SendEmailAsync(candidate.Email, subject, body);
+            await _emailService.SendEmailAsync(candidate.Email, subject, body, string.IsNullOrEmpty(offer.HrEmail)
+        ? null
+        : new List<string> { offer.HrEmail });
 
             return true;
         }
