@@ -26,5 +26,6 @@
         public int? ReportingTo { get; set; }
 
         public string? Status { get; set; }
+        public string? HrEmail { get; set; }
     }
 }

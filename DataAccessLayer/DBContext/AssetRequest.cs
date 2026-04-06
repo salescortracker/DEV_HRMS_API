@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccessLayer.DBContext;
+﻿namespace DataAccessLayer.DBContext;
 
 public partial class AssetRequest
 {
@@ -44,4 +41,6 @@ public partial class AssetRequest
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
+
+    public string? HrEmail { get; set; }
 }
