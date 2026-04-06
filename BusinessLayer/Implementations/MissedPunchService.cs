@@ -111,15 +111,31 @@ namespace BusinessLayer.Implementations
         }
 
         // 🔹 MANAGER APPROVAL LIST
-        public async Task<IEnumerable<MissedPunchRequest>> GetApprovalMissedPunchRequest(
+        public async Task<IEnumerable<MissedPunchApprovalListDto>> GetApprovalMissedPunchRequest(
             int companyId, int? regionId, int managerId)
         {
-            var result= await _context.MissedPunchRequests
-                .Where(x =>
-                   
-                    x.Status == "Pending" && x.ManagerId==managerId)
-                .OrderBy(x => x.MissedDate)
-                .ToListAsync();
+            var result = await (
+                from mp in _context.MissedPunchRequests
+                join u in _context.Users
+                    on mp.UserId equals u.UserId
+                where mp.Status == "Pending"
+                      && mp.ManagerId == managerId
+                      && mp.CompanyId == companyId
+                      && (regionId == null || mp.RegionId == regionId)
+                orderby mp.MissedDate
+                select new MissedPunchApprovalListDto
+                {
+                    MissedPunchRequestId = mp.MissedPunchRequestId,
+                    UserId = mp.UserId,
+                    EmployeeName = u.FullName, // ✅ FIX HERE
+                    MissedDate = mp.MissedDate,
+                    MissedType = mp.MissedType,
+                    CorrectClockIn = mp.CorrectClockIn,
+                    CorrectClockOut = mp.CorrectClockOut,
+                    Reason = mp.Reason,
+                    HrEmail = mp.HrEmail
+                }
+            ).ToListAsync();
 
             return result;
         }
@@ -145,6 +161,7 @@ namespace BusinessLayer.Implementations
             entity.ModifiedBy = dto.ManagerID;
             entity.HrEmail = dto.HrEmail;
 
+            await UpdateClockInOutIfChanged(entity);
             await _context.SaveChangesAsync();
 
 
@@ -229,6 +246,8 @@ namespace BusinessLayer.Implementations
                 item.ModifiedAt = DateTime.UtcNow;
                 item.ModifiedBy = dto.ManagerID;
 
+                await UpdateClockInOutIfChanged(item);
+
                 // ✅ GET EMPLOYEE DETAILS
                 var employee = await _context.Users
                     .Where(x => x.UserId == item.UserId)
@@ -272,6 +291,114 @@ namespace BusinessLayer.Implementations
             await _context.SaveChangesAsync();
             return records.Count;
 
+        }
+
+
+        private async Task UpdateClockInOutIfChanged(MissedPunchRequest entity)
+        {
+            // ✅ Skip if nothing to update
+            if (!entity.CorrectClockIn.HasValue && !entity.CorrectClockOut.HasValue)
+                return;
+
+            // ✅ Get employee details
+            var user = await _context.Users
+                .Where(x =>
+                    x.UserId == entity.UserId &&
+                    x.CompanyId == entity.CompanyId &&
+                    x.RegionId == (entity.RegionId ?? 0))
+                .Select(x => new
+                {
+                    x.EmployeeCode,
+                    x.FullName
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null) return;
+
+            var attendanceDate = entity.MissedDate;
+
+            // ✅ Get existing records
+            var records = await _context.ClockInOuts
+                .Where(x =>
+                    x.EmployeeCode == user.EmployeeCode &&
+                    x.CompanyId == entity.CompanyId &&
+                    x.RegionId == (entity.RegionId ?? 0) &&
+                    x.AttendanceDate == attendanceDate)
+                .ToListAsync();
+
+            // ================= CLOCK IN =================
+            if (entity.CorrectClockIn.HasValue)
+            {
+                var existingIn = records
+                    .Where(x => x.ActionType == "ClockIn")
+                    .OrderBy(x => x.ActionTime)
+                    .FirstOrDefault();
+
+                if (existingIn != null)
+                {
+                    if (existingIn.ActionTime != entity.CorrectClockIn.Value)
+                    {
+                        existingIn.ActionTime = entity.CorrectClockIn.Value;
+                        existingIn.ClockInTime = entity.CorrectClockIn.Value;
+                        existingIn.ModifiedAt = DateTime.UtcNow;
+                        existingIn.ModifiedBy = entity.ModifiedBy;
+                    }
+                }
+                else
+                {
+                    _context.ClockInOuts.Add(new ClockInOut
+                    {
+                        EmployeeCode = user.EmployeeCode,
+                        EmployeeName = user.FullName,
+                        CompanyId = entity.CompanyId,
+                        RegionId = entity.RegionId ?? 0,
+                        AttendanceDate = attendanceDate,
+                        ActionType = "ClockIn",
+                        ActionTime = entity.CorrectClockIn.Value,
+                        ClockInTime = entity.CorrectClockIn.Value,
+                        Status = "Present",
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = entity.ModifiedBy
+                    });
+                }
+            }
+
+            // ================= CLOCK OUT =================
+            if (entity.CorrectClockOut.HasValue)
+            {
+                var existingOut = records
+                    .Where(x => x.ActionType == "ClockOut")
+                    .OrderByDescending(x => x.ActionTime)
+                    .FirstOrDefault();
+
+                if (existingOut != null)
+                {
+                    if (existingOut.ActionTime != entity.CorrectClockOut.Value)
+                    {
+                        existingOut.ActionTime = entity.CorrectClockOut.Value;
+                        existingOut.ClockOutTime = entity.CorrectClockOut.Value;
+                        existingOut.ModifiedAt = DateTime.UtcNow;
+                        existingOut.ModifiedBy = entity.ModifiedBy;
+                    }
+                }
+                else
+                {
+                    _context.ClockInOuts.Add(new ClockInOut
+                    {
+                        EmployeeCode = user.EmployeeCode,
+                        EmployeeName = user.FullName,
+                        CompanyId = entity.CompanyId,
+                        RegionId = entity.RegionId ?? 0,
+                        AttendanceDate = attendanceDate,
+                        ActionType = "ClockOut",
+                        ActionTime = entity.CorrectClockOut.Value,
+                        ClockOutTime = entity.CorrectClockOut.Value,
+                        Status = "Completed",
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = entity.ModifiedBy
+                    });
+                }
+            }
         }
     }
 }
