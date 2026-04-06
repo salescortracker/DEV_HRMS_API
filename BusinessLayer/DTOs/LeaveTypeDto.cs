@@ -22,13 +22,13 @@ namespace BusinessLayer.DTOs
         public string CompanyName { get; set; } = string.Empty;
         public string RegionName { get; set; } = string.Empty;
         public int? userId { get; set; }
-       // public List<LeaveTypeGradeDto> GradeAllocations { get; set; }
+        public List<LeaveTypeGradeDto> GradeAllocations { get; set; }
     }
 
     public class LeaveTypeGradeDto
     {
         public int GradeID { get; set; }
         public int LeaveDays { get; set; }
-        public string gradename { get; set; }
+        public string? gradename { get; set; }
     }
 }

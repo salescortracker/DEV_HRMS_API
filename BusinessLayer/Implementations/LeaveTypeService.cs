@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
 {
-    public class LeaveTypeService:ILeaveTypeService
+    public class LeaveTypeService : ILeaveTypeService
     {
         private readonly HRMSContext _context;
 
@@ -79,17 +79,17 @@ namespace BusinessLayer.Implementations
                     CompanyName = c.CompanyName,
                     RegionName = r.RegionName,
 
-                    // ✅ THIS IS THE FIX
-            //        GradeAllocations = (
-            //    from g in _context.LeaveTypeGrades
-            //    where g.LeaveTypeId == lt.LeaveTypeId && g.IsActive == true
-            //    select new LeaveTypeGradeDto
-            //    {
-            //        GradeID = g.GradeId,
-            //        gradename = _context.Grades.Where(x =>x.GradeId == g.GradeId).FirstOrDefault().GradeName,
-            //        LeaveDays = g.LeaveDays
-            //    }
-            //).ToList()
+                    //✅ THIS IS THE FIX
+                    GradeAllocations = (
+                from g in _context.LeaveTypeGrades
+                where g.LeaveTypeId == lt.LeaveTypeId && g.IsActive == true
+                select new LeaveTypeGradeDto
+                {
+                    GradeID = g.GradeId,
+                    gradename = _context.Grades.Where(x => x.GradeId == g.GradeId).FirstOrDefault().GradeName,
+                    LeaveDays = g.LeaveDays
+                }
+            ).ToList()
                 }
     ).ToListAsync();
 
@@ -163,8 +163,18 @@ namespace BusinessLayer.Implementations
         //    _context.LeaveTypes.Add(entity);
         //    return await _context.SaveChangesAsync() > 0;
         //}
-        public async Task<bool> CreateLeaveTypeAsync(LeaveTypeDto dto)
+        public async Task<ApiResponse<bool>> CreateLeaveTypeAsync(LeaveTypeDto dto)
         {
+            var exists = await _context.LeaveTypes.AnyAsync(x =>
+                !x.IsDeleted &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.LeaveTypeName.Trim().ToLower() == dto.LeaveTypeName.Trim().ToLower()
+            );
+
+            if (exists)
+                return new ApiResponse<bool>(false, "Leave Type already exists", false);
+
             var entity = new LeaveType
             {
                 CompanyId = dto.CompanyID,
@@ -174,24 +184,26 @@ namespace BusinessLayer.Implementations
                 IsDeleted = false,
                 CreatedAt = DateTime.Now,
                 UserId = dto.userId,
-                LeaveDays=dto.LeaveDays
+                LeaveDays = dto.LeaveDays
             };
 
             _context.LeaveTypes.Add(entity);
-           return await _context.SaveChangesAsync()>0;
+            await _context.SaveChangesAsync();
 
-            // 🔥 Insert Grade Mapping
-            //foreach (var g in dto.GradeAllocations)
-            //{
-            //    _context.LeaveTypeGrades.Add(new LeaveTypeGrade
-            //    {
-            //        LeaveTypeId = entity.LeaveTypeId,
-            //        GradeId = g.GradeID,
-            //        LeaveDays = g.LeaveDays
-            //    });
-            //}
+            // ✅ Insert Grade Mapping
+            foreach (var g in dto.GradeAllocations)
+            {
+                _context.LeaveTypeGrades.Add(new LeaveTypeGrade
+                {
+                    LeaveTypeId = entity.LeaveTypeId,
+                    GradeId = g.GradeID,
+                    LeaveDays = g.LeaveDays
+                });
+            }
 
-           // return await _context.SaveChangesAsync() > 0;
+            await _context.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Leave Type created successfully", true);
         }
         //public async Task<bool> UpdateLeaveTypeAsync(LeaveTypeDto dto)
         //{
@@ -212,14 +224,25 @@ namespace BusinessLayer.Implementations
         //    return await _context.SaveChangesAsync() > 0;
         //}
 
-        public async Task<bool> UpdateLeaveTypeAsync(LeaveTypeDto dto)
+        public async Task<ApiResponse<bool>> UpdateLeaveTypeAsync(LeaveTypeDto dto)
         {
             var entity = await _context.LeaveTypes
                 .FirstOrDefaultAsync(x => x.LeaveTypeId == dto.LeaveTypeID && !x.IsDeleted);
 
-            if (entity == null) return false;
+            if (entity == null)
+                return new ApiResponse<bool>(false, "Leave Type not found", false);
 
-            // ✅ Update main table
+            var exists = await _context.LeaveTypes.AnyAsync(x =>
+                !x.IsDeleted &&
+                x.LeaveTypeId != dto.LeaveTypeID &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.LeaveTypeName.Trim().ToLower() == dto.LeaveTypeName.Trim().ToLower()
+            );
+
+            if (exists)
+                //return new ApiResponse<bool>(false, "Leave Type already exists");
+                return new ApiResponse<bool>(false, "Leave Type already exists", false);
             entity.LeaveTypeName = dto.LeaveTypeName;
             entity.Description = dto.Description;
             entity.CompanyId = dto.CompanyID;
@@ -228,68 +251,109 @@ namespace BusinessLayer.Implementations
             entity.UserId = dto.userId;
             entity.ModifiedAt = DateTime.Now;
 
-            // 🔥 STEP 1: Remove old mappings
             var oldMappings = _context.LeaveTypeGrades
                 .Where(x => x.LeaveTypeId == dto.LeaveTypeID);
 
             _context.LeaveTypeGrades.RemoveRange(oldMappings);
 
-            // 🔥 STEP 2: Insert new mappings
-            //foreach (var g in dto.GradeAllocations)
-            //{
-            //    _context.LeaveTypeGrades.Add(new LeaveTypeGrade
-            //    {
-            //        LeaveTypeId = dto.LeaveTypeID,
-            //        GradeId = g.GradeID,
-            //        LeaveDays = g.LeaveDays,
-            //        IsActive = true
-            //    });
-            //}
 
-            // ✅ Save all changes
-            return await _context.SaveChangesAsync() > 0;
+            foreach (var g in dto.GradeAllocations)
+            {
+                _context.LeaveTypeGrades.Add(new LeaveTypeGrade
+                {
+                    LeaveTypeId = dto.LeaveTypeID,
+                    GradeId = g.GradeID,
+                    LeaveDays = g.LeaveDays,
+                    IsActive = true
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new ApiResponse<bool>(true, "Updated successfully");
         }
 
-
-        //public async Task<bool> DeleteLeaveTypeAsync(int id)
-        //{
-        //    var entity = await _context.LeaveTypes
-        //        .FirstOrDefaultAsync(x => x.LeaveTypeId == id && !x.IsDeleted);
-
-        //    if (entity == null)
-        //        return false; // Already deleted or not found
-
-        //    entity.IsDeleted = true;
-        //    entity.ModifiedAt = DateTime.Now;
-
-        //    await _context.SaveChangesAsync();
-        //    return true;
-        //}
-
-        public async Task<bool> DeleteLeaveTypeAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteLeaveTypeAsync(int id)
         {
             var entity = await _context.LeaveTypes
                 .FirstOrDefaultAsync(x => x.LeaveTypeId == id && !x.IsDeleted);
 
             if (entity == null)
-                return false;
+                return new ApiResponse<bool>(false, "Leave Type not found", false);
 
-            // ✅ Soft delete LeaveType
             entity.IsDeleted = true;
             entity.ModifiedAt = DateTime.Now;
 
-            // 🔥 Soft delete related grades
             var grades = await _context.LeaveTypeGrades
                 .Where(x => x.LeaveTypeId == id)
                 .ToListAsync();
 
             foreach (var g in grades)
-            {
                 g.IsActive = false;
-            }
 
             await _context.SaveChangesAsync();
-            return true;
+
+            return new ApiResponse<bool>(true, "Deleted successfully", true);
+        }
+
+        public async Task<List<UserLeaveAllocationDto>> GetUserLeaveAllocation(int userId)
+        {
+            var result = await (from u in _context.Users
+                                join d in _context.Designations on u.DesignationId equals d.DesignationId
+                                join g in _context.Grades on d.GradeId equals g.GradeId
+                                join ltg in _context.LeaveTypeGrades on g.GradeId equals ltg.GradeId
+                                join lt in _context.LeaveTypes on ltg.LeaveTypeId equals lt.LeaveTypeId
+
+                                // LEFT JOIN LeaveRequests
+                                join lr in _context.LeaveRequests
+                                on new { UserId = u.UserId, LeaveTypeId = lt.LeaveTypeId }
+                                equals new { lr.UserId, lr.LeaveTypeId }
+                                into lrGroup
+
+                                from lr in lrGroup.DefaultIfEmpty()
+
+                                where u.UserId == userId
+                                      && ltg.IsActive == true
+                                      && lt.IsActive
+
+                                group lr by new
+                                {
+                                    u.UserId,
+                                    u.FullName,
+                                    d.DesignationName,
+                                    g.GradeName,
+                                    lt.LeaveTypeName,
+                                    ltg.LeaveDays
+                                } into grp
+
+                                select new UserLeaveAllocationDto
+                                {
+                                    UserId = grp.Key.UserId,
+                                    FullName = grp.Key.FullName,
+                                    DesignationName = grp.Key.DesignationName,
+                                    GradeName = grp.Key.GradeName,
+                                    LeaveTypeName = grp.Key.LeaveTypeName,
+
+                                    AllocatedLeaves = grp.Key.LeaveDays,
+
+                                    ApprovedLeaves = (int)(
+    grp.Where(x => x != null && x.Status == "Approved")
+       .Sum(x => (decimal?)x.TotalDays) ?? 0
+),
+
+                                    PendingLeaves = (int)(
+    grp.Where(x => x != null && x.Status == "Pending")
+       .Sum(x => (decimal?)x.TotalDays) ?? 0
+),
+
+                                    RemainingLeaves = (int)(
+    grp.Key.LeaveDays -
+    (grp.Where(x => x != null &&
+        (x.Status == "Approved" || x.Status == "Pending"))
+     .Sum(x => (decimal?)x.TotalDays) ?? 0))
+                                }).ToListAsync();
+
+            return result;
         }
 
 

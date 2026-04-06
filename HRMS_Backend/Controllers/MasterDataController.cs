@@ -2616,17 +2616,21 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> CreateLeaveType([FromBody] LeaveTypeDto dto)
         {
             var result = await _leaveTypeService.CreateLeaveTypeAsync(dto);
-            return result ? Ok() : BadRequest();
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
         [HttpPost("UpdateLeaveType")]
         public async Task<IActionResult> UpdateLeaveType([FromBody] LeaveTypeDto dto)
         {
             var result = await _leaveTypeService.UpdateLeaveTypeAsync(dto);
-            if (!result)
+
+            if (result == null)
                 return NotFound("Leave Type not found");
 
-            return Ok(new { success = true, message = "Updated successfully" });
+            return Ok(result);
         }
 
         [HttpPost("DeleteLeaveType")]
@@ -2634,13 +2638,30 @@ namespace HRMS_Backend.Controllers
         {
             var result = await _leaveTypeService.DeleteLeaveTypeAsync(id);
 
-            if (!result)
+
+            if (result == null)
                 return NotFound("Leave Type not found or already deleted");
 
-            return Ok(new { message = "Leave Type deleted successfully" });
+            return Ok(result);
         }
 
+        [HttpGet("GetUserLeaveAllocation")]
+        public async Task<IActionResult> GetUserLeaveAllocation(int userId)
+        {
+            var data = await _leaveTypeService.GetUserLeaveAllocation(userId);
 
+            if (data == null || !data.Any())
+            {
+                return NotFound(new { message = "No leave allocation found" });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = "Leave allocation fetched successfully",
+                data = data
+            });
+        }
 
         #endregion
         #region expenseCategory
