@@ -56,7 +56,8 @@ namespace BusinessLayer.Implementations
                 FilePath = dto.FilePath,
                 Status = "Pending",
                 CreatedBy = dto.UserId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                HrEmail = dto.HrEmail
             };
 
             await _unitOfWork.Repository<Timesheet>().AddAsync(timesheet);
@@ -85,6 +86,7 @@ namespace BusinessLayer.Implementations
             }
 
             await _unitOfWork.CompleteAsync();
+            await SendManagerEmailAsync(timesheet);
             return timesheet.TimesheetId;
         }
 
@@ -155,19 +157,41 @@ namespace BusinessLayer.Implementations
             string subject = $"Timesheet Submitted - {ts.EmployeeName}";
 
             string body = $@"
-            <html>
-            <body style='font-family:Segoe UI'>
-                <h3>Timesheet Submitted</h3>
-                <p><b>Employee:</b> {ts.EmployeeName} ({ts.EmployeeCode})</p>
-                <p><b>Date:</b> {ts.TimesheetDate:dd-MMM-yyyy}</p>
-                <p><b>Status:</b> Submitted</p>
-                <p><b>Comments:</b> {ts.Comments}</p>
-                <hr/>
-                <p>Please login to HRMS to review the timesheet.</p>
-            </body>
-            </html>";
+    <html>
+    <body style='font-family:Segoe UI'>
+        <h3>Timesheet Submitted</h3>
+        <p><b>Employee:</b> {ts.EmployeeName} ({ts.EmployeeCode})</p>
+        <p><b>Date:</b> {ts.TimesheetDate:dd-MMM-yyyy}</p>
+        <p><b>Status:</b> Submitted</p>
+        <p><b>Comments:</b> {ts.Comments}</p>
+        <hr/>
+        <p>Please login to HRMS to review the timesheet.</p>
+    </body>
+    </html>";
 
-            await _emailService.SendEmailAsync(manager.Email, subject, body);
+            // ✅ CC LIST
+            var ccList = new List<string>();
+
+            if (!string.IsNullOrEmpty(ts.HrEmail))
+            {
+                ccList.Add(ts.HrEmail);
+            }
+
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    manager.Email,
+                    subject,
+                    body,
+                    ccList
+                );
+
+                Console.WriteLine("Email sent successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Email FAILED: " + ex.Message);
+            }
         }
 
         public async Task<IEnumerable<ManagerTimesheetDto>> GetTimesheetsForManagerAsync(int managerUserId)
