@@ -45,6 +45,8 @@ public partial class Ticket
 
     public int? ApprovedBy { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual HelpDeskCategory Category { get; set; } = null!;
 
     public virtual Priority Priority { get; set; } = null!;
