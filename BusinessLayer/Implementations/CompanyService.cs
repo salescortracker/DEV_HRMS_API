@@ -76,7 +76,11 @@ namespace BusinessLayer.Implementations
                 Headquarters = dto.headquarters,
                 IsActive = dto.isActive,
                 UserId = dto.userId,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                CompanyContact = dto.CompanyContact,
+                CompanyEmail = dto.CompanyEmail,
+                CompanyAddress = dto.CompanyAddress,
+                CompanyLogo = dto.CompanyLogo
             };
 
             await _unitOfWork.Repository<Company>().AddAsync(entity);
@@ -95,7 +99,11 @@ namespace BusinessLayer.Implementations
                 Headquarters = dto.headquarters,
                 IsActive = dto.isActive,
                 UserId = dto.userId,
-                CreatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.UtcNow,
+                CompanyContact = dto.CompanyContact,
+                CompanyEmail = dto.CompanyEmail,
+                CompanyAddress = dto.CompanyAddress,
+                CompanyLogo = dto.CompanyLogo
             }).ToList();
 
             await _unitOfWork.Repository<Company>().AddRangeAsync(companies);
@@ -118,6 +126,10 @@ namespace BusinessLayer.Implementations
             entity.IsActive = dto.isActive;
             entity.UserId = dto.userId;
             entity.ModifiedAt = DateTime.UtcNow;
+            entity.CompanyContact = dto.CompanyContact;
+            entity.CompanyEmail = dto.CompanyEmail;
+            entity.CompanyAddress = dto.CompanyAddress;
+            entity.CompanyLogo = dto.CompanyLogo;
 
             _unitOfWork.Repository<Company>().Update(entity);
             await _unitOfWork.CompleteAsync();
@@ -154,7 +166,11 @@ namespace BusinessLayer.Implementations
                 industryType = c.IndustryType,
                 headquarters = c.Headquarters,
                 isActive = c.IsActive,
-                userId = c.UserId
+                userId = c.UserId,
+                CompanyContact = c.CompanyContact,
+                CompanyEmail = c.CompanyEmail,
+                CompanyAddress = c.CompanyAddress,
+                CompanyLogo = c.CompanyLogo
             };
         }
     }
