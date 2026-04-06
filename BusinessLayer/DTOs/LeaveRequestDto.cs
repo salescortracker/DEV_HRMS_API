@@ -1,10 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace BusinessLayer.DTOs
 {
     public class LeaveRequestDto
@@ -32,5 +26,6 @@ namespace BusinessLayer.DTOs
         public string? LeaveTypeName { get; set; }
         public string? Status { get; set; }
         public DateTime? AppliedDate { get; set; }
+        public string? HrEmail { get; set; }
     }
 }
