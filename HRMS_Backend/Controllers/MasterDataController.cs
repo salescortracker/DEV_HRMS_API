@@ -3558,7 +3558,11 @@ int regionId)
         {
             return Ok(await _assetTypeService.GetByCompanyRegion(companyId, regionId));
         }
-
+        [HttpGet("assetcategoriestype")]
+        public async Task<IActionResult> GetAssetCategoriestype(int userId)
+        {
+            return Ok(await _assetTypeService.GetAssetCategoriestype(userId));
+        }
         #endregion
 
         #region Asset Category

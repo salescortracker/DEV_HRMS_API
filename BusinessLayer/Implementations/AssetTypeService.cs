@@ -29,7 +29,8 @@ namespace BusinessLayer.Implementations
                     AssetTypeName = x.AssetTypeName,
                     Description = x.Description,
                     IsActive = x.IsActive,
-                    UserId = x.UserId
+                    UserId = x.UserId,
+                    AssetCategoryId = x.AssetCategoryId ?? 0
                 });
 
             return new ApiResponse<IEnumerable<AssetTypeDto>>(list, "Asset Types fetched");
@@ -79,7 +80,8 @@ namespace BusinessLayer.Implementations
                 IsDeleted = false,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = dto.UserId,
-                UserId = dto.UserId
+                UserId = dto.UserId,
+                AssetCategoryId = dto.AssetCategoryId,   // ✅ ADD
             };
 
             await _unitOfWork.Repository<AssetType>().AddAsync(entity);
@@ -114,6 +116,7 @@ namespace BusinessLayer.Implementations
             entity.IsActive = dto.IsActive;
             entity.ModifiedAt = DateTime.UtcNow;
             entity.ModifiedBy = dto.UserId;
+            entity.AssetCategoryId = dto.AssetCategoryId;   // ✅ ADD
 
             _unitOfWork.Repository<AssetType>().Update(entity);
             await _unitOfWork.CompleteAsync();
@@ -155,6 +158,20 @@ namespace BusinessLayer.Implementations
                 });
 
             return new ApiResponse<IEnumerable<AssetTypeDto>>(list);
+        }
+
+        public async Task<ApiResponse<IEnumerable<AssetCategoryDto>>> GetAssetCategoriestype(int userId)
+        {
+            var list = (await _unitOfWork.Repository<AssetCategory>()
+                .FindAsync(x => !x.IsDeleted && x.UserId == userId))
+                .Select(x => new AssetCategoryDto
+                {
+                    AssetCategoryId = x.AssetCategoryId,
+                    AssetCategoryName = x.AssetCategoryName,
+                    IsActive = x.IsActive
+                });
+
+            return new ApiResponse<IEnumerable<AssetCategoryDto>>(list);
         }
 
     }
