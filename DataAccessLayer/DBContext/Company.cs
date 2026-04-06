@@ -41,6 +41,8 @@ public partial class Company
 
     public string? CompanyAddress { get; set; }
 
+    public string? CompanyLogo { get; set; }
+
     public virtual ICollection<AssetCategory> AssetCategories { get; set; } = new List<AssetCategory>();
 
     public virtual ICollection<AssetStatus> AssetStatuses { get; set; } = new List<AssetStatus>();
@@ -102,4 +104,5 @@ public partial class Company
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 
     public virtual ICollection<Weekoff> Weekoffs { get; set; } = new List<Weekoff>();
+
 }
