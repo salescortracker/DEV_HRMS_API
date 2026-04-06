@@ -26,12 +26,30 @@ namespace BusinessLayer.Implementations
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
 
-
             var users = (await _unitOfWork.Repository<User>().GetAllAsync())
                 .Where(e => e.CompanyId == companyId
                          && e.RegionId == regionId
                          && !string.IsNullOrEmpty(e.EmployeeCode))
                 .ToList();
+
+            // ✅ ADD THIS BLOCK HERE
+            if (IsWeekend(today))
+            {
+                return users.Select(emp => new EmployeeAttendanceDto
+                {
+                    EmployeeCode = emp.EmployeeCode,
+                    EmployeeName = emp.FullName,
+                    AttendanceDate = DateTime.Today,
+                    Status = "WeekOff",
+                    ClockIn = null,
+                    ClockOut = null,
+                    GrossTime = null,
+                    ShiftName = "",
+                    ShiftStartTime = "",
+                    ShiftEndTime = "",
+                    LateMinutes = 0
+                }).ToList();
+            }
 
             var clockRecords = await _unitOfWork.Repository<ClockInOut>().GetAllAsync();
             var leaves = await _unitOfWork.Repository<LeaveRequest>().GetAllAsync();
@@ -177,6 +195,11 @@ namespace BusinessLayer.Implementations
 
             var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
 
+            if (IsWeekend(attendanceDate))
+            {
+                throw new Exception("Cannot save attendance for WeekOff (Saturday/Sunday)");
+            }
+
             var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
 
             var existingRecords = (await repo.GetAllAsync())
@@ -311,8 +334,18 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.HasValue &&
                     x.AttendanceDate.Value >= startDate &&
                     x.AttendanceDate.Value <= endDate)
+                .Select(x =>
+                {
+                    var dto = MapToDto(x);
+
+                    if (IsWeekend(x.AttendanceDate.Value))
+                    {
+                        dto.Status = "WeekOff";
+                    }
+
+                    return dto;
+                })
                 .OrderByDescending(x => x.AttendanceDate)
-                .Select(MapToDto)
                 .ToList();
         }
 
@@ -334,7 +367,17 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.Value >= startDate &&
                     x.AttendanceDate.Value <= endDate)
                 .OrderByDescending(x => x.AttendanceDate)
-                .Select(MapToDto)
+                .Select(x =>
+                {
+                    var dto = MapToDto(x);
+
+                    if (x.AttendanceDate.HasValue && IsWeekend(x.AttendanceDate.Value))
+                    {
+                        dto.Status = "WeekOff";
+                    }
+
+                    return dto;
+                })
                 .ToList();
         }
 
@@ -355,7 +398,17 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.Value.Month == today.Month &&
                     x.AttendanceDate.Value.Year == today.Year)
                 .OrderByDescending(x => x.AttendanceDate)
-                .Select(MapToDto)
+                .Select(x =>
+                {
+                    var dto = MapToDto(x);
+
+                    if (x.AttendanceDate.HasValue && IsWeekend(x.AttendanceDate.Value))
+                    {
+                        dto.Status = "WeekOff";
+                    }
+
+                    return dto;
+                })
                 .ToList();
         }
 
@@ -417,6 +470,25 @@ namespace BusinessLayer.Implementations
 
             foreach (var emp in users)
             {
+                if (IsWeekend(selectedDate))
+                {
+                    result.Add(new EmployeeAttendanceDto
+                    {
+                        EmployeeCode = emp.EmployeeCode,
+                        EmployeeName = emp.FullName,
+                        AttendanceDate = date,
+                        Status = "WeekOff",
+                        ClockIn = null,
+                        ClockOut = null,
+                        GrossTime = null,
+                        ShiftName = "",
+                        ShiftStartTime = "",
+                        ShiftEndTime = "",
+                        LateMinutes = 0
+                    });
+
+                    continue;
+                }
                 string status = "Absent";
                 string clockInTime = null;
                 string clockOutTime = null;
@@ -534,6 +606,8 @@ namespace BusinessLayer.Implementations
 
             var last7Days = Enumerable.Range(0, 7)
                 .Select(d => DateTime.Today.AddDays(-d).Date)
+                .Where(d => d.DayOfWeek != DayOfWeek.Saturday &&
+                            d.DayOfWeek != DayOfWeek.Sunday)
                 .ToList();
 
             var savedDates = attendanceData
@@ -549,5 +623,11 @@ namespace BusinessLayer.Implementations
             return unsavedDates;
         }
 
+
+        private bool IsWeekend(DateOnly date)
+        {
+            return date.DayOfWeek == DayOfWeek.Saturday ||
+                   date.DayOfWeek == DayOfWeek.Sunday;
+        }
     }
 }
