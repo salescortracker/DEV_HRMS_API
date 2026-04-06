@@ -46,4 +46,6 @@ public partial class EmployeeResignation
     public string? ManagerReason { get; set; }
 
     public string? HrReason { get; set; }
+
+    public string? HrEmail { get; set; }
 }
