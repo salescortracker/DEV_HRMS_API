@@ -103,7 +103,8 @@ namespace BusinessLayer.Implementations
                 Status = "Open",
                 TicketNumber = ticketNumber,
                 CreatedAt = DateTime.Now,
-                CreatedBy = dto.UserId
+                CreatedBy = dto.UserId,
+                HrEmail = dto.HrEmail   // ✅ ADD THIS
             };
 
             await _unitOfWork.Repository<Ticket>().AddAsync(entity);
@@ -144,7 +145,26 @@ namespace BusinessLayer.Implementations
             </body>
             </html>";
 
-            await _emailService.SendEmailAsync(manager.Email, subject, body);
+            List<string>? ccList = null;
+
+            if (!string.IsNullOrWhiteSpace(ticket.HrEmail))
+            {
+                ccList = ticket.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToList();
+            }
+
+
+            // ✅ Send with CC
+            await _emailService.SendEmailAsync(manager.Email, subject, body, ccList);
+            if (ccList != null && ccList.Any())
+            {
+                foreach (var cc in ccList)
+                {
+                    await _emailService.SendEmailAsync(cc, subject, body);
+                }
+            }
         }
 
         public async Task<IEnumerable<object>> GetMyTicketsAsync(int userId)
