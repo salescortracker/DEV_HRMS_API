@@ -8,11 +8,13 @@ namespace BusinessLayer.Implementations
 {
     public class PerformanceService: IPerformanceService
     {
+        private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
 
-        public PerformanceService(HRMSContext context)
+        public PerformanceService(HRMSContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // ===============================
@@ -90,7 +92,8 @@ namespace BusinessLayer.Implementations
                     SelfReviewSummary = dto.SelfReviewSummary,
                     Status = dto.Status,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = dto.UserId
+                    CreatedBy = dto.UserId,
+                    HrEmail = dto.HrEmail, // ✅ ADD
                 };
 
                 _context.PerformanceReviews.Add(review);
@@ -117,6 +120,7 @@ namespace BusinessLayer.Implementations
                 review.Status = dto.Status;
                 review.ModifiedAt = DateTime.UtcNow;
                 review.ModifiedBy = dto.UserId;
+                review.HrEmail = dto.HrEmail; // ✅ ADD
 
                 await _context.SaveChangesAsync();
 
@@ -146,6 +150,84 @@ namespace BusinessLayer.Implementations
                 }
 
                 await _context.SaveChangesAsync();
+            }
+            // ================= EMAIL LOGIC =================
+
+            // 🔹 Get Employee
+            var employee = await _context.Users
+                .Where(x => x.UserId == dto.UserId)
+                .Select(x => new { x.Email, x.FullName })
+                .FirstOrDefaultAsync();
+
+            // 🔹 Get Manager
+            var manager = await _context.Users
+                .Where(x => x.UserId == dto.ReportingManagerId)
+                .Select(x => new { x.Email, x.FullName })
+                .FirstOrDefaultAsync();
+
+            // 🔹 EMAIL TO MANAGER (Submission)
+            if (manager != null && !string.IsNullOrEmpty(manager.Email))
+            {
+                var body = $@"
+    <div style='font-family:Arial'>
+        <h3>KPI Submission Notification</h3>
+
+        <p>Dear {manager.FullName},</p>
+
+        <p>An employee has submitted KPI review.</p>
+
+        <table border='1' cellpadding='6' cellspacing='0'>
+            <tr><td><b>Employee</b></td><td>{employee?.FullName}</td></tr>
+            <tr><td><b>Project</b></td><td>{dto.DepartmentProject}</td></tr>
+            <tr><td><b>Cycle</b></td><td>{dto.PerformanceCycle}</td></tr>
+            <tr><td><b>Appraisal Year</b></td><td>{dto.AppraisalYear}</td></tr>
+        </table>
+
+        <p>Please review and take action.</p>
+
+        <br/>
+        <p>Regards,<br/><b>HRMS Team</b></p>
+    </div>";
+
+                await _emailService.SendEmailAsync(
+                    manager.Email,
+                    "KPI Submitted for Review",
+                    body,
+                    string.IsNullOrEmpty(dto.HrEmail)
+                        ? null
+                        : new List<string> { dto.HrEmail } // ✅ CC EMAIL
+                );
+            }
+
+            // 🔹 EMAIL TO EMPLOYEE (Confirmation)
+            if (employee != null && !string.IsNullOrEmpty(employee.Email))
+            {
+                var body = $@"
+    <div style='font-family:Arial'>
+        <h3>KPI Submitted Successfully</h3>
+
+        <p>Dear {employee.FullName},</p>
+
+        <p>Your KPI has been submitted successfully.</p>
+
+        <table border='1' cellpadding='6' cellspacing='0'>
+            <tr><td><b>Project</b></td><td>{dto.DepartmentProject}</td></tr>
+            <tr><td><b>Cycle</b></td><td>{dto.PerformanceCycle}</td></tr>
+            <tr><td><b>Appraisal Year</b></td><td>{dto.AppraisalYear}</td></tr>
+        </table>
+
+        <br/>
+        <p>Regards,<br/><b>HRMS Team</b></p>
+    </div>";
+
+                await _emailService.SendEmailAsync(
+                    employee.Email,
+                    "KPI Submission Confirmation",
+                    body,
+                    string.IsNullOrEmpty(dto.HrEmail)
+                        ? null
+                        : new List<string> { dto.HrEmail } // ✅ CC EMAIL
+                );
             }
 
             return new ApiResponse<bool>(true);

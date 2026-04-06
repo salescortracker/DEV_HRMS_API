@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class PerformanceReviewDto
     {
@@ -29,6 +23,7 @@ namespace BusinessLayer.DTOs
         public string? SelfReviewSummary { get; set; }
         public string? Status { get; set; }
         public string? EmployeeName { get; set; }   // 🔥 ADD THIS
+        public string? HrEmail { get; set; } // ✅ ADD
 
         public List<PerformanceKPIDto>? KPIs { get; set; }
     }

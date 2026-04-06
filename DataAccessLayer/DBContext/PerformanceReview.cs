@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccessLayer.DBContext;
+﻿namespace DataAccessLayer.DBContext;
 
 public partial class PerformanceReview
 {
@@ -51,5 +48,6 @@ public partial class PerformanceReview
 
     public int? ModifiedBy { get; set; }
 
+    public string? HrEmail { get; set; }
     public virtual ICollection<PerformanceKpi> KPIs { get; set; }
 }
