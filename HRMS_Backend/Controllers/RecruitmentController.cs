@@ -11,10 +11,11 @@ namespace HRMS_Backend.Controllers
     public class RecruitmentController : ControllerBase
     {
         private readonly IRecruitmentService _service;
-        public RecruitmentController(IRecruitmentService service)
+        private readonly IResumeParserHelper _parserHelper;
+        public RecruitmentController(IRecruitmentService service, IResumeParserHelper parserHelper)
         {
             _service = service;
-
+            _parserHelper = parserHelper;
         }
        
         //[HttpGet("GetDesignations/{companyId}/{regionId}")]
@@ -314,6 +315,22 @@ int userId)
         {
             var result = await _service.GetOnboardedCandidatesAsync(companyId, regionId);
             return Ok(result);
+        }
+
+
+
+
+        [HttpPost("ParseResumeCandidate")]
+        [Consumes("multipart/form-data")]
+        public IActionResult ParseResume([FromForm] ResumeUploadDto dto)
+        {
+            if (dto.ResumeFile == null || dto.ResumeFile.Length == 0)
+                return BadRequest("No resume uploaded");
+
+            string text = _parserHelper.ExtractText(dto.ResumeFile);
+            var parsed = _parserHelper.ParseCandidate(text);
+
+            return Ok(parsed);
         }
     }
 }
