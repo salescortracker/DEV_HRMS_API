@@ -1498,44 +1498,7 @@ namespace HRMS_Backend.Controllers
         //            return Ok(new { message = "Event deleted successfully" });
         //        }
         //        #region ModeOfStudy
-        //        [HttpGet("GetAllModeOfStudy")]
-        //        public async Task<IActionResult> GetAllModeOfStudy([FromQuery] int userId)
-        //        {
-        //            var data = await _modeOfStudyService.GetAllModeOfStudtAsync(userId);
-        //            return Ok(data);
-        //        }
-
-        //        [HttpGet("{id}")]
-        //        public async Task<IActionResult> GetModeOfStudy(int id)
-        //        {
-        //            var data = await _modeOfStudyService.GetByIdModeOfStudtAsync(id);
-        //            if (data == null) return NotFound();
-        //            return Ok(data);
-        //        }
-
-        //        [HttpPost("CreateModeOfStudy")]
-        //        public async Task<IActionResult> CreateModeOfStudy([FromBody] ModeOfStudyDto dto)
-        //        {
-        //            var result = await _modeOfStudyService.CreateModeOfStudtAsync(dto);
-        //            //return result ? Ok("Created Successfully") : BadRequest();
-        //            return result
-        //    ? Ok(new { success = true, message = "Created Successfully" })
-        //    : BadRequest(new { success = false, message = "Creation Failed" });
-        //        }
-
-        //        [HttpPut("UpdateModeOfStudy")]
-        //        public async Task<IActionResult> UpdateModeOfStudy([FromBody] ModeOfStudyDto dto)
-        //        {
-        //            var result = await _modeOfStudyService.UpdateModeOfStudtAsync(dto);
-        //            return result ? Ok("Updated Successfully") : NotFound();
-        //        }
-
-        //        [HttpDelete("DeleteModeOfStudy/{id}")]
-        //        public async Task<IActionResult> DeleteModeOfStudy(int id)
-        //        {
-        //            var result = await _modeOfStudyService.DeleteModeOfStudtAsync(id);
-        //            return result ? Ok("Deleted Successfully") : NotFound();
-        //        }
+        //        
         //        #endregion
         //        [HttpGet("birthdays")]
         //        public async Task<IActionResult> GetBirthdays(
@@ -3202,14 +3165,14 @@ namespace HRMS_Backend.Controllers
         [HttpGet("GetAllModeOfStudy")]
         public async Task<IActionResult> GetAllModeOfStudy([FromQuery] int userId)
         {
-            var data = await _modeOfStudyService.GetAllModeOfStudtAsync(userId);
+            var data = await _modeOfStudyService.GetAllModeOfStudytAsync(userId);
             return Ok(data);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetModeOfStudy(int id)
         {
-            var data = await _modeOfStudyService.GetByIdModeOfStudtAsync(id);
+            var data = await _modeOfStudyService.GetByIdModeOfStudytAsync(id);
             if (data == null) return NotFound();
             return Ok(data);
         }
@@ -3217,25 +3180,38 @@ namespace HRMS_Backend.Controllers
         [HttpPost("CreateModeOfStudy")]
         public async Task<IActionResult> CreateModeOfStudy([FromBody] ModeOfStudyDto dto)
         {
-            var result = await _modeOfStudyService.CreateModeOfStudtAsync(dto);
-            //return result ? Ok("Created Successfully") : BadRequest();
-            return result
-    ? Ok(new { success = true, message = "Created Successfully" })
-    : BadRequest(new { success = false, message = "Creation Failed" });
+            try
+            {
+                var result = await _modeOfStudyService.CreateModeOfStudytAsync(dto);
+
+                return result
+                    ? Ok(new { success = true })
+                    : BadRequest("Creation Failed");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
         }
 
         [HttpPut("UpdateModeOfStudy")]
         public async Task<IActionResult> UpdateModeOfStudy([FromBody] ModeOfStudyDto dto)
         {
-            var result = await _modeOfStudyService.UpdateModeOfStudtAsync(dto);
-            return result ? Ok("Updated Successfully") : NotFound();
+            var result = await _modeOfStudyService.UpdateModeOfStudytAsync(dto);
+
+            return result
+                ? Ok(new { success = true, message = "Updated Successfully" }) 
+                : NotFound(new { success = false, message = "Update Failed" });
         }
 
-        [HttpDelete("DeleteModeOfStudy/{id}")]
-        public async Task<IActionResult> DeleteModeOfStudy(int id)
+        [HttpPost("DeleteModeOfStudy")]
+        public async Task<IActionResult> DeleteModeOfStudy([FromQuery] int id)
         {
-            var result = await _modeOfStudyService.DeleteModeOfStudtAsync(id);
-            return result ? Ok("Deleted Successfully") : NotFound();
+            var result = await _modeOfStudyService.DeleteModeOfStudytAsync(id);
+
+            return result
+                ? Ok(new { success = true, message = "Deleted Successfully" })
+                : NotFound(new { success = false, message = "Delete Failed" });
         }
         #endregion
         [HttpGet("birthdays")]

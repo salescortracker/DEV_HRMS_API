@@ -9,15 +9,15 @@ namespace BusinessLayer.Interfaces
 {
     public interface IModeOfStudyService
     {
-        Task<IEnumerable<ModeOfStudyDto>> GetAllModeOfStudtAsync(int userId);
+        Task<IEnumerable<ModeOfStudyDto>> GetAllModeOfStudytAsync(int userId); 
 
-        Task<ModeOfStudyDto?> GetByIdModeOfStudtAsync(int id);
+        Task<ModeOfStudyDto?> GetByIdModeOfStudytAsync(int id);
 
-        Task<bool> CreateModeOfStudtAsync(ModeOfStudyDto dto);
+        Task<bool> CreateModeOfStudytAsync(ModeOfStudyDto dto);
 
-        Task<bool> UpdateModeOfStudtAsync(ModeOfStudyDto dto);
+        Task<bool> UpdateModeOfStudytAsync(ModeOfStudyDto dto);
 
-        Task<bool> DeleteModeOfStudtAsync(int id);
+        Task<bool> DeleteModeOfStudytAsync(int id);
 
 
     }
