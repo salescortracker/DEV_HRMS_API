@@ -29,6 +29,10 @@ public partial class AssetType
 
     public DateTime? ModifiedAt { get; set; }
 
+    public int? AssetCategoryId { get; set; }
+
+    public virtual AssetCategory? AssetCategory { get; set; }
+
     public virtual ICollection<Asset> Assets { get; set; } = new List<Asset>();
 
     public virtual Company Company { get; set; } = null!;
