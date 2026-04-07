@@ -3,11 +3,7 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BusinessLayer.Implementations
 {
@@ -99,6 +95,21 @@ namespace BusinessLayer.Implementations
             if (entity == null || entity.IsDeleted)
                 return new ApiResponse<string>(null!, "Not found", false);
 
+            // ✅ DUPLICATE CHECK (EXCLUDE CURRENT RECORD)
+            var duplicate = (await _unitOfWork.Repository<Employmenttype>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.CompanyId == dto.CompanyID &&
+                    x.RegionId == dto.RegionID &&
+                    x.EmploymenttypeName.ToLower() == dto.EmploymenttypeName.ToLower() &&
+                    x.EmploymenttypeId != dto.EmploymenttypeID))
+                .Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!,
+                    "Duplicate Employment Type exists.", false);
+
+            // ✅ UPDATE
             entity.CompanyId = dto.CompanyID;
             entity.RegionId = dto.RegionID;
             entity.EmploymenttypeName = dto.EmploymenttypeName;
@@ -127,6 +138,30 @@ namespace BusinessLayer.Implementations
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<string>("Employment Type deleted successfully.");
+        }
+        public async Task<ApiResponse<IEnumerable<EmploymentTypeDto>>> GetByCompanyRegion(
+       int companyId, int regionId)
+        {
+            var list = (await _unitOfWork.Repository<Employmenttype>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive))
+                .OrderBy(x => x.EmploymenttypeName)
+                .ToList();
+
+            var dto = list.Select(x => new EmploymentTypeDto
+            {
+                EmploymenttypeID = x.EmploymenttypeId,
+                CompanyID = x.CompanyId,
+                RegionID = x.RegionId,
+                EmploymenttypeName = x.EmploymenttypeName,
+                Description = x.Description,
+                IsActive = x.IsActive
+            });
+
+            return new ApiResponse<IEnumerable<EmploymentTypeDto>>(dto, "Filtered Employment Types");
         }
     }
 }

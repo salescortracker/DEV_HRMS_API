@@ -21,11 +21,19 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<Asset> Assets { get; set; }
 
+    public virtual DbSet<AssetAssignment> AssetAssignments { get; set; }
+
+    public virtual DbSet<AssetCategory> AssetCategories { get; set; }
+
     public virtual DbSet<AssetFilterMaster> AssetFilterMasters { get; set; }
 
     public virtual DbSet<AssetMaster> AssetMasters { get; set; }
 
+    public virtual DbSet<AssetRequest> AssetRequests { get; set; }
+
     public virtual DbSet<AssetStatus> AssetStatuses { get; set; }
+
+    public virtual DbSet<AssetType> AssetTypes { get; set; }
 
     public virtual DbSet<AttachmentType> AttachmentTypes { get; set; }
 
@@ -90,6 +98,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<CompanyUsageLog> CompanyUsageLogs { get; set; }
 
     public virtual DbSet<CountryMaster> CountryMasters { get; set; }
+
+    public virtual DbSet<Currency> Currencies { get; set; }
 
     public virtual DbSet<CurrencyMaster> CurrencyMasters { get; set; }
 
@@ -188,6 +198,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<LeaveType> LeaveTypes { get; set; }
 
     public virtual DbSet<LeaveTypeDesignation> LeaveTypeDesignations { get; set; }
+
+    public virtual DbSet<LeaveTypeGrade> LeaveTypeGrades { get; set; }
 
     public virtual DbSet<ManagerKpireview> ManagerKpireviews { get; set; }
 
@@ -360,10 +372,70 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
+            entity.HasOne(d => d.AssetCategory).WithMany(p => p.Assets)
+                .HasForeignKey(d => d.AssetCategoryId)
+                .HasConstraintName("FK_Asset_AssetCategory");
+
             entity.HasOne(d => d.AssetStatus).WithMany(p => p.Assets)
                 .HasForeignKey(d => d.AssetStatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Assets_AssetStatus");
+
+            entity.HasOne(d => d.AssetType).WithMany(p => p.Assets)
+                .HasForeignKey(d => d.AssetTypeId)
+                .HasConstraintName("FK_Asset_AssetType");
+        });
+
+        modelBuilder.Entity<AssetAssignment>(entity =>
+        {
+            entity.HasKey(e => e.AssignmentId).HasName("PK__AssetAss__32499E77B15C3C4F");
+
+            entity.ToTable("AssetAssignments", "Asset");
+
+            entity.Property(e => e.AssetCode).HasMaxLength(50);
+            entity.Property(e => e.AssetName).HasMaxLength(100);
+            entity.Property(e => e.AssetType).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.EmployeeName).HasMaxLength(100);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValue("Assigned");
+        });
+
+        modelBuilder.Entity<AssetCategory>(entity =>
+        {
+            entity.HasKey(e => e.AssetCategoryId).HasName("PK__AssetCat__C381F49DC1A419A7");
+
+            entity.ToTable("AssetCategory", "adminmaster");
+
+            entity.Property(e => e.AssetCategoryId).HasColumnName("AssetCategoryID");
+            entity.Property(e => e.AssetCategoryName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.AssetCategories)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AssetCategory_Company");
+
+            entity.HasOne(d => d.Region).WithMany(p => p.AssetCategories)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AssetCategory_Region");
         });
 
         modelBuilder.Entity<AssetFilterMaster>(entity =>
@@ -401,6 +473,31 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<AssetRequest>(entity =>
+        {
+            entity.HasKey(e => e.RequestId).HasName("PK__AssetReq__33A8519A7C78666A");
+
+            entity.ToTable("AssetRequests", "Asset");
+
+            entity.Property(e => e.RequestId).HasColumnName("RequestID");
+            entity.Property(e => e.AssetCategoryId).HasColumnName("AssetCategoryID");
+            entity.Property(e => e.AssetTypeId).HasColumnName("AssetTypeID");
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Department).HasMaxLength(100);
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.EmployeeName).HasMaxLength(150);
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.PriorityId).HasColumnName("PriorityID");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+        });
+
         modelBuilder.Entity<AssetStatus>(entity =>
         {
             entity.HasKey(e => e.AssetStatusId).HasName("PK__AssetSta__E63EE4F62DC81A96");
@@ -431,6 +528,39 @@ public partial class HRMSContext : DbContext
                 .HasForeignKey(d => d.RegionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AssetStatus_Region");
+        });
+
+        modelBuilder.Entity<AssetType>(entity =>
+        {
+            entity.HasKey(e => e.AssetTypeId).HasName("PK__AssetTyp__FD33C22201AB22FB");
+
+            entity.ToTable("AssetType", "adminmaster");
+
+            entity.Property(e => e.AssetTypeId).HasColumnName("AssetTypeID");
+            entity.Property(e => e.AssetTypeName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.AssetTypes)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AssetType_Company");
+
+            entity.HasOne(d => d.Region).WithMany(p => p.AssetTypes)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AssetType_Region");
         });
 
         modelBuilder.Entity<AttachmentType>(entity =>
@@ -851,6 +981,10 @@ public partial class HRMSContext : DbContext
 
             entity.ToTable("Category", "adminmaster");
 
+            entity.HasIndex(e => new { e.UserId, e.CompanyId, e.RegionId, e.CategoryName }, "UX_Category_Unique")
+                .IsUnique()
+                .HasFilter("([IsDeleted]=(0))");
+
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName)
                 .HasMaxLength(100)
@@ -1142,6 +1276,39 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
         });
 
+        modelBuilder.Entity<Currency>(entity =>
+        {
+            entity.HasKey(e => e.CurrencyId).HasName("PK__Currency__14470B102D40CCE9");
+
+            entity.ToTable("Currency", "adminmaster");
+
+            entity.Property(e => e.CurrencyId).HasColumnName("CurrencyID");
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CurrencyName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.Currencies)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Currency_Company");
+
+            entity.HasOne(d => d.Region).WithMany(p => p.Currencies)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Currency_Region");
+        });
+
         modelBuilder.Entity<CurrencyMaster>(entity =>
         {
             entity.HasKey(e => e.CurrencyId).HasName("PK__Currency__14470B1077B465FB");
@@ -1297,6 +1464,7 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedBy)
                 .HasMaxLength(200)
                 .IsUnicode(false);
+            entity.Property(e => e.ShiftName).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
         });
 
@@ -2400,6 +2568,10 @@ public partial class HRMSContext : DbContext
 
             entity.ToTable("InterviewLevels", "adminmaster");
 
+            entity.HasIndex(e => new { e.UserId, e.CompanyId, e.RegionId, e.InterviewLevels }, "UX_InterviewLevel_Unique")
+                .IsUnique()
+                .HasFilter("([IsDeleted]=(0))");
+
             entity.Property(e => e.InterviewLevelsId).HasColumnName("InterviewLevelsID");
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.CreatedAt)
@@ -2569,6 +2741,28 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.DesignationId).HasColumnName("DesignationID");
             entity.Property(e => e.LeaveTypeId).HasColumnName("LeaveTypeID");
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
+        });
+
+        modelBuilder.Entity<LeaveTypeGrade>(entity =>
+        {
+            entity.HasKey(e => e.LeaveTypeGradeId).HasName("PK__LeaveTyp__862168A49495D8A3");
+
+            entity.ToTable("LeaveTypeGrade", "adminmaster");
+
+            entity.Property(e => e.LeaveTypeGradeId).HasColumnName("LeaveTypeGradeID");
+            entity.Property(e => e.GradeId).HasColumnName("GradeID");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LeaveTypeId).HasColumnName("LeaveTypeID");
+
+            entity.HasOne(d => d.Grade).WithMany(p => p.LeaveTypeGrades)
+                .HasForeignKey(d => d.GradeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__LeaveType__Grade__17E28260");
+
+            entity.HasOne(d => d.LeaveType).WithMany(p => p.LeaveTypeGrades)
+                .HasForeignKey(d => d.LeaveTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__LeaveType__Leave__16EE5E27");
         });
 
         modelBuilder.Entity<ManagerKpireview>(entity =>

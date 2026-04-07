@@ -1,12 +1,9 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BusinessLayer.Implementations
 {
@@ -71,11 +68,26 @@ namespace BusinessLayer.Implementations
         // CREATE
         public async Task<CategoryDto> CreateCompanyNewsCategoryAsync(CategoryDto dto)
         {
+            // ✅ TRIM INPUT
+            var name = dto.CategoryName?.Trim().ToLower();
+
+            // ✅ DUPLICATE CHECK
+            var exists = await _context.Categories.AnyAsync(c =>
+                !c.IsDeleted &&
+                c.UserId == dto.UserId &&
+                c.CompanyId == dto.CompanyId &&
+                c.RegionId == dto.RegionId &&
+                c.CategoryName.ToLower() == name
+            );
+
+            if (exists)
+                throw new Exception("Duplicate Category exists");
+
             var entity = new Category
             {
                 CompanyId = dto.CompanyId,
                 RegionId = dto.RegionId,
-                CategoryName = dto.CategoryName,
+                CategoryName = dto.CategoryName.Trim(), // ✅ Trim here also
                 IsActive = dto.IsActive,
                 IsDeleted = false,
                 CreatedBy = dto.UserId,
@@ -100,14 +112,28 @@ namespace BusinessLayer.Implementations
             if (entity == null || entity.IsDeleted)
                 return false;
 
+            var name = dto.CategoryName?.Trim().ToLower();
+
+            // ✅ DUPLICATE CHECK (exclude current)
+            var exists = await _context.Categories.AnyAsync(c =>
+                !c.IsDeleted &&
+                c.CategoryId != categoryId &&
+                c.UserId == dto.UserId &&
+                c.CompanyId == dto.CompanyId &&
+                c.RegionId == dto.RegionId &&
+                c.CategoryName.ToLower() == name
+            );
+
+            if (exists)
+                throw new Exception("Duplicate Category exists");
+
             entity.CompanyId = dto.CompanyId;
             entity.RegionId = dto.RegionId;
-            entity.CategoryName = dto.CategoryName;
+            entity.CategoryName = dto.CategoryName.Trim();
             entity.IsActive = dto.IsActive;
             entity.ModifiedBy = dto.UserId;
             entity.ModifiedAt = DateTime.UtcNow;
 
-            _context.Categories.Update(entity);
             await _context.SaveChangesAsync();
 
             return true;

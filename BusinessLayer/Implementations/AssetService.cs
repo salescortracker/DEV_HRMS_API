@@ -2,21 +2,19 @@
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BusinessLayer.Implementations
 {
     public class AssetService:IAssetService
     {
+        private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
 
-        public AssetService(HRMSContext context)
+        public AssetService(HRMSContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<int> CreateAssetAsync(AssetDto assetDto)
@@ -33,12 +31,16 @@ namespace BusinessLayer.Implementations
             // Create asset for employee
             var asset = new Asset
             {
+
                 CompanyId = assetDto.CompanyID,
                 RegionId = assetDto.RegionID,
                 UserId = assetDto.UserID,
                 EmployeeName = employee.FullName,  // ✅ Save employee name from DB
                 AssetName = assetDto.AssetName,
                 AssetCode = assetDto.AssetCode,
+                AssetTypeId = assetDto.AssetType,
+                AssetCategoryId = assetDto.AssetCategory,
+
                 AssetLocation = assetDto.AssetLocation,
                 AssetCost = assetDto.AssetCost,
                 CurrencyCode = assetDto.CurrencyCode,
@@ -85,6 +87,9 @@ namespace BusinessLayer.Implementations
 
             asset.AssetName = assetDto.AssetName;
             asset.AssetCode = assetDto.AssetCode;
+            asset.AssetTypeId = assetDto.AssetType;
+            asset.AssetCategoryId = assetDto.AssetCategory;
+
             asset.AssetLocation = assetDto.AssetLocation;
             asset.AssetCost = assetDto.AssetCost;
             asset.CurrencyCode = assetDto.CurrencyCode;
@@ -130,6 +135,9 @@ namespace BusinessLayer.Implementations
                     EmployeeName = a.EmployeeName,
                     AssetName = a.AssetName,
                     AssetCode = a.AssetCode,
+                    AssetType = a.AssetTypeId,
+                    AssetCategory = a.AssetCategoryId,
+
                     AssetLocation = a.AssetLocation,
                     AssetCost = a.AssetCost,
                     CurrencyCode = a.CurrencyCode,
@@ -166,6 +174,9 @@ namespace BusinessLayer.Implementations
                     EmployeeName = a.EmployeeName,
                     AssetName = a.AssetName,
                     AssetCode = a.AssetCode,
+                    AssetType = a.AssetTypeId,
+                    AssetCategory = a.AssetCategoryId,
+
                     AssetLocation = a.AssetLocation,
                     AssetCost = a.AssetCost,
                     CurrencyCode = a.CurrencyCode,
@@ -188,14 +199,19 @@ namespace BusinessLayer.Implementations
                 .ToListAsync();
         }
 
-        public async Task<List<AssetStatusDto>> GetAllAssetStatusesAsync()
+        public async Task<List<AssetStatusDto>> GetAllAssetStatusesAsync(int companyId, int regionId)
         {
             return await _context.AssetStatuses
-                .Where(x => x.IsActive && !x.IsDeleted)
+                .Where(x => x.IsActive &&
+                !x.IsDeleted &&
+                 x.CompanyId == companyId &&
+                x.RegionId == regionId )
                 .Select(x => new AssetStatusDto
                 {
                     AssetStatusId = x.AssetStatusId,
-                    AssetStatusName = x.AssetStatusName
+                    AssetStatusName = x.AssetStatusName,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId
                 })
                 .ToListAsync();
         }
@@ -211,6 +227,221 @@ namespace BusinessLayer.Implementations
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
         }
+
+        public async Task<int> CreateAssetRequestAsync(AssetRequestDto dto)
+        {
+            var entity = new AssetRequest
+            {
+                CompanyId = dto.CompanyID,
+                RegionId = dto.RegionID,
+                UserId = dto.UserID,
+
+                EmployeeName = dto.EmployeeName,
+                EmployeeCode = dto.EmployeeCode,
+                Department = dto.Department,
+
+                AssetTypeId = dto.AssetType,
+                AssetCategoryId = dto.AssetCategory,
+
+                RequiredDate = DateOnly.FromDateTime(dto.RequiredDate),
+                PriorityId = dto.Priority,
+
+                Reason = dto.Reason,
+                FileName = dto.FileName,
+                FilePath = dto.FilePath,
+
+                ReportingTo = dto.ReportingTo,
+
+                Status = "Pending",
+                CreatedBy = dto.UserID,
+                CreatedAt = DateTime.Now,
+                HrEmail = dto.HrEmail,
+            };
+
+            _context.AssetRequests.Add(entity);
+            await _context.SaveChangesAsync();
+
+            // ✅ STEP 1: Get Reporting Manager Email
+            var manager = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == dto.ReportingTo);
+            // ✅ Get Asset Type Name
+            var assetTypeName = await _context.AssetTypes
+                .Where(x => x.AssetTypeId == dto.AssetType)
+                .Select(x => x.AssetTypeName)
+                .FirstOrDefaultAsync();
+
+            // ✅ Get Asset Category Name
+            var assetCategoryName = await _context.AssetCategories
+                .Where(x => x.AssetCategoryId == dto.AssetCategory)
+                .Select(x => x.AssetCategoryName)
+                .FirstOrDefaultAsync();
+
+            // ✅ Get Priority Name
+            var priorityName = await _context.Priorities
+                .Where(x => x.PriorityId == dto.Priority)
+                .Select(x => x.PriorityName)
+                .FirstOrDefaultAsync();
+
+
+            if (manager != null && !string.IsNullOrEmpty(manager.Email))
+            {
+                // ✅ STEP 2: Build Email Body
+                var body = $@"
+            <h3>New Asset Request</h3>
+            <p><b>Request ID:</b> {entity.RequestId}</p>
+            <p><b>Employee Name:</b> {dto.EmployeeName}</p>
+            <p><b>Employee Code:</b> {dto.EmployeeCode}</p>
+            <p><b>Department:</b> {dto.Department}</p>
+           <p><b>Asset Type:</b> {assetTypeName ?? "-"}</p>
+    <p><b>Asset Category:</b> {assetCategoryName ?? "-"}</p>
+    <p><b>Priority:</b> {priorityName ?? "-"}</p>
+            <p><b>Required Date:</b> {dto.RequiredDate:dd-MM-yyyy}</p>
+            <p><b>Reason:</b> {dto.Reason}</p>
+            <p>Status: <b>Pending</b></p>
+        ";
+
+                // ✅ STEP 3: Send Email
+                //await _emailService.SendEmailAsync(
+                //    manager.Email,
+                //    "New Asset Request Approval",
+                //    body
+                //);
+                List<string> ccEmails = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                {
+                    ccEmails.Add(dto.HrEmail);
+                }
+
+                await _emailService.SendEmailAsync(
+                    manager.Email,
+                    "New Asset Request Approval",
+                    body,
+                    ccEmails   // ✅ PASS CC
+                );
+            }
+
+            return entity.RequestId;
+        }
+
+
+        public async Task<List<AssetRequestDto>> GetAssetRequestsByUserAsync(int userId)
+        {
+            return await _context.AssetRequests
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.RequestId)
+                .Select(x => new AssetRequestDto
+                {
+                    RequestID = x.RequestId,
+                    CompanyID = x.CompanyId,
+                    RegionID = x.RegionId,
+                    UserID = x.UserId,
+
+                    EmployeeName = x.EmployeeName,
+                    EmployeeCode = x.EmployeeCode,
+                    Department = x.Department,
+
+                    AssetType = x.AssetTypeId,
+                    AssetCategory = x.AssetCategoryId,
+
+                    RequiredDate = x.RequiredDate.ToDateTime(TimeOnly.MinValue),
+                    Priority = x.PriorityId,
+
+                    Reason = x.Reason,
+                    FileName = x.FileName,
+                    FilePath = x.FilePath,
+
+                    ReportingTo = x.ReportingTo,
+                    Status = x.Status
+                })
+                .ToListAsync();
+        }
+        public async Task<List<AssetDto>> GetAvailableAssetsAsync(int companyId, int regionId)
+        {
+            return await _context.Assets
+                .Where(a => a.CompanyId == companyId
+                         && a.RegionId == regionId
+                         ) // ✅ Available only
+                .Select(a => new AssetDto
+                {
+                    AssetID = a.AssetId,
+                    AssetName = a.AssetName,
+                    AssetCode = a.AssetCode
+                })
+                .ToListAsync();
+        }
+        public async Task<int> CreateAssignmentAsync(AssetAssignmentDto dto)
+        {
+            var entity = new AssetAssignment
+            {
+                CompanyId = dto.CompanyId,
+                RegionId = dto.RegionId,
+                RequestId = dto.RequestId,
+                AssetId = dto.AssetId,
+                EmployeeName = dto.EmployeeName,
+                AssetType = dto.AssetType,
+                AssetName = dto.AssetName,
+                AssetCode = dto.AssetCode,
+
+                AssignDate = DateOnly.FromDateTime(dto.AssignDate.ToUniversalTime()),
+
+                ReturnDate = dto.ReturnDate.HasValue
+                    ? DateOnly.FromDateTime(dto.ReturnDate.Value.ToUniversalTime())
+                    : null,
+
+                Remarks = dto.Remarks,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.AssetAssignments.Add(entity);
+
+            // 🔥 REMOVE REQUEST FROM DROPDOWN
+            var request = await _context.AssetRequests
+                .FirstOrDefaultAsync(x => x.RequestId == dto.RequestId);
+
+            if (request != null)
+            {
+                request.Status = "Assigned";
+            }
+
+            // 🔥 MAKE ASSET UNAVAILABLE
+            var asset = await _context.Assets
+                .FirstOrDefaultAsync(x => x.AssetId == dto.AssetId);
+
+            if (asset != null)
+            {
+                asset.AssetStatusId = 2; // Assigned
+            }
+
+            await _context.SaveChangesAsync();
+
+            return entity.AssignmentId;
+        }
+
+        public async Task<List<AssetAssignmentDto>> GetAssignmentsAsync(int companyId, int regionId)
+        {
+            return await _context.AssetAssignments
+                .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+                .OrderByDescending(x => x.AssignmentId)
+                .Select(x => new AssetAssignmentDto
+                {
+                    AssignmentId = x.AssignmentId,
+                    RequestId = x.RequestId,
+                    EmployeeName = x.EmployeeName,
+                    AssetType = x.AssetType,
+                    AssetName = x.AssetName,
+                    AssetCode = x.AssetCode,
+                    AssignDate = x.AssignDate.ToDateTime(TimeOnly.MinValue),
+
+                    ReturnDate = x.ReturnDate.HasValue
+                ? x.ReturnDate.Value.ToDateTime(TimeOnly.MinValue)
+                : null,
+
+                    Remarks = x.Remarks
+                })
+                .ToListAsync();
+        }
+
 
     }
 }

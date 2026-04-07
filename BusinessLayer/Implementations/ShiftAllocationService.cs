@@ -58,7 +58,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = x.ShiftName,
                     ShiftStartTime = x.ShiftStartTime.ToString("HH:mm"),
                     ShiftEndTime = x.ShiftEndTime.ToString("HH:mm"),
-                    GraceTime = x.GraceTime,
+                   GraceTime = x.GraceTime,
                     IsActive = x.IsActive,
                     CompanyID = x.CompanyId,
                     RegionID = x.RegionId,
@@ -99,7 +99,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = dto.ShiftName,
                     ShiftStartTime = startTime,
                     ShiftEndTime = endTime,
-                    GraceTime = dto.GraceTime,
+                  //  GraceTime = dto.GraceTime,
                     CompanyId = dto.CompanyID,
                     RegionId = dto.RegionID,
                     IsActive = dto.IsActive,
@@ -127,6 +127,7 @@ namespace BusinessLayer.Implementations
             entity.ShiftName = dto.ShiftName;
             entity.ShiftStartTime = TimeOnly.Parse(dto.ShiftStartTime);
             entity.ShiftEndTime = TimeOnly.Parse(dto.ShiftEndTime);
+            entity.GraceTime = dto.GraceTime;   
             entity.GraceTime = dto.GraceTime;
             entity.ModifiedAt = DateTime.Now;
             entity.ModifiedBy = dto.ModifiedBy;
@@ -335,6 +336,24 @@ namespace BusinessLayer.Implementations
                     ShiftName = sm.ShiftName,
                     ShiftStartTime = sm.ShiftStartTime,
                     ShiftEndTime = sm.ShiftEndTime
+                }
+            ).FirstOrDefaultAsync();
+        }
+        public async Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(string employeeCode, int companyId, int regionId)
+        {
+            return await (
+                from s in _context.ShiftAllocations
+                join sm in _context.ShiftMasters
+                    on s.ShiftId equals sm.ShiftId
+                where s.EmployeeCode == employeeCode
+                      && s.CompanyId == companyId
+                      && s.RegionId == regionId
+                select new EmployeeShiftDto
+                {
+                    ShiftName = sm.ShiftName,
+                    ShiftStartTime = sm.ShiftStartTime,
+                    ShiftEndTime = sm.ShiftEndTime,
+                    GrassTime = sm.GraceTime
                 }
             ).FirstOrDefaultAsync();
         }

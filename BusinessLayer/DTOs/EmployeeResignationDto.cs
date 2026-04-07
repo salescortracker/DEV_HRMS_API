@@ -44,5 +44,6 @@ namespace BusinessLayer.DTOs
         public string? HRReason { get; set; }
         public DateTime? HRApprovedDate { get; set; }
         public DateTime? HRRejectedDate { get; set; }
+        public string? HrEmail { get; set; }
     }
 }

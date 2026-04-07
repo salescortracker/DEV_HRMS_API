@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class CandidateOfferDto
     {
@@ -27,5 +21,6 @@ namespace BusinessLayer.DTOs
         public string? Designation { get; set; }
         public int StageId { get; set; }
         public string? Email { get; set; }
+        public string? HrEmail { get; set; }
     }
 }

@@ -456,18 +456,14 @@ namespace BusinessLayer.Implementations
         }
 
         public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+ int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    
                     c.StageId == 2 &&                 // 🔥 ONLY SCREENING
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    
+                    c.UserId == userId &&
                     c.IsActive
                 );
 
@@ -619,18 +615,13 @@ string designation)
         /////////////////Interview
 
         public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    c.UserId == userId &&
                     c.StageId == 3 &&                 // 🔥 ONLY SCREENING
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    
                     c.IsActive
                 );
 
@@ -686,7 +677,8 @@ string designation)
                     Description = dto.Description,
                     Result = dto.Result ?? "Pending",
                     CreatedAt = DateTime.Now,
-                    CreatedBy = dto.UserId
+                    CreatedBy = dto.UserId,
+                    HrEmail = dto.HrEmail,
                 };
 
                 await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
@@ -757,7 +749,10 @@ string designation)
                     await _emailService.SendEmailAsync(
                         interviewer.Email,
                         interviewerSubject,
-                        interviewerBody
+                        interviewerBody,
+                         string.IsNullOrEmpty(dto.HrEmail)
+        ? null
+        : new List<string> { dto.HrEmail }
                     );
                 }
 
@@ -766,7 +761,10 @@ string designation)
                     await _emailService.SendEmailAsync(
                         candidate.Email,
                         candidateSubject,
-                        candidateBody
+                        candidateBody,
+                         string.IsNullOrEmpty(dto.HrEmail)
+        ? null
+        : new List<string> { dto.HrEmail }
                     );
                 }
 
@@ -1062,18 +1060,20 @@ string designation)
             return result;
         }
         public async Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+//int companyId,
+//int regionId,
+//string department,
+//string designation
+int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    //c.CompanyId == companyId &&
+                    //c.RegionId == regionId &&
                     c.StageId == 5 &&
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    c.UserId == userId &&
+                    //c.Department == department &&
+                    //c.Designation == designation &&
                     c.IsActive
                 );
 
@@ -1108,7 +1108,8 @@ string designation)
                     OfferLetterPath = dto.OfferLetterPath,
                     FilePath = dto.FilePath,
                     CreatedBy = dto.UserId,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    HrEmail = dto.HrEmail,
                 };
 
                 await _unitOfWork.Repository<CandidateOffer>().AddAsync(offer);
@@ -1215,7 +1216,7 @@ string designation)
             string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "OfferLetters");
             if (!Directory.Exists(root)) Directory.CreateDirectory(root);
 
-            string fileName = $"Offer_{candidate.FirstName}_{offer.OfferId}.html";
+            string fileName = $"Offer_{candidate.FirstName}_{offer.OfferId}";
             string fullPath = Path.Combine(root, fileName);
 
             string html = $@"
@@ -1249,7 +1250,9 @@ string designation)
 <p><a href='{downloadUrl}'>Click here to download your offer letter</a></p>
 <p>Regards,<br/>HR Team</p>";
 
-            await _emailService.SendEmailAsync(candidate.Email, subject, body);
+            await _emailService.SendEmailAsync(candidate.Email, subject, body, string.IsNullOrEmpty(offer.HrEmail)
+        ? null
+        : new List<string> { offer.HrEmail });
 
             return true;
         }
@@ -1274,18 +1277,20 @@ string designation)
 
 
         public async Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+//int companyId,
+//int regionId,
+//string department,
+//string designation,
+            int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    //c.CompanyId == companyId &&
+                    //c.RegionId == regionId &&
                     c.StageId == 6 &&                 // 🔥 ONLY SCREENING
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    c.UserId == userId &&
+                    //c.Department == department &&
+                    //c.Designation == designation &&
                     c.IsActive
                 );
 

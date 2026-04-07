@@ -11,8 +11,9 @@ namespace BusinessLayer.DTOs
         public int AssetStatusId { get; set; }
         public int CompanyId { get; set; }
         public int RegionId { get; set; }
-        public string AssetStatusName { get; set; }
-        public string Description { get; set; }
+        public string AssetStatusName { get; set; } = string.Empty;
+        public string? Description { get; set; }
         public bool IsActive { get; set; }
+        public int UserId { get; set; }
     }
 }

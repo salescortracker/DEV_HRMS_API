@@ -117,5 +117,6 @@ namespace BusinessLayer.Interfaces
         Task<EmployeeEmergencyContactDto> AddempEmergencyAsync(EmployeeEmergencyContactDto contactDto);
         Task<EmployeeEmergencyContactDto?> UpdateempEmergencyAsync(EmployeeEmergencyContactDto contactDto);
         Task<bool> DeleteempEmergencyAsync(int emergencyContactId);
+        Task<string?> GetProfilePictureByUserIdAsync(int userId);
     }
 }

@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using Azure.Core;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
@@ -55,7 +56,8 @@ namespace BusinessLayer.Implementations
                 FilePath = dto.FilePath,
                 Status = "Pending",
                 CreatedBy = dto.UserId,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                HrEmail = dto.HrEmail
             };
 
             await _unitOfWork.Repository<Timesheet>().AddAsync(timesheet);
@@ -84,6 +86,7 @@ namespace BusinessLayer.Implementations
             }
 
             await _unitOfWork.CompleteAsync();
+            await SendManagerEmailAsync(timesheet);
             return timesheet.TimesheetId;
         }
 
@@ -154,58 +157,80 @@ namespace BusinessLayer.Implementations
             string subject = $"Timesheet Submitted - {ts.EmployeeName}";
 
             string body = $@"
-            <html>
-            <body style='font-family:Segoe UI'>
-                <h3>Timesheet Submitted</h3>
-                <p><b>Employee:</b> {ts.EmployeeName} ({ts.EmployeeCode})</p>
-                <p><b>Date:</b> {ts.TimesheetDate:dd-MMM-yyyy}</p>
-                <p><b>Status:</b> Submitted</p>
-                <p><b>Comments:</b> {ts.Comments}</p>
-                <hr/>
-                <p>Please login to HRMS to review the timesheet.</p>
-            </body>
-            </html>";
+    <html>
+    <body style='font-family:Segoe UI'>
+        <h3>Timesheet Submitted</h3>
+        <p><b>Employee:</b> {ts.EmployeeName} ({ts.EmployeeCode})</p>
+        <p><b>Date:</b> {ts.TimesheetDate:dd-MMM-yyyy}</p>
+        <p><b>Status:</b> Submitted</p>
+        <p><b>Comments:</b> {ts.Comments}</p>
+        <hr/>
+        <p>Please login to HRMS to review the timesheet.</p>
+    </body>
+    </html>";
 
-            await _emailService.SendEmailAsync(manager.Email, subject, body);
+            // ✅ CC LIST
+            var ccList = new List<string>();
+
+            if (!string.IsNullOrEmpty(ts.HrEmail))
+            {
+                ccList.Add(ts.HrEmail);
+            }
+
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    manager.Email,
+                    subject,
+                    body,
+                    ccList
+                );
+
+                Console.WriteLine("Email sent successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Email FAILED: " + ex.Message);
+            }
         }
 
         public async Task<IEnumerable<ManagerTimesheetDto>> GetTimesheetsForManagerAsync(int managerUserId)
         {
-            var timesheets = await _unitOfWork.Repository<Timesheet>()
-                .FindAsync(t =>
-                    t.ManagerUserId == managerUserId
-                    && (t.Status == "Pending" || t.Status == "Submitted")
-                );
+                var timesheets = await _unitOfWork.Repository<Timesheet>()
+                    .FindAsync(t =>
+                        t.ManagerUserId == managerUserId);
 
-            var timesheetIds = timesheets.Select(t => t.TimesheetId).ToList();
+                var timesheetIds = timesheets.Select(t => t.TimesheetId).ToList();
 
-            var projects = await _unitOfWork.Repository<TimesheetProject>()
-                .FindAsync(p => timesheetIds.Contains(p.TimesheetId));
+                var projects = await _unitOfWork.Repository<TimesheetProject>()
+                    .FindAsync(p => timesheetIds.Contains(p.TimesheetId));
 
-            return timesheets.Select(t => new ManagerTimesheetDto
-            {
-                TimesheetId = t.TimesheetId,
-                UserId = t.UserId,
-                EmployeeName = t.EmployeeName,
-                EmployeeCode = t.EmployeeCode,
-                TimesheetDate = t.TimesheetDate.ToDateTime(TimeOnly.MinValue),
-                Status = t.Status,
-                Comments = t.Comments,
+                return timesheets.Select(t => new ManagerTimesheetDto
+                {
+                    TimesheetId = t.TimesheetId,
+                    UserId = t.UserId,
+                    EmployeeName = t.EmployeeName,
+                    EmployeeCode = t.EmployeeCode,
+                    TimesheetDate = t.TimesheetDate.ToDateTime(TimeOnly.MinValue),
+                    Status = t.Status,
+                    Comments = t.Comments,
 
-                Projects = projects
-                    .Where(p => p.TimesheetId == t.TimesheetId)
-                    .Select(p => new TimesheetProjectDto
-                    {
-                        ProjectName = p.ProjectName,
-                        StartTime = p.StartTime.ToString(),
-                        EndTime = p.EndTime.ToString(),
-                        TotalMinutes = p.TotalMinutes,
-                        TotalHoursText = p.TotalHoursText,
-                        OTMinutes = p.Otminutes,
-                        OTHoursText = p.OthoursText ?? "0 Hours"
-                    }).ToList()
-            });
-        }
+                    Projects = projects
+                        .Where(p => p.TimesheetId == t.TimesheetId)
+                        .Select(p => new TimesheetProjectDto
+                        {
+                            ProjectName = p.ProjectName,
+                            StartTime = p.StartTime.ToString(),
+                            EndTime = p.EndTime.ToString(),
+                            TotalMinutes = p.TotalMinutes,
+                            TotalHoursText = p.TotalHoursText,
+                            OTMinutes = p.Otminutes,
+                            OTHoursText = p.OthoursText ?? "0 Hours"
+                        }).ToList()
+                });
+            
+            }
+
         public async Task<ManagerTimesheetDto> GetTimesheetDetailAsync(int timesheetId)
         {
             var ts = await _unitOfWork.Repository<Timesheet>()
@@ -215,6 +240,8 @@ namespace BusinessLayer.Implementations
 
             var projects = await _unitOfWork.Repository<TimesheetProject>()
                 .FindAsync(p => p.TimesheetId == timesheetId);
+            var timesheetRequests = await _unitOfWork.Repository<Timesheet>()
+     .FindAsync(r => r.TimesheetId == timesheetId);
 
             return new ManagerTimesheetDto
             {
@@ -234,6 +261,13 @@ namespace BusinessLayer.Implementations
                     TotalHoursText = p.TotalHoursText,
                     OTMinutes = p.Otminutes,
                     OTHoursText = p.OthoursText
+                }).ToList(),
+                Requests = timesheetRequests
+                .Select(r => new TimesheetRequestDto
+                {
+                    FileName = r.FileName,
+                    FilePath = r.FilePath,
+
                 }).ToList()
             };
         }

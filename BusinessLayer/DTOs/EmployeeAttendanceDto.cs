@@ -22,5 +22,14 @@ namespace BusinessLayer.DTOs
         public string ClockIn { get; set; }   // ADD
         public string ClockOut { get; set; }  // ADD
         public string GrossTime { get; set; }
+
+        public string? ShiftName { get; set; }
+
+        public string? ShiftStartTime { get; set; }
+
+        public string? ShiftEndTime { get; set; }
+
+        public int? LateMinutes { get; set; }
+        
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccessLayer.DBContext;
+﻿namespace DataAccessLayer.DBContext;
 
 public partial class LeaveRequest
 {
@@ -46,6 +43,8 @@ public partial class LeaveRequest
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
+
+    public string? HrEmail { get; set; }
 
     public virtual LeaveType LeaveType { get; set; } = null!;
 

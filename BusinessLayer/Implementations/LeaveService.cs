@@ -107,7 +107,8 @@ namespace BusinessLayer.Implementations
                 Status = "Pending",
                 AppliedDate = DateTime.Now,
                 CreatedAt = DateTime.Now,
-                CreatedBy = dto.UserId
+                CreatedBy = dto.UserId,
+                HrEmail = dto.HrEmail,
             };
 
             await _unitOfWork.Repository<LeaveRequest>().AddAsync(entity);
@@ -266,7 +267,20 @@ namespace BusinessLayer.Implementations
         </body>
         </html>";
 
-            await _emailService.SendEmailAsync(manager.Email, subject, body);
+            // await _emailService.SendEmailAsync(manager.Email, subject, body);
+            List<string> ccEmails = new List<string>();
+
+            if (!string.IsNullOrEmpty(leave.HrEmail))
+            {
+                ccEmails.Add(leave.HrEmail);
+            }
+
+            await _emailService.SendEmailAsync(
+                manager.Email,
+                subject,
+                body,
+                ccEmails
+            );
         }
 
         // ✅ SINGLE APPROVE

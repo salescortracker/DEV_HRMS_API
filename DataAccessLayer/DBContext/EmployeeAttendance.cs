@@ -32,4 +32,13 @@ public partial class EmployeeAttendance
     public TimeOnly? ClockOutTime { get; set; }
 
     public string? GrossTime { get; set; }
+
+    public string? ShiftName { get; set; }
+
+    public TimeOnly? ShiftStartTime { get; set; }
+
+    public TimeOnly? ShiftEndTime { get; set; }
+
+    public int? LateMinutes { get; set; }
+
 }

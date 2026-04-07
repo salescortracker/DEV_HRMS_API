@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccessLayer.DBContext;
+﻿namespace DataAccessLayer.DBContext;
 
 public partial class Ticket
 {
@@ -44,6 +41,8 @@ public partial class Ticket
     public DateTime? ApprovedAt { get; set; }
 
     public int? ApprovedBy { get; set; }
+
+    public string? HrEmail { get; set; }
 
     public virtual HelpDeskCategory Category { get; set; } = null!;
 

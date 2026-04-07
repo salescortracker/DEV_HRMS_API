@@ -11,7 +11,7 @@ namespace BusinessLayer.Interfaces
     public interface IAttendanceStatusService
     {
         Task<ApiResponse<IEnumerable<AttendanceStatusDto>>>
-           GetAllAsync(int companyId, int regionId);
+           GetAllAsync(int userId);
 
         Task<ApiResponse<AttendanceStatusDto?>>
             GetByIdAsync(int id);

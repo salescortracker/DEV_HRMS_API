@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccessLayer.DBContext;
+﻿namespace DataAccessLayer.DBContext;
 
 public partial class CandidateOffer
 {
@@ -34,6 +31,8 @@ public partial class CandidateOffer
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
+
+    public string? HrEmail { get; set; }
 
     public virtual Candidate Candidate { get; set; } = null!;
 }

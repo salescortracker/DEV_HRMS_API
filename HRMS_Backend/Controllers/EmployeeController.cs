@@ -345,7 +345,7 @@ public class UpdateResignationStatusRequest
             var data = await _employeeService.getByUserIdEmpCertAsync(userId);
 
             if (data == null || !data.Any())
-                return NotFound(new { message = "No certifications found" });
+                return Ok(data);
 
             return Ok(data);
         }
@@ -491,7 +491,7 @@ public class UpdateResignationStatusRequest
             var data = await _employeeService.getByUserIdEmpJobAsync(userId);
 
             if (data == null || !data.Any())
-                return NotFound(new { message = "No job history found" });
+                return Ok(data);
 
             return Ok(data);
         }
@@ -1495,6 +1495,15 @@ public class UpdateResignationStatusRequest
         // ---------------------------------------------------------
         // GET PERSONAL DETAILS BY USER ID
         // ---------------------------------------------------------
+        [HttpGet("GetProfilePicture/{userId}")]
+        public async Task<IActionResult> GetProfilePicture(int userId)
+        {
+            if (userId <= 0)
+                return BadRequest("Invalid UserId");
+
+            var profilePictureName = await _employeeService.GetProfilePictureByUserIdAsync(userId);
+            return Ok(profilePictureName); 
+        }
         [HttpGet("GetByUserIdempProfile/{userId}")]
         public async Task<IActionResult> GetByUserIdempProfile(int userId)
         {
@@ -2420,6 +2429,14 @@ public class UpdateResignationStatusRequest
 
         #endregion
 
+        //[HttpGet("GetResignationsForManager")]
+        //public async Task<IActionResult> GetResignationsForManager(int managerUserId)
+        //{
+        //    var data = await _resignationService
+        //        .GetResignationsForReportingManagerAsync(managerUserId);
+
+        //    return Ok(data);
+        //}
         [HttpGet("GetResignationsForManager")]
         public async Task<IActionResult> GetResignationsForManager(int managerUserId)
         {

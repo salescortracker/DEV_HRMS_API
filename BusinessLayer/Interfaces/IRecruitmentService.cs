@@ -31,10 +31,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<object>> GetRecruitersAsync(int companyId, int regionId);
 
         Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(
-   int companyId,
-   int regionId,
-   string department,
-   string designation
+   int userId
 );
         Task<bool> SaveCandidateScreeningAsync(CandidateScreeningDto dto);
 
@@ -45,10 +42,7 @@ namespace BusinessLayer.Interfaces
         //////////Interview
 
         Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(
- int companyId,
- int regionId,
- string department,
- string designation
+ int userId
 );
         Task<IEnumerable<InterviewLevelDto>> GetInterviewLevelsAsync(int companyId, int regionId);
         Task<bool> SaveCandidateInterviewAsync(CandidateInterviewDto dto);
@@ -64,10 +58,11 @@ namespace BusinessLayer.Interfaces
         Task<object?> GetAppointmentCandidateDetailsAsync(int candidateId);
         //OfferLetter
         Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
-            int companyId,
-            int regionId,
-            string department,
-            string designation);
+            //int companyId,
+            //int regionId,
+            //string department,
+            //string designation
+            int userId);
         Task<bool> SaveCandidateOfferAsync(CandidateOfferDto dto);
 
         Task<IEnumerable<CandidateOfferDto>> GetOfferRecordsAsync(
@@ -82,10 +77,11 @@ namespace BusinessLayer.Interfaces
         //OnBoarding
 
         Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(
-             int companyId,
-             int regionId,
-             string department,
-             string designation);
+             //int companyId,
+             //int regionId,
+             //string department,
+             //string designation
+            int userId);
 
         Task<int> SaveCandidateOnboardingAsync(CandidateOnboardingDTO dto);
         Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId);
