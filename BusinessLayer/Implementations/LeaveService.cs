@@ -245,8 +245,10 @@ namespace BusinessLayer.Implementations
 
             string portalUrl = _configuration["AppSettings:PortalUrl"];
 
-            string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
-            string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
+            //string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
+            //string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
+            string approveUrl = $"{_configuration["AppSettings:LoginUrl"]}";
+            string rejectUrl = $"{_configuration["AppSettings:LoginUrl"]}";
 
             string subject = "New Leave Request";
 
