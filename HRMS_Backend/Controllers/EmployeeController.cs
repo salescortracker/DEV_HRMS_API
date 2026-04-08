@@ -4,6 +4,7 @@ using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace HRMS_Backend.Controllers
 {
@@ -785,20 +786,20 @@ public class UpdateResignationStatusRequest
             };
         }
 
-        //[HttpGet("GetVisaTypes")]
-        //public async Task<IActionResult> GetVisaTypes()
-        //{
-        //    var list = await _employeeService.GetVisaTypesAsync();
-        //    var response = list.
-        //        Select(v => new
-        //        {
-        //            visaTypeId = v.VisaTypeId,
-        //            visaTypeName = v.VisaTypeName
-        //        })
-        //        .ToList();
+        [HttpGet("GetVisaTypes")]
+        public async Task<IActionResult> GetVisaTypes(int companyId, int regionId)
+        {
+            var list = await _employeeService.GetVisaTypesAsync(companyId, regionId);
 
-        //    return Ok(response);
-        //}
+            var response = list.Select(v => new
+            {
+                visaTypeId = v.VisaTypeId,
+                visaTypeName = v.VisaTypeName
+            }).ToList();
+
+            return Ok(response);
+        }
+
         [HttpGet("GetStatuses")]
         public async Task<IActionResult> GetStatuses()
         {
