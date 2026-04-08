@@ -76,8 +76,8 @@ namespace BusinessLayer.Implementations
                         DemoExpiryDate = userdemo != null ? userdemo.DemoExpiryDate : null,
                         CreatedDate = DateTime.Now,
                         UserCompanyId = userDto.UserCompanyId,
-                        LoginType = userDto.loginType
-                        
+                        LoginType = userDto.loginType,
+                        DesignationId = userDto.designationId,
                     };
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -104,8 +104,8 @@ namespace BusinessLayer.Implementations
                         RoleId = userDto.RoleId,
                         Status = "Active",
                         CreatedDate = DateTime.UtcNow,
-                        UserCompanyId = userDto.UserCompanyId
-                        ,
+                        UserCompanyId = userDto.UserCompanyId,
+                        DesignationId = userDto.designationId,
                         DemoStartDate = DateTime.UtcNow,
                         DemoExpiryDate = userdemo != null ? userdemo.DemoExpiryDate : null,
                         LoginType = userDto.loginType
@@ -409,7 +409,7 @@ namespace BusinessLayer.Implementations
             existingUser.PasswordHash = updatedUser.Password;
             existingUser.Status = updatedUser.Status;
             existingUser.LoginType = updatedUser.loginType;
-
+            existingUser.DesignationId = updatedUser.designationId;
             await _context.SaveChangesAsync();
             return existingUser;
 

@@ -22,6 +22,7 @@ namespace BusinessLayer.DTOs
         public string loginType { get; set; }
         public string Status { get; set; } = "Active";
         public string? reportingmanagername { get; set; }
+        public int designationId { get; set; }
     }
 
     public class UserUpdateDto
@@ -34,6 +35,7 @@ namespace BusinessLayer.DTOs
         public int departmentId { get; set; }
         public string Status { get; set; } = "Active"; // or "Inactive"
         public string loginType { get; set; }
+        public int designationId { get; set; }
     }
 
     public class UserReadDto
@@ -47,5 +49,6 @@ namespace BusinessLayer.DTOs
         public DateTime CreatedDate { get; set; }
         public int? CompanyID { get; set; }
         public int? RegionID { get; set; }
+        public int designationId { get; set; }
     }
 }

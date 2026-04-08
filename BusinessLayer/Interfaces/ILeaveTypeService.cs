@@ -6,13 +6,23 @@ namespace BusinessLayer.Interfaces
     public interface ILeaveTypeService
     {
         Task<List<LeaveTypeDto>> GetLeaveTypesAsync();
-        Task<bool> CreateLeaveTypeAsync(LeaveTypeDto dto);
-        Task<bool> UpdateLeaveTypeAsync(LeaveTypeDto dto);
+
+        Task<ApiResponse<bool>> CreateLeaveTypeAsync(LeaveTypeDto dto);
+
+        Task<ApiResponse<bool>> UpdateLeaveTypeAsync(LeaveTypeDto dto);
+
+        Task<ApiResponse<bool>> DeleteLeaveTypeAsync(int id);
+
         Task<ApiResponse<IEnumerable<LeaveTypeDto>>> GetCRLeaveTypesAsync(
-    int companyId,
-    int regionId);
-        Task<bool> DeleteLeaveTypeAsync(int id);
+            int companyId,
+            int regionId
+        );
+
         Task<List<LeaveTypeDto>> GetLeaveTypesByuserIdAsync(int userId);
+
         Task<List<DesignationDTO>> GetDesignationsAsync(int companyId, int regionId);
+
+            Task<List<UserLeaveAllocationDto>> GetUserLeaveAllocation(int userId);
+        
     }
 }
