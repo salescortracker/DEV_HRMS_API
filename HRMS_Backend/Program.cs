@@ -107,6 +107,7 @@ builder.Services.AddScoped<IResumeParserHelper, ResumeParserHelper>();
 builder.Services.AddScoped<IAssetTypeService, AssetTypeService>();
 builder.Services.AddScoped<IAssetCategoryService, AssetCategoryService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IVisatypeService, VisatypeService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

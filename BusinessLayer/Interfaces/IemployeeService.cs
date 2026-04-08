@@ -33,7 +33,7 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateImmigrationAsync(EmployeeImmigrationDto dto);
         Task<bool> DeleteImmigrationAsync(int id);
 
-        Task<List<VisaTypeDto>> GetVisaTypesAsync(int companyId, int regionId);
+        Task<List<VisaTypeMasterDto>> GetVisaTypesAsync(int companyId, int regionId);
         Task<List<WorkAuthStatusDto>> GetStatusListAsync();
 
         Task<IEnumerable<DocumentTypeDto>> GetActiveDocumentTypesAsync();

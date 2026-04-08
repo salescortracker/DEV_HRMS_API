@@ -43,8 +43,9 @@ namespace HRMS_Backend.Controllers
         private readonly IAssetCategoryService _assetCategoryService;
         private readonly ICurrencyService _currencyService;
         private readonly IAttachmentTypeService _attachmentTypeService;
+        private readonly IVisatypeService _visaTypeService;
         public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
-            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService)
+            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -80,6 +81,7 @@ namespace HRMS_Backend.Controllers
             _assetCategoryService = assetCategoryService;
             _currencyService = currencyService;
             _attachmentTypeService = attachmentTypeService;
+            _visaTypeService = visaTypeService;
         }
         //        #region InterviewLevels
 
@@ -3707,5 +3709,54 @@ int regionId)
 
 
         #endregion
+
+        [HttpGet("visatype-list/{userId}")]
+        public async Task<IActionResult> GetVisaTypeList(int userId)
+        {
+            var data = await _visaTypeService.GetVisaTypeList(userId);
+            return Ok(new { data });
+        }
+
+        [HttpPost("CreateVisaType")]
+        public async Task<IActionResult> CreateVisaType([FromBody] VisaTypeDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Invalid data");
+
+            var result = await _visaTypeService.CreateVisaType(dto);
+
+            if (result)
+                return Ok(new { message = "Visa Type created successfully" });
+
+            return BadRequest("Failed to create Visa Type");
+        }
+
+        [HttpPost("UpdateVisaType")]
+        public async Task<IActionResult> UpdateVisaType([FromBody] VisaTypeDto dto)
+        {
+            if (dto == null || dto.VisaTypeId == 0)
+                return BadRequest("Invalid data");
+
+            var result = await _visaTypeService.UpdateVisaType(dto);
+
+            if (result)
+                return Ok(new { message = "Visa Type updated successfully" });
+
+            return NotFound("Visa Type not found");
+        }
+
+        [HttpPost("DeleteVisaType")]
+        public async Task<IActionResult> DeleteVisaType(int id)
+        {
+            if (id == 0)
+                return BadRequest("Invalid Id");
+
+            var result = await _visaTypeService.DeleteVisaType(id);
+
+            if (result)
+                return Ok(new { message = "Visa Type deleted successfully" });
+
+            return NotFound("Visa Type not found");
+        }
     }
 }
