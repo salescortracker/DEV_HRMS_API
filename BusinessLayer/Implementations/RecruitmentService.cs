@@ -1,9 +1,16 @@
-﻿using BusinessLayer.DTOs;
+﻿using System.Reflection.Metadata;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
 
 namespace BusinessLayer.Implementations
 {
@@ -1212,51 +1219,141 @@ int userId)
             var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
             if (candidate == null) throw new Exception("Candidate not found");
 
-            // ===== FILE SAVE (HTML OFFER LETTER) =====
+            // ===== FILE PATH =====
             string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "OfferLetters");
             if (!Directory.Exists(root)) Directory.CreateDirectory(root);
 
-            string fileName = $"Offer_{candidate.FirstName}_{offer.OfferId}";
+            string fileName = $"Offer_{candidate.FirstName}.pdf";
             string fullPath = Path.Combine(root, fileName);
 
-            string html = $@"
-<!DOCTYPE html>
-<html>
-<body style='font-family:Segoe UI'>
-  <h2>Offer Letter</h2>
-  <p>Dear {candidate.FirstName},</p>
-  <p>We are pleased to offer you the position of <b>{candidate.Designation}</b>.</p>
-  <p><b>CTC:</b> {offer.OfferedCtc}</p>
-  <p><b>Date of Joining:</b> {offer.ExpectedDoj:dd-MMM-yyyy}</p>
-  <p><b>HR:</b> {offer.Hrname}</p>
-  <p>Regards,<br/>HR Team</p>
-</body>
-</html>";
+            // ===== PDF CREATION =====
+            using (var writer = new PdfWriter(fullPath))
+            using (var pdf = new PdfDocument(writer))
+            using (var document = new iText.Layout.Document(pdf))
+            {
+                document.SetMargins(20, 20, 20, 20);
 
-            await File.WriteAllTextAsync(fullPath, html);
+                // Date
+                document.Add(new Paragraph($"Date: {DateTime.Now:dd-MMM-yyyy}")
+                    .SetTextAlignment(TextAlignment.RIGHT));
+
+                // Candidate Address
+                document.Add(new Paragraph($@"
+{candidate.FirstName} {candidate.LastName}
+
+Asian Suncity,
+#1101, 11th Floor,
+B Block, Kondapur,
+Hyderabad, Telangana 500084"));
+
+                
+                document.Add(
+    new Paragraph("Sub: Employment Offer Letter")
+    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+
+                document.Add(new Paragraph($"Dear {candidate.FirstName}{candidate.LastName},"));
+
+                
+                document.Add(
+  new Paragraph("Congratulations!")
+  .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)));
+
+
+              document.Add(new Paragraph($@"
+With reference to your application and subsequent interview with us for a career in our
+organization, we are pleased to offer you the position of {candidate.Designation} with Cortracker IT Solutions Pvt Ltd.
+"));
+
+                document.Add(new Paragraph($"Your total compensation will be Rs.CTC: ₹ {offer.OfferedCtc} per annum which shall be inclusive\r\nof all benefits and taxes."));
+
+
+                document.Add(new Paragraph($"Your base location will be Hyderabad, India, and you are requested to join us on Date of Joining: {offer.ExpectedDoj:dd-MMM-yyyy},on the following terms and conditions:"));
+
+
+
+                document.Add(new Paragraph($"On the date of joining, you will be required to submit all documents requested for verification\r\nand appointment formalities. Submission of all documents is mandatory for background\r\nverification, validation, and completion of the joining process."));
+
+                document.Add(new Paragraph($"You will be entitled to one paid leave per month (sick/casual) after successful completion of\r\nthe probationary period of three months. Any unused leave during the probation period may\r\nbe carried forward."));
+
+                document.Add(new Paragraph($"Your employment is at-will, meaning either you or the Company may terminate the\r\nemployment with or without cause by giving 30 days’ notice.\r\n"));
+                document.Add(new Paragraph($"This offer is subject to verification of your educational and previous employment records.\r\nAny misrepresentation or falsification of information will result in immediate termination"));
+
+                
+                document.Add(
+new Paragraph("Please bring the following documents on the day of joining along with the originals for\r\nverification:")
+.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+                document.Add(new Paragraph("1. Signed copy of this offer letter."));
+                document.Add(new Paragraph("2. Recent passport-size photographs (4 copies)."));
+                document.Add(new Paragraph("3. Copies of educational certificates (SSC / Intermediate / Graduation / PG)"));
+                document.Add(new Paragraph("4. Copy of offer and relieving letters from previous employers."));
+                document.Add(new Paragraph("5. Last 3 months’ salary slips and Form 16"));
+                document.Add(new Paragraph("6. PAN card (mandatory).\r\n"));
+                document.Add(new Paragraph("7. Proof of address – Passport/Aadhaar Card/Electricity Bill/Telephone Bill/Ration\r\nCard."));
+
+                document.Add(new Paragraph(""));
+
+                document.Add(new Paragraph(@"
+We are delighted to welcome you to the team and look forward to a mutually rewarding
+association. Please sign and return a copy of this letter as confirmation of your acceptance.
+"));
+
+                document.Add(new Paragraph(""));
+
+                document.Add(new Paragraph("Best Regards,"));
+                document.Add(
+ new Paragraph("HR Department")
+ .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+                
+
+                document.Add(new Paragraph("--------------------------------------------------------------------------------------------------------"));
+
+                // Acceptance
+                
+                document.Add(
+new Paragraph("Acceptance of Offer")
+.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+                document.Add(new Paragraph($@"
+I, {candidate.FirstName}{candidate.LastName} , acknowledge that I have read, understood, and accept this offer letter
+and agree to abide by the terms and conditions of employment as outlined herein.
+
+
+Sign: _____________      Date: _____________
+
+Place: Hyderabad
+"));
+            }
 
             // ===== SAVE PATH =====
             offer.OfferLetterPath = $"Uploads/OfferLetters/{fileName}";
             offerRepo.Update(offer);
             await _unitOfWork.CompleteAsync();
+
             string loginUrl = _configuration["AppSettings:LoginUrl"];
-            // ===== EMAIL WITH DOWNLOAD LINK =====
             string downloadUrl = $"{loginUrl}/{offer.OfferLetterPath}";
 
+            // ===== EMAIL =====
             string subject = "Offer Letter – Cortracker HRMS";
             string body = $@"
-<p>Dear {candidate.FirstName},</p>
+<p>Dear {candidate.FirstName}{candidate.LastName},</p>
 <p>Your offer letter is ready.</p>
-<p><a href='{downloadUrl}'>Click here to download your offer letter</a></p>
+<p><a href='{downloadUrl}'>Download Offer Letter</a></p>
 <p>Regards,<br/>HR Team</p>";
 
-            await _emailService.SendEmailAsync(candidate.Email, subject, body, string.IsNullOrEmpty(offer.HrEmail)
-        ? null
-        : new List<string> { offer.HrEmail });
+            await _emailService.SendEmailAsync(
+                candidate.Email,
+                subject,
+                body,
+                string.IsNullOrEmpty(offer.HrEmail)
+                    ? null
+                    : new List<string> { offer.HrEmail }
+            );
 
             return true;
         }
-
 
         public async Task<(byte[] fileBytes, string fileName)> DownloadOfferLetterAsync(int offerId)
         {
