@@ -44,8 +44,9 @@ namespace HRMS_Backend.Controllers
         private readonly ICurrencyService _currencyService;
         private readonly IAttachmentTypeService _attachmentTypeService;
         private readonly IVisatypeService _visaTypeService;
+        private readonly IAccountTypeService _accountTypeService;
         public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
-            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService)
+            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IAccountTypeService accountTypeService)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -82,6 +83,7 @@ namespace HRMS_Backend.Controllers
             _currencyService = currencyService;
             _attachmentTypeService = attachmentTypeService;
             _visaTypeService = visaTypeService;
+            _accountTypeService = accountTypeService;
         }
         //        #region InterviewLevels
 
@@ -3733,6 +3735,42 @@ int regionId)
                 return Ok(new { message = "Visa Type deleted successfully" });
 
             return NotFound("Visa Type not found");
+        }
+        [HttpGet("GetAllAccountType")]
+        public async Task<IActionResult> GetAccountTypeList(int userId)
+        {
+            var data = await _accountTypeService.GetAccountTypeList(userId);
+            return Ok(data);
+        }
+        [HttpPost("CreateAccountType")]
+        public async Task<IActionResult> CreateAccountType([FromBody] AccountTypeDto dto)
+        {
+            var result = await _accountTypeService.CreateAccountType(dto);
+
+            if (result)
+                return Ok(new { message = "Account Type created successfully" });
+
+            return BadRequest("Failed to create Account Type");
+        }
+        [HttpPut("UpdateAccountType")]
+        public async Task<IActionResult> UpdateAccountType([FromBody] AccountTypeDto dto)
+        {
+            var result = await _accountTypeService.UpdateAccountType(dto);
+
+            if (result)
+                return Ok(new { message = "Account Type updated successfully" });
+
+            return BadRequest("Failed to update Account Type");
+        }
+        [HttpPost("DeleteAccountType/{id}")]
+        public async Task<IActionResult> DeleteAccountType(int id)
+        {
+            var result = await _accountTypeService.DeleteAccountType(id);
+
+            if (result)
+                return Ok(new { message = "Account Type deleted successfully" });
+
+            return BadRequest("Failed to delete Account Type");
         }
     }
 }
