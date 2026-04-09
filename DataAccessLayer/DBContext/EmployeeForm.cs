@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataAccessLayer.DBContext;
+﻿namespace DataAccessLayer.DBContext;
 
 public partial class EmployeeForm
 {
@@ -37,5 +34,7 @@ public partial class EmployeeForm
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual DocumentType DocumentType { get; set; } = null!;
+    public string? EmployeeName { get; set; }
+
+    public virtual AttachmentType DocumentType { get; set; } = null!;
 }
