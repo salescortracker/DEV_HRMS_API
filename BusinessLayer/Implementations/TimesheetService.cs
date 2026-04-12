@@ -328,8 +328,20 @@ namespace BusinessLayer.Implementations
         <p>Please login to HRMS for details.</p>
     </body>
     </html>";
+            var ccList = new List<string>();
 
-            await _emailService.SendEmailAsync(employee.Email, subject, body);
+            if (!string.IsNullOrWhiteSpace(ts.HrEmail))
+            {
+                ccList = ts.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Distinct()
+                    .ToList();
+            }
+
+
+            await _emailService.SendEmailAsync(employee.Email, subject, body,ccList);
         }
 
     }
