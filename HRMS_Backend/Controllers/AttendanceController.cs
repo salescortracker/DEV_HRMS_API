@@ -389,11 +389,18 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> Create(
             [FromBody] WfhRequestCreateDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var result = await _workfromhomeservice.CreateWorkFromHomeRequest(dto);
-            return Ok(result);
+                var result = await _workfromhomeservice.CreateWorkFromHomeRequest(dto);
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // 🔹 EMPLOYEE – MY REQUESTS

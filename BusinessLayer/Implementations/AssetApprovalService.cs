@@ -99,7 +99,8 @@ namespace BusinessLayer.Implementations
         {
             Request = r,
             EmployeeName = u.FullName,
-            EmployeeEmail = u.Email
+            EmployeeEmail = u.Email,
+            HrEmail = r.HrEmail
         }
     ).ToListAsync();
 
@@ -154,10 +155,24 @@ namespace BusinessLayer.Implementations
                 <p>Regards,<br/>HRMS Team</p>
             ";
 
+                    var ccList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                    {
+                        ccList = item.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                            .Distinct()
+                            .ToList();
+                    }
+
+
                     await _emailService.SendEmailAsync(
                         item.EmployeeEmail,
                         $"Asset Request {dto.Action}",
-                        body
+                        body,
+                        ccList
                     );
                 }
             }
