@@ -109,6 +109,7 @@ builder.Services.AddScoped<IAssetCategoryService, AssetCategoryService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IVisatypeService, VisatypeService>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
+builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
