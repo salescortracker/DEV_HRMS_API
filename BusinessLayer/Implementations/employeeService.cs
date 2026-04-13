@@ -984,7 +984,8 @@ namespace BusinessLayer.Implementations
                     CreatedBy = x.CreatedBy,
                     CreatedAt = x.CreatedAt,
                     ModifiedBy = x.ModifiedBy,
-                    ModifiedAt = x.ModifiedAt
+                    ModifiedAt = x.ModifiedAt,
+                    EmployeeName = x.EmployeeName,
                 })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -996,29 +997,31 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<IEnumerable<EmployeeFormDto>> getByUserIdempFormAsync(int userId)
         {
-            return await _context.EmployeeForms
+            var data = await _context.EmployeeForms
                 .Where(x => x.UserId == userId)
-                .Select(x => new EmployeeFormDto
-                {
-                    Id = x.Id,
-                    RegionId = x.RegionId,
-                    CompanyId = x.CompanyId,
-                    UserId = x.UserId,
-                    DocumentTypeId = x.DocumentTypeId,
-                    DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    IssueDate = x.IssueDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
-                    Remarks = x.Remarks,
-                    IsConfidential = x.IsConfidential,
-                    CreatedBy = x.CreatedBy,
-                    CreatedAt = x.CreatedAt,
-                    ModifiedBy = x.ModifiedBy,
-                    ModifiedAt = x.ModifiedAt
-                })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
+
+            return data.Select(x => new EmployeeFormDto
+            {
+                Id = x.Id,
+                RegionId = x.RegionId,
+                CompanyId = x.CompanyId,
+                UserId = x.UserId,
+                DocumentTypeId = x.DocumentTypeId,
+                DocumentName = x.DocumentName,
+                EmployeeCode = x.EmployeeCode,
+                EmployeeName = x.EmployeeName, // ✅ will come now
+                IssueDate = x.IssueDate,
+                FileName = x.FileName,
+                FilePath = x.FilePath,
+                Remarks = x.Remarks,
+                IsConfidential = x.IsConfidential,
+                CreatedBy = x.CreatedBy,
+                CreatedAt = x.CreatedAt,
+                ModifiedBy = x.ModifiedBy,
+                ModifiedAt = x.ModifiedAt
+            });
         }
         /// <summary>
         /// 
@@ -1071,7 +1074,8 @@ namespace BusinessLayer.Implementations
                 Remarks = model.Remarks,
                 IsConfidential = model.IsConfidential,
                 CreatedBy = model.CreatedBy,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                EmployeeName = model.EmployeeName
             };
 
             await _context.EmployeeForms.AddAsync(entity);
@@ -1102,6 +1106,7 @@ namespace BusinessLayer.Implementations
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
+            entity.EmployeeName = model.EmployeeName;
 
             await _context.SaveChangesAsync();
             return true;
