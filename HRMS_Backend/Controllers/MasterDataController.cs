@@ -44,8 +44,9 @@ namespace HRMS_Backend.Controllers
         private readonly ICurrencyService _currencyService;
         private readonly IAttachmentTypeService _attachmentTypeService;
         private readonly IVisatypeService _visaTypeService;
+        private readonly IProjectMasterService _projectMasterService;
         public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
-            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService)
+            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IProjectMasterService projectMasterService)
         {
             _service = service;
             _Eventservice = Eventservice;
@@ -82,6 +83,7 @@ namespace HRMS_Backend.Controllers
             _currencyService = currencyService;
             _attachmentTypeService = attachmentTypeService;
             _visaTypeService = visaTypeService;
+            _projectMasterService = projectMasterService;
         }
         //        #region InterviewLevels
 
@@ -3202,7 +3204,7 @@ namespace HRMS_Backend.Controllers
             var result = await _modeOfStudyService.UpdateModeOfStudytAsync(dto);
 
             return result
-                ? Ok(new { success = true, message = "Updated Successfully" }) 
+                ? Ok(new { success = true, message = "Updated Successfully" })
                 : NotFound(new { success = false, message = "Update Failed" });
         }
 
@@ -3733,6 +3735,41 @@ int regionId)
                 return Ok(new { message = "Visa Type deleted successfully" });
 
             return NotFound("Visa Type not found");
+        }
+
+        [HttpGet("GetAllProjects")]
+        public async Task<IActionResult> GetAllProjectsMasters(int userId)
+        {
+            var result = await _projectMasterService.GetAllProjectsMasters(userId);
+            return Ok(result);
+        }
+        [HttpPost("CreateProject")]
+
+        public async Task<IActionResult> CreateProjectMaster([FromBody] ProjectMasterDto dto)
+        {
+            var result = await _projectMasterService.CreateProject(dto);
+            return Ok(result);
+        }
+
+        [HttpPut("UpdateProject")]
+        public async Task<IActionResult> UpdateProjectMaster([FromBody] ProjectMasterDto dto)
+        {
+            var result = await _projectMasterService.UpdateProject(dto);
+            return Ok(result);
+        }
+        [HttpPost("DeleteProjectMaster/{id}")]
+        public async Task<IActionResult> DeleteProjectMaster(int id)
+        {
+            var result = await _projectMasterService.DeleteProject(id);
+            if (!result) return NotFound(); 
+            return Ok(new { success = true });
+        }
+
+        [HttpGet("GetProjectsByCompanyRegion")]
+        public async Task<IActionResult> GetProjectsByCompanyRegion(int companyId, int regionId)
+        {
+            var projects = await _projectMasterService.GetProjectsByCompanyRegion(companyId, regionId);
+            return Ok(new { success = true, data = projects });
         }
     }
 }
