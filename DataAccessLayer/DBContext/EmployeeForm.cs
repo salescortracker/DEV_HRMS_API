@@ -36,5 +36,5 @@ public partial class EmployeeForm
 
     public string? EmployeeName { get; set; }
 
-    public virtual AttachmentType DocumentType { get; set; } = null!;
+    public virtual DocumentType DocumentType { get; set; } = null!;
 }

@@ -11,6 +11,8 @@ public partial class Timesheet
 
     public int? ManagerUserId { get; set; }
 
+    public string HrEmail { get; set; }
+
     public int CompanyId { get; set; }
 
     public int RegionId { get; set; }

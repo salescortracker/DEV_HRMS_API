@@ -554,11 +554,7 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-
-            entity.HasOne(d => d.AssetCategory).WithMany(p => p.AssetTypes)
-                .HasForeignKey(d => d.AssetCategoryId)
-                .HasConstraintName("FK_AssetType_AssetCategory");
+            entity.Property(e => e.UserId).HasColumnName("UserID");      
 
             entity.HasOne(d => d.Company).WithMany(p => p.AssetTypes)
                 .HasForeignKey(d => d.CompanyId)
@@ -3168,15 +3164,15 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.Company).WithMany(p => p.ProjectMasters)
-                .HasForeignKey(d => d.CompanyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ProjectMaster_Company");
+            //entity.HasOne(d => d.Company).WithMany(p => p.ProjectMasters)
+            //    .HasForeignKey(d => d.CompanyId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_ProjectMaster_Company");
 
-            entity.HasOne(d => d.Region).WithMany(p => p.ProjectMasters)
-                .HasForeignKey(d => d.RegionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ProjectMaster_Region");
+            //entity.HasOne(d => d.Region).WithMany(p => p.ProjectMasters)
+            //    .HasForeignKey(d => d.RegionId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_ProjectMaster_Region");
         });
 
         modelBuilder.Entity<ProjectStatus>(entity =>

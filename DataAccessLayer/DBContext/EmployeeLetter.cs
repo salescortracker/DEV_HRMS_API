@@ -41,5 +41,5 @@ public partial class EmployeeLetter
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual AttachmentType DocumentType { get; set; } = null!;
+    public virtual DocumentType DocumentType { get; set; } = null!;
 }

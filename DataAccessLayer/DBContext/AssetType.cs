@@ -38,4 +38,6 @@ public partial class AssetType
     public virtual Company Company { get; set; } = null!;
 
     public virtual Region Region { get; set; } = null!;
+
+
 }

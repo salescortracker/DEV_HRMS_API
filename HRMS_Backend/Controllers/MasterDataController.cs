@@ -3774,6 +3774,7 @@ int regionId)
                 return Ok(new { message = "Account Type deleted successfully" });
 
             return BadRequest("Failed to delete Account Type");
+        }
 
         [HttpGet("GetAllProjects")]
         public async Task<IActionResult> GetAllProjectsMasters(int userId)
