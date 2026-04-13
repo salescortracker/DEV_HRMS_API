@@ -112,14 +112,13 @@ namespace BusinessLayer.Implementations
 
         // 🔹 MANAGER APPROVAL LIST
         public async Task<IEnumerable<MissedPunchApprovalListDto>> GetApprovalMissedPunchRequest(
-            int companyId, int? regionId, int managerId)
+        int companyId, int? regionId, int managerId)
         {
             var result = await (
                 from mp in _context.MissedPunchRequests
                 join u in _context.Users
                     on mp.UserId equals u.UserId
-                where mp.Status == "Pending"
-                      && mp.ManagerId == managerId
+                where mp.ManagerId == managerId
                       && mp.CompanyId == companyId
                       && (regionId == null || mp.RegionId == regionId)
                 orderby mp.MissedDate
@@ -127,13 +126,15 @@ namespace BusinessLayer.Implementations
                 {
                     MissedPunchRequestId = mp.MissedPunchRequestId,
                     UserId = mp.UserId,
-                    EmployeeName = u.FullName, // ✅ FIX HERE
+                    EmployeeName = u.FullName,
                     MissedDate = mp.MissedDate,
                     MissedType = mp.MissedType,
                     CorrectClockIn = mp.CorrectClockIn,
                     CorrectClockOut = mp.CorrectClockOut,
                     Reason = mp.Reason,
-                    HrEmail = mp.HrEmail
+                    HrEmail = mp.HrEmail,
+                    Status = mp.Status,                // ✅ ADD THIS
+                    ManagerRemarks = mp.ManagerRemarks // ✅ ADD THIS
                 }
             ).ToListAsync();
 
