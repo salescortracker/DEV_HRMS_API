@@ -353,9 +353,10 @@ namespace BusinessLayer.Implementations
                     ShiftName = sm.ShiftName,
                     ShiftStartTime = sm.ShiftStartTime,
                     ShiftEndTime = sm.ShiftEndTime,
-                    GrassTime = sm.GraceTime
+                    GrassTime = sm.GraceTime,
+                    allocationId=s.ShiftAllocationId
                 }
-            ).FirstOrDefaultAsync();
+            ).OrderByDescending(x=>x.allocationId).FirstOrDefaultAsync();
         }
     }
 }
