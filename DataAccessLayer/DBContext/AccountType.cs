@@ -1,16 +1,22 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLayer.DBContext;
 
 public partial class AccountType
 {
+    [Key]
+    [Column("AccountTypeID")]
     public int AccountTypeId { get; set; }
 
     public int CompanyId { get; set; }
 
     public int RegionId { get; set; }
 
+    [Column("AccountType")]
     public string AccountType1 { get; set; } = null!;
 
     public string? Description { get; set; }
