@@ -181,6 +181,57 @@ namespace HRMS_Backend.Controllers
         }
 
         #endregion
+
+        #region Employee Pay slip Downloads = Requests API's
+
+        // 🔥 GET FILTERED PAYSLIPS
+        [HttpPost("payslip-range")]
+        public async Task<IActionResult> GetPayslipsByRange([FromBody] PayslipFilterDto dto)
+        {
+            var result = await _payrollService.GetPayslipsByRange(dto);
+            return Ok(result);
+        }
+
+        // 🔥 SEND EMAIL
+        [HttpPost("request-payslip")]
+        public async Task<IActionResult> RequestPayslip([FromBody] SendPayslipDto dto)
+        {
+            await _payrollService.SendPayslipRequestEmail(dto);
+
+            return Ok(new { message = "Request sent to HR successfully" });
+        }
+
+        [HttpPost("hr/pending")]
+        public async Task<IActionResult> GetPending([FromBody] HrPendingRequestDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Invalid request");
+
+            var data = await _payrollService.GetPendingRequests(
+                dto.CompanyId,
+                dto.RegionId,
+                dto.Email
+            );
+
+            return Ok(data);
+        }
+
+        [HttpPost("hr/action")]
+        public async Task<IActionResult> Action([FromBody] HrApproveRejectDto dto)
+        {
+            await _payrollService.ApproveRejectPayslips(dto);
+            return Ok();
+        }
+
+        [HttpPost("hr/all")]
+        public async Task<IActionResult> GetAll([FromBody] HrPayrollFilterDto dto)
+        {
+            var data = await _payrollService.GetAllPayrolls(dto);
+            return Ok(data);
+        }
+
+        #endregion
+
     }
 
 }
