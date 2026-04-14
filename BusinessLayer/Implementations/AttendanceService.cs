@@ -13,10 +13,12 @@ namespace BusinessLayer.Implementations
     public class AttendanceService : IAttendanceService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly HRMSContext _hrmsContext;
 
-        public AttendanceService(IUnitOfWork unitOfWork)
+        public AttendanceService(IUnitOfWork unitOfWork,HRMSContext hRMSContext)
         {
             _unitOfWork = unitOfWork;
+            _hrmsContext = hRMSContext;
         }
 
         // ================================
@@ -202,7 +204,12 @@ namespace BusinessLayer.Implementations
 
             var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
 
-            var existingRecords = (await repo.GetAllAsync())
+            //var existingRecords = (await repo.GetAllAsync())
+            //    .Where(x => x.CompanyId == dto.CompanyId &&
+            //                x.RegionId == dto.RegionId &&
+            //                x.AttendanceDate == attendanceDate)
+            //    .ToList();
+            var existingRecords = _hrmsContext.EmployeeAttendances
                 .Where(x => x.CompanyId == dto.CompanyId &&
                             x.RegionId == dto.RegionId &&
                             x.AttendanceDate == attendanceDate)
@@ -322,8 +329,8 @@ namespace BusinessLayer.Implementations
     DateTime fromDate,
     DateTime toDate)
         {
-            var data = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
-
+            // var data = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
+            var data = _hrmsContext.EmployeeAttendances.Select(y => new { y.CompanyId,y.RegionId,y.AttendanceDate,y.ShiftName,y.ShiftStartTime,y.ShiftEndTime,y.EmployeeCode,y.EmployeeName,y.ClockInTime,y.ClockOutTime,y.GrossTime,y.Status,y.LateMinutes}).ToList();
             var startDate = DateOnly.FromDateTime(fromDate);
             var endDate = DateOnly.FromDateTime(toDate);
 
@@ -336,7 +343,24 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.Value <= endDate)
                 .Select(x =>
                 {
-                    var dto = MapToDto(x);
+                    EmployeeAttendance employeeAttendance = new EmployeeAttendance
+                    {
+                        CompanyId = x.CompanyId,
+                        RegionId = x.RegionId,
+                        AttendanceDate = x.AttendanceDate,
+                        EmployeeCode=x.EmployeeCode,
+                        EmployeeName=x.EmployeeName,
+                        LateMinutes=x.LateMinutes,
+                        Status=x.Status,
+                        ClockInTime=x.ClockInTime,
+                        ClockOutTime=x.ClockOutTime,
+                        GrossTime=x.GrossTime,
+                        ShiftStartTime=x.ShiftStartTime,
+                        ShiftEndTime=x.ShiftEndTime,
+                        ShiftName=x.ShiftName
+                       
+                    };
+                    var dto = MapToDto(employeeAttendance);
 
                     if (IsWeekend(x.AttendanceDate.Value))
                     {
