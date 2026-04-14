@@ -42,7 +42,22 @@ namespace BusinessLayer.Implementations
 
                 _context.WfhremoteRequests.Add(entity);
 
+                var isDuplicate = await _context.WfhremoteRequests
+    .AnyAsync(x =>
+        x.EmployeeId == dto.EmployeeID &&
+        x.CompanyId == dto.CompanyID &&
+        x.Status != "Rejected" && // optional rule
+        (
+            // overlapping condition
+            dto.FromDate <= x.ToDate &&
+            dto.ToDate >= x.FromDate
+        )
+    );
 
+                if (isDuplicate)
+                {
+                    throw new Exception("WFH request already exists for selected dates");
+                }
 
                 // GET MANAGER EMAIL
                 var manager = await _context.Users
@@ -113,10 +128,12 @@ namespace BusinessLayer.Implementations
                 .Where(x =>
                    
                     x.ManagerId == managerId &&
-                    x.Status == "Pending")
-                .OrderBy(x => x.FromDate)
-                .ToListAsync();
+                     x.CompanyId == companyId &&
+            (regionId == null || x.RegionId == regionId))
+        .OrderByDescending(x => x.CreatedOn)
+        .ToListAsync();
         }
+        
 
         // 🔹 SINGLE APPROVE / REJECT
         public async Task<bool> UpdateWorkFromHomeRequest(
@@ -141,6 +158,41 @@ namespace BusinessLayer.Implementations
             entity.UpdatedOn = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            var employee = await _context.Users
+        .FirstOrDefaultAsync(u => u.UserId == entity.EmployeeId);
+
+            if (employee != null && !string.IsNullOrEmpty(employee.Email))
+            {
+                var subject = $"WFH Request {entity.Status}";
+
+                var body = $@"
+        <p>Dear {entity.EmployeeName},</p>
+        <p>Your Work From Home request has been <b>{entity.Status}</b>.</p>
+
+        <table>
+            <tr><td><b>From</b></td><td>: {entity.FromDate}</td></tr>
+            <tr><td><b>To</b></td><td>: {entity.ToDate}</td></tr>
+            <tr><td><b>Status</b></td><td>: {entity.Status}</td></tr>
+            <tr><td><b>Remarks</b></td><td>: {entity.ManagerRemarks}</td></tr>
+        </table>
+        ";
+
+                // ✅ CC (IMPORTANT FIX)
+                var ccList = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(entity.HrEmail))
+                {
+                    ccList.Add(entity.HrEmail); // 🔥 SAME CC EMAIL RETAINED
+                }
+
+                await _emailService.SendEmailAsync(
+                    employee.Email,
+                    subject,
+                    body,
+                    ccList
+                );
+            }
             return true;
         }
 
@@ -170,6 +222,43 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
+            foreach (var item in records)
+            {
+                var employee = await _context.Users
+                    .FirstOrDefaultAsync(u => u.UserId == item.EmployeeId);
+
+                if (employee != null && !string.IsNullOrEmpty(employee.Email))
+                {
+                    var subject = $"WFH Request {item.Status}";
+
+                    var body = $@"
+            <p>Dear {item.EmployeeName},</p>
+            <p>Your Work From Home request has been <b>{item.Status}</b>.</p>
+
+            <table>
+                <tr><td><b>From</b></td><td>: {item.FromDate}</td></tr>
+                <tr><td><b>To</b></td><td>: {item.ToDate}</td></tr>
+                <tr><td><b>Status</b></td><td>: {item.Status}</td></tr>
+                <tr><td><b>Remarks</b></td><td>: {item.ManagerRemarks}</td></tr>
+            </table>
+            ";
+
+                    var ccList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                    {
+                        ccList.Add(item.HrEmail); // ✅ RETAIN CC
+                    }
+
+                    await _emailService.SendEmailAsync(
+                        employee.Email,
+                        subject,
+                        body,
+                        ccList
+                    );
+                }
+            }
+
             return records.Count;
         }
     }

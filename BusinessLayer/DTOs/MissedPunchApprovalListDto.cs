@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class MissedPunchApprovalListDto
     {
@@ -17,5 +11,7 @@ namespace BusinessLayer.DTOs
         public TimeOnly? CorrectClockOut { get; set; }
         public string Reason { get; set; }
         public string? HrEmail { get; set; }
+        public string Status { get; set; }           // ✅ NEW
+        public string? ManagerRemarks { get; set; }  // ✅ NEW
     }
 }

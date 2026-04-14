@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DataAccessLayer.DBContext;
 
-public partial class AssetType
+public partial class ProjectMaster
 {
-    public int AssetTypeId { get; set; }
+    public int ProjectMasterId { get; set; }
 
     public int UserId { get; set; }
 
@@ -13,9 +13,7 @@ public partial class AssetType
 
     public int RegionId { get; set; }
 
-    public string AssetTypeName { get; set; } = null!;
-
-    public string? Description { get; set; }
+    public string ProjectName { get; set; } = null!;
 
     public bool IsActive { get; set; }
 
@@ -29,15 +27,7 @@ public partial class AssetType
 
     public DateTime? ModifiedAt { get; set; }
 
-    public int? AssetCategoryId { get; set; }
-
-    public virtual AssetCategory? AssetCategory { get; set; }
-
-    public virtual ICollection<Asset> Assets { get; set; } = new List<Asset>();
-
     public virtual Company Company { get; set; } = null!;
 
     public virtual Region Region { get; set; } = null!;
-
-
 }

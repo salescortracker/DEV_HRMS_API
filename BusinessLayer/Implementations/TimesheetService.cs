@@ -15,11 +15,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly HRMSContext _hRMSContext;
 
-        public TimesheetService(IUnitOfWork unitOfWork, IEmailService emailService)
+        public TimesheetService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext hRMSContext)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _hRMSContext = hRMSContext;
         }
 
         public async Task<LoggedInUserDto> GetLoggedInUserAsync(int userId)
@@ -196,9 +198,11 @@ namespace BusinessLayer.Implementations
 
         public async Task<IEnumerable<ManagerTimesheetDto>> GetTimesheetsForManagerAsync(int managerUserId)
         {
-                var timesheets = await _unitOfWork.Repository<Timesheet>()
-                    .FindAsync(t =>
-                        t.ManagerUserId == managerUserId);
+            try
+            {
+                // var timesheets = await _unitOfWork.Repository<Timesheet>().FindAsync(x => x.ManagerUserId == managerUserId);
+                var timesheets = _hRMSContext.Timesheets.Select(x => new {x.TimesheetId,x.ManagerUserId,x.UserId,x.EmployeeName,x.EmployeeCode,x.TimesheetDate,x.Status,x.Comments}).Where(x => x.ManagerUserId == managerUserId).ToList();
+
 
                 var timesheetIds = timesheets.Select(t => t.TimesheetId).ToList();
 
@@ -228,6 +232,11 @@ namespace BusinessLayer.Implementations
                             OTHoursText = p.OthoursText ?? "0 Hours"
                         }).ToList()
                 });
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
             
             }
 
@@ -328,8 +337,20 @@ namespace BusinessLayer.Implementations
         <p>Please login to HRMS for details.</p>
     </body>
     </html>";
+            var ccList = new List<string>();
 
-            await _emailService.SendEmailAsync(employee.Email, subject, body);
+            if (!string.IsNullOrWhiteSpace(ts.HrEmail))
+            {
+                ccList = ts.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Distinct()
+                    .ToList();
+            }
+
+
+            await _emailService.SendEmailAsync(employee.Email, subject, body,ccList);
         }
 
     }

@@ -153,6 +153,19 @@ namespace BusinessLayer.Implementations
 
             if (!dto.UserId.HasValue || !dto.CompanyId.HasValue || !dto.RegionId.HasValue)
                 throw new Exception("UserId, CompanyId and RegionId are required.");
+            var existing = await _unitOfWork.Repository<EmployeeResignation>()
+    .FindAsync(x =>
+        x.UserId == dto.UserId &&
+        x.CompanyId == dto.CompanyId &&
+        x.RegionId == dto.RegionId &&
+        x.Status != "Rejected" && // optional rule
+        x.LastWorkingDay == dto.LastWorkingDay
+    );
+
+            if (existing.Any())
+            {
+                throw new Exception("Resignation already exists for selected Last Working Day");
+            }
 
             var entity = new EmployeeResignation
             {
@@ -257,11 +270,11 @@ namespace BusinessLayer.Implementations
                 finalCcList
             );
 
-            // 🔥 IMPORTANT (guarantee delivery)
-            foreach (var cc in finalCcList)
-            {
-                await _emailService.SendEmailAsync(cc, subject, body);
-            }
+            //// 🔥 IMPORTANT (guarantee delivery)
+            //foreach (var cc in finalCcList)
+            //{
+            //    await _emailService.SendEmailAsync(cc, subject, body);
+            //}
 
             return MapToDto(entity);
         }
@@ -391,10 +404,30 @@ namespace BusinessLayer.Implementations
                         hrUsers = await GetHrUsersAsync(entity.CompanyId.Value, entity.RegionId.Value);
                     }
 
-                    var hrCc = hrUsers
-                        .Where(x => !string.IsNullOrWhiteSpace(x.Email))
-                        .Select(x => x.Email)
-                        .ToList();
+                    var finalCcList = new List<string>();
+
+                    // ✅ HR Users
+                    if (hrUsers != null && hrUsers.Any())
+                    {
+                        finalCcList.AddRange(
+                            hrUsers
+                            .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                            .Select(x => x.Email)
+                        );
+                    }
+
+                    // ✅ UI Entered CC (IMPORTANT FIX)
+                    if (!string.IsNullOrWhiteSpace(entity.HrEmail))
+                    {
+                        var uiCc = entity.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim());
+
+                        finalCcList.AddRange(uiCc);
+                    }
+
+                    // ✅ Remove duplicates
+                    finalCcList = finalCcList.Distinct().ToList();
 
                     var subject = isManagerApprove
                         ? $"Resignation Approved - {entity.EmployeeId}"
@@ -408,7 +441,7 @@ namespace BusinessLayer.Implementations
 <br/>
 <p>Regards,<br/><b>HRMS</b></p>";
 
-                    await _emailService.SendEmailAsync(employee.Email, subject, body, hrCc);
+                    await _emailService.SendEmailAsync(employee.Email, subject, body, finalCcList);
                 }
             }
 

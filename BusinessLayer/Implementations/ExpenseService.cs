@@ -207,7 +207,8 @@ namespace BusinessLayer.Implementations
                 {
                     Expense = e,
                     EmployeeName = u.FullName,
-                    EmployeeEmail = u.Email
+                    EmployeeEmail = u.Email,
+                    HrEmail = e.HrEmail   // ✅ IMPORTANT
                 }
             ).ToListAsync();
 
@@ -242,10 +243,29 @@ namespace BusinessLayer.Implementations
                         dto.Action
                     );
 
+                    //await _emailService.SendEmailAsync(
+                    //    item.EmployeeEmail,
+                    //    $"Expense {dto.Action}",
+                    //    body
+                    //);
+                    var ccList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                    {
+                        ccList = item.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                            .Distinct()
+                            .ToList();
+                    }
+
+                    // ✅ SEND EMAIL WITH CC
                     await _emailService.SendEmailAsync(
                         item.EmployeeEmail,
                         $"Expense {dto.Action}",
-                        body
+                        body,
+                        ccList
                     );
                 }
             }
