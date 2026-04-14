@@ -3772,5 +3772,12 @@ int regionId)
 
             return BadRequest("Failed to delete Account Type");
         }
+
+        [HttpGet("GetAccountTypes")]
+        public async Task<IActionResult> GetAccountTypes(int companyId, int regionId)
+        {
+            var data = await _accountTypeService.GetAccountTypesByCompanyRegion(companyId, regionId);
+            return Ok(data);
+        }
     }
 }
