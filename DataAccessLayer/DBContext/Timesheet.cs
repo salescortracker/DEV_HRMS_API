@@ -15,6 +15,7 @@ public partial class Timesheet
 
     public int RegionId { get; set; }
 
+    public string  HrEmail  { get; set; }
     public string EmployeeCode { get; set; } = null!;
 
     public string EmployeeName { get; set; } = null!;
