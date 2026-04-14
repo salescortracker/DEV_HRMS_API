@@ -14,5 +14,6 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateAccountType(AccountTypeDto dto);
         Task<bool> DeleteAccountType(int id);
 
+        Task<List<AccountTypeDto>> GetAccountTypesByCompanyRegion(int companyId, int regionId);
     }
 }

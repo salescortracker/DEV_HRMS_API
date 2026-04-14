@@ -95,6 +95,20 @@ namespace BusinessLayer.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<AccountTypeDto>> GetAccountTypesByCompanyRegion(int companyId, int regionId)
+        {
+            return await _context.AccountTypes
+                .Where(x => x.CompanyId == companyId
+                         && x.RegionId == regionId
+                         && x.IsActive)
+                .Select(x => new AccountTypeDto
+                {
+                    AccountTypeId = x.AccountTypeId,
+                    AccountType1 = x.AccountType1
+                })
+                .ToListAsync();
+        }
     }
     
 }
