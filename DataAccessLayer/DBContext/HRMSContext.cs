@@ -3738,7 +3738,7 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.DemoExpiryDate).HasColumnType("datetime");
             entity.Property(e => e.DemoStartDate).HasColumnType("datetime");
             entity.Property(e => e.DepartmentId).HasColumnName("departmentId");
-            entity.Property(e => e.Designation).HasMaxLength(100);
+           // entity.Property(e => e.Designation).HasMaxLength(100);
             entity.Property(e => e.Email)
                 .HasMaxLength(120)
                 .IsUnicode(false);
