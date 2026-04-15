@@ -665,108 +665,79 @@ string designation)
                 UserId = x.UserId
             });
         }
+
         public async Task<bool> SaveCandidateInterviewAsync(CandidateInterviewDto dto)
         {
             using var transaction = await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                var interview = new CandidateInterview
-                {
-                    RegionId = dto.RegionId,
-                    CompanyId = dto.CompanyId,
-                    UserId = dto.UserId,
-                    CandidateId = dto.CandidateId,
-                    LevelNo = dto.LevelNo,
-                    InterviewerId = dto.InterviewerId,
-                    InterviewerName = dto.InterviewerName,
-                    InterviewDate = dto.InterviewDate,
-                    Location = dto.Location,
-                    MeetingLink = dto.MeetingLink,
-                    Description = dto.Description,
-                    Result = dto.Result ?? "Pending",
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = dto.UserId
-                };
-
-                await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
-
-                // ================= FETCH CANDIDATE =================
                 var candidateRepo = _unitOfWork.Repository<Candidate>();
-                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId);
+                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
+                    ?? throw new Exception("Candidate not found");
 
-                if (candidate == null)
-                    throw new Exception("Candidate not found");
+                //  MULTIPLE INTERVIEWERS LOOP
+                foreach (var interviewerId in dto.InterviewerIds)
+                {
+                    var interviewer = await _unitOfWork.Repository<User>()
+                        .GetByIdAsync(interviewerId);
 
+                    if (interviewer == null) continue;
+
+                    var interview = new CandidateInterview
+                    {
+                        RegionId = dto.RegionId,
+                        CompanyId = dto.CompanyId,
+                        UserId = dto.UserId,
+                        CandidateId = dto.CandidateId,
+                        LevelNo = dto.LevelNo,
+                        InterviewerId = interviewerId,
+                        InterviewerName = interviewer.FullName,
+                        InterviewDate = dto.InterviewDate,
+                        Location = dto.Location,
+                        MeetingLink = dto.MeetingLink,
+                        Description = dto.Description,
+                        Result = "Pending",
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = dto.UserId
+                    };
+
+                    await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
+
+                    //  EMAIL TO INTERVIEWER
+                    if (!string.IsNullOrEmpty(interviewer.Email))
+                    {
+                        string subject = $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
+
+                        string body = $@"
+<h3>Interview Scheduled</h3>
+<p>Dear {interviewer.FullName},</p>
+
+<p>Interview Details:</p>
+<table>
+<tr><td>Candidate</td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
+<tr><td>Level</td><td>{dto.LevelNo}</td></tr>
+<tr><td>Date</td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
+<tr><td>Location</td><td>{dto.Location}</td></tr>
+</table>";
+
+                        await _emailService.SendEmailAsync(interviewer.Email, subject, body);
+                    }
+                }
+
+                //  UPDATE CANDIDATE ONCE
                 candidate.StageId = 4;
                 candidate.ModifiedAt = DateTime.Now;
                 candidate.ModifiedBy = dto.UserId;
-
                 candidateRepo.Update(candidate);
 
-                // ================= FETCH INTERVIEWER =================
-                var interviewer = await _unitOfWork.Repository<User>()
-                    .GetByIdAsync(dto.InterviewerId);
-
-                if (interviewer == null)
-                    throw new Exception("Interviewer not found");
-
-                // ================= INTERVIEWER EMAIL =================
-                string interviewerSubject =
-                    $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
-
-                string interviewerBody = $@"
-<h2>Interview Scheduled</h2>
-<p>Dear {interviewer.FullName},</p>
-
-<p>An interview has been scheduled with the candidate.</p>
-
-<table>
-<tr><td><b>Candidate</b></td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
-<tr><td><b>Level</b></td><td>{dto.LevelNo}</td></tr>
-<tr><td><b>Date</b></td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
-<tr><td><b>Location</b></td><td>{dto.Location}</td></tr>
-<tr><td><b>Meeting Link</b></td><td>{dto.MeetingLink}</td></tr>
-</table>
-
-<p>Please attend the interview.</p>";
-
-                // ================= CANDIDATE EMAIL =================
-                string candidateSubject = "Your Interview Has Been Scheduled";
-
-                string candidateBody = $@"
-<h2>Interview Scheduled</h2>
-
-<p>Dear {candidate.FirstName},</p>
-
-<p>Your interview has been scheduled.</p>
-
-<table>
-<tr><td><b>Interviewer</b></td><td>{interviewer.FullName}</td></tr>
-<tr><td><b>Date</b></td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
-<tr><td><b>Location</b></td><td>{dto.Location}</td></tr>
-<tr><td><b>Meeting Link</b></td><td>{dto.MeetingLink}</td></tr>
-</table>
-
-<p>Best Regards,<br/>HR Team</p>";
-
-                // ================= SEND EMAILS =================
-
-                if (!string.IsNullOrEmpty(interviewer.Email))
-                {
-                    await _emailService.SendEmailAsync(
-                        interviewer.Email,
-                        interviewerSubject,
-                        interviewerBody
-                    );
-                }
-
+                // EMAIL TO CANDIDATE
                 if (!string.IsNullOrEmpty(candidate.Email))
                 {
                     await _emailService.SendEmailAsync(
                         candidate.Email,
-                        candidateSubject,
-                        candidateBody
+                        "Interview Scheduled",
+                        $"Your interview is scheduled on {dto.InterviewDate:yyyy-MM-dd HH:mm}"
                     );
                 }
 
@@ -783,9 +754,9 @@ string designation)
         }
 
         public async Task<IEnumerable<CandidateInterviewDto>> GetInterviewRecordsAsync(
-     int userId,
-     int companyId,
-     int regionId)
+      int userId,
+      int companyId,
+      int regionId)
         {
             var interviews = await _unitOfWork.Repository<CandidateInterview>()
                 .FindAsync(x =>
@@ -810,50 +781,52 @@ string designation)
             var levels = await _unitOfWork.Repository<InterviewLevel>()
                 .FindAsync(x => levelIds.Contains(x.InterviewLevelsId));
 
-            return interviews
-                .OrderByDescending(x => x.CreatedAt)
-                .Select(iv =>
+            //  GROUP BY Candidate + Level + Date
+            var grouped = interviews
+                .GroupBy(x => new { x.CandidateId, x.LevelNo, x.InterviewDate });
+
+            return grouped.Select(g =>
+            {
+                var first = g.First();
+
+                var candidate = candidates.First(c => c.CandidateId == first.CandidateId);
+                var level = levels.FirstOrDefault(l => l.InterviewLevelsId == first.LevelNo);
+
+                // MULTIPLE INTERVIEWER NAMES
+                var interviewerNames = g
+                    .Select(iv => interviewers.First(u => u.UserId == iv.InterviewerId).FullName)
+                    .Distinct()
+                    .ToList();
+
+                return new CandidateInterviewDto
                 {
-                    var candidate = candidates.First(c => c.CandidateId == iv.CandidateId);
-                    var interviewer = interviewers.First(u => u.UserId == iv.InterviewerId);
-                    var level = levels.FirstOrDefault(l => l.InterviewLevelsId == iv.LevelNo);
+                    InterviewId = first.InterviewId,
+                    CompanyId = first.CompanyId,
+                    RegionId = first.RegionId,
+                    UserId = first.UserId,
+                    CandidateId = first.CandidateId,
+                    LevelNo = first.LevelNo,
+                    InterviewLevels = level?.InterviewLevels,
+                    InterviewerName = string.Join(", ", interviewerNames.Distinct()),
+                    InterviewDate = first.InterviewDate,
+                    Location = first.Location,
+                    MeetingLink = first.MeetingLink,
+                    Description = first.Description,
+                    Result = first.Result,
+                    StageId = candidate.StageId,
+                    SeqNo = candidate.SeqNo,
+                    CandidateName = string.IsNullOrEmpty(candidate.LastName)
+                        ? candidate.FirstName
+                        : $"{candidate.FirstName} {candidate.LastName}",
 
-                    return new CandidateInterviewDto
-                    {
-                        InterviewId = iv.InterviewId,
-                        CompanyId = iv.CompanyId,
-                        RegionId = iv.RegionId,
-                        UserId = iv.UserId,
-                        CandidateId = iv.CandidateId,
-
-                        LevelNo = iv.LevelNo,
-                        InterviewLevels = level?.InterviewLevels, // 🔥 FIX HERE
-
-                        InterviewerId = iv.InterviewerId,
-                        InterviewerName = interviewer.FullName,
-                        InterviewDate = iv.InterviewDate,
-                        Location = iv.Location,
-                        MeetingLink = iv.MeetingLink,
-                        Description = iv.Description,
-                        Result = iv.Result,
-                        StageId = candidate.StageId,
-
-                        SeqNo = candidate.SeqNo,
-                        CandidateName = string.IsNullOrEmpty(candidate.LastName)
-                            ? candidate.FirstName
-                            : $"{candidate.FirstName} {candidate.LastName}",
-
-                        Mobile = candidate.Mobile,
-                        Department = candidate.Department,
-                        Designation = candidate.Designation,
-                        ExpectedSalary = candidate.ExpectedSalary
-                    };
-                });
+                    Mobile = candidate.Mobile,
+                    Department = candidate.Department,
+                    Designation = candidate.Designation,
+                    ExpectedSalary = candidate.ExpectedSalary
+                };
+            });
         }
 
-
-
-        /// ///appointment
 
 
         public async Task<bool> UpdateCandidateInterviewAsync(CandidateInterviewDto dto)
@@ -862,103 +835,47 @@ string designation)
 
             try
             {
-                var interviewRepo = _unitOfWork.Repository<CandidateInterview>();
+                var repo = _unitOfWork.Repository<CandidateInterview>();
 
-                var interview = await interviewRepo.GetByIdAsync(dto.InterviewId)
-                       ?? throw new Exception("Interview record not found");
+                var existing = (await repo.FindAsync(x =>
+                    x.CandidateId == dto.CandidateId &&
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId &&
+                    x.LevelNo == dto.LevelNo
+                )).ToList();
 
-                //if (dto.LevelNo <= 0)
-                //    throw new Exception("Invalid Interview Level");
+                if (!existing.Any())
+                    return false;
 
-                //interview.LevelNo = dto.LevelNo;
-                interview.InterviewerId = dto.InterviewerId;
-                interview.InterviewerName = dto.InterviewerName;
-                interview.InterviewDate = dto.InterviewDate;
-                interview.Location = dto.Location;
-                interview.MeetingLink = dto.MeetingLink;
+                var newIds = dto.InterviewerIds;
 
-                interview.Result = dto.Result;
-                interview.Description = dto.Description;
-                interview.ModifiedAt = DateTime.Now;
-                interview.ModifiedBy = dto.UserId;
+                //  ONLY UPDATE EXISTING RECORDS
+                for (int i = 0; i < existing.Count; i++)
+                {
+                    var record = existing[i];
 
-                interviewRepo.Update(interview);
+                    // If new interviewer exists → update
+                    if (i < newIds.Count)
+                    {
+                        var interviewer = await _unitOfWork.Repository<User>()
+                            .GetByIdAsync(newIds[i]);
 
-                // 🔹 Candidate
-                var candidateRepo = _unitOfWork.Repository<Candidate>();
-                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
-                    ?? throw new Exception("Candidate not found");
+                        record.InterviewerId = newIds[i];
+                        record.InterviewerName = interviewer?.FullName;
+                    }
 
-                // ================= STATUS → STAGE =================
-                if (dto.Result == "Selected")
-                    candidate.StageId = 5;
-                else
-                    candidate.StageId = 4;
+                    // Update common fields
+                    record.InterviewDate = dto.InterviewDate;
+                    record.Location = dto.Location;
+                    record.MeetingLink = dto.MeetingLink;
+                    record.Description = dto.Description;
+                    record.Result = dto.Result;
 
-                candidate.ModifiedAt = DateTime.Now;
-                candidate.ModifiedBy = dto.UserId;
-                candidateRepo.Update(candidate);
+                    repo.Update(record);
+                }
 
-                // ================= EMAILS =================
-
-                // 🔹 HR USERS (RoleId = 4)
-                var hrUsers = await _unitOfWork.Repository<User>()
-                    .FindAsync(u =>
-                        u.RoleId == 4 &&
-                        u.CompanyId == interview.CompanyId &&
-                        u.RegionId == interview.RegionId &&
-                        !string.IsNullOrEmpty(u.Email)
-                    );
-
-                if (string.IsNullOrEmpty(candidate.Email))
-                    throw new Exception("Candidate email not found");
-
-                // ================= HR EMAIL =================
-                string hrSubject = $"Interview Result Updated – {candidate.FirstName} {candidate.LastName}";
-                string hrBody = $@"
-<!DOCTYPE html>
-<html>
-<body style='font-family:Segoe UI'>
-  <h2>Interview Status Updated</h2>
-  <p>Dear HR Team,</p>
-
-  <table>
-    <tr><td><b>Candidate</b></td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
-    <tr><td><b>Level</b></td><td>{interview.LevelNo}</td></tr>
-    <tr><td><b>Status</b></td><td>{dto.Result}</td></tr>
-    <tr><td><b>Description</b></td><td>{dto.Description}</td></tr>
-  </table>
-</body>
-</html>";
-
-                // ✅ Send ONE email to ALL HRs (loop is fine but content same)
-                foreach (var hr in hrUsers)
-                    await _emailService.SendEmailAsync(hr.Email!, hrSubject, hrBody);
-
-                // ================= CANDIDATE EMAIL =================
-                string candidateSubject = $"Interview Result – {candidate.FirstName}";
-                string candidateBody = $@"
-<!DOCTYPE html>
-<html>
-<body style='font-family:Segoe UI'>
-  <h2>Interview Update</h2>
-  <p>Dear {candidate.FirstName},</p>
-
-  <p>Your interview result has been updated:</p>
-
-  <table>
-    <tr><td><b>Level</b></td><td>{interview.LevelNo}</td></tr>
-    <tr><td><b>Status</b></td><td>{dto.Result}</td></tr>
-    <tr><td><b>Description</b></td><td>{dto.Description}</td></tr>
-  </table>
-
-  <p>Regards,<br/>HR Team</p>
-</body>
-</html>";
-
-                await _emailService.SendEmailAsync(candidate.Email, candidateSubject, candidateBody);
-
-                // ❌ NO INTERVIEWER EMAIL
+                //  NO ADD HERE
+                //  NO DELETE HERE
 
                 await _unitOfWork.CompleteAsync();
                 await tx.CommitAsync();
@@ -971,6 +888,12 @@ string designation)
                 throw;
             }
         }
+
+
+
+
+
+        /// ///appointment
         public async Task<IEnumerable<CandidateAppointmentDto>> GetAppointmentsForInterviewerAsync(int interviewerId)
         {
             var interviews = await _unitOfWork.Repository<CandidateInterview>()

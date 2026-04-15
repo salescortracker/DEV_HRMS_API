@@ -16,6 +16,7 @@ namespace BusinessLayer.DTOs
 
         public int LevelNo { get; set; }
         public int InterviewerId { get; set; }
+        public List<int> InterviewerIds { get; set; } = new();
         public string? InterviewLevels { get; set; }
         public string InterviewerName { get; set; } = null!;
         public DateTime InterviewDate { get; set; }
