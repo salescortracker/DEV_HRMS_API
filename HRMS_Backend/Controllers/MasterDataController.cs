@@ -3537,9 +3537,9 @@ int regionId)
         [HttpGet("assettypesfilter")]
         public async Task<IActionResult> GetByCompanyRegion(
     int companyId,
-    int regionId)
+    int regionId, int assetCategoryId)
         {
-            return Ok(await _assetTypeService.GetByCompanyRegion(companyId, regionId));
+            return Ok(await _assetTypeService.GetByCompanyRegion(companyId, regionId, assetCategoryId));
         }
         [HttpGet("assetcategoriestype")]
         public async Task<IActionResult> GetAssetCategoriestype(int userId)

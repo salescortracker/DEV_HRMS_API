@@ -141,20 +141,22 @@ namespace BusinessLayer.Implementations
 
             return new ApiResponse<string>("Deleted successfully");
         }
-        public async Task<ApiResponse<IEnumerable<AssetTypeDto>>> GetByCompanyRegion(int companyId, int regionId)
+        public async Task<ApiResponse<IEnumerable<AssetTypeDto>>> GetByCompanyRegion(int companyId, int regionId, int assetCategoryId)
         {
             var list = (await _unitOfWork.Repository<AssetType>()
                 .FindAsync(x =>
                     !x.IsDeleted &&
                     x.IsActive &&
                     x.CompanyId == companyId &&
-                    x.RegionId == regionId ))
+                    x.RegionId == regionId &&
+                   (assetCategoryId == 0 || x.AssetCategoryId == assetCategoryId)))
                 .Select(x => new AssetTypeDto
                 {
                     AssetTypeId = x.AssetTypeId,
                     AssetTypeName = x.AssetTypeName,
                     CompanyId = x.CompanyId,
-                    RegionId = x.RegionId
+                    RegionId = x.RegionId,
+                    AssetCategoryId = x.AssetCategoryId ?? 0
                 });
 
             return new ApiResponse<IEnumerable<AssetTypeDto>>(list);

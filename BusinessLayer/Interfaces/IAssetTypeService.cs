@@ -10,7 +10,7 @@ namespace BusinessLayer.Interfaces
         Task<ApiResponse<string>> CreateAsync(AssetTypeDto dto);
         Task<ApiResponse<string>> UpdateAsync(AssetTypeDto dto);
         Task<ApiResponse<string>> DeleteAsync(int id);
-        Task<ApiResponse<IEnumerable<AssetTypeDto>>> GetByCompanyRegion(int companyId, int regionId);
+        Task<ApiResponse<IEnumerable<AssetTypeDto>>> GetByCompanyRegion(int companyId, int regionId, int assetCategoryId);
         Task<ApiResponse<IEnumerable<AssetCategoryDto>>> GetAssetCategoriestype(int userId);
 
     }

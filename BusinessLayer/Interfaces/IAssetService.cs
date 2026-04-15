@@ -15,7 +15,7 @@ namespace BusinessLayer.Interfaces
         Task<List<EmployeeDto>> GetAllEmployeesAsync();
         Task<int> CreateAssetRequestAsync(AssetRequestDto dto);
         Task<List<AssetRequestDto>> GetAssetRequestsByUserAsync(int userId);
-        Task<List<AssetDto>> GetAvailableAssetsAsync(int companyId, int regionId);
+        Task<List<AssetDto>> GetAvailableAssetsAsync(int companyId, int regionId, int userId);
         Task<int> CreateAssignmentAsync(AssetAssignmentDto dto);
         Task<List<AssetAssignmentDto>> GetAssignmentsAsync(int companyId, int regionId);
 

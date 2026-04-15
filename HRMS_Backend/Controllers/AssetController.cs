@@ -168,9 +168,10 @@ namespace HRMS_Backend.Controllers
         [HttpGet("available-assets")]
         public async Task<ActionResult<List<AssetDto>>> GetAvailableAssets(
       int companyId,
-      int regionId)
+      int regionId,
+      int userId)
         {
-            var data = await _assetService.GetAvailableAssetsAsync(companyId, regionId);
+            var data = await _assetService.GetAvailableAssetsAsync(companyId, regionId, userId);
             return Ok(data);
         }
 
