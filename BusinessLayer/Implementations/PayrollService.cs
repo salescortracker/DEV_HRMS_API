@@ -269,6 +269,16 @@ namespace BusinessLayer.Implementations
                 var attendance = await GetEmployeeAttendanceSummary(
                     empSalary.EmployeeId, dto.Month, dto.Year);
 
+                var existingPayroll = await _context.PayrollTransactions
+                    .FirstOrDefaultAsync(x =>
+                    x.EmployeeId == empSalary.EmployeeId &&
+                    x.Month == dto.Month &&
+                    x.Year == dto.Year &&
+                    x.UserId == userId
+                    );
+
+                var status = existingPayroll != null ? "Processed" : "Preview";
+
                 var detailList = details.Select(d => new PayrollDetailDto
                 {
                     ComponentId = d.ComponentId,
@@ -289,7 +299,7 @@ namespace BusinessLayer.Implementations
                     NetSalary = gross - totalDeduction,
                     AttendanceDeduction = attendanceDeduction,
                     Expenses = expenses,
-                    Status = "Preview",
+                    Status = status,
                     WorkingDays = attendance.workingDays,
                     PresentDays = attendance.presentDays,
                     LeaveDays = attendance.leaveDays,
