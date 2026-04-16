@@ -76,8 +76,9 @@ namespace BusinessLayer.Implementations
                         DemoExpiryDate = userdemo != null ? userdemo.DemoExpiryDate : null,
                         CreatedDate = DateTime.Now,
                         UserCompanyId = userDto.UserCompanyId,
-                        LoginType = userDto.loginType
-                        
+                        LoginType = userDto.loginType,
+                        DesignationId = userDto.DesignationId
+
                     };
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
@@ -108,7 +109,8 @@ namespace BusinessLayer.Implementations
                         ,
                         DemoStartDate = DateTime.UtcNow,
                         DemoExpiryDate = userdemo != null ? userdemo.DemoExpiryDate : null,
-                        LoginType = userDto.loginType
+                        LoginType = userDto.loginType,
+                        DesignationId = userDto.DesignationId
                     };
 
 
@@ -249,8 +251,8 @@ namespace BusinessLayer.Implementations
         ReportingManagerId = u.ReportingTo,
         ReportingManagerName = rm.FullName, // 🔥 STRING
 
-        DesignationId = u.Designation,
-        designation = u.Designation, // if stored as string in Users table
+        DesignationId = u.DesignationId,
+       // designation = u.Designation, // if stored as string in Users table
 
         personalEmail = u.Email,
         userLoginStatus = u.Userloginstatus,
@@ -306,8 +308,8 @@ namespace BusinessLayer.Implementations
             ReportingManagerId = u.ReportingTo,
             ReportingManagerName = rm.FullName, // 🔥 STRING
 
-            DesignationId = u.Designation,
-            designation = u.Designation, // if stored as string in Users table
+            DesignationId = u.DesignationId,
+        //    designation = u.Designation, // if stored as string in Users table
 
             personalEmail = u.Email,
             userLoginStatus = u.Userloginstatus,
@@ -409,6 +411,7 @@ namespace BusinessLayer.Implementations
             existingUser.PasswordHash = updatedUser.Password;
             existingUser.Status = updatedUser.Status;
             existingUser.LoginType = updatedUser.loginType;
+            existingUser.DesignationId = updatedUser.DesignationId;
 
             await _context.SaveChangesAsync();
             return existingUser;

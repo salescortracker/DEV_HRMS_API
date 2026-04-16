@@ -55,7 +55,7 @@ public partial class User
 
     public int? UserCompanyId { get; set; }
 
-    public string? Designation { get; set; }
+    public int? DesignationId { get; set; }
 
     public DateTime? DemoStartDate { get; set; }
 

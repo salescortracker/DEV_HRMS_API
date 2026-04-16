@@ -437,6 +437,10 @@ namespace BusinessLayer.Implementations
                 .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
                 .ToListAsync();
 
+            var designations = await _context.Designations
+    .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
+    .ToListAsync();
+
             var personalDetails = await _context.EmployeePersonalDetails
                 .Where(p => p.CompanyId == dto.CompanyId && p.RegionId == dto.RegionId)
                 .ToListAsync();
@@ -470,8 +474,12 @@ namespace BusinessLayer.Implementations
                     .FirstOrDefault(d => d.DepartmentId == user?.DepartmentId)
                     ?.DepartmentName;
 
+                var designationName = designations
+    .FirstOrDefault(d => d.DesignationId == user?.DesignationId)
+    ?.DesignationName;
+
                 // 🔥 DESIGNATION (DIRECT STRING)
-                var designationName = user?.Designation;
+                // var designationName = user?.Designation;
 
                 // 🔥 PAYROLL DETAILS (EARNINGS + DEDUCTIONS)
                 var details = await _context.PayrollDetails
@@ -907,6 +915,10 @@ namespace BusinessLayer.Implementations
                 .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
                 .ToListAsync();
 
+            var designations = await _context.Designations
+      .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
+      .ToListAsync();
+
             var personalDetails = await _context.EmployeePersonalDetails
                 .Where(p => p.CompanyId == dto.CompanyId && p.RegionId == dto.RegionId)
                 .ToListAsync();
@@ -941,8 +953,12 @@ namespace BusinessLayer.Implementations
                     .FirstOrDefault(d => d.DepartmentId == user?.DepartmentId)
                     ?.DepartmentName;
 
+                var designationName = designations
+          .FirstOrDefault(d => d.DesignationId == user?.DesignationId)
+          ?.DesignationName;
+
                 // 🔥 DESIGNATION (STRING DIRECT)
-                var designationName = user?.Designation;
+                //  var designationName = user?.Designation;
 
                 // 🔥 PAYROLL DETAILS (EARNINGS + DEDUCTIONS)
                 var details = await _context.PayrollDetails
@@ -979,7 +995,7 @@ namespace BusinessLayer.Implementations
 
                     // ✅ USER DETAILS
                     EmployeeName = user?.FullName,
-                    Designation = designationName,
+                    Designation = designationName ?? "-",
                     Department = departmentName,
                     Location = "Hyderabad",
 
