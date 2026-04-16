@@ -356,11 +356,13 @@ namespace BusinessLayer.Implementations
                 })
                 .ToListAsync();
         }
-        public async Task<List<AssetDto>> GetAvailableAssetsAsync(int companyId, int regionId)
+        public async Task<List<AssetDto>> GetAvailableAssetsAsync(int companyId, int regionId, int userId)
         {
             return await _context.Assets
                 .Where(a => a.CompanyId == companyId
                          && a.RegionId == regionId
+                         && a.UserId == userId
+                         && a.AssetStatus.AssetStatusName == "Available"
                          ) // ✅ Available only
                 .Select(a => new AssetDto
                 {
