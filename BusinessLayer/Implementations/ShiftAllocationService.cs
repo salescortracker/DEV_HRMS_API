@@ -99,7 +99,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = dto.ShiftName,
                     ShiftStartTime = startTime,
                     ShiftEndTime = endTime,
-                  //  GraceTime = dto.GraceTime,
+                    GraceTime = dto.GraceTime,
                     CompanyId = dto.CompanyID,
                     RegionId = dto.RegionID,
                     IsActive = dto.IsActive,
@@ -339,24 +339,30 @@ namespace BusinessLayer.Implementations
                 }
             ).FirstOrDefaultAsync();
         }
-        public async Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(string employeeCode, int companyId, int regionId)
+        public async Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(
+      string employeeCode,
+      int companyId,
+      int regionId)
         {
-            return await (
-                from s in _context.ShiftAllocations
-                join sm in _context.ShiftMasters
+            var result = await (
+                from s in _context.ShiftAllocations.AsNoTracking()
+                join sm in _context.ShiftMasters.AsNoTracking()
                     on s.ShiftId equals sm.ShiftId
                 where s.EmployeeCode == employeeCode
                       && s.CompanyId == companyId
                       && s.RegionId == regionId
+                orderby s.ShiftAllocationId descending   // latest allocation
                 select new EmployeeShiftDto
                 {
                     ShiftName = sm.ShiftName,
                     ShiftStartTime = sm.ShiftStartTime,
                     ShiftEndTime = sm.ShiftEndTime,
-                    GrassTime = sm.GraceTime,
-                    allocationId=s.ShiftAllocationId
+                    GrassTime = sm.GraceTime,   // latest value
+                    allocationId = s.ShiftAllocationId
                 }
-            ).OrderByDescending(x=>x.allocationId).FirstOrDefaultAsync();
+            ).FirstOrDefaultAsync();
+
+            return result;
         }
     }
 }
