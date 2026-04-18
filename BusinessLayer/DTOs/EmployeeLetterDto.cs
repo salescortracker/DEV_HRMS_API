@@ -15,8 +15,8 @@ namespace BusinessLayer.DTOs
         public int UserId { get; set; }
         public int DocumentTypeId { get; set; }
         public string DocumentName { get; set; } = null!;
-        public string EmployeeCode { get; set; } = null!;
-        public string EmployeeName { get; set; } = null!;
+        public string? EmployeeCode { get; set; }
+        public string? EmployeeName { get; set; }
         public DateOnly IssuedDate { get; set; }
         public DateOnly ValidityDate { get; set; }
         public string? FileName { get; set; }
@@ -30,6 +30,10 @@ namespace BusinessLayer.DTOs
         public DateTime? ModifiedAt { get; set; }
 
         // File Upload
-        public IFormFile? DocumentFile { get; set; }
+        // public IFormFile? DocumentFile { get; set; }
+        public List<IFormFile>? DocumentFiles { get; set; }
+        //public List<string> EmployeeCodes { get; set; }
+        //public List<string> EmployeeNames { get; set; }
+        //public List<string> FileNames { get; set; }
     }
 }

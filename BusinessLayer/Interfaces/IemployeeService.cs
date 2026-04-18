@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using DataAccessLayer.DBContext;
 
 namespace BusinessLayer.Interfaces
 {
@@ -54,9 +55,10 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<EmployeeLetterDto>> getAllempLetterAsync();
         Task<IEnumerable<EmployeeLetterDto>> getByUserIdempLetterAsync(int userId);
         Task<EmployeeLetterDto?> getByIdempLetterAsync(int id);
-        Task<int> addempLetterAsync(EmployeeLetterDto model);
+        Task<int> addempLetterAsync(EmployeeLetterDto model, List<EmployeeLetterFile> files);
         Task<bool> updateempLetterAsync(EmployeeLetterDto model);
         Task<bool> deleteempLetterAsync(int id);
+        Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode);
 
         Task<IEnumerable<EmployeeBankDetailsDto>> getAllempBankAsync(int userId);
         Task<EmployeeBankDetailsDto?> getByIdempBankAsync(int id);

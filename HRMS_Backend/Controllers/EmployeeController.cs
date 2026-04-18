@@ -1114,22 +1114,28 @@ public class UpdateResignationStatusRequest
 
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
+            List<EmployeeLetterFile> fileEntities = new();
 
-            if (model.DocumentFile != null)
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
             {
-                string fileName = $"{Guid.NewGuid()}_{model.DocumentFile.FileName}";
-                string fullPath = Path.Combine(folder, fileName);
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.DocumentFile.CopyToAsync(stream);
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
 
-                model.FileName = fileName;
-                model.FilePath = $"Uploads/EmployeeLetters/{fileName}";
+                    fileEntities.Add(new EmployeeLetterFile
+                    {
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeLetters/{fileName}"
+                    });
+                }
             }
-
             model.CreatedBy = model.UserId;
 
-            var id = await _employeeService.addempLetterAsync(model);
+            var id = await _employeeService.addempLetterAsync(model, fileEntities);
             return Ok(new { message = "Saved successfully", id });
         }
         /// <summary>
@@ -1150,16 +1156,24 @@ public class UpdateResignationStatusRequest
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            if (model.DocumentFile != null)
+            List<EmployeeLetterFile> fileEntities = new();
+
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
             {
-                string fileName = $"{Guid.NewGuid()}_{model.DocumentFile.FileName}";
-                string fullPath = Path.Combine(folder, fileName);
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.DocumentFile.CopyToAsync(stream);
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
 
-                model.FileName = fileName;
-                model.FilePath = $"Uploads/EmployeeLetters/{fileName}";
+                    fileEntities.Add(new EmployeeLetterFile
+                    {
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeLetters/{fileName}"
+                    });
+                }
             }
 
             model.ModifiedBy = model.UserId;
@@ -1186,8 +1200,22 @@ public class UpdateResignationStatusRequest
 
             return Ok(new { message = "Deleted successfully" });
         }
+        [HttpGet("GetMyLetters/{employeeCode}")]
+        public async Task<IActionResult> GetMyLetters(string employeeCode)
+        {
+            if (string.IsNullOrEmpty(employeeCode))
+                return BadRequest("Invalid employee code");
+
+            var data = await _employeeService.getLettersForEmployeeAsync(employeeCode);
+
+            if (data == null || !data.Any())
+                return NotFound(new { message = "No letters found" });
+
+            return Ok(data);
+        }
 
         #endregion
+
         #endregion
         #region employee bank,dd,w4 details
         //-----------------------------------DROP-DOWN (ACCOUNT TYPE = EMPLOYEE.BANKDETAILS)----------------------------//

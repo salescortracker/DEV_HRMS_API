@@ -124,6 +124,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
 // 🔹 Enable static files (wwwroot)
+app.UseStaticFiles(); // ✅ REQUIRED
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
