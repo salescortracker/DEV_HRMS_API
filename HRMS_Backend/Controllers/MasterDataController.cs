@@ -2769,7 +2769,7 @@ namespace HRMS_Backend.Controllers
         // ===============================
         // UPDATE
         // ===============================
-        [HttpPut("helpdesk-category/{id}")]
+        [HttpPost("Updatehelpdeskcategory/{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateUpdateHelpdeskCategoryDto dto)
         {
             dto.HelpdeskCategoryID = id;
@@ -2780,7 +2780,7 @@ namespace HRMS_Backend.Controllers
         // ===============================
         // DELETE
         // ===============================
-        [HttpDelete("helpdesk-category/{id}")]
+        [HttpPost("Deletehelpdeskcategory/{id}")]
         public async Task<IActionResult> helpdeskcategory(int id)
         {
             var result = await _helpdeskCategoryAdminService.DeleteAsync(id);

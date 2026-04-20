@@ -881,7 +881,7 @@ int userId)
                 interview.InterviewDate = dto.InterviewDate;
                 interview.Location = dto.Location;
                 interview.MeetingLink = dto.MeetingLink;
-
+                interview.HrEmail = dto.HrEmail;
                 interview.Result = dto.Result;
                 interview.Description = dto.Description;
                 interview.ModifiedAt = DateTime.Now;
