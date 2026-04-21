@@ -99,7 +99,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = dto.ShiftName,
                     ShiftStartTime = startTime,
                     ShiftEndTime = endTime,
-                  //  GraceTime = dto.GraceTime,
+                    GraceTime = dto.GraceTime,
                     CompanyId = dto.CompanyID,
                     RegionId = dto.RegionID,
                     IsActive = dto.IsActive,

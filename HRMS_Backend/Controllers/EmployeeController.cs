@@ -2007,35 +2007,70 @@ public class UpdateResignationStatusRequest
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
+        //[HttpPost("SubmitLeave")]
+        //public async Task<IActionResult> SubmitLeave([FromForm] LeaveRequestDto dto)
+        //{
+        //    string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        //    string path = Path.Combine(root, "Uploads", "LeaveDocuments");
+
+        //    if (!Directory.Exists(path))
+        //        Directory.CreateDirectory(path);
+
+        //    // ✅ File upload
+        //    if (dto.SupportingDocument != null && dto.SupportingDocument.Length > 0)
+        //    {
+        //        string fileName = $"{Guid.NewGuid()}_{dto.SupportingDocument.FileName}";
+        //        string fullPath = Path.Combine(path, fileName);
+
+        //        using var stream = new FileStream(fullPath, FileMode.Create);
+        //        await dto.SupportingDocument.CopyToAsync(stream);
+
+        //        dto.FileName = fileName;
+        //        dto.FilePath = $"Uploads/LeaveDocuments/{fileName}";
+        //    }
+
+        //    // ✅ Save Leave
+        //    int leaveId = await _leaveService.SubmitLeaveAsync(dto);
+
+        //    // ✅ Send Email to Manager
+        //    await _leaveService.SendLeaveEmailToManagerAsync(leaveId);
+
+        //    return Ok(new { message = "Leave submitted and email sent successfully", id = leaveId });
+        //}
         [HttpPost("SubmitLeave")]
         public async Task<IActionResult> SubmitLeave([FromForm] LeaveRequestDto dto)
         {
-            string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            string path = Path.Combine(root, "Uploads", "LeaveDocuments");
-
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-
-            // ✅ File upload
-            if (dto.SupportingDocument != null && dto.SupportingDocument.Length > 0)
+            try
             {
-                string fileName = $"{Guid.NewGuid()}_{dto.SupportingDocument.FileName}";
-                string fullPath = Path.Combine(path, fileName);
+                string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string path = Path.Combine(root, "Uploads", "LeaveDocuments");
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await dto.SupportingDocument.CopyToAsync(stream);
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
 
-                dto.FileName = fileName;
-                dto.FilePath = $"Uploads/LeaveDocuments/{fileName}";
+                // File upload
+                if (dto.SupportingDocument != null && dto.SupportingDocument.Length > 0)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{dto.SupportingDocument.FileName}";
+                    string fullPath = Path.Combine(path, fileName);
+
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await dto.SupportingDocument.CopyToAsync(stream);
+
+                    dto.FileName = fileName;
+                    dto.FilePath = $"Uploads/LeaveDocuments/{fileName}";
+                }
+
+                int leaveId = await _leaveService.SubmitLeaveAsync(dto);
+
+                await _leaveService.SendLeaveEmailToManagerAsync(leaveId);
+
+                return Ok(new { message = "Leave submitted successfully", id = leaveId });
             }
-
-            // ✅ Save Leave
-            int leaveId = await _leaveService.SubmitLeaveAsync(dto);
-
-            // ✅ Send Email to Manager
-            await _leaveService.SendLeaveEmailToManagerAsync(leaveId);
-
-            return Ok(new { message = "Leave submitted and email sent successfully", id = leaveId });
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message }); // ✅ IMPORTANT
+            }
         }
         /// <summary>
         /// 

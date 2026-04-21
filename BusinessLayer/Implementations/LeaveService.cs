@@ -65,6 +65,24 @@ namespace BusinessLayer.Implementations
         }
         public async Task<int> SubmitLeaveAsync(LeaveRequestDto dto)
         {
+            //   CHECK DUPLICATE / OVERLAP
+            var existingLeaves = await _unitOfWork.Repository<LeaveRequest>()
+                  .FindAsync(x => x.UserId == dto.UserId);
+
+            bool isDuplicate = existingLeaves.Any(l =>
+            {
+                var existingStart = l.StartDate.ToDateTime(TimeOnly.MinValue);
+                var existingEnd = l.EndDate.ToDateTime(TimeOnly.MinValue);
+
+                // 👉 Overlap condition
+                return dto.StartDate <= existingEnd && dto.EndDate >= existingStart;
+            });
+
+            if (isDuplicate)
+            {
+                throw new Exception("Leave already exists for selected date range.");
+            }
+
             // ✅ Get Weekoffs for company + region
             var weekoffs = await _unitOfWork.Repository<Weekoff>()
                 .FindAsync(x => !x.IsDeleted &&
