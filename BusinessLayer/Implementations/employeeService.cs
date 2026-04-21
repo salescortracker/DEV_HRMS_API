@@ -1143,12 +1143,12 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    EmployeeName = x.EmployeeName,
+                    //EmployeeCode = x.EmployeeCode,
+                    //EmployeeName = x.EmployeeName,
                     IssuedDate = x.IssuedDate,
                     ValidityDate = x.ValidityDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
@@ -1172,16 +1172,25 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    EmployeeName = x.EmployeeName,
+                    //EmployeeCode = x.EmployeeCode,
+                    //EmployeeName = x.EmployeeName,
                     IssuedDate = x.IssuedDate,
                     ValidityDate = x.ValidityDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
-                    CreatedAt = x.CreatedAt
+                    CreatedAt = x.CreatedAt,
+                    EmployeeCode = string.Join(",",
+            x.EmployeeLetterEmployees.Select(e => e.EmployeeCode)),
+
+                    EmployeeName = string.Join(",",
+            x.EmployeeLetterEmployees.Select(e => e.EmployeeName)),
+
+                    // ✅ Files (take first OR join all)
+                    FileName = string.Join(",",
+            x.EmployeeLetterFiles.Select(f => f.FileName))
                 })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -1199,12 +1208,12 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    EmployeeName = x.EmployeeName,
+                    //EmployeeCode = x.EmployeeCode,
+                    //EmployeeName = x.EmployeeName,
                     IssuedDate = x.IssuedDate,
                     ValidityDate = x.ValidityDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
@@ -1215,7 +1224,7 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> addempLetterAsync(EmployeeLetterDto model)
+        public async Task<int> addempLetterAsync(EmployeeLetterDto model, List<EmployeeLetterFile> files)
         {
             var entity = new EmployeeLetter
             {
@@ -1224,12 +1233,8 @@ namespace BusinessLayer.Implementations
                 UserId = model.UserId,
                 DocumentTypeId = model.DocumentTypeId,
                 DocumentName = model.DocumentName,
-                EmployeeCode = model.EmployeeCode,
-                EmployeeName = model.EmployeeName,
                 IssuedDate = model.IssuedDate,
                 ValidityDate = model.ValidityDate,
-                FileName = model.FileName,
-                FilePath = model.FilePath,
                 Remarks = model.Remarks,
                 IsConfidential = model.IsConfidential,
                 CreatedBy = model.CreatedBy,
@@ -1237,6 +1242,29 @@ namespace BusinessLayer.Implementations
             };
 
             _context.EmployeeLetters.Add(entity);
+            await _context.SaveChangesAsync();
+
+            // ✅ SAVE EMPLOYEES
+            var empCodes = model.EmployeeCode.Split(',');
+            var empNames = model.EmployeeName.Split(',');
+
+            for (int i = 0; i < empCodes.Length; i++)
+            {
+                _context.EmployeeLetterEmployees.Add(new EmployeeLetterEmployee
+                {
+                    LetterId = entity.Id,
+                    EmployeeCode = empCodes[i],
+                    EmployeeName = empNames[i]
+                });
+            }
+
+            // ✅ SAVE FILES
+            foreach (var file in files)
+            {
+                file.LetterId = entity.Id;
+                _context.EmployeeLetterFiles.Add(file);
+            }
+
             await _context.SaveChangesAsync();
 
             return entity.Id;
@@ -1248,21 +1276,74 @@ namespace BusinessLayer.Implementations
             if (entity == null)
                 return false;
 
+            // ✅ Update main table
             entity.RegionId = model.RegionId;
             entity.CompanyId = model.CompanyId;
             entity.UserId = model.UserId;
             entity.DocumentTypeId = model.DocumentTypeId;
             entity.DocumentName = model.DocumentName;
-            entity.EmployeeCode = model.EmployeeCode;
-            entity.EmployeeName = model.EmployeeName;
             entity.IssuedDate = model.IssuedDate;
             entity.ValidityDate = model.ValidityDate;
-            entity.FileName = model.FileName;
-            entity.FilePath = model.FilePath ?? entity.FilePath;
             entity.Remarks = model.Remarks;
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
+
+            // =========================
+            // ✅ UPDATE EMPLOYEES
+            // =========================
+            var existingEmployees = _context.EmployeeLetterEmployees
+                .Where(x => x.LetterId == model.Id);
+
+            _context.EmployeeLetterEmployees.RemoveRange(existingEmployees);
+
+            if (!string.IsNullOrEmpty(model.EmployeeCode))
+            {
+                var empCodes = model.EmployeeCode.Split(',');
+                var empNames = model.EmployeeName.Split(',');
+
+                for (int i = 0; i < empCodes.Length; i++)
+                {
+                    _context.EmployeeLetterEmployees.Add(new EmployeeLetterEmployee
+                    {
+                        LetterId = model.Id,
+                        EmployeeCode = empCodes[i],
+                        EmployeeName = empNames[i]
+                    });
+                }
+            }
+
+            // =========================
+            // ✅ UPDATE FILES
+            // =========================
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
+            {
+                //var existingFiles = _context.EmployeeLetterFiles
+                //    .Where(x => x.LetterId == model.Id);
+
+                //_context.EmployeeLetterFiles.RemoveRange(existingFiles);
+
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "EmployeeLetters");
+
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
+
+                    string fullPath = Path.Combine(folder, fileName);
+
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    _context.EmployeeLetterFiles.Add(new EmployeeLetterFile
+                    {
+                        LetterId = model.Id,
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeLetters/{fileName}"
+                    });
+                }
+            }
 
             await _context.SaveChangesAsync();
             return true;
@@ -1274,9 +1355,48 @@ namespace BusinessLayer.Implementations
             if (entity == null)
                 return false;
 
+            // ✅ DELETE CHILD TABLE 1 (Employees)
+            var employees = _context.EmployeeLetterEmployees
+                .Where(x => x.LetterId == id);
+            _context.EmployeeLetterEmployees.RemoveRange(employees);
+
+            // ✅ DELETE CHILD TABLE 2 (Files)
+            var files = _context.EmployeeLetterFiles
+                .Where(x => x.LetterId == id);
+            _context.EmployeeLetterFiles.RemoveRange(files);
+
             _context.EmployeeLetters.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
+        }
+        public async Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode)
+        {
+            return await _context.EmployeeLetters
+                .Where(x => x.EmployeeLetterEmployees
+                    .Any(e => e.EmployeeCode == employeeCode))
+                .Select(x => new EmployeeLetterDto
+                {
+                    Id = x.Id,
+                    DocumentTypeId = x.DocumentTypeId,
+                    DocumentName = x.DocumentName,
+                    IssuedDate = x.IssuedDate,
+                    ValidityDate = x.ValidityDate,
+                    Remarks = x.Remarks,
+                    IsConfidential = x.IsConfidential,
+
+                    // Employees
+                    EmployeeCode = string.Join(",",
+                        x.EmployeeLetterEmployees.Select(e => e.EmployeeCode)),
+
+                    EmployeeName = string.Join(",",
+                        x.EmployeeLetterEmployees.Select(e => e.EmployeeName)),
+
+                    // Files
+                    FileName = string.Join(",",
+                        x.EmployeeLetterFiles.Select(f => f.FileName))
+                })
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
         }
         #endregion
         #region employee Bank Details
