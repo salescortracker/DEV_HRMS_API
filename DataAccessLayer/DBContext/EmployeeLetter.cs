@@ -17,17 +17,9 @@ public partial class EmployeeLetter
 
     public string DocumentName { get; set; } = null!;
 
-    public string EmployeeCode { get; set; } = null!;
-
-    public string EmployeeName { get; set; } = null!;
-
     public DateOnly IssuedDate { get; set; }
 
     public DateOnly ValidityDate { get; set; }
-
-    public string FileName { get; set; } = null!;
-
-    public string? FilePath { get; set; }
 
     public string? Remarks { get; set; }
 
@@ -41,5 +33,9 @@ public partial class EmployeeLetter
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual DocumentType DocumentType { get; set; } = null!;
+    public virtual AttachmentType DocumentType { get; set; } = null!;
+
+    public virtual ICollection<EmployeeLetterEmployee> EmployeeLetterEmployees { get; set; } = new List<EmployeeLetterEmployee>();
+
+    public virtual ICollection<EmployeeLetterFile> EmployeeLetterFiles { get; set; } = new List<EmployeeLetterFile>();
 }
