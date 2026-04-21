@@ -302,13 +302,45 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<WfhremoteRequest> WfhremoteRequests { get; set; }
 
     public virtual DbSet<WorkAuthStatusMaster> WorkAuthStatusMasters { get; set; }
+    public virtual DbSet<EmployeeLetterEmployee> EmployeeLetterEmployees { get; set; }
 
+    public virtual DbSet<EmployeeLetterFile> EmployeeLetterFiles { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_QA_2.0;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+        modelBuilder.Entity<EmployeeLetterEmployee>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PKEmployee3214EC0724735E82");
+
+            entity.ToTable("EmployeeLetterEmployees", "employee");
+
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.EmployeeName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterEmployees)
+                .HasForeignKey(d => d.LetterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FKEmployeeLLette511AFFBC");
+        });
+
+        modelBuilder.Entity<EmployeeLetterFile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PKEmployee3214EC072A592F3E");
+
+            entity.ToTable("EmployeeLetterFiles", "employee");
+
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+
+            entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterFiles)
+                .HasForeignKey(d => d.LetterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FKEmployeeLLette53F76C67");
+        });
         modelBuilder.Entity<AccountType>(entity =>
         {
             entity.HasKey(e => e.AccountTypeId).HasName("PK__AccountT__8F95854F8543F411");
@@ -569,7 +601,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AttachmentType>(entity =>
         {
-            entity.HasKey(e => e.AttachmentTypeId).HasName("PK__Attachme__5C63AB44DC100E40");
+            entity.HasKey(e => e.AttachmentTypeId).HasName("PKAttachme5C63AB44DC100E40");
 
             entity.ToTable("AttachmentType", "adminmaster");
 
@@ -1910,23 +1942,19 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeLetter>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC076F948071");
+            entity.HasKey(e => e.Id).HasName("PKEmployee3214EC076F948071");
 
             entity.ToTable("EmployeeLetters", "employee");
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DocumentName).HasMaxLength(100);
-            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
-            entity.Property(e => e.EmployeeName).HasMaxLength(100);
-            entity.Property(e => e.FileName).HasMaxLength(255);
-            entity.Property(e => e.FilePath).HasMaxLength(500);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Remarks).HasMaxLength(500);
 
             entity.HasOne(d => d.DocumentType).WithMany(p => p.EmployeeLetters)
                 .HasForeignKey(d => d.DocumentTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_EmployeeLetters_DocumentType");
+                .HasConstraintName("FK_EmployeeLetters_AttachmentType");
         });
 
         modelBuilder.Entity<EmployeeMaster>(entity =>
