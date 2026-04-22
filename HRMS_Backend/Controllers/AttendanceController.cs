@@ -190,6 +190,12 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
+        [HttpGet("GetWeeklyByEmployee")]
+        public async Task<IActionResult> GetWeeklyByEmployee(string employeeCode)
+        {
+            var result = await _clockInOutService.GetWeeklyByEmployeeAsync(employeeCode);
+            return Ok(result);
+        }
 
         // 🔹 GET: api/ClockInOut/today
         [HttpGet("GetTodayByEmployee")]
