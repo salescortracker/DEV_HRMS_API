@@ -15,5 +15,7 @@ namespace BusinessLayer.DTOs
         public string? Description { get; set; }
         public bool IsActive { get; set; }
         public int userId { get; set; }
+        public string? CompanyName { get; set; }
+        public string? RegionName { get; set; }
     }
 }

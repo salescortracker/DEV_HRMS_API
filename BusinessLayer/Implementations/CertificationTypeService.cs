@@ -220,22 +220,30 @@ namespace BusinessLayer.Implementations
         // GET ALL
         public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetAll(int userId)
         {
-            var list = (await _unitOfWork.Repository<CertificationType>()
-                .FindAsync(x => !x.IsDeleted && x.UserId == userId))
-                .OrderByDescending(x => x.CertificationTypeId)
-                .ToList();
+            var certs = await _unitOfWork.Repository<CertificationType>()
+                .FindAsync(x => !x.IsDeleted && x.UserId == userId);
 
-            var dto = list.Select(x => new CertificationTypeDto
+            var companies = await _unitOfWork.Repository<Company>().GetAllAsync();
+            var regions = await _unitOfWork.Repository<Region>().GetAllAsync();
+
+            var dto = certs.Select(x => new CertificationTypeDto
             {
                 CertificationTypeID = x.CertificationTypeId,
                 CompanyID = x.CompanyId,
                 RegionID = x.RegionId,
                 CertificationTypeName = x.CertificationTypeName,
                 IsActive = x.IsActive ?? false,
-                userId = x.UserId ?? 0
+                userId = x.UserId ?? 0,
+
+                // ✅ FIX HERE
+                CompanyName = companies
+                    .FirstOrDefault(c => c.CompanyId == x.CompanyId)?.CompanyName,
+
+                RegionName = regions
+                    .FirstOrDefault(r => r.RegionId == x.RegionId)?.RegionName
             });
 
-            return new ApiResponse<IEnumerable<CertificationTypeDto>>(dto, "Certification Types retrieved successfully.");
+            return new ApiResponse<IEnumerable<CertificationTypeDto>>(dto, "Success");
         }
 
         // GET BY ID
