@@ -24,10 +24,10 @@ namespace BusinessLayer.Implementations
         }
 
         /* ============================================================
-             ATTENDANCE SUMMARY
-          ============================================================ */
+             ATTENDANCE SUMMARY (UPDATED WITH LATE LOGIC)
+        ============================================================ */
 
-        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays)>
+        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays, int lateCount)>
         GetEmployeeAttendanceSummary(int employeeId, int month, int year)
         {
             var employee = await _context.Users
@@ -41,7 +41,7 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync();
 
             if (employee == null)
-                return (0, 0, 0, 0);
+                return (0, 0, 0, 0, 0);
 
             DateOnly startDate = new DateOnly(year, month, 1);
             DateOnly endDate = new DateOnly(year, month, DateTime.DaysInMonth(year, month));
@@ -55,15 +55,32 @@ namespace BusinessLayer.Implementations
                     a.AttendanceDate <= endDate)
                 .ToListAsync();
 
+            /* ================= PRESENT ================= */
             int present = attendance.Count(a => a.Status == "Present");
 
+            /* ================= LEAVES ================= */
             int leave = attendance.Count(a =>
                 a.Status == "SickLeave" ||
                 a.Status == "CasualLeave" ||
                 a.Status == "PaidLeave");
 
-            int half = attendance.Count(a => a.Status == "HalfDay");
+            /* ================= MANUAL HALF DAYS ================= */
+            int manualHalfDays = attendance.Count(a => a.Status == "HalfDay");
 
+            /* ================= LATE ARRIVALS ================= */
+            // 👉 IMPORTANT: Group by date to avoid duplicate entries per day
+            int lateArrivals = attendance
+                .Where(a => a.LateMinutes.HasValue && a.LateMinutes.Value > 0)
+                .GroupBy(a => a.AttendanceDate)
+                .Count();
+
+            // 👉 Rule: Every 3 late = 1 half day
+            int lateHalfDays = lateArrivals / 3;
+
+            /* ================= FINAL HALF DAYS ================= */
+            int half = manualHalfDays + lateHalfDays;
+
+            /* ================= WORKING DAYS ================= */
             int totalDays = DateTime.DaysInMonth(year, month);
 
             int weekendDays = Enumerable.Range(1, totalDays)
@@ -73,7 +90,7 @@ namespace BusinessLayer.Implementations
 
             int workingDays = totalDays - weekendDays;
 
-            return (workingDays, present, leave, half);
+            return (workingDays, present, leave, half, lateArrivals);
         }
 
         /* ============================================================
@@ -185,12 +202,14 @@ namespace BusinessLayer.Implementations
 
             /* ================= ATTENDANCE ================= */
 
+            // UPDATED: now includes lateCount
             var attendance = await GetEmployeeAttendanceSummary(
                 empSalary.EmployeeId, month, year);
 
             int allowedLeaves = 1;
             int allowedHalfDays = 2;
 
+            // Existing logic (no change needed)
             int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
             int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
 
@@ -203,19 +222,6 @@ namespace BusinessLayer.Implementations
                 (extraHalfDays * (perDaySalary / 2));
 
             attendanceDeduction = Math.Round(attendanceDeduction, 2);
-
-            if (attendanceDeduction > 0)
-            {
-                totalDeduction += attendanceDeduction;
-
-                payrollDetails.Add(new PayrollDetail
-                {
-                    ComponentId = 0,
-                    Amount = attendanceDeduction,
-                    UserId = userId,
-                    CreatedAt = DateTime.UtcNow
-                });
-            }
 
             /* ================= EXPENSES ================= */
 
@@ -304,7 +310,8 @@ namespace BusinessLayer.Implementations
                     PresentDays = attendance.presentDays,
                     LeaveDays = attendance.leaveDays,
                     HalfDays = attendance.halfDays,
-                    Details = detailList
+                    Details = detailList,
+                    LateCount = attendance.lateCount, // ✅ NEW
                 });
             }
 

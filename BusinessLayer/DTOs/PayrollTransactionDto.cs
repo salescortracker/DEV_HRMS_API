@@ -49,6 +49,7 @@ namespace BusinessLayer.DTOs
         public string Bank { get; set; }
         public string AccountNo { get; set; }
         public string Pan { get; set; }
+        public int LateCount { get; set; } // ✅ ADD THIS
 
     }
 }
