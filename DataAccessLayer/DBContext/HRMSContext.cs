@@ -49,6 +49,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<AuditLogDetail> AuditLogDetails { get; set; }
 
+    public virtual DbSet<BirthayEmployee> BirthayEmployees { get; set; }
+
     public virtual DbSet<BloodGroup> BloodGroups { get; set; }
 
     public virtual DbSet<Building> Buildings { get; set; }
@@ -109,6 +111,10 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<DocumentType> DocumentTypes { get; set; }
 
+    public virtual DbSet<EmailLog> EmailLogs { get; set; }
+
+    public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
+
     public virtual DbSet<Employee> Employees { get; set; }
 
     public virtual DbSet<EmployeeAssetFilterMaster> EmployeeAssetFilterMasters { get; set; }
@@ -135,6 +141,10 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmployeeForm> EmployeeForms { get; set; }
 
+    public virtual DbSet<EmployeeFormEmployee> EmployeeFormEmployees { get; set; }
+
+    public virtual DbSet<EmployeeFormFile> EmployeeFormFiles { get; set; }
+
     public virtual DbSet<EmployeeImage> EmployeeImages { get; set; }
 
     public virtual DbSet<EmployeeImmigration> EmployeeImmigrations { get; set; }
@@ -146,6 +156,10 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<EmployeeKpiitem> EmployeeKpiitems { get; set; }
 
     public virtual DbSet<EmployeeLetter> EmployeeLetters { get; set; }
+
+    public virtual DbSet<EmployeeLetterEmployee> EmployeeLetterEmployees { get; set; }
+
+    public virtual DbSet<EmployeeLetterFile> EmployeeLetterFiles { get; set; }
 
     public virtual DbSet<EmployeeMaster> EmployeeMasters { get; set; }
 
@@ -190,6 +204,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<InterviewLevel> InterviewLevels { get; set; }
 
     public virtual DbSet<KpiCategory> KpiCategories { get; set; }
+
+    public virtual DbSet<LateLogin> LateLogins { get; set; }
 
     public virtual DbSet<LeaveRequest> LeaveRequests { get; set; }
 
@@ -302,45 +318,13 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<WfhremoteRequest> WfhremoteRequests { get; set; }
 
     public virtual DbSet<WorkAuthStatusMaster> WorkAuthStatusMasters { get; set; }
-    public virtual DbSet<EmployeeLetterEmployee> EmployeeLetterEmployees { get; set; }
 
-    public virtual DbSet<EmployeeLetterFile> EmployeeLetterFiles { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_QA_2.0;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
-        modelBuilder.Entity<EmployeeLetterEmployee>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PKEmployee3214EC0724735E82");
-
-            entity.ToTable("EmployeeLetterEmployees", "employee");
-
-            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
-            entity.Property(e => e.EmployeeName).HasMaxLength(100);
-
-            entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterEmployees)
-                .HasForeignKey(d => d.LetterId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKEmployeeLLette511AFFBC");
-        });
-
-        modelBuilder.Entity<EmployeeLetterFile>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PKEmployee3214EC072A592F3E");
-
-            entity.ToTable("EmployeeLetterFiles", "employee");
-
-            entity.Property(e => e.FileName).HasMaxLength(255);
-            entity.Property(e => e.FilePath).HasMaxLength(500);
-
-            entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterFiles)
-                .HasForeignKey(d => d.LetterId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FKEmployeeLLette53F76C67");
-        });
         modelBuilder.Entity<AccountType>(entity =>
         {
             entity.HasKey(e => e.AccountTypeId).HasName("PK__AccountT__8F95854F8543F411");
@@ -586,7 +570,11 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");      
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity.HasOne(d => d.AssetCategory).WithMany(p => p.AssetTypes)
+                .HasForeignKey(d => d.AssetCategoryId)
+                .HasConstraintName("FK_AssetType_AssetCategory");
 
             entity.HasOne(d => d.Company).WithMany(p => p.AssetTypes)
                 .HasForeignKey(d => d.CompanyId)
@@ -601,7 +589,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AttachmentType>(entity =>
         {
-            entity.HasKey(e => e.AttachmentTypeId).HasName("PKAttachme5C63AB44DC100E40");
+            entity.HasKey(e => e.AttachmentTypeId).HasName("PK__Attachme__5C63AB44DC100E40");
 
             entity.ToTable("AttachmentType", "adminmaster");
 
@@ -749,6 +737,18 @@ public partial class HRMSContext : DbContext
                 .HasForeignKey(d => d.AuditLogId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__AuditLogD__Audit__1B29035F");
+        });
+
+        modelBuilder.Entity<BirthayEmployee>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeId).HasName("PK__BirthayE__7AD04F1160C6FC25");
+
+            entity.ToTable("BirthayEmployees", "adminmaster");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.FirstName).HasMaxLength(100);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<BloodGroup>(entity =>
@@ -1451,6 +1451,25 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.TypeName).HasMaxLength(100);
         });
 
+        modelBuilder.Entity<EmailLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__EmailLog__3214EC07B6DF3A49");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<EmailTemplate>(entity =>
+        {
+            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27AFB412B9");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.Subject).HasMaxLength(200);
+            entity.Property(e => e.TemplateName).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<Employee>(entity =>
         {
             entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04F11ED412872");
@@ -1786,16 +1805,43 @@ public partial class HRMSContext : DbContext
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DocumentName).HasMaxLength(100);
-            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
-            entity.Property(e => e.FileName).HasMaxLength(255);
-            entity.Property(e => e.FilePath).HasMaxLength(500);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Remarks).HasMaxLength(500);
 
             entity.HasOne(d => d.DocumentType).WithMany(p => p.EmployeeForms)
                 .HasForeignKey(d => d.DocumentTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_EmployeeForms_DocumentType");
+                .HasConstraintName("FK_EmployeeForms_AttachmentType");
+        });
+
+        modelBuilder.Entity<EmployeeFormEmployee>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07C192DAA1");
+
+            entity.ToTable("EmployeeFormEmployees", "employee");
+
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.EmployeeName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Form).WithMany(p => p.EmployeeFormEmployees)
+                .HasForeignKey(d => d.FormId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EmployeeF__FormI__5F691F13");
+        });
+
+        modelBuilder.Entity<EmployeeFormFile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC073CCE6FC3");
+
+            entity.ToTable("EmployeeFormFiles", "employee");
+
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+
+            entity.HasOne(d => d.Form).WithMany(p => p.EmployeeFormFiles)
+                .HasForeignKey(d => d.FormId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EmployeeF__FormI__62458BBE");
         });
 
         modelBuilder.Entity<EmployeeImage>(entity =>
@@ -1942,7 +1988,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeLetter>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PKEmployee3214EC076F948071");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC076F948071");
 
             entity.ToTable("EmployeeLetters", "employee");
 
@@ -1955,6 +2001,36 @@ public partial class HRMSContext : DbContext
                 .HasForeignKey(d => d.DocumentTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EmployeeLetters_AttachmentType");
+        });
+
+        modelBuilder.Entity<EmployeeLetterEmployee>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC0724735E82");
+
+            entity.ToTable("EmployeeLetterEmployees", "employee");
+
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.EmployeeName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterEmployees)
+                .HasForeignKey(d => d.LetterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EmployeeL__Lette__511AFFBC");
+        });
+
+        modelBuilder.Entity<EmployeeLetterFile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC072A592F3E");
+
+            entity.ToTable("EmployeeLetterFiles", "employee");
+
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+
+            entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterFiles)
+                .HasForeignKey(d => d.LetterId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EmployeeL__Lette__53F76C67");
         });
 
         modelBuilder.Entity<EmployeeMaster>(entity =>
@@ -2662,6 +2738,39 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_KpiCategory_Region");
         });
 
+        modelBuilder.Entity<LateLogin>(entity =>
+        {
+            entity.HasKey(e => e.LateLoginId).HasName("PK__LateLogi__585431B1464C69B2");
+
+            entity.ToTable("LateLogin", "adminmaster");
+
+            entity.Property(e => e.LateLoginId).HasColumnName("LateLoginID");
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description)
+                .HasMaxLength(300)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LateLogin1)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("LateLogin");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.LateLogins)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LateLogin_Company");
+
+            entity.HasOne(d => d.Region).WithMany(p => p.LateLogins)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_LateLogin_Region");
+        });
+
         modelBuilder.Entity<LeaveRequest>(entity =>
         {
             entity.HasKey(e => e.LeaveRequestId).HasName("PK__LeaveReq__609421EEFFD64C96");
@@ -3030,10 +3139,16 @@ public partial class HRMSContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
             entity.Property(e => e.GrossSalary).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.HrEmail).HasMaxLength(200);
+            entity.Property(e => e.IsDownloadApproved).HasDefaultValue(false);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.NetSalary).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.RegionId).HasMaxLength(50);
+            entity.Property(e => e.RequestStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Not Requested");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Draft");
@@ -3192,15 +3307,15 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            //entity.HasOne(d => d.Company).WithMany(p => p.ProjectMasters)
-            //    .HasForeignKey(d => d.CompanyId)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_ProjectMaster_Company");
+            entity.HasOne(d => d.Company).WithMany(p => p.ProjectMasters)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProjectMaster_Company");
 
-            //entity.HasOne(d => d.Region).WithMany(p => p.ProjectMasters)
-            //    .HasForeignKey(d => d.RegionId)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_ProjectMaster_Region");
+            entity.HasOne(d => d.Region).WithMany(p => p.ProjectMasters)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ProjectMaster_Region");
         });
 
         modelBuilder.Entity<ProjectStatus>(entity =>
@@ -3766,7 +3881,7 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.DemoExpiryDate).HasColumnType("datetime");
             entity.Property(e => e.DemoStartDate).HasColumnType("datetime");
             entity.Property(e => e.DepartmentId).HasColumnName("departmentId");
-           // entity.Property(e => e.Designation).HasMaxLength(100);
+            entity.Property(e => e.Designation).HasMaxLength(100);
             entity.Property(e => e.Email)
                 .HasMaxLength(120)
                 .IsUnicode(false);

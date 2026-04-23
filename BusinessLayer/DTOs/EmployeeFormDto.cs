@@ -27,5 +27,9 @@ namespace BusinessLayer.DTOs
         // File Upload (Like Education)
         public IFormFile? UploadFile { get; set; }
         public string? EmployeeName { get; set; }
+        public List<IFormFile>? DocumentFiles { get; set; }
+        public List<string>? FilePaths { get; set; }
+        public List<string>? FileNames { get; set; }
+
     }
 }
