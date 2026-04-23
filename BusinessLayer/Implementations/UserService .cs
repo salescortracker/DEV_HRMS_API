@@ -221,7 +221,7 @@ namespace BusinessLayer.Implementations
     join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
     from d in deptJoin.DefaultIfEmpty()
     join des in _context.Designations
-        on u.DepartmentId equals des.DesignationId into desJoin
+        on u.DesignationId equals des.DesignationId into desJoin
     from des in desJoin.DefaultIfEmpty()
 
 
@@ -252,7 +252,7 @@ namespace BusinessLayer.Implementations
         ReportingManagerName = rm.FullName, // 🔥 STRING
 
         DesignationId = u.DesignationId,
-       // designation = u.Designation, // if stored as string in Users table
+        DesignationName = des.DesignationName,
 
         personalEmail = u.Email,
         userLoginStatus = u.Userloginstatus,
@@ -278,7 +278,7 @@ namespace BusinessLayer.Implementations
         join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
         from d in deptJoin.DefaultIfEmpty()
         join des in _context.Designations
-            on u.DepartmentId equals des.DesignationId into desJoin
+            on u.DesignationId equals des.DesignationId into desJoin
         from des in desJoin.DefaultIfEmpty()
 
 
@@ -309,7 +309,8 @@ namespace BusinessLayer.Implementations
             ReportingManagerName = rm.FullName, // 🔥 STRING
 
             DesignationId = u.DesignationId,
-        //    designation = u.Designation, // if stored as string in Users table
+            DesignationName = des.DesignationName,
+
 
             personalEmail = u.Email,
             userLoginStatus = u.Userloginstatus,
