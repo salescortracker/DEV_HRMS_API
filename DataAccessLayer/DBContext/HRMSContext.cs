@@ -143,6 +143,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmployeeFormEmployee> EmployeeFormEmployees { get; set; }
 
+    public virtual DbSet<EmployeeFormEmployeeFile> EmployeeFormEmployeeFiles { get; set; }
+
     public virtual DbSet<EmployeeFormFile> EmployeeFormFiles { get; set; }
 
     public virtual DbSet<EmployeeImage> EmployeeImages { get; set; }
@@ -202,6 +204,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<HolidayList> HolidayLists { get; set; }
 
     public virtual DbSet<InterviewLevel> InterviewLevels { get; set; }
+
+    public virtual DbSet<JobApplication> JobApplications { get; set; }
 
     public virtual DbSet<KpiCategory> KpiCategories { get; set; }
 
@@ -1835,6 +1839,17 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK__EmployeeF__FormI__5F691F13");
         });
 
+        modelBuilder.Entity<EmployeeFormEmployeeFile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07C60CCABE");
+
+            entity.ToTable("EmployeeFormEmployeeFiles", "employee");
+
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+        });
+
         modelBuilder.Entity<EmployeeFormFile>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC073CCE6FC3");
@@ -2715,6 +2730,28 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_InterviewLevels_Region");
         });
 
+        modelBuilder.Entity<JobApplication>(entity =>
+        {
+            entity.HasKey(e => e.ApplicationId).HasName("PK__JobAppli__C93A4C993E26A98F");
+
+            entity.ToTable("JobApplications", "adminmaster");
+
+            entity.Property(e => e.AppliedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CandidateName).HasMaxLength(150);
+            entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.ExperienceYears).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.JobTitle).HasMaxLength(150);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.ResumeUrl).HasMaxLength(500);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValue("Applied");
+            entity.Property(e => e.Technology).HasMaxLength(500);
+        });
+
         modelBuilder.Entity<KpiCategory>(entity =>
         {
             entity.HasKey(e => e.KpiCategoryId).HasName("PK__KpiCateg__B31BD9B8DE04E60E");
@@ -3169,6 +3206,9 @@ public partial class HRMSContext : DbContext
 
             entity.ToTable("PayrollTransactions", "payroll");
 
+            entity.Property(e => e.AttendanceDeduction)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CompanyId).HasMaxLength(50);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")

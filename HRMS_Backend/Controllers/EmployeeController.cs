@@ -978,29 +978,33 @@ public class UpdateResignationStatusRequest
         [HttpPost("AddForm")]
         public async Task<IActionResult> AddForm([FromForm] EmployeeFormDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            string root = _env.WebRootPath;
+            string folder = Path.Combine(root, "Uploads", "EmployeeForms");
 
-            string root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            string path = Path.Combine(root, "Uploads", "EmployeeForms");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
 
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            List<EmployeeFormFile> files = new();
 
-            if (model.UploadFile != null && model.UploadFile.Length > 0)
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
             {
-                string fileName = $"{Guid.NewGuid()}_{model.UploadFile.FileName}";
-                string fullPath = Path.Combine(path, fileName);
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.UploadFile.CopyToAsync(stream);
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
 
-                model.FileName = fileName;
-                model.FilePath = $"Uploads/EmployeeForms/{fileName}";
+                    files.Add(new EmployeeFormFile
+                    {
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeForms/{fileName}"
+                    });
+                }
             }
-            model.CreatedBy = model.UserId;
 
-            var id = await _employeeService.addempFormAsync(model);
+            var id = await _employeeService.addempFormAsync(model, files);
             return Ok(new { message = "Saved successfully", id });
         }
 

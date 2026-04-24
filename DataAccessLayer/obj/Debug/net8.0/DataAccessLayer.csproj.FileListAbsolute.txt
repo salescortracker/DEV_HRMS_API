@@ -1,0 +1,15 @@
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\bin\Debug\net8.0\DataAccessLayer.deps.json
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\bin\Debug\net8.0\DataAccessLayer.runtimeconfig.json
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\bin\Debug\net8.0\DataAccessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\bin\Debug\net8.0\DataAccessLayer.pdb
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.csproj.AssemblyReference.cache
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.GeneratedMSBuildEditorConfig.editorconfig
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.AssemblyInfoInputs.cache
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.AssemblyInfo.cs
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.csproj.CoreCompileInputs.cache
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.sourcelink.json
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\refint\DataAccessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.pdb
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\DataAccessLayer.genruntimeconfig.cache
+C:\HRMS\DEV\DEV_HRMS_API\DataAccessLayer\obj\Debug\net8.0\ref\DataAccessLayer.dll

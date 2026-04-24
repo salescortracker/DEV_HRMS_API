@@ -63,6 +63,8 @@ public partial class Region
 
     public virtual ICollection<KpiCategory> KpiCategories { get; set; } = new List<KpiCategory>();
 
+    public virtual ICollection<LateLogin> LateLogins { get; set; } = new List<LateLogin>();
+
     public virtual ICollection<LeaveStatus> LeaveStatuses { get; set; } = new List<LeaveStatus>();
 
     public virtual ICollection<LeaveType> LeaveTypes { get; set; } = new List<LeaveType>();
@@ -72,6 +74,8 @@ public partial class Region
     public virtual ICollection<PolicyCategory> PolicyCategories { get; set; } = new List<PolicyCategory>();
 
     public virtual ICollection<Priority> Priorities { get; set; } = new List<Priority>();
+
+    public virtual ICollection<ProjectMaster> ProjectMasters { get; set; } = new List<ProjectMaster>();
 
     public virtual ICollection<ProjectStatus> ProjectStatuses { get; set; } = new List<ProjectStatus>();
 

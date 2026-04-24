@@ -31,5 +31,9 @@ public partial class AttachmentType
 
     public virtual Company Company { get; set; } = null!;
 
+    public virtual ICollection<EmployeeForm> EmployeeForms { get; set; } = new List<EmployeeForm>();
+
+    public virtual ICollection<EmployeeLetter> EmployeeLetters { get; set; } = new List<EmployeeLetter>();
+
     public virtual Region Region { get; set; } = null!;
 }

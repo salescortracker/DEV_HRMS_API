@@ -11,13 +11,10 @@ public partial class Timesheet
 
     public int? ManagerUserId { get; set; }
 
-    public string HrEmail { get; set; }
-
     public int CompanyId { get; set; }
 
     public int RegionId { get; set; }
 
-   
     public string EmployeeCode { get; set; } = null!;
 
     public string EmployeeName { get; set; } = null!;
@@ -39,6 +36,8 @@ public partial class Timesheet
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
+
+    public string? HrEmail { get; set; }
 
     public virtual User? ManagerUser { get; set; }
 

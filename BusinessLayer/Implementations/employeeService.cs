@@ -967,6 +967,9 @@ namespace BusinessLayer.Implementations
         public async Task<IEnumerable<EmployeeFormDto>> getAllempFormAsync()
         {
             return await _context.EmployeeForms
+                .Include(x => x.EmployeeFormEmployees)
+                .Include(x => x.EmployeeFormFiles)
+                .OrderByDescending(x => x.CreatedAt)
                 .Select(x => new EmployeeFormDto
                 {
                     Id = x.Id,
@@ -975,19 +978,25 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                   // EmployeeCode = x.EmployeeCode,
+
                     IssueDate = x.IssueDate,
-                    //FileName = x.FileName,
-                   // FilePath = x.FilePath,
+
+                    // ✅ FIX: Employee mapping
+                    EmployeeCode = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
+                    EmployeeName = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
+
+                    // ✅ FIX: File mapping
+                    FileNames = x.EmployeeFormFiles.Select(f => f.FileName).ToList(),
+                    FilePaths = x.EmployeeFormFiles.Select(f => f.FilePath).ToList(),
+
+
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
                     CreatedAt = x.CreatedAt,
                     ModifiedBy = x.ModifiedBy,
-                    ModifiedAt = x.ModifiedAt,
-                  //  EmployeeName = x.EmployeeName,
+                    ModifiedAt = x.ModifiedAt
                 })
-                .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
         }
         /// <summary>
@@ -997,31 +1006,43 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<IEnumerable<EmployeeFormDto>> getByUserIdempFormAsync(int userId)
         {
-            var data = await _context.EmployeeForms
+            return await _context.EmployeeForms
                 .Where(x => x.UserId == userId)
+                .Include(x => x.EmployeeFormEmployees)
+                .Include(x => x.EmployeeFormFiles)
                 .OrderByDescending(x => x.CreatedAt)
-                .ToListAsync();
+                .Select(x => new EmployeeFormDto
+                {
+                    Id = x.Id,
+                    RegionId = x.RegionId,
+                    CompanyId = x.CompanyId,
+                    UserId = x.UserId,
+                    DocumentTypeId = x.DocumentTypeId,
+                    DocumentName = x.DocumentName,
 
-            return data.Select(x => new EmployeeFormDto
-            {
-                Id = x.Id,
-                RegionId = x.RegionId,
-                CompanyId = x.CompanyId,
-                UserId = x.UserId,
-                DocumentTypeId = x.DocumentTypeId,
-                DocumentName = x.DocumentName,
-               // EmployeeCode = x.EmployeeCode,
-                //EmployeeName = x.EmployeeName, // ✅ will come now
-                IssueDate = x.IssueDate,
-                //FileName = x.FileName,
-                //FilePath = x.FilePath,
-                Remarks = x.Remarks,
-                IsConfidential = x.IsConfidential,
-                CreatedBy = x.CreatedBy,
-                CreatedAt = x.CreatedAt,
-                ModifiedBy = x.ModifiedBy,
-                ModifiedAt = x.ModifiedAt
-            });
+                    IssueDate = x.IssueDate,
+
+                    // ✅ FIX
+                    EmployeeCode = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
+                    EmployeeName = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
+
+                    // ✅ FIX
+                    FileNames = x.EmployeeFormFiles
+                .Select(f => f.FileName)
+                .ToList(),
+
+                    FilePaths = x.EmployeeFormFiles
+                .Select(f => f.FilePath)
+                .ToList(),
+
+                    Remarks = x.Remarks,
+                    IsConfidential = x.IsConfidential,
+                    CreatedBy = x.CreatedBy,
+                    CreatedAt = x.CreatedAt,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedAt = x.ModifiedAt
+                })
+                .ToListAsync();
         }
         /// <summary>
         /// 
@@ -1058,7 +1079,7 @@ namespace BusinessLayer.Implementations
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<int> addempFormAsync(EmployeeFormDto model)
+        public async Task<int> addempFormAsync(EmployeeFormDto model, List<EmployeeFormFile> files)
         {
             var entity = new EmployeeForm
             {
@@ -1067,19 +1088,39 @@ namespace BusinessLayer.Implementations
                 UserId = model.UserId,
                 DocumentTypeId = model.DocumentTypeId,
                 DocumentName = model.DocumentName,
-              //  EmployeeCode = model.EmployeeCode,
                 IssueDate = model.IssueDate,
-               // FileName = model.FileName,
-                //FilePath = model.FilePath,
                 Remarks = model.Remarks,
                 IsConfidential = model.IsConfidential,
-                CreatedBy = model.CreatedBy,
-                CreatedAt = DateTime.Now,
-                //EmployeeName = model.EmployeeName
+                CreatedBy = model.UserId,
+                CreatedAt = DateTime.Now
             };
 
-            await _context.EmployeeForms.AddAsync(entity);
+            _context.EmployeeForms.Add(entity);
             await _context.SaveChangesAsync();
+
+            // ✅ Employees
+            var codes = model.EmployeeCode.Split(',');
+            var names = model.EmployeeName.Split(',');
+
+            for (int i = 0; i < codes.Length; i++)
+            {
+                _context.EmployeeFormEmployees.Add(new EmployeeFormEmployee
+                {
+                    FormId = entity.Id,
+                    EmployeeCode = codes[i],
+                    EmployeeName = names[i]
+                });
+            }
+
+            // ✅ Files
+            foreach (var file in files)
+            {
+                file.FormId = entity.Id;
+                _context.EmployeeFormFiles.Add(file);
+            }
+
+            await _context.SaveChangesAsync();
+
             return entity.Id;
         }
         /// <summary>
@@ -1100,13 +1141,13 @@ namespace BusinessLayer.Implementations
             entity.DocumentName = model.DocumentName;
           //  entity.EmployeeCode = model.EmployeeCode;
             entity.IssueDate = model.IssueDate;
-           // entity.FileName = model.FileName;
+            //entity.FileName = model.FileName;
             //entity.FilePath = model.FilePath ?? entity.FilePath;
             entity.Remarks = model.Remarks;
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
-            //entity.EmployeeName = model.EmployeeName;
+           // entity.EmployeeName = model.EmployeeName;
 
             await _context.SaveChangesAsync();
             return true;
@@ -1118,11 +1159,21 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<bool> deleteempFormAsync(int id)
         {
-            var entity = await _context.EmployeeForms.FirstOrDefaultAsync(x => x.Id == id);
+            var entity = await _context.EmployeeForms
+       .Include(x => x.EmployeeFormEmployees)
+       .Include(x => x.EmployeeFormFiles)
+       .FirstOrDefaultAsync(x => x.Id == id);
+
             if (entity == null)
                 return false;
 
+            // ✅ Delete child records first
+            _context.EmployeeFormEmployees.RemoveRange(entity.EmployeeFormEmployees);
+            _context.EmployeeFormFiles.RemoveRange(entity.EmployeeFormFiles);
+
+            // ✅ Then delete parent
             _context.EmployeeForms.Remove(entity);
+
             await _context.SaveChangesAsync();
             return true;
         }

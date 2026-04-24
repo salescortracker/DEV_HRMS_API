@@ -1,4 +1,7 @@
-﻿namespace DataAccessLayer.DBContext;
+﻿using System;
+using System.Collections.Generic;
+
+namespace DataAccessLayer.DBContext;
 
 public partial class CandidateOffer
 {

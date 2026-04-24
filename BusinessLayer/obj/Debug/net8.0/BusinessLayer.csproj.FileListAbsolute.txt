@@ -1,0 +1,16 @@
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.csproj.AssemblyReference.cache
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.GeneratedMSBuildEditorConfig.editorconfig
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.AssemblyInfoInputs.cache
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.AssemblyInfo.cs
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.csproj.CoreCompileInputs.cache
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.sourcelink.json
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\bin\Debug\net8.0\BusinessLayer.deps.json
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\bin\Debug\net8.0\BusinessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\bin\Debug\net8.0\BusinessLayer.pdb
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\bin\Debug\net8.0\DataAccessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\bin\Debug\net8.0\DataAccessLayer.pdb
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\Business.EA331CBA.Up2Date
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\refint\BusinessLayer.dll
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\BusinessLayer.pdb
+C:\HRMS\DEV\DEV_HRMS_API\BusinessLayer\obj\Debug\net8.0\ref\BusinessLayer.dll

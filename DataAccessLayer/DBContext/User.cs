@@ -55,13 +55,15 @@ public partial class User
 
     public int? UserCompanyId { get; set; }
 
-    public int? DesignationId { get; set; }
+    public string? Designation { get; set; }
 
     public DateTime? DemoStartDate { get; set; }
 
     public DateTime? DemoExpiryDate { get; set; }
 
     public string? LoginType { get; set; }
+
+    public int? DesignationId { get; set; }
 
     public virtual Company Company { get; set; } = null!;
 

@@ -375,7 +375,7 @@ namespace BusinessLayer.Implementations
                         Year = dto.Year,
                         GrossSalary = gross,
                         TotalDeductions = totalDeduction + attendanceDeduction,
-                        AttendanceDeduction = attendanceDeduction,              // ✅ save separately
+                    //    AttendanceDeduction = attendanceDeduction,              // ✅ save separately
                         NetSalary = gross - (totalDeduction + attendanceDeduction),
                         Status = "Processed",
                         UserId = userId,
@@ -561,7 +561,7 @@ namespace BusinessLayer.Implementations
                 //            attendanceDeduction += lateDeductionAmount;
 
                 //            attendanceDeduction = Math.Round(attendanceDeduction, 2);
-                decimal attendanceDeduction = trx.AttendanceDeduction;
+              //  decimal attendanceDeduction = trx.AttendanceDeduction;
 
                 // 🔥 EXPENSES
                 var expenses = await GetApprovedExpenses(
@@ -580,7 +580,7 @@ namespace BusinessLayer.Implementations
                     TotalDeductions = trx.TotalDeductions,
                     NetSalary = trx.NetSalary,
 
-                    AttendanceDeduction = attendanceDeduction,
+                //    AttendanceDeduction = attendanceDeduction,
                     Expenses = expenses,
 
                     // ✅ EMPLOYEE DETAILS
