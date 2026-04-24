@@ -51,6 +51,7 @@ namespace BusinessLayer.Interfaces
         Task<int> addempFormAsync(EmployeeFormDto model, List<EmployeeFormFile> files);
         Task<bool> updateempFormAsync(EmployeeFormDto model);
         Task<bool> deleteempFormAsync(int id);
+        Task<IEnumerable<EmployeeFormDto>> getFormsForEmployeeAsync(string employeeCode);
 
         Task<IEnumerable<EmployeeLetterDto>> getAllempLetterAsync();
         Task<IEnumerable<EmployeeLetterDto>> getByUserIdempLetterAsync(int userId);

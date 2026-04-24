@@ -1019,18 +1019,36 @@ public class UpdateResignationStatusRequest
 
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-
-            if (model.UploadFile != null && model.UploadFile.Length > 0)
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
             {
-                string fileName = $"{Guid.NewGuid()}_{model.UploadFile.FileName}";
-                string fullPath = Path.Combine(path, fileName);
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(path, fileName);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.UploadFile.CopyToAsync(stream);
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
 
-                model.FileName = fileName;
-                model.FilePath = $"Uploads/EmployeeForms/{fileName}";
+                    _context.EmployeeFormFiles.Add(new EmployeeFormFile
+                    {
+                        FormId = model.Id,
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeForms/{fileName}"
+                    });
+                }
             }
+
+            //if (model.UploadFile != null && model.UploadFile.Length > 0)
+            //{
+            //    string fileName = $"{Guid.NewGuid()}_{model.UploadFile.FileName}";
+            //    string fullPath = Path.Combine(path, fileName);
+
+            //    using var stream = new FileStream(fullPath, FileMode.Create);
+            //    await model.UploadFile.CopyToAsync(stream);
+
+            //    model.FileName = fileName;
+            //    model.FilePath = $"Uploads/EmployeeForms/{fileName}";
+            //}
 
             model.ModifiedBy = model.UserId;
 
@@ -1054,6 +1072,69 @@ public class UpdateResignationStatusRequest
                 return NotFound(new { message = "Record not found" });
 
             return Ok(new { message = "Deleted successfully" });
+        }
+        [HttpGet("GetMyForms/{employeeCode}")]
+        public async Task<IActionResult> GetMyForms(string employeeCode)
+        {
+            if (string.IsNullOrEmpty(employeeCode))
+                return BadRequest("Invalid employee code");
+
+            var data = await _employeeService.getFormsForEmployeeAsync(employeeCode);
+
+            if (data == null || !data.Any())
+                return NotFound(new { message = "No forms found" });
+
+            return Ok(data);
+        }
+        [HttpPost("UploadEmployeeFiles")]
+        public async Task<IActionResult> UploadEmployeeFiles([FromForm] EmployeeFileUploadDto model)
+        {
+            if (model.Id <= 0)
+                return BadRequest("Invalid Form Id");
+
+            string root = _env.WebRootPath;
+            string folder = Path.Combine(root, "Uploads", "EmployeeResponses");
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
+            {
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
+
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    _context.EmployeeFormEmployeeFiles.Add(new EmployeeFormEmployeeFile
+                    {
+                        FormId = model.Id,
+                        EmployeeCode = model.EmployeeCode,
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeResponses/{fileName}"
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Uploaded successfully" });
+        }
+        [HttpPost("UpdateStatus")]
+        public IActionResult UpdateStatus(UpdateStatusDto dto)
+        {
+            var form = _context.EmployeeForms.FirstOrDefault(x => x.Id == dto.Id);
+
+            if (form == null)
+                return NotFound();
+
+            form.Status = dto.Status;
+
+            _context.SaveChanges();
+
+            return Ok(new { message = "Status updated successfully" });
         }
 
         #endregion

@@ -1817,6 +1817,9 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.DocumentName).HasMaxLength(100);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
 
             entity.HasOne(d => d.DocumentType).WithMany(p => p.EmployeeForms)
                 .HasForeignKey(d => d.DocumentTypeId)

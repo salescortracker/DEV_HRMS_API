@@ -988,7 +988,10 @@ namespace BusinessLayer.Implementations
                     // ✅ FIX: File mapping
                     FileNames = x.EmployeeFormFiles.Select(f => f.FileName).ToList(),
                     FilePaths = x.EmployeeFormFiles.Select(f => f.FilePath).ToList(),
-
+                    EmployeeUploadedFiles = _context.EmployeeFormEmployeeFiles
+    .Where(f => f.FormId == x.Id)
+    .Select(f => f.FilePath)
+    .ToList(),
 
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
@@ -1025,6 +1028,10 @@ namespace BusinessLayer.Implementations
                     // ✅ FIX
                     EmployeeCode = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
                     EmployeeName = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
+                    EmployeeUploadedFiles = _context.EmployeeFormEmployeeFiles
+    .Where(f => f.FormId == x.Id)
+    .Select(f => f.FilePath)
+    .ToList(),
 
                     // ✅ FIX
                     FileNames = x.EmployeeFormFiles
@@ -1130,7 +1137,10 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<bool> updateempFormAsync(EmployeeFormDto model)
         {
-            var entity = await _context.EmployeeForms.FindAsync(model.Id);
+            var entity = await _context.EmployeeForms
+      .Include(x => x.EmployeeFormEmployees)
+      .Include(x => x.EmployeeFormFiles)
+      .FirstOrDefaultAsync(x => x.Id == model.Id);
             if (entity == null)
                 return false;
 
@@ -1147,7 +1157,23 @@ namespace BusinessLayer.Implementations
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
-           // entity.EmployeeName = model.EmployeeName;
+            // entity.EmployeeName = model.EmployeeName;
+
+            _context.EmployeeFormEmployees.RemoveRange(entity.EmployeeFormEmployees);
+
+            var codes = model.EmployeeCode.Split(',');
+            var names = model.EmployeeName.Split(',');
+
+            for (int i = 0; i < codes.Length; i++)
+            {
+                _context.EmployeeFormEmployees.Add(new EmployeeFormEmployee
+                {
+                    FormId = entity.Id,
+                    EmployeeCode = codes[i],
+                    EmployeeName = names[i]
+                });
+            }
+
 
             await _context.SaveChangesAsync();
             return true;
@@ -1176,6 +1202,38 @@ namespace BusinessLayer.Implementations
 
             await _context.SaveChangesAsync();
             return true;
+        }
+        public async Task<IEnumerable<EmployeeFormDto>> getFormsForEmployeeAsync(string employeeCode)
+        {
+            return await _context.EmployeeForms
+                .Where(x => x.EmployeeFormEmployees
+                    .Any(e => e.EmployeeCode == employeeCode)) // ✅ KEY LOGIC
+                .Include(x => x.EmployeeFormFiles)
+                .OrderByDescending(x => x.Id)
+                .Select(x => new EmployeeFormDto
+                {
+                    Id = x.Id,
+                    DocumentTypeId = x.DocumentTypeId,
+                    DocumentName = x.DocumentName,
+                    IssueDate = x.IssueDate,
+                    Remarks = x.Remarks,
+                    IsConfidential = x.IsConfidential,
+
+                    EmployeeCode = string.Join(",",
+                        x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
+
+                    EmployeeName = string.Join(",",
+                        x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
+
+                    FileNames = x.EmployeeFormFiles
+                        .Select(f => f.FileName)
+                        .ToList(),
+
+                    FilePaths = x.EmployeeFormFiles
+                        .Select(f => f.FilePath)
+                        .ToList()
+                })
+                .ToListAsync();
         }
         #endregion
         #region employee Letter details

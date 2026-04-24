@@ -31,6 +31,8 @@ public partial class EmployeeForm
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? Status { get; set; }
+
     public virtual AttachmentType DocumentType { get; set; } = null!;
 
     public virtual ICollection<EmployeeFormEmployee> EmployeeFormEmployees { get; set; } = new List<EmployeeFormEmployee>();
