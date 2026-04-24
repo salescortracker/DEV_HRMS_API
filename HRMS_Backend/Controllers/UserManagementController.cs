@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Identity.Data;
@@ -23,9 +24,11 @@ namespace HRMS_Backend.Controllers
         private readonly IadminService _adminService;
         private readonly IMaritalStatusService _maritalStatusService;
         private readonly IEmployeeMasterService _employeeService;
+        private readonly ILateLoginPolicyService _lateLoginPolicyService;
         private readonly HRMSContext _hRMSContext;
         public UserManagementController(HRMSContext hrmscontext,ICompanyService companyService, IRegionService regionService, IUserService userService
-            , IMenuMasterService menuService, IMaritalStatusService maritalStatusService, IRoleMasterService roleService, IMenuRoleService menuRoleService, IadminService adminService, IEmployeeMasterService employeeService)
+            , IMenuMasterService menuService, IMaritalStatusService maritalStatusService, IRoleMasterService roleService, IMenuRoleService menuRoleService, 
+            IadminService adminService, IEmployeeMasterService employeeService, ILateLoginPolicyService lateLoginPolicyService)
         {
             _companyService = companyService;
             _regionService = regionService;
@@ -37,6 +40,7 @@ namespace HRMS_Backend.Controllers
             _hRMSContext = hrmscontext;
             _maritalStatusService = maritalStatusService;
             _employeeService = employeeService;
+            _lateLoginPolicyService = lateLoginPolicyService;
         }   
         public class BulkInsertRequest
         {
@@ -1028,6 +1032,67 @@ namespace HRMS_Backend.Controllers
 
             return Ok();
         }
+
+        #region Late Login Policy
+
+        [HttpGet]
+        [Route("GetLateLoginPolicy")]
+        public async Task<IActionResult> GetLateLoginPolicy(int userId)
+        {
+            var data = await _lateLoginPolicyService.GetAllPoliciesAsync(userId);
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("GetLateLoginPolicyById")]
+        public async Task<IActionResult> GetLateLoginPolicyById(int id)
+        {
+            var data = await _lateLoginPolicyService.GetPolicyByIdAsync(id);
+            if (data == null) return NotFound();
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("SaveLateLoginPolicy")]
+        public async Task<IActionResult> SaveLateLoginPolicy([FromBody] object model)
+        {
+            try
+            {
+                var data = await _lateLoginPolicyService.AddPolicyAsync(model);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateLateLoginPolicy/{id}")]
+        public async Task<IActionResult> UpdateLateLoginPolicy(int id, [FromBody] object model)
+        {
+            var data = await _lateLoginPolicyService.UpdatePolicyAsync(id, model);
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("DeleteLateLoginPolicy/{id}")]
+        public async Task<IActionResult> DeleteLateLoginPolicy(int id)
+        {
+            var result = await _lateLoginPolicyService.DeletePolicyAsync(id);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
+        [HttpPost]
+        [Route("SearchLateLoginPolicy")]
+        public async Task<IActionResult> SearchLateLoginPolicy([FromBody] object filter)
+        {
+            var data = await _lateLoginPolicyService.SearchPoliciesAsync(filter);
+            return Ok(data);
+        }
+
+        #endregion
 
     }
 }

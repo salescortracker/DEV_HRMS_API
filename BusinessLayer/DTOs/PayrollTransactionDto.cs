@@ -50,6 +50,7 @@ namespace BusinessLayer.DTOs
         public string AccountNo { get; set; }
         public string Pan { get; set; }
         public int LateCount { get; set; } // ✅ ADD THIS
+        public decimal LateDeduction { get; set; }
 
     }
 }

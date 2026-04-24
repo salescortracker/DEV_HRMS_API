@@ -110,6 +110,7 @@ builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IVisatypeService, VisatypeService>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
+builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
