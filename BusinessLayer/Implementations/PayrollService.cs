@@ -27,8 +27,8 @@ namespace BusinessLayer.Implementations
              ATTENDANCE SUMMARY (UPDATED WITH LATE LOGIC)
         ============================================================ */
 
-        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays, int lateCount)>
-        GetEmployeeAttendanceSummary(int employeeId, int month, int year)
+        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays, int lateCount, decimal lateDeductionDays)>
+        GetEmployeeAttendanceSummary(int employeeId, int userId, int month, int year)
         {
             var employee = await _context.Users
                 .Where(x => x.UserId == employeeId)
@@ -36,12 +36,13 @@ namespace BusinessLayer.Implementations
                 {
                     x.EmployeeCode,
                     x.CompanyId,
-                    x.RegionId
+                    x.RegionId,
+                    x.UserId // ✅ FIX
                 })
                 .FirstOrDefaultAsync();
 
             if (employee == null)
-                return (0, 0, 0, 0, 0);
+                return (0, 0, 0, 0, 0, 0m); // ✅ FIX
 
             DateOnly startDate = new DateOnly(year, month, 1);
             DateOnly endDate = new DateOnly(year, month, DateTime.DaysInMonth(year, month));
@@ -55,32 +56,44 @@ namespace BusinessLayer.Implementations
                     a.AttendanceDate <= endDate)
                 .ToListAsync();
 
-            /* ================= PRESENT ================= */
             int present = attendance.Count(a => a.Status == "Present");
 
-            /* ================= LEAVES ================= */
             int leave = attendance.Count(a =>
                 a.Status == "SickLeave" ||
                 a.Status == "CasualLeave" ||
                 a.Status == "PaidLeave");
 
-            /* ================= MANUAL HALF DAYS ================= */
             int manualHalfDays = attendance.Count(a => a.Status == "HalfDay");
 
-            /* ================= LATE ARRIVALS ================= */
-            // 👉 IMPORTANT: Group by date to avoid duplicate entries per day
             int lateArrivals = attendance
                 .Where(a => a.LateMinutes.HasValue && a.LateMinutes.Value > 0)
                 .GroupBy(a => a.AttendanceDate)
                 .Count();
 
-            // 👉 Rule: Every 3 late = 1 half day
-            int lateHalfDays = lateArrivals / 3;
+            // ✅ POLICY CALL FIX
+            var policy = await GetLateLoginPolicy(
+                userId,
+                employee.CompanyId,
+                employee.RegionId
+            );
 
-            /* ================= FINAL HALF DAYS ================= */
-            int half = manualHalfDays + lateHalfDays;
+            decimal lateDeductionDays = 0;
 
-            /* ================= WORKING DAYS ================= */
+            if (policy != null && policy.LateLoginCount > 0)
+            {
+                int blocks = lateArrivals / policy.LateLoginCount;
+
+                if (policy.Loptype?.ToLower() == "half day")
+                    lateDeductionDays = blocks * 0.5m;
+                else if (policy.Loptype?.ToLower() == "full day")
+                    lateDeductionDays = blocks * 1m;
+            }
+
+            // ✅ FIX half calculation
+            int lateHalfDays = (int)Math.Round(lateDeductionDays * 2);
+            //int half = manualHalfDays + lateHalfDays;
+            int half = manualHalfDays;
+
             int totalDays = DateTime.DaysInMonth(year, month);
 
             int weekendDays = Enumerable.Range(1, totalDays)
@@ -90,7 +103,7 @@ namespace BusinessLayer.Implementations
 
             int workingDays = totalDays - weekendDays;
 
-            return (workingDays, present, leave, half, lateArrivals);
+            return (workingDays, present, leave, half, lateArrivals, lateDeductionDays);
         }
 
         /* ============================================================
@@ -204,7 +217,9 @@ namespace BusinessLayer.Implementations
 
             // UPDATED: now includes lateCount
             var attendance = await GetEmployeeAttendanceSummary(
-                empSalary.EmployeeId, month, year);
+                empSalary.EmployeeId, userId, month, year);
+            decimal lateDeductionAmount =
+    attendance.lateDeductionDays * (attendance.workingDays == 0 ? 0 : gross / attendance.workingDays);
 
             int allowedLeaves = 1;
             int allowedHalfDays = 2;
@@ -219,7 +234,8 @@ namespace BusinessLayer.Implementations
 
             decimal attendanceDeduction =
                 (extraLeaves * perDaySalary) +
-                (extraHalfDays * (perDaySalary / 2));
+                (extraHalfDays * (perDaySalary / 2)) +
+                lateDeductionAmount;
 
             attendanceDeduction = Math.Round(attendanceDeduction, 2);
 
@@ -273,7 +289,7 @@ namespace BusinessLayer.Implementations
                     await CalculatePayroll(empSalary, structureComponents, userId, dto.Month, dto.Year);
 
                 var attendance = await GetEmployeeAttendanceSummary(
-                    empSalary.EmployeeId, dto.Month, dto.Year);
+                    empSalary.EmployeeId, userId, dto.Month, dto.Year);
 
                 var existingPayroll = await _context.PayrollTransactions
                     .FirstOrDefaultAsync(x =>
@@ -301,8 +317,8 @@ namespace BusinessLayer.Implementations
                     Month = dto.Month,
                     Year = dto.Year,
                     GrossSalary = gross,
-                    TotalDeductions = totalDeduction,
-                    NetSalary = gross - totalDeduction,
+                    TotalDeductions = totalDeduction + attendanceDeduction,
+                    NetSalary = gross - (totalDeduction + attendanceDeduction),
                     AttendanceDeduction = attendanceDeduction,
                     Expenses = expenses,
                     Status = status,
@@ -358,8 +374,9 @@ namespace BusinessLayer.Implementations
                         Month = dto.Month,
                         Year = dto.Year,
                         GrossSalary = gross,
-                        TotalDeductions = totalDeduction,
-                        NetSalary = gross - totalDeduction,
+                        TotalDeductions = totalDeduction + attendanceDeduction,
+                        AttendanceDeduction = attendanceDeduction,              // ✅ save separately
+                        NetSalary = gross - (totalDeduction + attendanceDeduction),
                         Status = "Processed",
                         UserId = userId,
                         CompanyId = empSalary.CompanyId,
@@ -520,26 +537,31 @@ namespace BusinessLayer.Implementations
                 }).ToList();
 
                 // 🔥 ATTENDANCE
-                var attendance = await GetEmployeeAttendanceSummary(
-                    trx.EmployeeId, trx.Month, trx.Year);
+                //            var attendance = await GetEmployeeAttendanceSummary(
+                //                trx.EmployeeId, trx.UserId ?? 0, trx.Month, trx.Year);
 
-                decimal attendanceDeduction = 0;
+                //            decimal attendanceDeduction = 0;
 
-                int allowedLeaves = 1;
-                int allowedHalfDays = 2;
+                //            int allowedLeaves = 1;
+                //            int allowedHalfDays = 2;
 
-                int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
-                int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
+                //            int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
+                //            int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
 
-                decimal perDaySalary = attendance.workingDays == 0
-                    ? 0
-                    : trx.GrossSalary / attendance.workingDays;
+                //            decimal perDaySalary = attendance.workingDays == 0
+                //                ? 0
+                //                : trx.GrossSalary / attendance.workingDays;
 
-                attendanceDeduction =
-                    (extraLeaves * perDaySalary) +
-                    (extraHalfDays * (perDaySalary / 2));
+                //            attendanceDeduction =
+                //                (extraLeaves * perDaySalary) +
+                //                (extraHalfDays * (perDaySalary / 2));
+                //            decimal lateDeductionAmount =
+                //attendance.lateDeductionDays * perDaySalary;
 
-                attendanceDeduction = Math.Round(attendanceDeduction, 2);
+                //            attendanceDeduction += lateDeductionAmount;
+
+                //            attendanceDeduction = Math.Round(attendanceDeduction, 2);
+                decimal attendanceDeduction = trx.AttendanceDeduction;
 
                 // 🔥 EXPENSES
                 var expenses = await GetApprovedExpenses(
@@ -1035,7 +1057,19 @@ namespace BusinessLayer.Implementations
 
             return result;
         }
-    }
-    
 
+        // ================= GET LATE LOGIN POLICY =================
+        private async Task<LateLoginPolicy?> GetLateLoginPolicy(int userId, int companyId, int regionId)
+        {
+            return await _context.LateLoginPolicies
+                .Where(x =>
+                    x.UserId == userId &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive == true   // ✅ FIXED
+                )
+                .OrderByDescending(x => x.ModifiedAt ?? x.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+    }
 }
