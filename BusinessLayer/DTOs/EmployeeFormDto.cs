@@ -30,6 +30,7 @@ namespace BusinessLayer.DTOs
         public List<IFormFile>? DocumentFiles { get; set; }
         public List<string>? FilePaths { get; set; }
         public List<string>? FileNames { get; set; }
+        public List<string>? EmployeeUploadedFiles { get; set; }
 
     }
 }
