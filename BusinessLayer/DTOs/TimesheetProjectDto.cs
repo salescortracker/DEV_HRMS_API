@@ -9,6 +9,7 @@ namespace BusinessLayer.DTOs
     public class TimesheetProjectDto
     {
         public string ProjectName { get; set; } = null!;
+        public string? Description { get; set; }
         public string StartTime { get; set; } = null!;
         public string EndTime { get; set; } = null!;
         public string TotalHoursText { get; set; } = null!;
