@@ -1,9 +1,11 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BusinessLayer.Implementations.LeaveService;
 
 namespace BusinessLayer.Interfaces
 {
@@ -23,5 +25,6 @@ namespace BusinessLayer.Interfaces
         Task<bool> BulkRejectLeavesAsync(List<int> leaveIds);
         Task<IEnumerable<LeaveRequestDto>> GetLeavesForUserAsync(int userId);
         Task<IEnumerable<LeaveRequestDto>> GetLeavesForManagerUserAsync(int managerId);
+        Task<ApiResponse<List<LeaveReportDto>>> GetLeaveReport(LeaveReportRequest request);
     }
 }

@@ -30,7 +30,8 @@ namespace BusinessLayer.Interfaces
         Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(string employeeCode);
         Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(string employeeCode, int companyId, int regionId);
         Task<bool> DeleteAllocationAsync(int id);
-        Task<IEnumerable<ShiftAllocationDto>> GetAllAllocationsAsync(int companyId,  int regionId);
+        //  Task<IEnumerable<ShiftAllocationDto>> GetAllAllocationsAsync(int companyId,  int regionId);
+        Task<IEnumerable<ShiftAllocationDto>> GetAllAllocationsAsync(int comanyId, int regionId);
         // -------------------------------
         // USER INFO (FullName, EmployeeCode)
         // -------------------------------

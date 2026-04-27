@@ -1,10 +1,12 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using static BusinessLayer.Implementations.LeaveService;
 
 namespace HRMS_Backend.Controllers
 {
@@ -2320,12 +2322,12 @@ public class UpdateResignationStatusRequest
         // ======================================================
         //                  GET ALL ALLOCATIONS
         // ======================================================
-        [HttpGet("GetshiftAllocationAll")]
-        public async Task<IActionResult> GetshiftAllocationAll(int userId)
-        {
-            var result = await _shiftAllocationService.GetAllAllocationsAsync(userId);
-            return Ok(result);
-        }
+        //[HttpGet("GetshiftAllocationAll")]
+        //public async Task<IActionResult> GetshiftAllocationAll(int userId)
+        //{
+        //    var result = await _shiftAllocationService.GetAllAllocationsAsync(userId);
+        //    return Ok(result);
+        //}
 
         // ======================================================
         //                  GET BY ID
@@ -2709,6 +2711,36 @@ public class UpdateResignationStatusRequest
                 throw new Exception("Role not found");
 
             return roleId;
+        }
+        [HttpPost("leave-report")]
+        public async Task<IActionResult> GetLeaveReport([FromBody] LeaveReportRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(new ApiResponse<string>
+                    {
+                        Success = false,
+                        Message = "Invalid request"
+                    });
+                }
+
+                var result = await _leaveService.GetLeaveReport(request);
+
+
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, new ApiResponse<string>
+                {
+                    Success = false,
+                    Message = "Internal server error"
+                });
+            }
         }
 
     }

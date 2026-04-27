@@ -1,7 +1,9 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -16,15 +18,113 @@ namespace BusinessLayer.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly HRMSContext _context;
         public LeaveService(IUnitOfWork unitOfWork, IEmailService emailService,
-                            IConfiguration configuration)
+                            IConfiguration configuration, HRMSContext context)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _context = context;
             _configuration = configuration;
 
         }
+        public class LeaveReportRequest
+        {
+            public int CompanyId { get; set; }
+            public int RegionId { get; set; }
+            public int? UserId { get; set; } // NULL = All Employees
+            public DateTime FromDate { get; set; }
+            public DateTime ToDate { get; set; }
+            public string? Status { get; set; }
 
+        }
+        public class LeaveReportDto
+        {
+            public int LeaveRequestId { get; set; }
+            public int UserId { get; set; }
+            public string EmployeeName { get; set; }
+            public string LeaveType { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public decimal TotalDays { get; set; }
+            public string Status { get; set; }
+        }
+
+
+        public async Task<ApiResponse<List<LeaveReportDto>>> GetLeaveReport(LeaveReportRequest request)
+        {
+            var response = new ApiResponse<List<LeaveReportDto>>();
+
+            try
+            {
+                if (request == null)
+                    return new ApiResponse<List<LeaveReportDto>> { Success = false, Message = "Invalid request" };
+
+                if (request.FromDate > request.ToDate)
+                    return new ApiResponse<List<LeaveReportDto>> { Success = false, Message = "FromDate cannot be greater than ToDate" };
+
+                var fromDate = DateOnly.FromDateTime(request.FromDate);
+                var toDate = DateOnly.FromDateTime(request.ToDate);
+
+                var query = from lr in _context.LeaveRequests
+                            join u in _context.Users on lr.UserId equals u.UserId
+                            where lr.CompanyId == request.CompanyId
+                               && lr.RegionId == request.RegionId
+                               && (lr.StartDate <= toDate && lr.EndDate >= fromDate)
+                            select new
+                            {
+                                lr.LeaveRequestId,
+                                lr.UserId,
+                                EmployeeName = u.FullName,
+                                lr.LeaveTypeId,
+                                lr.StartDate,
+                                lr.EndDate,
+                                lr.TotalDays,
+                                lr.Status
+                            };
+
+                if (request.UserId.HasValue && request.UserId.Value > 0)
+                {
+                    query = query.Where(x => x.UserId == request.UserId);
+                }
+                if (!string.IsNullOrEmpty(request.Status))
+                {
+                    query = query.Where(x => x.Status == request.Status);
+                }
+
+                var data = await query
+                    .OrderByDescending(x => x.StartDate)
+                    .ToListAsync();
+
+                var result = data.Select(x => new LeaveReportDto
+                {
+                    LeaveRequestId = x.LeaveRequestId,
+                    UserId = x.UserId,
+                    EmployeeName = x.EmployeeName,
+                    //LeaveType = x.LeaveTypeId.ToString(),
+                    LeaveType = _context.LeaveTypes.Where(y => y.LeaveTypeId == x.LeaveTypeId).Select(y => y.LeaveTypeName)
+    .FirstOrDefault(),
+                    StartDate = x.StartDate.ToDateTime(TimeOnly.MinValue),
+                    EndDate = x.EndDate.ToDateTime(TimeOnly.MinValue),
+                    TotalDays = x.TotalDays,
+                    Status = x.Status
+                }).ToList();
+
+                response.Success = true;
+                response.Message = "Leave report fetched successfully";
+                response.Data = result;
+
+                return response;
+            }
+            catch (Exception)
+            {
+                return new ApiResponse<List<LeaveReportDto>>
+                {
+                    Success = false,
+                    Message = "Something went wrong"
+                };
+            }
+        }
         public async Task<IEnumerable<LeaveTypeDto>> GetActiveLeaveTypesAsync()
         {
             var data = await _unitOfWork.Repository<LeaveType>().GetAllAsync();
@@ -417,5 +517,7 @@ namespace BusinessLayer.Implementations
             }).ToList();
         }
 
+
     }
+
 }
