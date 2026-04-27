@@ -25,5 +25,7 @@ public partial class TimesheetProject
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? Description { get; set; }
+
     public virtual Timesheet Timesheet { get; set; } = null!;
 }
