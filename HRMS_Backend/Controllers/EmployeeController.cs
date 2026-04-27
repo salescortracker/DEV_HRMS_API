@@ -1073,19 +1073,20 @@ public class UpdateResignationStatusRequest
 
             return Ok(new { message = "Deleted successfully" });
         }
-        [HttpGet("GetMyForms/{employeeCode}")]
-        public async Task<IActionResult> GetMyForms(string employeeCode)
+        [HttpGet("GetMyForms/{employeeCode}/{companyId}/{regionId}")]
+        public async Task<IActionResult> GetMyForms(string employeeCode, int companyId, int regionId)
         {
             if (string.IsNullOrEmpty(employeeCode))
                 return BadRequest("Invalid employee code");
 
-            var data = await _employeeService.getFormsForEmployeeAsync(employeeCode);
+            var data = await _employeeService.getFormsForEmployeeAsync(employeeCode, companyId, regionId);
 
             if (data == null || !data.Any())
                 return NotFound(new { message = "No forms found" });
 
             return Ok(data);
         }
+
         [HttpPost("UploadEmployeeFiles")]
         public async Task<IActionResult> UploadEmployeeFiles([FromForm] EmployeeFileUploadDto model)
         {
@@ -1123,9 +1124,11 @@ public class UpdateResignationStatusRequest
             return Ok(new { message = "Uploaded successfully" });
         }
         [HttpPost("UpdateStatus")]
-        public IActionResult UpdateStatus(UpdateStatusDto dto)
+        public async Task<IActionResult> UpdateStatus(UpdateStatusDto dto)
         {
-            var form = _context.EmployeeForms.FirstOrDefault(x => x.Id == dto.Id);
+            var form = _context.EmployeeForms
+                .Include(x => x.EmployeeFormEmployees)
+                .FirstOrDefault(x => x.Id == dto.Id);
 
             if (form == null)
                 return NotFound();
@@ -1134,8 +1137,38 @@ public class UpdateResignationStatusRequest
 
             _context.SaveChanges();
 
-            return Ok(new { message = "Status updated successfully" });
+            // Send email to selected employees
+            foreach (var emp in form.EmployeeFormEmployees)
+            {
+                var user = _context.Users.FirstOrDefault(u =>
+                    u.EmployeeCode == emp.EmployeeCode &&
+                    u.CompanyId == form.CompanyId &&
+                    u.RegionId == form.RegionId);
+
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    string subject = $"Your document has been {dto.Status}";
+
+                    string body = $@"
+                <html>
+                <body>
+                    <h3>Employee Document Status Update</h3>
+                    <p>Dear {emp.EmployeeName},</p>
+                    <p>Your submitted document <b>{form.DocumentName}</b> has been <b>{dto.Status}</b>.</p>
+                    <p>Issued Date: {form.IssueDate}</p>
+                    <br/>
+                    <p>Regards,</p>
+                    <p>HR Team</p>
+                </body>
+                </html>";
+
+                    await _emailService.SendEmailAsync(user.Email, subject, body);
+                }
+            }
+
+            return Ok(new { message = $"Status updated successfully and email sent to employees" });
         }
+
 
         #endregion
 
@@ -1285,19 +1318,20 @@ public class UpdateResignationStatusRequest
 
             return Ok(new { message = "Deleted successfully" });
         }
-        [HttpGet("GetMyLetters/{employeeCode}")]
-        public async Task<IActionResult> GetMyLetters(string employeeCode)
+        [HttpGet("GetMyLetters/{employeeCode}/{companyId}/{regionId}")]
+        public async Task<IActionResult> GetMyLetters(string employeeCode, int companyId, int regionId)
         {
             if (string.IsNullOrEmpty(employeeCode))
                 return BadRequest("Invalid employee code");
 
-            var data = await _employeeService.getLettersForEmployeeAsync(employeeCode);
+            var data = await _employeeService.getLettersForEmployeeAsync(employeeCode, companyId, regionId);
 
             if (data == null || !data.Any())
                 return NotFound(new { message = "No letters found" });
 
             return Ok(data);
         }
+
 
         #endregion
 
