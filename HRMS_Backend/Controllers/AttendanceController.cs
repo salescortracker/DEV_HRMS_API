@@ -125,10 +125,10 @@ namespace HRMS_Backend.Controllers
         //                  SHIFT ALLOCATION API
         // ===========================================================
 
-        [HttpGet("GetAllAllocations/{userId}")]
-        public async Task<IActionResult> GetAllAllocations(int userId)
+        [HttpGet("GetAllAllocations/{companyId}/{regionId}")]
+        public async Task<IActionResult> GetAllAllocations(int companyId, int regionId)
         {
-            var list = await _shiftAllocationService.GetAllAllocationsAsync(userId);
+            var list = await _shiftAllocationService.GetAllAllocationsAsync( companyId, regionId);
             return Ok(list);
         }
 
