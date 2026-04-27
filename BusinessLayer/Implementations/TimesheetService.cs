@@ -89,7 +89,6 @@ namespace BusinessLayer.Implementations
             }
 
             await _unitOfWork.CompleteAsync();
-            await SendManagerEmailAsync(timesheet);
             return timesheet.TimesheetId;
         }
 
@@ -226,6 +225,7 @@ namespace BusinessLayer.Implementations
                         .Select(p => new TimesheetProjectDto
                         {
                             ProjectName = p.ProjectName,
+                            Description = p.Description,
                             StartTime = p.StartTime.ToString(),
                             EndTime = p.EndTime.ToString(),
                             TotalMinutes = p.TotalMinutes,
@@ -266,6 +266,7 @@ namespace BusinessLayer.Implementations
                 Projects = projects.Select(p => new TimesheetProjectDto
                 {
                     ProjectName = p.ProjectName,
+                    Description = p.Description,
                     StartTime = p.StartTime.ToString(),
                     EndTime = p.EndTime.ToString(),
                     TotalMinutes = p.TotalMinutes,
