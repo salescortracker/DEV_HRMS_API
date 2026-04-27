@@ -51,7 +51,8 @@ namespace BusinessLayer.Interfaces
         Task<int> addempFormAsync(EmployeeFormDto model, List<EmployeeFormFile> files);
         Task<bool> updateempFormAsync(EmployeeFormDto model);
         Task<bool> deleteempFormAsync(int id);
-        Task<IEnumerable<EmployeeFormDto>> getFormsForEmployeeAsync(string employeeCode);
+        Task<IEnumerable<EmployeeFormDto>> getFormsForEmployeeAsync(string employeeCode, int companyId, int regionId);
+
 
         Task<IEnumerable<EmployeeLetterDto>> getAllempLetterAsync();
         Task<IEnumerable<EmployeeLetterDto>> getByUserIdempLetterAsync(int userId);
@@ -59,7 +60,7 @@ namespace BusinessLayer.Interfaces
         Task<int> addempLetterAsync(EmployeeLetterDto model, List<EmployeeLetterFile> files);
         Task<bool> updateempLetterAsync(EmployeeLetterDto model);
         Task<bool> deleteempLetterAsync(int id);
-        Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode);
+        Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode, int companyId, int regionId);
 
         Task<IEnumerable<EmployeeBankDetailsDto>> getAllempBankAsync(int userId);
         Task<EmployeeBankDetailsDto?> getByIdempBankAsync(int id);

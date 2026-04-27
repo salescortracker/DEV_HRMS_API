@@ -1203,11 +1203,14 @@ namespace BusinessLayer.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<IEnumerable<EmployeeFormDto>> getFormsForEmployeeAsync(string employeeCode)
+        public async Task<IEnumerable<EmployeeFormDto>> getFormsForEmployeeAsync(string employeeCode, int companyId, int regionId)
         {
             return await _context.EmployeeForms
-                .Where(x => x.EmployeeFormEmployees
-                    .Any(e => e.EmployeeCode == employeeCode)) // ✅ KEY LOGIC
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.EmployeeFormEmployees.Any(e => e.EmployeeCode == employeeCode)
+                )
                 .Include(x => x.EmployeeFormFiles)
                 .OrderByDescending(x => x.Id)
                 .Select(x => new EmployeeFormDto
@@ -1219,22 +1222,15 @@ namespace BusinessLayer.Implementations
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
 
-                    EmployeeCode = string.Join(",",
-                        x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
+                    EmployeeCode = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
+                    EmployeeName = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
 
-                    EmployeeName = string.Join(",",
-                        x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
-
-                    FileNames = x.EmployeeFormFiles
-                        .Select(f => f.FileName)
-                        .ToList(),
-
-                    FilePaths = x.EmployeeFormFiles
-                        .Select(f => f.FilePath)
-                        .ToList()
+                    FileNames = x.EmployeeFormFiles.Select(f => f.FileName).ToList(),
+                    FilePaths = x.EmployeeFormFiles.Select(f => f.FilePath).ToList()
                 })
                 .ToListAsync();
         }
+
         #endregion
         #region employee Letter details
         /// <summary>
@@ -1478,11 +1474,14 @@ namespace BusinessLayer.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode)
+        public async Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode, int companyId, int regionId)
         {
             return await _context.EmployeeLetters
-                .Where(x => x.EmployeeLetterEmployees
-                    .Any(e => e.EmployeeCode == employeeCode))
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.EmployeeLetterEmployees.Any(e => e.EmployeeCode == employeeCode)
+                )
                 .Select(x => new EmployeeLetterDto
                 {
                     Id = x.Id,
@@ -1493,20 +1492,19 @@ namespace BusinessLayer.Implementations
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
 
-                    // Employees
                     EmployeeCode = string.Join(",",
                         x.EmployeeLetterEmployees.Select(e => e.EmployeeCode)),
 
                     EmployeeName = string.Join(",",
                         x.EmployeeLetterEmployees.Select(e => e.EmployeeName)),
 
-                    // Files
                     FileName = string.Join(",",
                         x.EmployeeLetterFiles.Select(f => f.FileName))
                 })
                 .OrderByDescending(x => x.Id)
                 .ToListAsync();
         }
+
         #endregion
         #region employee Bank Details
         /// <summary>
