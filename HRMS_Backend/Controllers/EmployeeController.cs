@@ -2322,12 +2322,12 @@ public class UpdateResignationStatusRequest
         // ======================================================
         //                  GET ALL ALLOCATIONS
         // ======================================================
-        //[HttpGet("GetshiftAllocationAll")]
-        //public async Task<IActionResult> GetshiftAllocationAll(int userId)
-        //{
-        //    var result = await _shiftAllocationService.GetAllAllocationsAsync(userId);
-        //    return Ok(result);
-        //}
+        [HttpGet("GetshiftAllocationAll")]
+        public async Task<IActionResult> GetshiftAllocationAll(int userId)
+        {
+            var result = await _shiftAllocationService.GetAllAllocationsAsync(userId);
+            return Ok(result);
+        }
 
         // ======================================================
         //                  GET BY ID

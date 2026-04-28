@@ -15,12 +15,10 @@ namespace BusinessLayer.Implementations
     public class ShiftAllocationService: IShiftAllocationService
     {
         private readonly HRMSContext _context;
-        private readonly EmailService emailService;
 
-        public ShiftAllocationService(HRMSContext context,EmailService _emailservice)
+        public ShiftAllocationService(HRMSContext context)
         {
             _context = context;
-            emailService = _emailservice;
         }
 
         // ======================================================
@@ -61,7 +59,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = x.ShiftName,
                     ShiftStartTime = x.ShiftStartTime.ToString("HH:mm"),
                     ShiftEndTime = x.ShiftEndTime.ToString("HH:mm"),
-                   GraceTime = x.GraceTime,
+                    GraceTime = x.GraceTime,
                     IsActive = x.IsActive,
                     CompanyID = x.CompanyId,
                     RegionID = x.RegionId,
@@ -115,7 +113,7 @@ namespace BusinessLayer.Implementations
                 return await _context.SaveChangesAsync() > 0;
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -130,7 +128,7 @@ namespace BusinessLayer.Implementations
             entity.ShiftName = dto.ShiftName;
             entity.ShiftStartTime = TimeOnly.Parse(dto.ShiftStartTime);
             entity.ShiftEndTime = TimeOnly.Parse(dto.ShiftEndTime);
-            entity.GraceTime = dto.GraceTime;   
+            entity.GraceTime = dto.GraceTime;
             entity.GraceTime = dto.GraceTime;
             entity.ModifiedAt = DateTime.Now;
             entity.ModifiedBy = dto.ModifiedBy;
@@ -149,11 +147,11 @@ namespace BusinessLayer.Implementations
                 _context.ShiftMasters.Remove(entity);
                 return await _context.SaveChangesAsync() > 0;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            }
+        }
 
         public async Task<bool> ActivateShiftAsync(int shiftId)
         {
@@ -190,11 +188,11 @@ namespace BusinessLayer.Implementations
         //              SHIFT ALLOCATION SERVICES
         // ======================================================
 
-        public async Task<IEnumerable<ShiftAllocationDto>> GetAllAllocationsAsync(int comanyId, int regionId)
-        { 
+        public async Task<IEnumerable<ShiftAllocationDto>> GetAllAllocationsAsync(int userId)
+        {
             return await (
                 from sa in _context.ShiftAllocations
-                where sa.CompanyId == comanyId && sa.RegionId == regionId
+                where sa.UserId == userId
                 join u in _context.Users
                     on sa.UserId equals u.UserId into userGroup
                 from u in userGroup.DefaultIfEmpty()
@@ -276,43 +274,7 @@ namespace BusinessLayer.Implementations
             };
 
             _context.ShiftAllocations.Add(entity);
-            var saved = await _context.SaveChangesAsync() > 0;
-            if (saved)
-            {
-                // 🔥 Get employee email
-                var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.UserId == dto.UserID);
-
-                if (user != null && !string.IsNullOrEmpty(user.Email))
-                {
-                    try
-                    {
-                        var subject = "New Shift Assigned";
-
-                        var body = $@"
-<p>Dear {dto.FullName},</p>
-
-<p>Your shift has been assigned successfully.</p>
-
-<table border='1' cellpadding='5' cellspacing='0'>
-<tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
-<tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
-<tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
-</table>
-
-<p>Regards,<br/>HR Team</p>";
-
-                        await emailService.SendEmailAsync(user.Email, subject, body);
-                    }
-                    catch (Exception ex)
-                    {
-                        // log error, do NOT break flow
-                    }
-                }
-            }
-
-            return saved;
-
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> UpdateAllocationAsync(ShiftAllocationDto dto)
@@ -323,52 +285,15 @@ namespace BusinessLayer.Implementations
             entity.UserId = dto.UserID;
             entity.FullName = dto.FullName;
             entity.EmployeeCode = dto.EmployeeCode;
-            entity.ShiftId = dto.ShiftID;
-            entity.ShiftName = dto.ShiftName; // ⚠️ you missed this earlier
+            entity.ShiftId = dto.ShiftID;  // FIXED
             entity.StartDate = dto.StartDate;
             entity.EndDate = dto.EndDate;
             entity.IsActive = dto.IsActive;
             entity.ModifiedBy = dto.ModifiedBy;
             entity.ModifiedDate = DateTime.Now;
 
-            var updated = await _context.SaveChangesAsync() > 0;
-
-            if (updated)
-            {
-                var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.UserId == dto.UserID);
-
-                if (user != null && !string.IsNullOrEmpty(user.Email))
-                {
-                    try
-                    {
-                        var subject = "Shift Updated";
-
-                        var body = $@"
-<p>Dear {dto.FullName},</p>
-
-<p>Your shift has been <b>updated</b>.</p>
-
-<table border='1' cellpadding='5' cellspacing='0'>
-<tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
-<tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
-<tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
-</table>
-
-<p>Regards,<br/>HR Team</p>";
-
-                        await emailService.SendEmailAsync(user.Email, subject, body);
-                    }
-                    catch (Exception ex)
-                    {
-                        // log error
-                    }
-                }
-            }
-
-            return updated;
+            return await _context.SaveChangesAsync() > 0;
         }
-
 
         public async Task<bool> DeleteAllocationAsync(int id)
         {
