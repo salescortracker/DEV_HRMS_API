@@ -28,8 +28,4 @@ public partial class DocumentType
     public DateTime? ModifiedAt { get; set; }
 
     public virtual ICollection<EmployeeDocument> EmployeeDocuments { get; set; } = new List<EmployeeDocument>();
-
-    public virtual ICollection<EmployeeForm> EmployeeForms { get; set; } = new List<EmployeeForm>();
-
-    public virtual ICollection<EmployeeLetter> EmployeeLetters { get; set; } = new List<EmployeeLetter>();
 }

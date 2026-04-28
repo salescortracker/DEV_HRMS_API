@@ -975,17 +975,17 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
+                    //EmployeeCode = x.EmployeeCode,
                     IssueDate = x.IssueDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
                     CreatedAt = x.CreatedAt,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedAt = x.ModifiedAt,
-                    EmployeeName = x.EmployeeName,
+                  //  EmployeeName = x.EmployeeName,
                 })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -1010,11 +1010,11 @@ namespace BusinessLayer.Implementations
                 UserId = x.UserId,
                 DocumentTypeId = x.DocumentTypeId,
                 DocumentName = x.DocumentName,
-                EmployeeCode = x.EmployeeCode,
-                EmployeeName = x.EmployeeName, // ✅ will come now
-                IssueDate = x.IssueDate,
-                FileName = x.FileName,
-                FilePath = x.FilePath,
+                //EmployeeCode = x.EmployeeCode,
+                //EmployeeName = x.EmployeeName, // ✅ will come now
+                //IssueDate = x.IssueDate,
+                //FileName = x.FileName,
+                //FilePath = x.FilePath,
                 Remarks = x.Remarks,
                 IsConfidential = x.IsConfidential,
                 CreatedBy = x.CreatedBy,
@@ -1040,10 +1040,10 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
+                    //EmployeeCode = x.EmployeeCode,
                     IssueDate = x.IssueDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
@@ -1067,15 +1067,15 @@ namespace BusinessLayer.Implementations
                 UserId = model.UserId,
                 DocumentTypeId = model.DocumentTypeId,
                 DocumentName = model.DocumentName,
-                EmployeeCode = model.EmployeeCode,
+                //EmployeeCode = model.EmployeeCode,
                 IssueDate = model.IssueDate,
-                FileName = model.FileName,
-                FilePath = model.FilePath,
+                //FileName = model.FileName,
+                //FilePath = model.FilePath,
                 Remarks = model.Remarks,
                 IsConfidential = model.IsConfidential,
                 CreatedBy = model.CreatedBy,
                 CreatedAt = DateTime.Now,
-                EmployeeName = model.EmployeeName
+                //EmployeeName = model.EmployeeName
             };
 
             await _context.EmployeeForms.AddAsync(entity);
@@ -1098,15 +1098,15 @@ namespace BusinessLayer.Implementations
             entity.UserId = model.UserId;
             entity.DocumentTypeId = model.DocumentTypeId;
             entity.DocumentName = model.DocumentName;
-            entity.EmployeeCode = model.EmployeeCode;
+            //entity.EmployeeCode = model.EmployeeCode;
             entity.IssueDate = model.IssueDate;
-            entity.FileName = model.FileName;
-            entity.FilePath = model.FilePath ?? entity.FilePath;
+            //entity.FileName = model.FileName;
+            //entity.FilePath = model.FilePath ?? entity.FilePath;
             entity.Remarks = model.Remarks;
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
-            entity.EmployeeName = model.EmployeeName;
+            //entity.EmployeeName = model.EmployeeName;
 
             await _context.SaveChangesAsync();
             return true;

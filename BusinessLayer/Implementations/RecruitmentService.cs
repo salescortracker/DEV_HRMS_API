@@ -27,35 +27,35 @@ namespace BusinessLayer.Implementations
             _emailService = emailService;
         }
 
-        //public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
-        //{
-        //    // Get designations
-        //    var designations = await _unitOfWork.Repository<Designation>()
-        //        .FindAsync(x =>
-        //            x.CompanyId == companyId &&
-        //            x.RegionId == regionId &&
-        //            x.IsActive &&
-        //            !x.IsDeleted);
+        public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
+        {
+            // Get designations
+            var designations = await _unitOfWork.Repository<Designation>()
+                .FindAsync(x =>
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive &&
+                    !x.IsDeleted);
 
-        //    // Get departments
-        //    var departments = await _unitOfWork.Repository<Department>()
-        //        .FindAsync(x => x.IsActive && !x.IsDeleted);
+            // Get departments
+            var departments = await _unitOfWork.Repository<Department>()
+                .FindAsync(x => x.IsActive && !x.IsDeleted);
 
-        //    // Join manually
-        //    var result = from d in designations
-        //                 join dep in departments
-        //                 on d.DepartmentId equals dep.DepartmentId into deptGroup
-        //                 from dep in deptGroup.DefaultIfEmpty()
-        //                 select new
-        //                 {
-        //                     designationId = d.DesignationId,
-        //                     designationName = d.DesignationName,
-        //                     departmentId = d.DepartmentId,
-        //                     departmentName = dep != null ? dep.DepartmentName : ""
-        //                 };
+            // Join manually
+            var result = from d in designations
+                         join dep in departments
+                         on d.DepartmentId equals dep.DepartmentId into deptGroup
+                         from dep in deptGroup.DefaultIfEmpty()
+                         select new
+                         {
+                             designationId = d.DesignationId,
+                             designationName = d.DesignationName,
+                             departmentId = d.DepartmentId,
+                             departmentName = dep != null ? dep.DepartmentName : ""
+                         };
 
-        //    return result;
-        //}
+            return result;
+        }
         public async Task<IEnumerable<RecruitmentNoticePeriodDto>> GetNoticePeriodsAsync(int companyId, int regionId)
         {
             var data = await _unitOfWork.Repository<RecruitmentNoticePeriod>()
@@ -998,35 +998,35 @@ int userId)
                 DateToJoin = DateTime.Now.AddDays(15)
             };
         }
-        public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
-        {
-            // Get designations
-            var designations = await _unitOfWork.Repository<Designation>()
-                .FindAsync(x =>
-                    x.CompanyId == companyId &&
-                    x.RegionId == regionId &&
-                    x.IsActive &&
-                    !x.IsDeleted);
+        //public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
+        //{
+        //    // Get designations
+        //    var designations = await _unitOfWork.Repository<Designation>()
+        //        .FindAsync(x =>
+        //            x.CompanyId == companyId &&
+        //            x.RegionId == regionId &&
+        //            x.IsActive &&
+        //            !x.IsDeleted);
 
-            // Get departments
-            var departments = await _unitOfWork.Repository<Department>()
-                .FindAsync(x => x.IsActive && !x.IsDeleted);
+        //    // Get departments
+        //    var departments = await _unitOfWork.Repository<Department>()
+        //        .FindAsync(x => x.IsActive && !x.IsDeleted);
 
-            // Join manually
-            var result = from d in designations
-                         join dep in departments
-                         on d.DepartmentId equals dep.DepartmentId into deptGroup
-                         from dep in deptGroup.DefaultIfEmpty()
-                         select new
-                         {
-                             designationId = d.DesignationId,
-                             designationName = d.DesignationName,
-                             departmentId = d.DepartmentId,
-                             departmentName = dep != null ? dep.DepartmentName : ""
-                         };
+        //    // Join manually
+        //    var result = from d in designations
+        //                 join dep in departments
+        //                 on d.DepartmentId equals dep.DepartmentId into deptGroup
+        //                 from dep in deptGroup.DefaultIfEmpty()
+        //                 select new
+        //                 {
+        //                     designationId = d.DesignationId,
+        //                     designationName = d.DesignationName,
+        //                     departmentId = d.DepartmentId,
+        //                     departmentName = dep != null ? dep.DepartmentName : ""
+        //                 };
 
-            return result;
-        }
+        //    return result;
+        //}
         public async Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
 //int companyId,
 //int regionId,

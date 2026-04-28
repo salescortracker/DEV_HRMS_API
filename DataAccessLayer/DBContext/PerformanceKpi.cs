@@ -11,6 +11,7 @@ public partial class PerformanceKpi
 
     public string? Kpiname { get; set; }
 
+    public virtual PerformanceReview PerformanceReview { get; set; }
     public decimal? Weightage { get; set; }
 
     public string? Target { get; set; }
@@ -24,6 +25,4 @@ public partial class PerformanceKpi
     public string? Remarks { get; set; }
 
     public decimal? Score { get; set; }
-
-    public virtual PerformanceReview PerformanceReview { get; set; }
 }
