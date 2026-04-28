@@ -165,6 +165,23 @@ namespace BusinessLayer.Implementations
         }
         public async Task<int> SubmitLeaveAsync(LeaveRequestDto dto)
         {
+            var startDateOnly = DateOnly.FromDateTime(dto.StartDate);
+            var endDateOnly = DateOnly.FromDateTime(dto.EndDate);
+
+            // ✅ CHECK DUPLICATE LEAVE FIRST (ADD HERE)
+            var existing = await _unitOfWork.Repository<LeaveRequest>().FindAsync(
+                x => x.UserId == dto.UserId
+                  && x.CompanyId == dto.CompanyId
+                  && x.RegionId == dto.RegionId
+                  && (
+                       (startDateOnly <= x.EndDate && endDateOnly >= x.StartDate)
+                     )
+            );
+
+            if (existing.Any(x => x.Status != "Rejected"))
+            {
+                throw new Exception("Duplicate leave request: You have already applied for leave on these dates.");
+            }
             //   CHECK DUPLICATE / OVERLAP
             var existingLeaves = await _unitOfWork.Repository<LeaveRequest>()
                   .FindAsync(x => x.UserId == dto.UserId);
