@@ -111,6 +111,7 @@ builder.Services.AddScoped<IVisatypeService, VisatypeService>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
 builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
+builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

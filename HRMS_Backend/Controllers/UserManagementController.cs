@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Identity.Data;
@@ -24,10 +25,11 @@ namespace HRMS_Backend.Controllers
         private readonly IMaritalStatusService _maritalStatusService;
         private readonly IEmployeeMasterService _employeeService;
         private readonly ILateLoginPolicyService _lateLoginPolicyService;
+        private readonly IGeoLocationService _geoLocationService;
         private readonly HRMSContext _hRMSContext;
         public UserManagementController(HRMSContext hrmscontext,ICompanyService companyService, IRegionService regionService, IUserService userService
             , IMenuMasterService menuService, IMaritalStatusService maritalStatusService, IRoleMasterService roleService, IMenuRoleService menuRoleService, 
-            IadminService adminService, IEmployeeMasterService employeeService, ILateLoginPolicyService lateLoginPolicyService)
+            IadminService adminService, IEmployeeMasterService employeeService, ILateLoginPolicyService lateLoginPolicyService, IGeoLocationService geoLocationService)
         {
             _companyService = companyService;
             _regionService = regionService;
@@ -40,6 +42,7 @@ namespace HRMS_Backend.Controllers
             _maritalStatusService = maritalStatusService;
             _employeeService = employeeService;
             _lateLoginPolicyService = lateLoginPolicyService;
+            _geoLocationService = geoLocationService;
         }   
         public class BulkInsertRequest
         {
@@ -1088,6 +1091,68 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> SearchLateLoginPolicy([FromBody] object filter)
         {
             var data = await _lateLoginPolicyService.SearchPoliciesAsync(filter);
+            return Ok(data);
+        }
+
+        #endregion
+
+        #region Geo Location
+
+        [HttpGet]
+        [Route("GetGeoLocations")]
+        public async Task<IActionResult> GetGeoLocations(int userId)
+        {
+            var data = await _geoLocationService.GetAllLocationsAsync(userId);
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("GetGeoLocationById")]
+        public async Task<IActionResult> GetGeoLocationById(int id)
+        {
+            var data = await _geoLocationService.GetLocationByIdAsync(id);
+            if (data == null) return NotFound();
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("SaveGeoLocation")]
+        public async Task<IActionResult> SaveGeoLocation([FromBody] object model)
+        {
+            var data = await _geoLocationService.AddLocationAsync(model);
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("UpdateGeoLocation/{id}")]
+        public async Task<IActionResult> UpdateGeoLocation(int id, [FromBody] object model)
+        {
+            var data = await _geoLocationService.UpdateLocationAsync(id, model);
+            return Ok(data);
+        }
+
+        [HttpPost]
+        [Route("DeleteGeoLocation/{id}")]
+        public async Task<IActionResult> DeleteGeoLocation(int id)
+        {
+            var result = await _geoLocationService.DeleteLocationAsync(id);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
+        [HttpPost]
+        [Route("SearchGeoLocation")]
+        public async Task<IActionResult> SearchGeoLocation([FromBody] object filter)
+        {
+            var data = await _geoLocationService.SearchLocationsAsync(filter);
+            return Ok(data);
+        }
+
+        [HttpGet]
+        [Route("GetGeoLocationsCompanyRegion")]
+        public async Task<IActionResult> GetGeoLocations(int companyId, int regionId)
+        {
+            var data = await _geoLocationService.GetAllLocationsByCompanyRegionAsync(companyId, regionId);
             return Ok(data);
         }
 
