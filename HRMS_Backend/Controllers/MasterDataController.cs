@@ -45,11 +45,14 @@ namespace HRMS_Backend.Controllers
         private readonly IAttachmentTypeService _attachmentTypeService;
         private readonly IVisatypeService _visaTypeService;
         private readonly IAccountTypeService _accountTypeService;
+        private readonly ITaskStatusService _taskStatusService;
 
         private readonly IProjectMasterService _projectMasterService;
              public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
-            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IProjectMasterService projectMasterService, IAccountTypeService accountTypeService)
+            IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IProjectMasterService projectMasterService, IAccountTypeService accountTypeService
+                 ,ITaskStatusService taskStatusService)
         {
+            _taskStatusService = taskStatusService;
             _service = service;
             _Eventservice = Eventservice;
             _designationService = designationService;
@@ -88,6 +91,50 @@ namespace HRMS_Backend.Controllers
             _accountTypeService = accountTypeService;
             _projectMasterService = projectMasterService;
         }
+        #region Task Status
+
+        [HttpGet("taskstatuses")]
+        public async Task<IActionResult> GetTaskStatuses([FromQuery] int userId)
+        {
+            var result = await _taskStatusService.GetAll(userId);
+            return Ok(result);
+        }
+
+        [HttpGet("taskstatuses/{id:int}")]
+        public async Task<IActionResult> GetTaskStatusById(int id)
+        {
+            var result = await _taskStatusService.GetByIdAsync(id);
+            return Ok(result);
+        }
+
+        [HttpPost("CreateTaskStatus")]
+        public async Task<IActionResult> CreateTaskStatus([FromBody] TaskStatusDto dto)
+        {
+            var result = await _taskStatusService.CreateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("UpdateTaskStatus")]
+        public async Task<IActionResult> UpdateTaskStatus([FromBody] TaskStatusDto dto)
+        {
+            var result = await _taskStatusService.UpdateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("DeleteTaskStatus")]
+        public async Task<IActionResult> DeleteTaskStatus([FromQuery] int id)
+        {
+            var result = await _taskStatusService.DeleteAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+        [HttpGet("taskstatuses/by-company-region")]
+        public async Task<IActionResult> GetByCompanyRegion([FromQuery] int companyId, [FromQuery] int regionId)
+        {
+            var result = await _taskStatusService.GetByCompanyRegion(companyId, regionId);
+            return Ok(result);
+        }
+
+        #endregion
         //        #region InterviewLevels
 
         //        [HttpGet("interview-levels")]
