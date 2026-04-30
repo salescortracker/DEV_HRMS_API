@@ -74,6 +74,7 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<CertificationType> CertificationTypes { get; set; }
 
    // public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
+   // public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
 
     public virtual DbSet<CityMaster> CityMasters { get; set; }
 
@@ -205,7 +206,7 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<Gender> Genders { get; set; }
 
-    //public virtual DbSet<GeoLocation> GeoLocations { get; set; }
+    public virtual DbSet<GeoLocation> GeoLocations { get; set; }
 
     public virtual DbSet<Grade> Grades { get; set; }
 
@@ -1571,6 +1572,26 @@ public partial class HRMSContext : DbContext
         //        .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
         //});
 
+        modelBuilder.Entity<EmailTemplateVariable>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
+
+            entity.Property(e => e.DisplayName)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.IsRequired).HasDefaultValue(false);
+            entity.Property(e => e.SampleValue)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.VariableName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
+                .HasForeignKey(d => d.TemplateId)
+                .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
+        });
+
         modelBuilder.Entity<Employee>(entity =>
         {
             entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04F11ED412872");
@@ -2729,24 +2750,24 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_Gender_Region");
         });
 
-        //modelBuilder.Entity<GeoLocation>(entity =>
-        //{
-        //    entity.HasKey(e => e.GeoLocationId).HasName("PK__GeoLocat__81B966A322ACAAE9");
+        modelBuilder.Entity<GeoLocation>(entity =>
+        {
+            entity.HasKey(e => e.GeoLocationId).HasName("PK__GeoLocat__81B966A322ACAAE9");
 
-        //    entity.ToTable("GeoLocations", "adminmaster");
+            entity.ToTable("GeoLocations", "adminmaster");
 
-        //    entity.Property(e => e.Address).HasMaxLength(500);
-        //    entity.Property(e => e.CreatedAt)
-        //        .HasDefaultValueSql("(getdate())")
-        //        .HasColumnType("datetime");
-        //    entity.Property(e => e.CreatedBy).HasMaxLength(50);
-        //    entity.Property(e => e.IsActive).HasDefaultValue(true);
-        //    entity.Property(e => e.Latitude).HasColumnType("decimal(18, 14)");
-        //    entity.Property(e => e.LocationName).HasMaxLength(200);
-        //    entity.Property(e => e.Longitude).HasColumnType("decimal(18, 14)");
-        //    entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
-        //    entity.Property(e => e.ModifiedBy).HasMaxLength(50);
-        //});
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Latitude).HasColumnType("decimal(18, 14)");
+            entity.Property(e => e.LocationName).HasMaxLength(200);
+            entity.Property(e => e.Longitude).HasColumnType("decimal(18, 14)");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedBy).HasMaxLength(50);
+        });
 
         modelBuilder.Entity<Grade>(entity =>
         {
@@ -3937,11 +3958,6 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.TaskName).HasMaxLength(200);
-
-            entity.HasOne(d => d.Status).WithMany(p => p.TaskAssignments)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TaskAssignments_Status");
         });
 
         modelBuilder.Entity<TaskFile>(entity =>
@@ -3956,44 +3972,40 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.FileName).HasMaxLength(255);
             entity.Property(e => e.FilePath).HasMaxLength(500);
             entity.Property(e => e.FileType).HasMaxLength(50);
-
-            entity.HasOne(d => d.Task).WithMany(p => p.TaskFiles)
-                .HasForeignKey(d => d.TaskId)
-                .HasConstraintName("FK_TaskFile_Task");
         });
 
-        //modelBuilder.Entity<TaskStatus>(entity =>
-        //{
-        //    entity.HasKey(e => e.TaskStatusId).HasName("PK__TaskStat__C023DD0CD72EB105");
+        modelBuilder.Entity<TaskStatus>(entity =>
+        {
+            entity.HasKey(e => e.TaskStatusId).HasName("PK__TaskStat__C023DD0CD72EB105");
 
-        //    entity.ToTable("TaskStatus", "adminmaster");
+            entity.ToTable("TaskStatus", "adminmaster");
 
-        //    entity.Property(e => e.TaskStatusId).HasColumnName("TaskStatusID");
-        //    entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
-        //    entity.Property(e => e.CreatedAt)
-        //        .HasDefaultValueSql("(getdate())")
-        //        .HasColumnType("datetime");
-        //    entity.Property(e => e.Description)
-        //        .HasMaxLength(500)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.IsActive).HasDefaultValue(true);
-        //    entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
-        //    entity.Property(e => e.RegionId).HasColumnName("RegionID");
-        //    entity.Property(e => e.TaskStatusName)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.TaskStatusId).HasColumnName("TaskStatusID");
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+            entity.Property(e => e.TaskStatusName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
-        //    entity.HasOne(d => d.Company).WithMany(p => p.TaskStatuses)
-        //        .HasForeignKey(d => d.CompanyId)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK_TaskStatus_Company");
+            entity.HasOne(d => d.Company).WithMany(p => p.TaskStatuses)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskStatus_Company");
 
-        //    entity.HasOne(d => d.Region).WithMany(p => p.TaskStatuses)
-        //        .HasForeignKey(d => d.RegionId)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK_TaskStatus_Region");
-        //});
+            entity.HasOne(d => d.Region).WithMany(p => p.TaskStatuses)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskStatus_Region");
+        });
 
         modelBuilder.Entity<TaxSetting>(entity =>
         {

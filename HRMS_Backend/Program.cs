@@ -111,6 +111,7 @@ builder.Services.AddScoped<IVisatypeService, VisatypeService>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
 builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
+builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
 builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 var app = builder.Build();

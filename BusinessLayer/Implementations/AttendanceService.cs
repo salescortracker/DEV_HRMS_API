@@ -489,6 +489,7 @@ namespace BusinessLayer.Implementations
             var leaves = await _unitOfWork.Repository<LeaveRequest>().GetAllAsync();
             var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
             var leaveTypes = await _unitOfWork.Repository<LeaveType>().GetAllAsync();
+            var workFromHomes = await _unitOfWork.Repository<WfhremoteRequest>().GetAllAsync();
 
             var result = new List<EmployeeAttendanceDto>();
 
@@ -603,7 +604,15 @@ namespace BusinessLayer.Implementations
                 result.Add(new EmployeeAttendanceDto
                 {
                     EmployeeCode = emp.EmployeeCode,
-                    EmployeeName = emp.FullName,
+                    EmployeeName = emp.FullName +
+    (workFromHomes.Any(w =>
+        w.EmployeeId == emp.UserId &&
+        w.CompanyId == companyId &&
+        w.RegionId == regionId &&
+        w.Status == "Approved" &&
+        w.FromDate <= selectedDate &&
+        w.ToDate >= selectedDate
+    ) ? " (WFH)" : ""),
                     AttendanceDate = date,
                     Status = status,
                     ClockIn = clockInTime,
