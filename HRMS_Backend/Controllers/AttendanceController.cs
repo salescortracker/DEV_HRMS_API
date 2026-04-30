@@ -132,6 +132,13 @@ namespace HRMS_Backend.Controllers
             return Ok(list);
         }
 
+        [HttpGet("GetAllocationsByCompanyRegion")]
+        public async Task<IActionResult> GetAllocationsByCompanyRegion(int companyId, int regionId)
+        {
+            var list = await _shiftAllocationService.GetAllocationsAsync(companyId, regionId);
+            return Ok(list);
+        }
+
 
         [HttpGet("GetAllocationById/{id}")]
         public async Task<IActionResult> GetAllocationById(int id)
