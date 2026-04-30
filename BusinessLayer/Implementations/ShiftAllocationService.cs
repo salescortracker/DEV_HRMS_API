@@ -224,6 +224,43 @@ namespace BusinessLayer.Implementations
             ).ToListAsync();
         }
 
+        public async Task<IEnumerable<ShiftAllocationDto>> GetAllocationsAsync(int companyId, int regionId)
+        {
+            return await (
+                from sa in _context.ShiftAllocations
+                where sa.CompanyId == companyId && sa.RegionId == regionId
+
+                join u in _context.Users
+                    on sa.UserId equals u.UserId into userGroup
+                from u in userGroup.DefaultIfEmpty()
+
+                join sm in _context.ShiftMasters
+                    on sa.ShiftId equals sm.ShiftId into shiftGroup
+                from sm in shiftGroup.DefaultIfEmpty()
+
+                select new ShiftAllocationDto
+                {
+                    ShiftAllocationId = sa.ShiftAllocationId,
+                    UserID = sa.UserId,
+                    EmployeeCode = sa.EmployeeCode,
+                    FullName = sa.FullName,
+
+                    CompanyID = sa.CompanyId,
+                    RegionID = sa.RegionId,
+
+                    ShiftID = sa.ShiftId ?? 0,
+                    ShiftName = sm != null ? sm.ShiftName : "",
+
+                    StartDate = sa.StartDate,
+                    EndDate = sa.EndDate,
+
+                    IsActive = sa.IsActive,
+                    CreatedBy = sa.CreatedBy,
+                    CreatedDate = sa.CreatedDate
+                }
+            ).ToListAsync();
+        }
+
 
 
         public async Task<ShiftAllocationDto?> GetAllocationByIdAsync(int id)
