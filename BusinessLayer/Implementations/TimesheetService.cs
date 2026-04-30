@@ -71,7 +71,7 @@ namespace BusinessLayer.Implementations
                 {
                     TimesheetId = timesheet.TimesheetId,
                     ProjectName = p.ProjectName,
-                  //  Description = p.Description ?? "",
+                   Description = p.Description ?? "",
                     StartTime = TimeOnly.Parse(p.StartTime),
                     EndTime = TimeOnly.Parse(p.EndTime),
 
@@ -115,7 +115,7 @@ namespace BusinessLayer.Implementations
                     .Select(p => new TimesheetProjectDto
                     {
                         ProjectName = p.ProjectName,
-                      //  Description = p.Description,
+                        Description = p.Description,
                         StartTime = p.StartTime.ToString(),
                         EndTime = p.EndTime.ToString(),
                         TotalMinutes = p.TotalMinutes,

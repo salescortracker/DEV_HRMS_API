@@ -73,7 +73,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<CertificationType> CertificationTypes { get; set; }
 
-    public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
+   // public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
+   // public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
 
     public virtual DbSet<CityMaster> CityMasters { get; set; }
 
@@ -117,9 +118,9 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
 
-    public virtual DbSet<EmailTemplate1> EmailTemplates1 { get; set; }
+    //public virtual DbSet<EmailTemplate1> EmailTemplates1 { get; set; }
 
-    public virtual DbSet<EmailTemplateVariable> EmailTemplateVariables { get; set; }
+    //public virtual DbSet<EmailTemplateVariable> EmailTemplateVariables { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
 
@@ -171,7 +172,7 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmployeeMaster> EmployeeMasters { get; set; }
 
-    public virtual DbSet<EmployeeNotification> EmployeeNotifications { get; set; }
+    //public virtual DbSet<EmployeeNotification> EmployeeNotifications { get; set; }
 
     public virtual DbSet<EmployeePersonalDetail> EmployeePersonalDetails { get; set; }
 
@@ -1092,18 +1093,18 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_CertificationTypes_Region");
         });
 
-        modelBuilder.Entity<ChatbotKnowledge>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__ChatbotK__3214EC07F7448C7C");
+        //modelBuilder.Entity<ChatbotKnowledge>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("PK__ChatbotK__3214EC07F7448C7C");
 
-            entity.ToTable("ChatbotKnowledge", "chatbot");
+        //    entity.ToTable("ChatbotKnowledge", "chatbot");
 
-            entity.Property(e => e.CardType).HasMaxLength(50);
-            entity.Property(e => e.FileUrl).HasMaxLength(500);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.Keywords).HasMaxLength(500);
-            entity.Property(e => e.Question).HasMaxLength(500);
-        });
+        //    entity.Property(e => e.CardType).HasMaxLength(50);
+        //    entity.Property(e => e.FileUrl).HasMaxLength(500);
+        //    entity.Property(e => e.IsActive).HasDefaultValue(true);
+        //    entity.Property(e => e.Keywords).HasMaxLength(500);
+        //    entity.Property(e => e.Question).HasMaxLength(500);
+        //});
 
         modelBuilder.Entity<CityMaster>(entity =>
         {
@@ -1499,57 +1500,77 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<EmailTemplate>(entity =>
-        {
-            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD2749AE460E");
+        //modelBuilder.Entity<EmailTemplate>(entity =>
+        //{
+        //    entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD2749AE460E");
 
-            entity.ToTable("EmailTemplate");
+        //    entity.ToTable("EmailTemplate");
 
-            entity.HasIndex(e => e.TemplateCode, "UQ__EmailTem__0FDB5081CA92602F").IsUnique();
+        //    entity.HasIndex(e => e.TemplateCode, "UQ__EmailTem__0FDB5081CA92602F").IsUnique();
 
-            entity.Property(e => e.ChannelType)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasDefaultValue("Email");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.CreatedBy)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Description)
-                .HasMaxLength(250)
-                .IsUnicode(false);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.Subject)
-                .HasMaxLength(250)
-                .IsUnicode(false);
-            entity.Property(e => e.TemplateCode)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.TemplateName)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.TemplateType)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.UpdatedBy)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-        });
+        //    entity.Property(e => e.ChannelType)
+        //        .HasMaxLength(50)
+        //        .IsUnicode(false)
+        //        .HasDefaultValue("Email");
+        //    entity.Property(e => e.CreatedAt)
+        //        .HasDefaultValueSql("(getdate())")
+        //        .HasColumnType("datetime");
+        //    entity.Property(e => e.CreatedBy)
+        //        .HasMaxLength(100)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.Description)
+        //        .HasMaxLength(250)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.IsActive).HasDefaultValue(true);
+        //    entity.Property(e => e.Subject)
+        //        .HasMaxLength(250)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.TemplateCode)
+        //        .HasMaxLength(50)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.TemplateName)
+        //        .HasMaxLength(150)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.TemplateType)
+        //        .HasMaxLength(50)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        //    entity.Property(e => e.UpdatedBy)
+        //        .HasMaxLength(100)
+        //        .IsUnicode(false);
+        //});
 
-        modelBuilder.Entity<EmailTemplate1>(entity =>
-        {
-            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27AFB412B9");
+        //modelBuilder.Entity<EmailTemplate1>(entity =>
+        //{
+        //    entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27AFB412B9");
 
-            entity.ToTable("EmailTemplates");
+        //    entity.ToTable("EmailTemplates");
 
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
-            entity.Property(e => e.Subject).HasMaxLength(200);
-            entity.Property(e => e.TemplateName).HasMaxLength(100);
-        });
+        //    entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+        //    entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+        //    entity.Property(e => e.Subject).HasMaxLength(200);
+        //    entity.Property(e => e.TemplateName).HasMaxLength(100);
+        //});
+
+        //modelBuilder.Entity<EmailTemplateVariable>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
+
+        //    entity.Property(e => e.DisplayName)
+        //        .HasMaxLength(150)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.IsRequired).HasDefaultValue(false);
+        //    entity.Property(e => e.SampleValue)
+        //        .HasMaxLength(200)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.VariableName)
+        //        .HasMaxLength(100)
+        //        .IsUnicode(false);
+
+        //    entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
+        //        .HasForeignKey(d => d.TemplateId)
+        //        .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
+        //});
 
         modelBuilder.Entity<EmailTemplateVariable>(entity =>
         {
@@ -2189,19 +2210,19 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK__EmployeeM__Updat__68687968");
         });
 
-        modelBuilder.Entity<EmployeeNotification>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07FB6FF98D");
+        //modelBuilder.Entity<EmployeeNotification>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07FB6FF98D");
 
-            entity.ToTable("EmployeeNotifications", "employee");
+        //    entity.ToTable("EmployeeNotifications", "employee");
 
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
-            entity.Property(e => e.IsRead).HasDefaultValue(false);
-            entity.Property(e => e.Message).HasMaxLength(500);
-        });
+        //    entity.Property(e => e.CreatedAt)
+        //        .HasDefaultValueSql("(getdate())")
+        //        .HasColumnType("datetime");
+        //    entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+        //    entity.Property(e => e.IsRead).HasDefaultValue(false);
+        //    entity.Property(e => e.Message).HasMaxLength(500);
+        //});
 
         modelBuilder.Entity<EmployeePersonalDetail>(entity =>
         {
