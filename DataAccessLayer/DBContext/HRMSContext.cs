@@ -1572,25 +1572,25 @@ public partial class HRMSContext : DbContext
         //        .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
         //});
 
-        modelBuilder.Entity<EmailTemplateVariable>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
+        //modelBuilder.Entity<EmailTemplateVariable>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
 
-            entity.Property(e => e.DisplayName)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.IsRequired).HasDefaultValue(false);
-            entity.Property(e => e.SampleValue)
-                .HasMaxLength(200)
-                .IsUnicode(false);
-            entity.Property(e => e.VariableName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+        //    entity.Property(e => e.DisplayName)
+        //        .HasMaxLength(150)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.IsRequired).HasDefaultValue(false);
+        //    entity.Property(e => e.SampleValue)
+        //        .HasMaxLength(200)
+        //        .IsUnicode(false);
+        //    entity.Property(e => e.VariableName)
+        //        .HasMaxLength(100)
+        //        .IsUnicode(false);
 
-            entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
-                .HasForeignKey(d => d.TemplateId)
-                .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
-        });
+        //    entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
+        //        .HasForeignKey(d => d.TemplateId)
+        //        .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
+        //});
 
         modelBuilder.Entity<Employee>(entity =>
         {
@@ -3996,15 +3996,15 @@ public partial class HRMSContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            entity.HasOne(d => d.Company).WithMany(p => p.TaskStatuses)
-                .HasForeignKey(d => d.CompanyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TaskStatus_Company");
+            //entity.HasOne(d => d.Company).WithMany(p => p.TaskStatuses)
+            //    .HasForeignKey(d => d.CompanyId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_TaskStatus_Company");
 
-            entity.HasOne(d => d.Region).WithMany(p => p.TaskStatuses)
-                .HasForeignKey(d => d.RegionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TaskStatus_Region");
+            //entity.HasOne(d => d.Region).WithMany(p => p.TaskStatuses)
+            //    .HasForeignKey(d => d.RegionId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_TaskStatus_Region");
         });
 
         modelBuilder.Entity<TaxSetting>(entity =>
