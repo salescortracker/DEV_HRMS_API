@@ -1,4 +1,4 @@
-﻿using BusinessLayer.DTOs;
+﻿    using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Models;
@@ -14,10 +14,12 @@ namespace BusinessLayer.Implementations
     public class ShiftAllocationService: IShiftAllocationService
     {
         private readonly HRMSContext _context;
+        private readonly IEmailService _emailService;
 
-        public ShiftAllocationService(HRMSContext context)
+        public ShiftAllocationService(HRMSContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // ======================================================
@@ -187,10 +189,10 @@ namespace BusinessLayer.Implementations
         // ======================================================
 
         public async Task<IEnumerable<ShiftAllocationDto>> GetAllAllocationsAsync(int userId)
-        { 
+        {
             return await (
                 from sa in _context.ShiftAllocations
-                where sa.UserId == userId
+                where sa.CreatedBy == userId
                 join u in _context.Users
                     on sa.UserId equals u.UserId into userGroup
                 from u in userGroup.DefaultIfEmpty()
@@ -198,6 +200,7 @@ namespace BusinessLayer.Implementations
                 join sm in _context.ShiftMasters
                     on sa.ShiftId equals sm.ShiftId into shiftGroup
                 from sm in shiftGroup.DefaultIfEmpty()
+                orderby sa.ShiftAllocationId descending
 
                 select new ShiftAllocationDto
                 {
@@ -254,6 +257,16 @@ namespace BusinessLayer.Implementations
 
         public async Task<bool> AllocateShiftAsync(ShiftAllocationDto dto)
         {
+
+            var exists = await _context.ShiftAllocations.AnyAsync(x =>
+            x.UserId == dto.UserID &&
+            x.ShiftId == dto.ShiftID &&
+            x.StartDate == dto.StartDate &&
+            x.EndDate == dto.EndDate);
+
+            if (exists)
+                return false;
+
             var entity = new ShiftAllocation
             {
                 UserId = dto.UserID,
@@ -266,13 +279,53 @@ namespace BusinessLayer.Implementations
 
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                IsActive = true,
+                IsActive = dto.IsActive,
                 CreatedBy = dto.CreatedBy,
                 CreatedDate = dto.CreatedDate
             };
 
             _context.ShiftAllocations.Add(entity);
-            return await _context.SaveChangesAsync() > 0;
+            var saved = await _context.SaveChangesAsync() > 0;
+
+
+
+            if (saved)
+            {
+                // 🔥 Get employee email
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == dto.UserID);
+
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    try
+                    {
+                        var subject = "New Shift Assigned";
+
+                        var body = $@"
+   <p>Dear {dto.FullName},</p>
+ 
+   <p>Your shift has been assigned successfully.</p>
+ 
+   <table border='1' cellpadding='5' cellspacing='0'>
+       <tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
+       <tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
+       <tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
+   </table>
+ 
+   <p>Regards,<br/>HR Team</p>";
+
+                        await _emailService.SendEmailAsync(user.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        // log error, do NOT break flow
+                    }
+                }
+            }
+
+            return saved;
+
+
         }
 
         public async Task<bool> UpdateAllocationAsync(ShiftAllocationDto dto)
@@ -284,13 +337,53 @@ namespace BusinessLayer.Implementations
             entity.FullName = dto.FullName;
             entity.EmployeeCode = dto.EmployeeCode;
             entity.ShiftId = dto.ShiftID;  // FIXED
+            entity.ShiftName = dto.ShiftName;
             entity.StartDate = dto.StartDate;
             entity.EndDate = dto.EndDate;
             entity.IsActive = dto.IsActive;
             entity.ModifiedBy = dto.ModifiedBy;
             entity.ModifiedDate = DateTime.Now;
 
-            return await _context.SaveChangesAsync() > 0;
+            var updated = await _context.SaveChangesAsync() > 0;
+
+
+
+            if (updated)
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == dto.UserID);
+
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    try
+                    {
+                        var subject = "Shift Updated";
+
+                        var body = $@"
+   <p>Dear {dto.FullName},</p>
+ 
+   <p>Your shift has been <b>updated</b>.</p>
+ 
+   <table border='1' cellpadding='5' cellspacing='0'>
+       <tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
+       <tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
+       <tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
+   </table>
+ 
+   <p>Regards,<br/>HR Team</p>";
+
+                        await _emailService.SendEmailAsync(user.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        // log error
+                    }
+                }
+            }
+
+            return updated;
+
+
         }
 
         public async Task<bool> DeleteAllocationAsync(int id)
