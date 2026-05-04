@@ -10,7 +10,7 @@ namespace BusinessLayer.DTOs
         public int ExpenseCategoryId { get; set; }
         //public int? DepartmentId { get; set; }
         public int? DepartmentId { get; set; }   // ✅ IMPORTANT
-        public string CurrencyCode { get; set; }
+        public string? CurrencyCode { get; set; }
         public decimal Amount { get; set; }
         public DateTime ExpenseDate { get; set; }
         public string Reason { get; set; }

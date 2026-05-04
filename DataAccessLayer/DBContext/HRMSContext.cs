@@ -116,7 +116,7 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmailLog> EmailLogs { get; set; }
 
-    public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
+    //public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
 
     //public virtual DbSet<EmailTemplate1> EmailTemplates1 { get; set; }
 

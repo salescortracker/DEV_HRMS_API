@@ -875,28 +875,34 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<int> addempDocAsync(EmployeeDocumentDto model)
         {
-            var entity = new EmployeeDocument
+            try
             {
-                RegionId = model.RegionId,
-                CompanyId = model.CompanyId,
-                UserId = model.UserId,
-                DocumentTypeId = model.DocumentTypeId,
-                DocumentName = model.DocumentName,
-                DocumentNumber = model.DocumentNumber,
-                IssuedDate = model.IssuedDate,
-                ExpiryDate = model.ExpiryDate,
-                FileName = model.FileName,
-                FilePath = model.FilePath,
-                Remarks = model.Remarks,
-                IsConfidential = model.IsConfidential,
-                CreatedBy = model.CreatedBy,
-                CreatedAt = DateTime.Now
-            };
+                var entity = new EmployeeDocument
+                {
+                    RegionId = model.RegionId,
+                    CompanyId = model.CompanyId,
+                    UserId = model.UserId,
+                    DocumentTypeId = model.DocumentTypeId,
+                    DocumentName = model.DocumentName,
+                    DocumentNumber = model.DocumentNumber,
+                    IssuedDate = model.IssuedDate,
+                    ExpiryDate = model.ExpiryDate,
+                    FileName = model.FileName,
+                    FilePath = model.FilePath,
+                    Remarks = model.Remarks,
+                    IsConfidential = model.IsConfidential,
+                    CreatedBy = model.CreatedBy,
+                    CreatedAt = DateTime.Now
+                };
 
-            await _context.EmployeeDocuments.AddAsync(entity);
-            await _context.SaveChangesAsync();
+                await _context.EmployeeDocuments.AddAsync(entity);
+                await _context.SaveChangesAsync();
 
-            return entity.Id;
+                return entity.Id;
+            }catch(Exception ex)
+            {
+                throw ex;
+            }
         }
         /// <summary>
         /// 

@@ -876,6 +876,27 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetAllocationsByCompanyRegion",
+    "RelativePath": "api/Attendance/GetAllocationsByCompanyRegion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "GetAllPolicies",
     "RelativePath": "api/Attendance/GetAllPolicies",
     "HttpMethod": "POST",
@@ -2342,6 +2363,11 @@
         "Name": "FileNames",
         "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "EmployeeUploadedFiles",
+        "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -3404,15 +3430,15 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "deleteempFamilyAsync",
-    "RelativePath": "api/Employee/deleteempFamilyAsync/{id}",
-    "HttpMethod": "DELETE",
+    "RelativePath": "api/Employee/deleteempFamilyAsync",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -4156,6 +4182,32 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetMyForms",
+    "RelativePath": "api/Employee/GetMyForms/{employeeCode}/{companyId}/{regionId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "employeeCode",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetMyLeaves",
     "RelativePath": "api/Employee/GetMyLeaves/{userId}",
     "HttpMethod": "GET",
@@ -4173,7 +4225,7 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetMyLetters",
-    "RelativePath": "api/Employee/GetMyLetters/{employeeCode}",
+    "RelativePath": "api/Employee/GetMyLetters/{employeeCode}/{companyId}/{regionId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -4181,6 +4233,16 @@
       {
         "Name": "employeeCode",
         "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
@@ -4481,6 +4543,22 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetLeaveReport",
+    "RelativePath": "api/Employee/leave-report",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "BusinessLayer.Implementations.LeaveService\u002BLeaveReportRequest",
         "IsRequired": true
       }
     ],
@@ -5497,6 +5575,11 @@
         "Name": "FileNames",
         "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "EmployeeUploadedFiles",
+        "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -6169,6 +6252,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "UpdateStatus",
+    "RelativePath": "api/Employee/UpdateStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.UpdateStatusDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "UpdateW4",
     "RelativePath": "api/Employee/UpdateW4",
     "HttpMethod": "POST",
@@ -6194,6 +6293,32 @@
       {
         "Name": "file",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "UploadEmployeeFiles",
+    "RelativePath": "api/Employee/UploadEmployeeFiles",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "EmployeeCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DocumentFiles",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
         "IsRequired": false
       }
     ],
@@ -8313,6 +8438,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateTaskStatus",
+    "RelativePath": "api/MasterData/CreateTaskStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.TaskStatusDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "CreateVisaType",
     "RelativePath": "api/MasterData/CreateVisaType",
     "HttpMethod": "POST",
@@ -8932,6 +9073,22 @@
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteScreeningResult",
     "RelativePath": "api/MasterData/DeleteScreeningResult",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteTaskStatus",
+    "RelativePath": "api/MasterData/DeleteTaskStatus",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -10192,6 +10349,59 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetTaskStatuses",
+    "RelativePath": "api/MasterData/taskstatuses",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetTaskStatusById",
+    "RelativePath": "api/MasterData/taskstatuses/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetByCompanyRegion",
+    "RelativePath": "api/MasterData/taskstatuses/by-company-region",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "UpdateAccountType",
     "RelativePath": "api/MasterData/UpdateAccountType",
     "HttpMethod": "PUT",
@@ -10814,6 +11024,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.ScreeningResultDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateTaskStatus",
+    "RelativePath": "api/MasterData/UpdateTaskStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.TaskStatusDto",
         "IsRequired": true
       }
     ],
@@ -11955,6 +12181,146 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "HRMS_Backend.Controllers.TaskController",
+    "Method": "CreateTask",
+    "RelativePath": "api/Task/CreateTask",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "TaskId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CompanyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "RegionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "TaskName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ProjectId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "AssignedTo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "PriorityId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "StatusId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "StartDate",
+        "Type": "System.Nullable\u00601[[System.DateOnly, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "DueDate",
+        "Type": "System.Nullable\u00601[[System.DateOnly, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Comment",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Files",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.TaskController",
+    "Method": "DeleteTask",
+    "RelativePath": "api/Task/DeleteTask",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.TaskController",
+    "Method": "GetMyTasks",
+    "RelativePath": "api/Task/mytasks",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.TaskController",
+    "Method": "GetTasks",
+    "RelativePath": "api/Task/tasks",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.TaskController",
+    "Method": "UpdateTask",
+    "RelativePath": "api/Task/UpdateTask",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.TaskDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "HRMS_Backend.Controllers.TimesheetController",
     "Method": "ApproveTimesheets",
     "RelativePath": "api/Timesheet/ApproveTimesheets",
@@ -12429,6 +12795,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "DeleteGeoLocation",
+    "RelativePath": "api/UserManagement/DeleteGeoLocation/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "DeleteLateLoginPolicy",
     "RelativePath": "api/UserManagement/DeleteLateLoginPolicy/{id}",
     "HttpMethod": "POST",
@@ -12847,6 +13229,59 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "GetGeoLocationById",
+    "RelativePath": "api/UserManagement/GetGeoLocationById",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "GetGeoLocations",
+    "RelativePath": "api/UserManagement/GetGeoLocations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "GetGeoLocations",
+    "RelativePath": "api/UserManagement/GetGeoLocationsCompanyRegion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "GetLateLoginPolicy",
     "RelativePath": "api/UserManagement/GetLateLoginPolicy",
     "HttpMethod": "GET",
@@ -13071,6 +13506,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "SaveGeoLocation",
+    "RelativePath": "api/UserManagement/SaveGeoLocation",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "System.Object",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "SaveLateLoginPolicy",
     "RelativePath": "api/UserManagement/SaveLateLoginPolicy",
     "HttpMethod": "POST",
@@ -13133,6 +13584,22 @@
         "Name": "isDescending",
         "Type": "System.Boolean",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "SearchGeoLocation",
+    "RelativePath": "api/UserManagement/SearchGeoLocation",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "filter",
+        "Type": "System.Object",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -13284,6 +13751,27 @@
       {
         "Name": "gender",
         "Type": "DataAccessLayer.DBContext.Gender",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "UpdateGeoLocation",
+    "RelativePath": "api/UserManagement/UpdateGeoLocation/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "System.Object",
         "IsRequired": true
       }
     ],

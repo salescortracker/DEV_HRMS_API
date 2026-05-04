@@ -736,8 +736,8 @@ public class UpdateResignationStatusRequest
                 : BadRequest(new { message = "Update failed" });
         }
 
-        [HttpDelete("DeleteImmigration/{id}")]
-        public async Task<IActionResult> DeleteEmployeeImmigration(int id)
+        [HttpPost("DeleteImmigration")]
+        public async Task<IActionResult> DeleteEmployeeImmigration([FromQuery] int id)
         {
             var success = await _employeeService.DeleteImmigrationAsync(id);
 
@@ -1912,8 +1912,8 @@ public class UpdateResignationStatusRequest
         /// <summary>
         /// Delete a family record
         /// </summary>
-        [HttpDelete("deleteempFamilyAsync/{id}")]
-        public async Task<IActionResult> deleteempFamilyAsync(int id)
+        [HttpPost("deleteempFamilyAsync")]
+        public async Task<IActionResult> deleteempFamilyAsync([FromQuery] int id)
         {
             var result = await _employeeService.deleteempFamilyAsync(id);
 
