@@ -146,7 +146,7 @@ namespace HRMS_Backend.Controllers
         //    return NoContent();
         //}
         [HttpPost("DeleteCompany")]
-        public async Task<IActionResult> DeleteCompany([FromBody] int id)
+        public async Task<IActionResult> DeleteCompany([FromQuery] int id)
         {
             var result = await _companyService.DeleteCompanyAsync(id);
 
@@ -313,7 +313,7 @@ namespace HRMS_Backend.Controllers
         //    return NoContent();
         //}
         [HttpPost("DeleteRegion")]
-        public async Task<IActionResult> DeleteRegion([FromBody] int id)
+        public async Task<IActionResult> DeleteRegion([FromQuery] int id)
         {
             try
             {
