@@ -3733,7 +3733,13 @@ int regionId)
             return Ok(data);
         }
 
+        [HttpGet("GetDocuments")]
+        public async Task<IActionResult> GetDocuments(int companyId, int regionId)
+        {
+            var result = await _attachmentTypeService.GetDocumentsAsync(companyId, regionId);
 
+            return Ok(result);
+        }
 
 
         #endregion
