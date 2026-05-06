@@ -5073,16 +5073,15 @@
         }
       }
     },
-    "/api/Employee/DeleteImmigration/{id}": {
-      "delete": {
+    "/api/Employee/DeleteImmigration": {
+      "post": {
         "tags": [
           "Employee"
         ],
         "parameters": [
           {
             "name": "id",
-            "in": "path",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -16867,6 +16866,36 @@
         }
       }
     },
+    "/api/MasterData/GetDocuments": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/MasterData/visatype-list/{userId}": {
       "get": {
         "tags": [
@@ -19487,22 +19516,33 @@
         }
       }
     },
-    "/api/UserManagement/DeleteCompany/{id}": {
-      "delete": {
+    "/api/UserManagement/DeleteCompany": {
+      "post": {
         "tags": [
           "UserManagement"
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -19646,22 +19686,33 @@
         }
       }
     },
-    "/api/UserManagement/DeleteRegion/{id}": {
-      "delete": {
+    "/api/UserManagement/DeleteRegion": {
+      "post": {
         "tags": [
           "UserManagement"
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "OK"
