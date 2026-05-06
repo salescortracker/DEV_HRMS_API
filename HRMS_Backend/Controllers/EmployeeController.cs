@@ -1704,6 +1704,11 @@ public class UpdateResignationStatusRequest
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            if (string.IsNullOrEmpty(Request.Form["MarriageDate"]))
+            {
+                dto.MarriageDate = null;
+            }
+
 
             try
             {
