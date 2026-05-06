@@ -137,22 +137,47 @@ namespace BusinessLayer.Implementations
             return MapToDto(entity);
         }
 
+        //public async Task<bool> DeleteCompanyAsync(int id)
+        //{
+        //    try
+        //    {
+        //        var entity = await _unitOfWork.Repository<Company>().GetByIdAsync(id);
+
+        //        if (entity == null) return false;
+
+        //        _unitOfWork.Repository<Company>().Remove(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //}
+
         public async Task<bool> DeleteCompanyAsync(int id)
         {
+            var entity = await _unitOfWork.Repository<Company>().GetByIdAsync(id);
+
+            if (entity == null)
+                return false;
+
             try
             {
-                var entity = await _unitOfWork.Repository<Company>().GetByIdAsync(id);
-
-                if (entity == null) return false;
-
                 _unitOfWork.Repository<Company>().Remove(entity);
                 await _unitOfWork.CompleteAsync();
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                // Log error (replace with Serilog if you use it)
+                Console.WriteLine($"DeleteCompany Error: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+                // Important: don't hide error
+                throw;
             }
         }
 

@@ -112,14 +112,34 @@ namespace BusinessLayer.Implementations
             }
         }
 
+        //public async Task<bool> DeleteRegionAsync(int id)
+        //{
+        //    var region = await _unitOfWork.Repository<Region>().GetByIdAsync(id);
+        //    if (region == null) return false;
+
+        //    _unitOfWork.Repository<Region>().Remove(region);
+        //    await _unitOfWork.CompleteAsync();
+        //    return true;
+        //}
         public async Task<bool> DeleteRegionAsync(int id)
         {
-            var region = await _unitOfWork.Repository<Region>().GetByIdAsync(id);
-            if (region == null) return false;
+            try
+            {
+                var region = await _unitOfWork.Repository<Region>().GetByIdAsync(id);
 
-            _unitOfWork.Repository<Region>().Remove(region);
-            await _unitOfWork.CompleteAsync();
-            return true;
+                if (region == null)
+                    return false;
+
+                _unitOfWork.Repository<Region>().Remove(region);
+                await _unitOfWork.CompleteAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DeleteRegion Error: {ex.Message}");
+                throw;
+            }
         }
 
         private Region MapFromDynamic(object model)
