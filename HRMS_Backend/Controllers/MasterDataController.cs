@@ -2060,24 +2060,22 @@ namespace HRMS_Backend.Controllers
             }
         }
 
-        // ✅ SOFT DELETE
-        [HttpDelete("deleteDepartment/{id:int}")]
-        public async Task<IActionResult> SoftDelete(int id)
+        [HttpPost("deleteDepartment/{id:int}")]
+        public async Task<IActionResult> DeleteDepartment(int id)
         {
             try
             {
-                var modifiedBy = "system"; // 🔒 TODO: Replace with JWT user later
-                var result = await _service.SoftDeleteAsync(id);
+                var result = await _service.DeleteAsync(id);
 
                 if (!result.Success)
-                    return NotFound(result);
+                    return BadRequest(new { success = false, message = result.Message });
 
                 return Ok(new { success = true, message = result.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error deleting department with ID {id}.");
-                return StatusCode(500, new { success = false, message = "An error occurred while deleting the department." });
+                _logger.LogError(ex, $"Error deleting department with ID {id}");
+                return StatusCode(500, new { success = false, message = "Server error" });
             }
         }
 

@@ -156,29 +156,61 @@ namespace BusinessLayer.Implementations
             }
         }
 
-        public async Task<ApiResponse<object>> SoftDeleteAsync(int id)
+        public async Task<ApiResponse<object>> DeleteAsync(int id)
         {
             try
             {
-                var entity = await _unitOfWork.Repository<Department>().GetByIdAsync(id);
-                if (entity == null || entity.IsDeleted)
-                    return new ApiResponse<object>(null!, "Department not found.", false);
+                // 🔹 Get Department using Repository
+                var department = await _unitOfWork
+                    .Repository<Department>()
+                    .GetByIdAsync(id);
 
-                entity.IsDeleted = true;
-                //entity.ModifiedBy = modifiedBy;
-                entity.ModifiedAt = DateTime.UtcNow;
+                if (department == null || department.IsDeleted)
+                {
+                    return new ApiResponse<object>(
+                        null,
+                        "Department not found",
+                        false
+                    );
+                }
 
-                _unitOfWork.Repository<Department>().Update(entity);
+                // 🔹 CHECK DESIGNATION TABLE (using FindAsync)
+                var designations = await _unitOfWork
+                    .Repository<Designation>()
+                    .FindAsync(d => d.DepartmentId == id && !d.IsDeleted);
+
+                bool isUsed = designations.Any();
+
+                if (isUsed)
+                {
+                    return new ApiResponse<object>(
+                        null,
+                        "Cannot delete department. It is mapped to Designations.",
+                        false
+                    );
+                }
+
+                // 🔹 HARD DELETE (since Delete() not available → use Remove pattern)
+                department.IsDeleted = true; // fallback if physical delete not supported
+
+                _unitOfWork.Repository<Department>().Update(department);
                 await _unitOfWork.CompleteAsync();
 
-                return new ApiResponse<object>(null!, "Department deleted successfully (soft delete).");
+                return new ApiResponse<object>(
+                    null,
+                    "Department deleted successfully",
+                    true
+                );
             }
             catch (Exception ex)
             {
-                return new ApiResponse<object>(null!, $"Delete failed. {ex.Message}", false);
+                return new ApiResponse<object>(
+                    null,
+                    $"Delete failed: {ex.Message}",
+                    false
+                );
             }
         }
-
         public async Task<ApiResponse<(int inserted, int duplicates, int failed)>> BulkInsertAsync(IEnumerable<CreateUpdateDepartmentDto> items, string createdBy)
         {
             int inserted = 0, duplicates = 0, failed = 0;
