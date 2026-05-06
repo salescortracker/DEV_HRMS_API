@@ -2644,7 +2644,7 @@ namespace BusinessLayer.Implementations
                 entity.Religion = dto.Religion;
                 entity.DrivingLicence = dto.DrivingLicence;
                 entity.MaritalStatusId = dto.maritalStatusId;
-                entity.MarriageDate = dto.MarriageDate;
+                entity.MarriageDate = dto.MarriageDate ?? null;
                 entity.WorkPhone = dto.WorkPhone;
                 entity.LinkedInProfile = dto.LinkedInProfile;
                 entity.PreviousExperienceText = dto.PreviousExperience;
