@@ -8683,9 +8683,9 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "SoftDelete",
+    "Method": "DeleteDepartment",
     "RelativePath": "api/MasterData/deleteDepartment/{id}",
-    "HttpMethod": "DELETE",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -12772,7 +12772,7 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -12873,7 +12873,7 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
