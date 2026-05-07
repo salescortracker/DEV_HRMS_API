@@ -41,7 +41,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<EmployeeDocumentDto>> getAllempDocAsync();
         Task<IEnumerable<EmployeeDocumentDto>> getByUserIdempDocAsync(int userId);
         Task<EmployeeDocumentDto?> getByIdempDocAsync(int id);
-        Task<int> addempDocAsync(EmployeeDocumentDto model);
+        Task<EmployeeDocument> addempDocAsync(EmployeeDocumentDto model);
         Task<bool> updateempDocAsync(EmployeeDocumentDto model);
         Task<bool> deleteempDocAsync(int id);
 

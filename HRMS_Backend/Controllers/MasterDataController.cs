@@ -3725,9 +3725,12 @@ int regionId)
         }
 
         [HttpGet("GetAttachmentByCategory")]
-        public async Task<IActionResult> GetAttachmentByCategory(string category)
+        public async Task<IActionResult> GetAttachmentByCategory(
+       string category,
+       int companyId,
+       int regionId)
         {
-            var data = await _attachmentTypeService.GetByCategoryAsync(category);
+            var data = await _attachmentTypeService.GetByCategoryAsync(category, companyId, regionId);
             return Ok(data);
         }
 
