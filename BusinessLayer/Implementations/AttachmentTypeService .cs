@@ -120,18 +120,15 @@ namespace BusinessLayer.Implementations
 
 
 
-        public async Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(string category)
+        public async Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(
+      string category,
+      int companyId,
+      int regionId)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync();
-
-            if (user == null)
-                return new List<AttachmentTypeDto>();
-
             return await _context.AttachmentTypes
                 .Where(x => !x.IsDeleted &&
-                            x.CompanyId == user.CompanyId &&
-                            x.RegionId == user.RegionId &&
+                            x.CompanyId == companyId &&
+                            x.RegionId == regionId &&
                             x.AttachmentCategory == category &&
                             x.IsActive)
                 .Select(x => new AttachmentTypeDto

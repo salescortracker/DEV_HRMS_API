@@ -887,8 +887,14 @@ public class UpdateResignationStatusRequest
 
             model.CreatedBy = model.UserId;
 
-            int id = await _employeeService.addempDocAsync(model);
-            return Ok(new { message = "Saved successfully", id });
+            var entity = await _employeeService.addempDocAsync(model);
+
+            return Ok(new
+            {
+                message = "Saved successfully",
+                id = entity.Id,
+                documentNumber = entity.DocumentNumber
+            });
         }
 
         [HttpPost("UpdateDocument/{id}")]

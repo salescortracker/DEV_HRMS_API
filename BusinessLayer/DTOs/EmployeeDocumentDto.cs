@@ -16,7 +16,7 @@ namespace BusinessLayer.DTOs
         public int DocumentTypeId { get; set; }
 
         public string DocumentName { get; set; }
-        public string DocumentNumber { get; set; }
+        public string? DocumentNumber { get; set; }
 
         public DateOnly IssuedDate { get; set; }
         public DateOnly ExpiryDate { get; set; }
