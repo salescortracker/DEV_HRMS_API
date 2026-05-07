@@ -8,12 +8,14 @@ namespace BusinessLayer.Interfaces
 {
     public interface IEmailService
     {
+        Task SendEmailAsync(string to, string subject, string htmlBody, List<string>? ccEmails = null, List<string>? attachments = null);
+
         /// <summary>
         /// Sends a generic email (HTML content) to a recipient.
         /// </summary>
         /// <param name="to">Recipient email address</param>
         /// <param name="subject">Email subject</param>
         /// <param name="htmlBody">HTML body content</param>
-        Task SendEmailAsync(string to, string subject, string htmlBody, List<string>? ccEmails = null);
+        //Task SendEmailAsync(string to, string subject, string htmlBody, List<string>? ccEmails = null);
     }
 }
