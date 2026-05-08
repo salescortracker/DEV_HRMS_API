@@ -11,6 +11,7 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
+using Microsoft.AspNetCore.Http;
 
 namespace BusinessLayer.Implementations
 {
@@ -705,16 +706,16 @@ int userId)
                         string subject = $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
 
                         string body = $@"
-<h3>Interview Scheduled</h3>
-<p>Dear {interviewer.FullName},</p>
+                            <h3>Interview Scheduled</h3>
+                            <p>Dear {interviewer.FullName},</p>
 
-<p>Interview Details:</p>
-<table>
-<tr><td>Candidate</td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
-<tr><td>Level</td><td>{dto.LevelNo}</td></tr>
-<tr><td>Date</td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
-<tr><td>Location</td><td>{dto.Location}</td></tr>
-</table>";
+                            <p>Interview Details:</p>
+                            <table>
+                            <tr><td>Candidate</td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
+                            <tr><td>Level</td><td>{dto.LevelNo}</td></tr>
+                            <tr><td>Date</td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
+                            <tr><td>Location</td><td>{dto.Location}</td></tr>
+                            </table>";
 
                         await _emailService.SendEmailAsync(interviewer.Email, subject, body);
                     }
@@ -1489,6 +1490,82 @@ Place: Hyderabad
                     Stage = cand?.StageId ?? 0   // ✅ REAL stage (7)
                 };
             });
+        }
+        public async Task<int> SubmitJobApplicationAsync(JobApplicationDto dto, IFormFile? resume)
+        {
+            using var tx = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                string resumePath = null;
+
+                // FILE SAVE
+                if (resume != null && resume.Length > 0)
+                {
+                    string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "Resumes");
+
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
+
+                    string fileName = $"{Guid.NewGuid()}_{resume.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await resume.CopyToAsync(stream);
+                    }
+
+                    resumePath = $"/Uploads/Resumes/{fileName}";
+                }
+
+                var entity = new JobApplication
+                {
+                    CandidateName = dto.CandidateName,
+                    Email = dto.Email,
+                    Phone = dto.Phone,
+                    JobTitle = dto.JobTitle,
+                    ExperienceYears = dto.ExperienceYears,
+                    Technology = dto.Technology,
+                    ResumeUrl = resumePath,   // ✔ THIS WILL NOW WORK
+                    Status = "Applied",
+                    AppliedDate = DateTime.Now,
+                    IsActive = true
+                };
+
+                await _unitOfWork.Repository<JobApplication>().AddAsync(entity);
+                await _unitOfWork.CompleteAsync();
+                await tx.CommitAsync();
+
+                return entity.ApplicationId;
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
+        public async Task<List<JobApplicationDto>> GetJobApplicationsAsync()
+        {
+            var data = await _unitOfWork.Repository<JobApplication>()
+                .GetAllAsync();
+
+            return data
+            .OrderByDescending(x => x.AppliedDate)
+            .Select(x => new JobApplicationDto
+            {
+                ApplicationId = x.ApplicationId,
+                CandidateName = x.CandidateName,
+                Email = x.Email,
+                Phone = x.Phone,
+                JobTitle = x.JobTitle,
+                ExperienceYears = x.ExperienceYears,
+                Technology = x.Technology,
+                ResumeUrl = x.ResumeUrl,
+
+                Status = x.Status,
+                AppliedDate = x.AppliedDate
+            })
+            .ToList();
         }
     }
 }
