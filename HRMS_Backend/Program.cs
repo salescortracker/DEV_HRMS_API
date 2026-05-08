@@ -114,6 +114,7 @@ builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
 builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
 builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
