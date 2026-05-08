@@ -21,5 +21,6 @@ namespace BusinessLayer.DTOs
         public string Status { get; set; } = string.Empty;
         public string? ActionType { get; set; }
         public TimeOnly? ActionTime { get; set; }
+        public string? TotalWorkedHours { get; set; }
     }
 }
