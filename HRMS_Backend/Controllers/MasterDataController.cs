@@ -9,6 +9,7 @@ namespace HRMS_Backend.Controllers
     [ApiController]
     public class MasterDataController : ControllerBase
     {
+        private readonly IEventTypeService _eventTypeService;
         private readonly IBloodGroupService _bloodGroupService;
         private readonly IDepartmentService _service;
         private readonly IGenderService _genderService;
@@ -51,8 +52,9 @@ namespace HRMS_Backend.Controllers
         private readonly IProjectMasterService _projectMasterService;
              public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
             IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IProjectMasterService projectMasterService, IAccountTypeService accountTypeService
-                 ,ITaskStatusService taskStatusService, ICountryService countryService)
+                 ,ITaskStatusService taskStatusService, IEventTypeService eventTypeService, ICountryService countryService )
         {
+            _eventTypeService = eventTypeService;
             _taskStatusService = taskStatusService;
             _service = service;
             _Eventservice = Eventservice;
@@ -2367,6 +2369,80 @@ namespace HRMS_Backend.Controllers
             var result = await _kpiCategoryService.DeleteAsync(id);
             return result.Success ? Ok(result) : NotFound(result);
         }
+        #endregion
+
+        #region EventType
+
+        [HttpGet("GetEventTypeAll")]
+        public async Task<IActionResult> GetEventTypeAll(
+            int companyId,
+            int regionId,
+            int userId)
+        {
+            var result = await _eventTypeService
+                .GetAllAsync(companyId, regionId, userId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("GetEventTypeById/{id}")]
+        public async Task<IActionResult> GetEventTypeById(int id)
+        {
+            var result = await _eventTypeService.GetByIdAsync(id);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
+        [HttpPost("CreateEventType")]
+        public async Task<IActionResult> CreateEventType(
+            [FromBody] EventTypeDto dto)
+        {
+            var result = await _eventTypeService.AddAsync(dto);
+
+            if (result == null)
+                return Ok(new
+                {
+                    message = "Duplicate Record Found"
+                });
+
+            return Ok(new
+            {
+                message = "Event Type created successfully",
+                data = result
+            });
+        }
+
+        [HttpPost("UpdateEventType")]
+        public async Task<IActionResult> UpdateEventType(
+            [FromBody] EventTypeDto dto)
+        {
+            var result = await _eventTypeService.UpdateAsync(dto);
+
+            return Ok(new
+            {
+                message = "Event Type updated successfully",
+                data = result
+            });
+        }
+
+        [HttpPost("DeleteEventType")]
+        public async Task<IActionResult> DeleteEventType(
+            [FromQuery] int id)
+        {
+            bool success = await _eventTypeService.DeleteAsync(id);
+
+            if (!success)
+                return NotFound();
+
+            return Ok(new
+            {
+                message = "Event Type deleted successfully"
+            });
+        }
+
         #endregion
 
         #region BloodGroup
