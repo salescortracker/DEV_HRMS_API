@@ -46,11 +46,12 @@ namespace HRMS_Backend.Controllers
         private readonly IVisatypeService _visaTypeService;
         private readonly IAccountTypeService _accountTypeService;
         private readonly ITaskStatusService _taskStatusService;
+        private readonly ICountryService _countryService;
 
         private readonly IProjectMasterService _projectMasterService;
              public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
             IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IProjectMasterService projectMasterService, IAccountTypeService accountTypeService
-                 ,ITaskStatusService taskStatusService)
+                 ,ITaskStatusService taskStatusService, ICountryService countryService)
         {
             _taskStatusService = taskStatusService;
             _service = service;
@@ -90,6 +91,7 @@ namespace HRMS_Backend.Controllers
             _visaTypeService = visaTypeService;
             _accountTypeService = accountTypeService;
             _projectMasterService = projectMasterService;
+            _countryService = countryService;
         }
         #region Task Status
 
@@ -3869,6 +3871,54 @@ int regionId)
         {
             var projects = await _projectMasterService.GetProjectsByCompanyRegion(companyId, regionId);
             return Ok(new { success = true, data = projects });
+        }
+
+        [HttpGet("countries")]
+        public async Task<IActionResult> GetCountries([FromQuery] int userId)
+        {
+            var result = await _countryService.GetAll(userId);
+            return Ok(result);
+        }
+
+        [HttpGet("countries/{id:int}")]
+        public async Task<IActionResult> GetCountryById(int id)
+        {
+            var result = await _countryService.GetByIdAsync(id);
+            return Ok(result);
+        }
+
+        [HttpPost("CreateCountry")]
+        public async Task<IActionResult> CreateCountry([FromBody] CountryDto dto)
+        {
+            var result = await _countryService.CreateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("UpdateCountry")]
+        public async Task<IActionResult> UpdateCountry([FromBody] CountryDto dto)
+        {
+            var result = await _countryService.UpdateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("DeleteCountry")]
+        public async Task<IActionResult> DeleteCountry([FromQuery] int id)
+        {
+            var result = await _countryService.DeleteAsync(id);
+
+            return result.Success
+                ? Ok(result)
+                : NotFound(result);
+        }
+        [HttpGet("countries/by-company-region")]
+        public async Task<IActionResult> GetCountriesByCompanyRegion(
+    [FromQuery] int companyId,
+    [FromQuery] int regionId)
+        {
+            var result = await _countryService
+                .GetByCompanyRegion(companyId, regionId);
+
+            return Ok(result);
         }
     }
 }
