@@ -12,7 +12,10 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<ClockInOutDto>> GetAllAsync();
         Task<ClockInOutDto?> GetByIdAsync(int id);
         Task<IEnumerable<ClockInOutDto>> GetTodayByEmployeeAsync(string employeeCode, int companyId, int regionId);
-        Task<ClockInOutDto> AddAsync(ClockInOutCreateDto dto, int userId);
+        Task<ClockInOutDto> AddAsync(
+    ClockInOutCreateDto dto,
+    int userId
+);
         Task<bool> DeleteAsync(int id, int userId);
         Task<IEnumerable<object>> GetWeeklyByEmployeeAsync(string employeeCode);
     }
