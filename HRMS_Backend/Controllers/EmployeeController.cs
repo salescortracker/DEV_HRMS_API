@@ -887,8 +887,14 @@ public class UpdateResignationStatusRequest
 
             model.CreatedBy = model.UserId;
 
-            int id = await _employeeService.addempDocAsync(model);
-            return Ok(new { message = "Saved successfully", id });
+            var entity = await _employeeService.addempDocAsync(model);
+
+            return Ok(new
+            {
+                message = "Saved successfully",
+                id = entity.Id,
+                documentNumber = entity.DocumentNumber
+            });
         }
 
         [HttpPost("UpdateDocument/{id}")]
@@ -1704,6 +1710,11 @@ public class UpdateResignationStatusRequest
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            if (string.IsNullOrEmpty(Request.Form["MarriageDate"]))
+            {
+                dto.MarriageDate = null;
+            }
+
 
             try
             {

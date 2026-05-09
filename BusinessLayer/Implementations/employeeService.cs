@@ -873,10 +873,35 @@ namespace BusinessLayer.Implementations
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<int> addempDocAsync(EmployeeDocumentDto model)
+        public async Task<EmployeeDocument> addempDocAsync(EmployeeDocumentDto model)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(model.DocumentNumber)
+                    || model.DocumentNumber.ToLower() == "string")
+                {
+                    var lastDoc = await _context.EmployeeDocuments
+                        .Where(x => x.DocumentNumber != null &&
+                        x.DocumentNumber.StartsWith("DOC-"))
+                        .OrderByDescending(x => x.Id)
+                        .FirstOrDefaultAsync();
+
+                    string nextNumber = "DOC-001";
+
+                    if (lastDoc != null && !string.IsNullOrEmpty(lastDoc.DocumentNumber))
+                    {
+                        var parts = lastDoc.DocumentNumber.Split('-');
+
+                        if (parts.Length > 1 && int.TryParse(parts[1], out int num))
+                        {
+                            nextNumber = $"DOC-{(num + 1).ToString("D3")}";
+                        }
+                    }
+
+                    model.DocumentNumber = nextNumber;
+                }
+
+
                 var entity = new EmployeeDocument
                 {
                     RegionId = model.RegionId,
@@ -898,7 +923,7 @@ namespace BusinessLayer.Implementations
                 await _context.EmployeeDocuments.AddAsync(entity);
                 await _context.SaveChangesAsync();
 
-                return entity.Id;
+                return entity;
             }catch(Exception ex)
             {
                 throw ex;
@@ -2644,7 +2669,7 @@ namespace BusinessLayer.Implementations
                 entity.Religion = dto.Religion;
                 entity.DrivingLicence = dto.DrivingLicence;
                 entity.MaritalStatusId = dto.maritalStatusId;
-                entity.MarriageDate = dto.MarriageDate;
+                entity.MarriageDate = dto.MarriageDate ?? null;
                 entity.WorkPhone = dto.WorkPhone;
                 entity.LinkedInProfile = dto.LinkedInProfile;
                 entity.PreviousExperienceText = dto.PreviousExperience;

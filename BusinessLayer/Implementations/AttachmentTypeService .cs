@@ -22,18 +22,9 @@ namespace BusinessLayer.Implementations
 
         public async Task<IEnumerable<AttachmentTypeDto>> GetAllByUserAttachmentTypeAsync(int userId)
         {
-            // Step 1: Get user
-            var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.UserId == userId);
-
-            if (user == null)
-                return new List<AttachmentTypeDto>();
-
-            // Step 2: Filter attachment types
             return await _context.AttachmentTypes
                 .Where(x => !x.IsDeleted &&
-                            x.CompanyId == user.CompanyId &&
-                            x.RegionId == user.RegionId)
+                            x.CreatedBy == userId)   // ✅ KEY CHANGE
                 .Select(x => new AttachmentTypeDto
                 {
                     AttachmentTypeId = x.AttachmentTypeId,
@@ -57,13 +48,13 @@ namespace BusinessLayer.Implementations
 
             var entity = new AttachmentType
             {
-                CompanyId = user.CompanyId,
-                RegionId = user.RegionId,
+                CompanyId = dto.CompanyId,
+                RegionId = dto.RegionId,
                 AttachmentCategory = dto.AttachmentCategory,
                 AttachmentTypeName = dto.AttachmentTypeName,
                 IsActive = dto.IsActive,
                 IsDeleted = false,
-                CreatedBy = user.UserId,
+                CreatedBy = dto.UserId,
                 CreatedAt = DateTime.Now
             };
 
@@ -77,14 +68,39 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync(x => x.AttachmentTypeId == dto.AttachmentTypeId);
 
             if (entity == null) return false;
+            if (entity.CreatedBy != dto.UserId)
+                return false;
 
             entity.AttachmentCategory = dto.AttachmentCategory;
             entity.AttachmentTypeName = dto.AttachmentTypeName;
+            entity.CompanyId = dto.CompanyId;
+            entity.RegionId = dto.RegionId;
             entity.IsActive = dto.IsActive;
-            entity.ModifiedBy = 1;
+            entity.ModifiedBy = dto.UserId;
             entity.ModifiedAt = DateTime.Now;
 
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<List<AttachmentTypeDto>> GetDocumentsAsync(int companyId, int regionId)
+        {
+            var data = await _context.AttachmentTypes
+                .Where(x => x.CompanyId == companyId
+                         && x.RegionId == regionId
+                         && x.IsActive)
+                .Select(x => new AttachmentTypeDto
+                {
+                    AttachmentTypeId = x.AttachmentTypeId,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId,
+                    AttachmentCategory = x.AttachmentCategory,
+                    AttachmentTypeName = x.AttachmentTypeName,
+                    IsActive = x.IsActive
+                })
+                .OrderBy(x => x.AttachmentTypeName)
+                .ToListAsync();
+
+            return data;
         }
 
         public async Task<bool> DeleteAttachmentTypeAsync(int id)
@@ -103,18 +119,16 @@ namespace BusinessLayer.Implementations
 
 
 
-        public async Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(string category)
+
+        public async Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(
+      string category,
+      int companyId,
+      int regionId)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync();
-
-            if (user == null)
-                return new List<AttachmentTypeDto>();
-
             return await _context.AttachmentTypes
                 .Where(x => !x.IsDeleted &&
-                            x.CompanyId == user.CompanyId &&
-                            x.RegionId == user.RegionId &&
+                            x.CompanyId == companyId &&
+                            x.RegionId == regionId &&
                             x.AttachmentCategory == category &&
                             x.IsActive)
                 .Select(x => new AttachmentTypeDto

@@ -31,8 +31,7 @@ namespace BusinessLayer.Implementations
              on a.PriorityId equals p.PriorityId into pJoin
          from p in pJoin.DefaultIfEmpty()
 
-         where a.ReportingTo == managerUserId &&
-               a.Status == "Pending"
+         where a.ReportingTo == managerUserId 
 
          select new AssetApprovalDto
          {

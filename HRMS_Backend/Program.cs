@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
     {
         policy
         //.WithOrigins("https://qa-hr.cortracker360.com")
-             .WithOrigins("https://preprod-hr.cortracker360.com", "http://localhost:4200", "http://localhost:60807", "http://localhost:54236", "http://localhost:8080", "https://qa-hr.cortracker360.com") // 👈 exact frontend URL
+             .WithOrigins("https://preprod-hr.cortracker360.com", "http://localhost:4200", "http://localhost:55296", "http://localhost:54236", "http://localhost:8080", "https://qa-hr.cortracker360.com") // 👈 exact frontend URL
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials(); // 👈 REQUIRED for withCredentials
@@ -114,6 +114,7 @@ builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
 builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
 builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

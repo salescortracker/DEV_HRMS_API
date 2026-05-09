@@ -11,6 +11,8 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateAttachmentTypeAsync(AttachmentTypeDto dto);
         Task<bool> DeleteAttachmentTypeAsync(int id);
 
-        Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(string category);
+        Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(string category, int companyId, int regionId);
+
+        Task<List<AttachmentTypeDto>> GetDocumentsAsync(int companyId, int regionId);
     }
 }

@@ -22,8 +22,11 @@ wwwroot\Uploads\EmployeeDocuments\4886180c-44d9-4ace-ab8d-0670ed27bbe4_CompanyLi
 wwwroot\Uploads\EmployeeDocuments\4de2cfb2-3971-401f-b740-e20fcb09c277_CompanyList (5).pdf
 wwwroot\Uploads\EmployeeDocuments\736513e4-377b-4927-a833-c3ffec9d049e_CompanyList (4).pdf
 wwwroot\Uploads\EmployeeDocuments\841870a2-6900-400b-822f-5338176de95b_CompanyList (5).pdf
+wwwroot\Uploads\EmployeeDocuments\9bc7becd-e2b0-4ca6-b7c5-95a2db18333b_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\EmployeeDocuments\c14518dc-d8b6-4424-88d0-61874c5fa4a1_CompanyList (5).pdf
+wwwroot\Uploads\EmployeeDocuments\d25d59bd-3b7c-46c8-a97a-9ec1c65e1c00_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\EmployeeDocuments\db258659-beaf-46a8-a5e3-3c0357a61d3d_Screenshot (4002).png
+wwwroot\Uploads\EmployeeDocuments\f274d844-b7bf-4c59-a387-258293f65242_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\EmployeeEducationCertificates\0c13b0d0-bc54-414e-b8bb-1f6b45e79cf1_CompanyList (5).pdf
 wwwroot\Uploads\EmployeeEducationCertificates\22d4eee7-4f51-485d-855b-43c1ae262374_CompanyList (5).pdf
 wwwroot\Uploads\EmployeeEducationCertificates\258ab558-e890-4335-a45d-384e9b7b7338_CompanyList (5).pdf
@@ -74,19 +77,29 @@ wwwroot\Uploads\EmployeeProfileDetails\aabe3db4-e603-4f2d-8234-7cd370f68a8d_KBP0
 wwwroot\Uploads\EmployeeProfileDetails\d7aabad6-3e5a-45e0-ac79-ed9b9309b8c9_DSC_5411 (1).jpg
 wwwroot\Uploads\EmployeeProfileDetails\dc553d41-4b29-48a7-99c2-c172b4552366_DSC_5411 (1).jpg
 wwwroot\Uploads\ExpenseReceipts\12782ccd-1521-4e6f-88e1-e27bb78354ea_CompanyList (5).pdf
+wwwroot\Uploads\ExpenseReceipts\1e012989-757b-4100-a857-d7b6277de5a6_Leave_Report_4_1_2026_to_4_30_2026.pdf
+wwwroot\Uploads\ExpenseReceipts\20908163-95f0-4251-a1c3-01a1a94a46e3_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\ExpenseReceipts\35e1bf54-1fb7-40e8-b716-58dd5a4b7775_CompanyList (5).pdf
 wwwroot\Uploads\ExpenseReceipts\38e5e8fc-8d77-44c3-807c-1f82024eb0de_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\ExpenseReceipts\3a6feb6d-5795-4839-a8e5-58f9502f23f4_CompanyList (5).pdf
 wwwroot\Uploads\ExpenseReceipts\3ffb0aa9-29fd-4167-abd2-fa373107659f_CompanyList (5).pdf
 wwwroot\Uploads\ExpenseReceipts\4d432122-5745-4284-8115-709ee2d1ddd8_CompanyList (5).pdf
 wwwroot\Uploads\ExpenseReceipts\58f80143-ad03-474e-a3b5-380ce02cdcf6_CompanyList (5).pdf
+wwwroot\Uploads\ExpenseReceipts\60d7a5b1-4216-4e42-adc0-f6d61d76cffa_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\ExpenseReceipts\6b923c12-e116-4483-8140-5c44a2996c6a_CompanyList (5).pdf
 wwwroot\Uploads\ExpenseReceipts\70efa76f-2941-4112-a5c5-3045db3459b8_Timesheet_Approvals_24-4-2026.pdf
 wwwroot\Uploads\ExpenseReceipts\8c605a2b-c4aa-4daf-8dea-9bac210954f6_CompanyList (5).pdf
+wwwroot\Uploads\ExpenseReceipts\b3698e21-fc00-4c9e-81bf-7253f7d07479_Leave_Report_4_1_2026_to_4_30_2026.pdf
+wwwroot\Uploads\ExpenseReceipts\bc83897e-f651-4948-8c45-d091624ebe49_Leave_Report_4_1_2026_to_4_30_2026.pdf
+wwwroot\Uploads\ExpenseReceipts\c957befa-25f5-4ae6-883b-c4a80dd95c2d_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\ExpenseReceipts\ca7acfdd-0915-4fd4-bf75-2c73192d5219_CompanyList (5).pdf
+wwwroot\Uploads\ExpenseReceipts\cb3a4e8f-cda7-46c9-97de-fe1bdf6fcdb9_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\ExpenseReceipts\d4005fa6-8e6a-45e5-aafd-ca1f290b2a2c_CompanyList (5).pdf
+wwwroot\Uploads\ExpenseReceipts\e7d62945-cb99-471a-824e-e0a625cb6912_Leave_Report_4_1_2026_to_4_30_2026.pdf
+wwwroot\Uploads\ExpenseReceipts\e97ab055-39a7-4cdd-afea-94d71439620c_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\ExpenseReceipts\ff42335f-248b-438c-abb7-0056353d0877_CompanyList (5).pdf
 wwwroot\Uploads\Helpdesk\106126e9-7060-4fc0-a52d-97dbf639eef4_CompanyList (5).pdf
+wwwroot\Uploads\Helpdesk\1e564120-35cd-45bb-a7bd-a1686b596f8b_Leave_Report_4_1_2026_to_4_30_2026.pdf
 wwwroot\Uploads\Helpdesk\9891341f-9c2f-4b3a-9513-d02a96c515a0_CompanyList (5).pdf
 wwwroot\Uploads\Helpdesk\afce91cb-3db3-4ca2-ab14-8b36a44573ce_CompanyList (5).pdf
 wwwroot\Uploads\immigration\0c80b5d9-f11d-479d-9270-875390d13592_CompanyList (4).pdf

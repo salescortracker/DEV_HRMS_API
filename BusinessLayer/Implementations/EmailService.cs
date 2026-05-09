@@ -58,5 +58,43 @@ namespace BusinessLayer.Implementations
 
             await smtpClient.SendMailAsync(mailMessage);
         }
+
+        public async Task SendEmailAsync(string to, string subject, string htmlBody, List<string>? ccEmails = null, List<string> attachments = null)
+        {
+            using var smtpClient = CreateSmtpClient();
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_configuration["Smtp:FromEmail"], "Cortracker HRMS"),
+                Subject = subject,
+                Body = htmlBody,
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(to);
+            if (ccEmails != null)
+            {
+                foreach (var cc in ccEmails)
+                {
+                    if (!string.IsNullOrWhiteSpace(cc))
+                        mailMessage.CC.Add(cc);
+                }
+            }
+            // Attachments
+            if (attachments != null)
+            {
+                foreach (var file in attachments)
+                {
+                    if (File.Exists(file))
+                    {
+                        mailMessage.Attachments.Add(new Attachment(file));
+                    }
+                }
+            }
+
+            await smtpClient.SendMailAsync(mailMessage);
+        }
+
+
     }
 }

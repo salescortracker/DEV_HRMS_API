@@ -137,13 +137,23 @@ namespace HRMS_Backend.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         /// 
-        [HttpDelete("DeleteCompany/{id}")]
-       
-        public async Task<IActionResult> Delete(int id)
+        //[HttpPost("DeleteCompany/{id}")]
+
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var result = await _companyService.DeleteCompanyAsync(id);
+        //    if (!result) return NotFound();
+        //    return NoContent();
+        //}
+        [HttpPost("DeleteCompany")]
+        public async Task<IActionResult> DeleteCompany([FromQuery] int id)
         {
             var result = await _companyService.DeleteCompanyAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+
+            if (!result)
+                return NotFound(new { message = "Company not found" });
+
+            return Ok(new { message = "Company deleted successfully" });
         }
         [HttpPost]
         [Route("BulkInsert")]
@@ -294,13 +304,34 @@ namespace HRMS_Backend.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete]
-        [Route("DeleteRegion/{id}")]
-        public async Task<IActionResult> DeleteRegion(int id)
+        //[HttpDelete]
+        //[Route("DeleteRegion/{id}")]
+        //public async Task<IActionResult> DeleteRegion(int id)
+        //{
+        //    var result = await _regionService.DeleteRegionAsync(id);
+        //    if (!result) return NotFound();
+        //    return NoContent();
+        //}
+        [HttpPost("DeleteRegion")]
+        public async Task<IActionResult> DeleteRegion([FromQuery] int id)
         {
-            var result = await _regionService.DeleteRegionAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var result = await _regionService.DeleteRegionAsync(id);
+
+                if (!result)
+                    return NotFound(new { message = "Region not found" });
+
+                return Ok(new { message = "Region deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Error while deleting region",
+                    error = ex.Message
+                });
+            }
         }
         /// <summary>
         /// 

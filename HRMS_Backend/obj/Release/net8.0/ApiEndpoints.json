@@ -3494,15 +3494,15 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "DeleteEmployeeImmigration",
-    "RelativePath": "api/Employee/DeleteImmigration/{id}",
-    "HttpMethod": "DELETE",
+    "RelativePath": "api/Employee/DeleteImmigration",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -8683,9 +8683,9 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "SoftDelete",
+    "Method": "DeleteDepartment",
     "RelativePath": "api/MasterData/deleteDepartment/{id}",
-    "HttpMethod": "DELETE",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -9588,6 +9588,27 @@
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetDesignationsbycompanycode",
     "RelativePath": "api/MasterData/GetDesignationsbycompanycode",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetDocuments",
+    "RelativePath": "api/MasterData/GetDocuments",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -12742,16 +12763,16 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
-    "Method": "Delete",
-    "RelativePath": "api/UserManagement/DeleteCompany/{id}",
-    "HttpMethod": "DELETE",
+    "Method": "DeleteCompany",
+    "RelativePath": "api/UserManagement/DeleteCompany",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -12844,15 +12865,15 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "DeleteRegion",
-    "RelativePath": "api/UserManagement/DeleteRegion/{id}",
-    "HttpMethod": "DELETE",
+    "RelativePath": "api/UserManagement/DeleteRegion",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
