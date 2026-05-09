@@ -332,5 +332,20 @@ int userId)
 
             return Ok(parsed);
         }
+        [HttpPost("SubmitApplication")]
+        public async Task<IActionResult> SubmitApplication([FromForm] JobApplicationDto dto)
+        {
+            var resume = Request.Form.Files.FirstOrDefault();
+
+            var result = await _service.SubmitJobApplicationAsync(dto, resume);
+
+            return Ok(result);
+        }
+        [HttpGet("job-applications")]
+        public async Task<IActionResult> GetJobApplications()
+        {
+            var data = await _service.GetJobApplicationsAsync();
+            return Ok(data);
+        }
     }
 }
