@@ -1059,9 +1059,17 @@ namespace BusinessLayer.Implementations
                     // ✅ FIX
                     EmployeeCode = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeCode)),
                     EmployeeName = string.Join(",", x.EmployeeFormEmployees.Select(e => e.EmployeeName)),
-                    EmployeeUploadedFiles = _context.EmployeeFormEmployeeFiles
+                    EmployeeUploads = _context.EmployeeFormEmployeeFiles
     .Where(f => f.FormId == x.Id)
-    .Select(f => f.FilePath)
+    .Select(f => new EmployeeUploadedFileDto
+    {
+        FileId = f.Id,
+        EmployeeCode = f.EmployeeCode,
+        EmployeeName = f.EmployeeName,
+        FileName = f.FileName,
+        FilePath = f.FilePath,
+        Status = f.Status
+    })
     .ToList(),
 
                     // ✅ FIX

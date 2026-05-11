@@ -31,6 +31,7 @@ namespace BusinessLayer.DTOs
         public List<string>? FilePaths { get; set; }
         public List<string>? FileNames { get; set; }
         public List<string>? EmployeeUploadedFiles { get; set; }
+        public List<EmployeeUploadedFileDto> EmployeeUploads { get; set; } = new();
 
     }
 }
