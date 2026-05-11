@@ -73,8 +73,7 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<CertificationType> CertificationTypes { get; set; }
 
-   // public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
-   // public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
+    public virtual DbSet<ChatbotKnowledge> ChatbotKnowledges { get; set; }
 
     public virtual DbSet<CityMaster> CityMasters { get; set; }
 
@@ -116,11 +115,11 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmailLog> EmailLogs { get; set; }
 
-    //public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
+    public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
 
-    //public virtual DbSet<EmailTemplate1> EmailTemplates1 { get; set; }
+    public virtual DbSet<EmailTemplate1> EmailTemplates1 { get; set; }
 
-    //public virtual DbSet<EmailTemplateVariable> EmailTemplateVariables { get; set; }
+    public virtual DbSet<EmailTemplateVariable> EmailTemplateVariables { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
 
@@ -172,7 +171,7 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<EmployeeMaster> EmployeeMasters { get; set; }
 
-    //public virtual DbSet<EmployeeNotification> EmployeeNotifications { get; set; }
+    public virtual DbSet<EmployeeNotification> EmployeeNotifications { get; set; }
 
     public virtual DbSet<EmployeePersonalDetail> EmployeePersonalDetails { get; set; }
 
@@ -189,6 +188,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<Event> Events { get; set; }
 
     public virtual DbSet<EventType> EventTypes { get; set; }
+
+    public virtual DbSet<EventType1> EventTypes1 { get; set; }
 
     public virtual DbSet<ExceptionLog> ExceptionLogs { get; set; }
 
@@ -1093,18 +1094,18 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_CertificationTypes_Region");
         });
 
-        //modelBuilder.Entity<ChatbotKnowledge>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__ChatbotK__3214EC07F7448C7C");
+        modelBuilder.Entity<ChatbotKnowledge>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__ChatbotK__3214EC07F7448C7C");
 
-        //    entity.ToTable("ChatbotKnowledge", "chatbot");
+            entity.ToTable("ChatbotKnowledge", "chatbot");
 
-        //    entity.Property(e => e.CardType).HasMaxLength(50);
-        //    entity.Property(e => e.FileUrl).HasMaxLength(500);
-        //    entity.Property(e => e.IsActive).HasDefaultValue(true);
-        //    entity.Property(e => e.Keywords).HasMaxLength(500);
-        //    entity.Property(e => e.Question).HasMaxLength(500);
-        //});
+            entity.Property(e => e.CardType).HasMaxLength(50);
+            entity.Property(e => e.FileUrl).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Keywords).HasMaxLength(500);
+            entity.Property(e => e.Question).HasMaxLength(500);
+        });
 
         modelBuilder.Entity<CityMaster>(entity =>
         {
@@ -1500,97 +1501,77 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
         });
 
-        //modelBuilder.Entity<EmailTemplate>(entity =>
-        //{
-        //    entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD2749AE460E");
+        modelBuilder.Entity<EmailTemplate>(entity =>
+        {
+            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD2749AE460E");
 
-        //    entity.ToTable("EmailTemplate");
+            entity.ToTable("EmailTemplate");
 
-        //    entity.HasIndex(e => e.TemplateCode, "UQ__EmailTem__0FDB5081CA92602F").IsUnique();
+            entity.HasIndex(e => e.TemplateCode, "UQ__EmailTem__0FDB5081CA92602F").IsUnique();
 
-        //    entity.Property(e => e.ChannelType)
-        //        .HasMaxLength(50)
-        //        .IsUnicode(false)
-        //        .HasDefaultValue("Email");
-        //    entity.Property(e => e.CreatedAt)
-        //        .HasDefaultValueSql("(getdate())")
-        //        .HasColumnType("datetime");
-        //    entity.Property(e => e.CreatedBy)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.Description)
-        //        .HasMaxLength(250)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.IsActive).HasDefaultValue(true);
-        //    entity.Property(e => e.Subject)
-        //        .HasMaxLength(250)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.TemplateCode)
-        //        .HasMaxLength(50)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.TemplateName)
-        //        .HasMaxLength(150)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.TemplateType)
-        //        .HasMaxLength(50)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-        //    entity.Property(e => e.UpdatedBy)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
-        //});
+            entity.Property(e => e.ChannelType)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Email");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Description)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Subject)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+            entity.Property(e => e.TemplateCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.TemplateName)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.TemplateType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
 
-        //modelBuilder.Entity<EmailTemplate1>(entity =>
-        //{
-        //    entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27AFB412B9");
+        modelBuilder.Entity<EmailTemplate1>(entity =>
+        {
+            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27AFB412B9");
 
-        //    entity.ToTable("EmailTemplates");
+            entity.ToTable("EmailTemplates");
 
-        //    entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-        //    entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
-        //    entity.Property(e => e.Subject).HasMaxLength(200);
-        //    entity.Property(e => e.TemplateName).HasMaxLength(100);
-        //});
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.Subject).HasMaxLength(200);
+            entity.Property(e => e.TemplateName).HasMaxLength(100);
+        });
 
-        //modelBuilder.Entity<EmailTemplateVariable>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
+        modelBuilder.Entity<EmailTemplateVariable>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
 
-        //    entity.Property(e => e.DisplayName)
-        //        .HasMaxLength(150)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.IsRequired).HasDefaultValue(false);
-        //    entity.Property(e => e.SampleValue)
-        //        .HasMaxLength(200)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.VariableName)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
+            entity.Property(e => e.DisplayName)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.IsRequired).HasDefaultValue(false);
+            entity.Property(e => e.SampleValue)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.VariableName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
 
-        //    entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
-        //        .HasForeignKey(d => d.TemplateId)
-        //        .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
-        //});
-
-        //modelBuilder.Entity<EmailTemplateVariable>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
-
-        //    entity.Property(e => e.DisplayName)
-        //        .HasMaxLength(150)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.IsRequired).HasDefaultValue(false);
-        //    entity.Property(e => e.SampleValue)
-        //        .HasMaxLength(200)
-        //        .IsUnicode(false);
-        //    entity.Property(e => e.VariableName)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
-
-        //    entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
-        //        .HasForeignKey(d => d.TemplateId)
-        //        .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
-        //});
+            entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
+                .HasForeignKey(d => d.TemplateId)
+                .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
+        });
 
         modelBuilder.Entity<Employee>(entity =>
         {
@@ -1833,11 +1814,6 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.FilePath).HasMaxLength(500);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Remarks).HasMaxLength(500);
-
-            entity.HasOne(d => d.DocumentType).WithMany(p => p.EmployeeDocuments)
-                .HasForeignKey(d => d.DocumentTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_EmployeeDocuments_DocumentType");
         });
 
         modelBuilder.Entity<EmployeeEducation>(entity =>
@@ -1961,8 +1937,10 @@ public partial class HRMSContext : DbContext
             entity.ToTable("EmployeeFormEmployeeFiles", "employee");
 
             entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.EmployeeName).HasMaxLength(255);
             entity.Property(e => e.FileName).HasMaxLength(255);
             entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
         modelBuilder.Entity<EmployeeFormFile>(entity =>
@@ -2210,19 +2188,19 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK__EmployeeM__Updat__68687968");
         });
 
-        //modelBuilder.Entity<EmployeeNotification>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07FB6FF98D");
+        modelBuilder.Entity<EmployeeNotification>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07FB6FF98D");
 
-        //    entity.ToTable("EmployeeNotifications", "employee");
+            entity.ToTable("EmployeeNotifications", "employee");
 
-        //    entity.Property(e => e.CreatedAt)
-        //        .HasDefaultValueSql("(getdate())")
-        //        .HasColumnType("datetime");
-        //    entity.Property(e => e.EmployeeCode).HasMaxLength(50);
-        //    entity.Property(e => e.IsRead).HasDefaultValue(false);
-        //    entity.Property(e => e.Message).HasMaxLength(500);
-        //});
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.EmployeeCode).HasMaxLength(50);
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+            entity.Property(e => e.Message).HasMaxLength(500);
+        });
 
         modelBuilder.Entity<EmployeePersonalDetail>(entity =>
         {
@@ -2512,6 +2490,38 @@ public partial class HRMSContext : DbContext
         });
 
         modelBuilder.Entity<EventType>(entity =>
+        {
+            entity.HasKey(e => e.EventTypeId).HasName("PK__EventTyp__A9216B1FE951D0FF");
+
+            entity.ToTable("EventType", "adminmaster");
+
+            entity.Property(e => e.EventTypeId).HasColumnName("EventTypeID");
+            entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.EventTypeName)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegionId).HasColumnName("RegionID");
+
+            entity.HasOne(d => d.Company).WithMany(p => p.EventTypes)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EventType_Company");
+
+            entity.HasOne(d => d.Region).WithMany(p => p.EventTypes)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EventType_Region");
+        });
+
+        modelBuilder.Entity<EventType1>(entity =>
         {
             entity.HasKey(e => e.EventTypeId).HasName("PK__EventTyp__A9216B3F008AA383");
 
@@ -3958,6 +3968,11 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.TaskName).HasMaxLength(200);
+
+            entity.HasOne(d => d.Status).WithMany(p => p.TaskAssignments)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskAssignments_Status");
         });
 
         modelBuilder.Entity<TaskFile>(entity =>
@@ -3972,6 +3987,10 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.FileName).HasMaxLength(255);
             entity.Property(e => e.FilePath).HasMaxLength(500);
             entity.Property(e => e.FileType).HasMaxLength(50);
+
+            entity.HasOne(d => d.Task).WithMany(p => p.TaskFiles)
+                .HasForeignKey(d => d.TaskId)
+                .HasConstraintName("FK_TaskFile_Task");
         });
 
         modelBuilder.Entity<TaskStatus>(entity =>
@@ -3996,15 +4015,15 @@ public partial class HRMSContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            //entity.HasOne(d => d.Company).WithMany(p => p.TaskStatuses)
-            //    .HasForeignKey(d => d.CompanyId)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_TaskStatus_Company");
+            entity.HasOne(d => d.Company).WithMany(p => p.TaskStatuses)
+                .HasForeignKey(d => d.CompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskStatus_Company");
 
-            //entity.HasOne(d => d.Region).WithMany(p => p.TaskStatuses)
-            //    .HasForeignKey(d => d.RegionId)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_TaskStatus_Region");
+            entity.HasOne(d => d.Region).WithMany(p => p.TaskStatuses)
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaskStatus_Region");
         });
 
         modelBuilder.Entity<TaxSetting>(entity =>

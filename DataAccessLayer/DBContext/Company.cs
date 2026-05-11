@@ -65,6 +65,8 @@ public partial class Company
 
     public virtual ICollection<Employmenttype> Employmenttypes { get; set; } = new List<Employmenttype>();
 
+    public virtual ICollection<EventType> EventTypes { get; set; } = new List<EventType>();
+
     public virtual ICollection<ExpenseCategoryType> ExpenseCategoryTypes { get; set; } = new List<ExpenseCategoryType>();
 
     public virtual ICollection<ExpenseStatus> ExpenseStatuses { get; set; } = new List<ExpenseStatus>();
@@ -104,6 +106,8 @@ public partial class Company
     public virtual ICollection<RoleMaster> RoleMasters { get; set; } = new List<RoleMaster>();
 
     public virtual ICollection<ScreeningResult> ScreeningResults { get; set; } = new List<ScreeningResult>();
+
+    public virtual ICollection<TaskStatus> TaskStatuses { get; set; } = new List<TaskStatus>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 

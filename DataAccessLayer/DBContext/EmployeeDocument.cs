@@ -38,6 +38,4 @@ public partial class EmployeeDocument
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
-
-    public virtual DocumentType DocumentType { get; set; } = null!;
 }

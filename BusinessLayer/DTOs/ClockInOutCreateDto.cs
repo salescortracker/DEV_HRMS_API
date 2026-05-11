@@ -26,7 +26,7 @@ namespace BusinessLayer.DTOs
 
         public string clockOutTime { get; set; }
 
-        public string TotalWorkedHours { get; set; }
+        public string? TotalWorkedHours { get; set; }
     }
 }
 

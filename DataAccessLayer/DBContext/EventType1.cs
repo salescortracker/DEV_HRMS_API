@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace DataAccessLayer.DBContext;
 
-public partial class Event
+public partial class EventType1
 {
-    public int EventId { get; set; }
+    public int EventTypeId { get; set; }
 
     public int CompanyId { get; set; }
 
@@ -13,13 +13,7 @@ public partial class Event
 
     public int UserId { get; set; }
 
-    public int EventTypeId { get; set; }
-
-    public string EventName { get; set; } = null!;
-
-    public DateOnly EventDate { get; set; }
-
-    public string? Description { get; set; }
+    public string EventTypeName { get; set; } = null!;
 
     public bool IsActive { get; set; }
 
@@ -31,7 +25,5 @@ public partial class Event
 
     public DateTime? ModifiedDate { get; set; }
 
-    public int? RoleId { get; set; }
-
-    public virtual EventType1 EventType { get; set; } = null!;
+    public virtual ICollection<Event> Events { get; set; } = new List<Event>();
 }

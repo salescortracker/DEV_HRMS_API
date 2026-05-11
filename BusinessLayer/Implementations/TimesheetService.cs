@@ -201,8 +201,11 @@ namespace BusinessLayer.Implementations
         {
             try
             {
+                var hr = _hRMSContext.Users.Select(x => new { x.UserId, x.Email }).Where(x => x.UserId == managerUserId).ToList();
+
                 // var timesheets = await _unitOfWork.Repository<Timesheet>().FindAsync(x => x.ManagerUserId == managerUserId);
-                var timesheets = _hRMSContext.Timesheets.Select(x => new {x.TimesheetId,x.ManagerUserId,x.UserId,x.EmployeeName,x.EmployeeCode,x.TimesheetDate,x.Status,x.Comments}).Where(x => x.ManagerUserId == managerUserId).ToList();
+                var timesheets = _hRMSContext.Timesheets.Select(x => new { x.TimesheetId, x.ManagerUserId, x.UserId, x.EmployeeName, x.EmployeeCode, x.TimesheetDate, x.Status, x.Comments, x.HrEmail })
+                    .Where(x => x.ManagerUserId == managerUserId || x.HrEmail == hr.FirstOrDefault().Email).ToList();
 
 
                 var timesheetIds = timesheets.Select(t => t.TimesheetId).ToList();
@@ -235,12 +238,12 @@ namespace BusinessLayer.Implementations
                         }).ToList()
                 });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            
-            }
+
+        }
 
         public async Task<ManagerTimesheetDto> GetTimesheetDetailAsync(int timesheetId)
         {
