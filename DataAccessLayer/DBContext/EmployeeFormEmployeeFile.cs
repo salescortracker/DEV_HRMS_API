@@ -14,4 +14,8 @@ public partial class EmployeeFormEmployeeFile
     public string? FileName { get; set; }
 
     public string? FilePath { get; set; }
+
+    public string? EmployeeName { get; set; }
+
+    public string? Status { get; set; }
 }

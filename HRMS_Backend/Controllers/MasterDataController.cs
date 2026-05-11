@@ -9,6 +9,7 @@ namespace HRMS_Backend.Controllers
     [ApiController]
     public class MasterDataController : ControllerBase
     {
+        private readonly IEventTypeService _eventTypeService;
         private readonly IBloodGroupService _bloodGroupService;
         private readonly IDepartmentService _service;
         private readonly IGenderService _genderService;
@@ -46,12 +47,14 @@ namespace HRMS_Backend.Controllers
         private readonly IVisatypeService _visaTypeService;
         private readonly IAccountTypeService _accountTypeService;
         private readonly ITaskStatusService _taskStatusService;
+        private readonly ICountryService _countryService;
 
         private readonly IProjectMasterService _projectMasterService;
              public MasterDataController(IGradeService GradeService, IEmploymentTypeService employmentTypeService, ICompanyNewsCategoryService companyNewsCategoryService, IRecruitmentNoticePeriodService recruitmentNoticePeriodService, IScreeningResultService screeningResultService, IInterviewLevelService interviewLevelService, ICompanyNewsPolicyService companyNewsPolicyService, IModeOfStudyService modeOfStudyService, IEventService Eventservice, IResignationService resignationService, IPolicyCategoryService policyCategoryService, ILeaveStatusService leaveStatusService, IHolidayListService holidayListService, IWeekoffService weekoffService, IAttendanceStatusService attendanceStatusService, IExpenseCategoryService expenseCategoryservice, IDepartmentService service, IDesignationService designationService, IGenderService genderService, IadminService adminService, ILeaveTypeService leaveTypeService, ILogger<MasterDataController> logger, IKpiCategoryService kpiCategoryService, IEmployeeMasterService employeeService, ICertificationTypeService certificationTypeService, IAssetStatusService assetStatusService, IBloodGroupService bloodGroupService, IHelpdeskCategoryAdminService helpdeskCategoryAdminService, IProjectStatusAdminService projectStatusAdminService, IPriorityService priorityService,
             IAssetTypeService assetTypeService, IAssetCategoryService assetCategoryService, ICurrencyService currencyService, IAttachmentTypeService attachmentTypeService, IVisatypeService visaTypeService, IProjectMasterService projectMasterService, IAccountTypeService accountTypeService
-                 ,ITaskStatusService taskStatusService)
+                 ,ITaskStatusService taskStatusService, IEventTypeService eventTypeService, ICountryService countryService )
         {
+            _eventTypeService = eventTypeService;
             _taskStatusService = taskStatusService;
             _service = service;
             _Eventservice = Eventservice;
@@ -90,6 +93,7 @@ namespace HRMS_Backend.Controllers
             _visaTypeService = visaTypeService;
             _accountTypeService = accountTypeService;
             _projectMasterService = projectMasterService;
+            _countryService = countryService;
         }
         #region Task Status
 
@@ -2367,6 +2371,80 @@ namespace HRMS_Backend.Controllers
         }
         #endregion
 
+        #region EventType
+
+        [HttpGet("GetEventTypeAll")]
+        public async Task<IActionResult> GetEventTypeAll(
+            int companyId,
+            int regionId,
+            int userId)
+        {
+            var result = await _eventTypeService
+                .GetAllAsync(companyId, regionId, userId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("GetEventTypeById/{id}")]
+        public async Task<IActionResult> GetEventTypeById(int id)
+        {
+            var result = await _eventTypeService.GetByIdAsync(id);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
+        [HttpPost("CreateEventType")]
+        public async Task<IActionResult> CreateEventType(
+            [FromBody] EventTypeDto dto)
+        {
+            var result = await _eventTypeService.AddAsync(dto);
+
+            if (result == null)
+                return Ok(new
+                {
+                    message = "Duplicate Record Found"
+                });
+
+            return Ok(new
+            {
+                message = "Event Type created successfully",
+                data = result
+            });
+        }
+
+        [HttpPost("UpdateEventType")]
+        public async Task<IActionResult> UpdateEventType(
+            [FromBody] EventTypeDto dto)
+        {
+            var result = await _eventTypeService.UpdateAsync(dto);
+
+            return Ok(new
+            {
+                message = "Event Type updated successfully",
+                data = result
+            });
+        }
+
+        [HttpPost("DeleteEventType")]
+        public async Task<IActionResult> DeleteEventType(
+            [FromQuery] int id)
+        {
+            bool success = await _eventTypeService.DeleteAsync(id);
+
+            if (!success)
+                return NotFound();
+
+            return Ok(new
+            {
+                message = "Event Type deleted successfully"
+            });
+        }
+
+        #endregion
+
         #region BloodGroup
 
         #region Get All
@@ -3869,6 +3947,54 @@ int regionId)
         {
             var projects = await _projectMasterService.GetProjectsByCompanyRegion(companyId, regionId);
             return Ok(new { success = true, data = projects });
+        }
+
+        [HttpGet("countries")]
+        public async Task<IActionResult> GetCountries([FromQuery] int userId)
+        {
+            var result = await _countryService.GetAll(userId);
+            return Ok(result);
+        }
+
+        [HttpGet("countries/{id:int}")]
+        public async Task<IActionResult> GetCountryById(int id)
+        {
+            var result = await _countryService.GetByIdAsync(id);
+            return Ok(result);
+        }
+
+        [HttpPost("CreateCountry")]
+        public async Task<IActionResult> CreateCountry([FromBody] CountryDto dto)
+        {
+            var result = await _countryService.CreateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("UpdateCountry")]
+        public async Task<IActionResult> UpdateCountry([FromBody] CountryDto dto)
+        {
+            var result = await _countryService.UpdateAsync(dto);
+            return Ok(result);
+        }
+
+        [HttpPost("DeleteCountry")]
+        public async Task<IActionResult> DeleteCountry([FromQuery] int id)
+        {
+            var result = await _countryService.DeleteAsync(id);
+
+            return result.Success
+                ? Ok(result)
+                : NotFound(result);
+        }
+        [HttpGet("countries/by-company-region")]
+        public async Task<IActionResult> GetCountriesByCompanyRegion(
+    [FromQuery] int companyId,
+    [FromQuery] int regionId)
+        {
+            var result = await _countryService
+                .GetByCompanyRegion(companyId, regionId);
+
+            return Ok(result);
         }
     }
 }

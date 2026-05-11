@@ -15,10 +15,6 @@ public partial class JobApplication
 
     public string? JobTitle { get; set; }
 
-    public int? CompanyId { get; set; }
-
-    public int? RegionId { get; set; }
-
     public decimal? ExperienceYears { get; set; }
 
     public string? Technology { get; set; }

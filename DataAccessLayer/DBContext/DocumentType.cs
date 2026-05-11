@@ -26,6 +26,4 @@ public partial class DocumentType
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
-
-    public virtual ICollection<EmployeeDocument> EmployeeDocuments { get; set; } = new List<EmployeeDocument>();
 }

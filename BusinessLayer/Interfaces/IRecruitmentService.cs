@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,7 +88,8 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId);
         Task<IEnumerable<object>> GetOnboardedCandidatesAsync(int companyId, int regionId);
 
-
+        Task<int> SubmitJobApplicationAsync(JobApplicationDto dto, IFormFile? resume);
+        Task<List<JobApplicationDto>> GetJobApplicationsAsync();
     }
 
 }

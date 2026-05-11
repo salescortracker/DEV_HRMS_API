@@ -52,6 +52,5 @@ public partial class PerformanceReview
     public int? ModifiedBy { get; set; }
 
     public string? HrEmail { get; set; }
-
     public virtual ICollection<PerformanceKpi> KPIs { get; set; }
 }

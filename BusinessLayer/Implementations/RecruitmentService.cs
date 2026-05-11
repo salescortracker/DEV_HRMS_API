@@ -12,20 +12,47 @@ using iText.Layout.Properties;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
+using iText.IO.Image;
+using iText.Kernel.Pdf.Canvas.Draw;
+using iText.Layout.Borders;
+using iText.Kernel.Font;
+using iText.IO.Font.Constants;
+using iText.Kernel.Colors;
+using iText.Commons.Actions;
+using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Event;
+using iText.IO.Font.Constants;
+using iText.IO.Image;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Event;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using Path = System.IO.Path;
 namespace BusinessLayer.Implementations
 {
     public class RecruitmentService : IRecruitmentService
     {
+        private readonly ICompanyService _companyService;
+        private readonly HRMSContext _hRMSContext;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
         private readonly IEmailService _emailService;
-        public RecruitmentService(IUnitOfWork unitOfWork, IEmailService emailService, IConfiguration configuration)
+        public RecruitmentService(IUnitOfWork unitOfWork, IEmailService emailService, IConfiguration configuration, HRMSContext hRMSContext, ICompanyService companyService)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _emailService = emailService;
+            _hRMSContext = hRMSContext;
+            _companyService = companyService;
         }
 
         //public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
@@ -806,6 +833,19 @@ int userId)
                     catch (Exception ex)
                     {
                         Console.WriteLine("Interviewer email failed: " + ex.Message);
+                        string body = $@"
+                            <h3>Interview Scheduled</h3>
+                            <p>Dear {interviewer.FullName},</p>
+
+                            <p>Interview Details:</p>
+                            <table>
+                            <tr><td>Candidate</td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
+                            <tr><td>Level</td><td>{dto.LevelNo}</td></tr>
+                            <tr><td>Date</td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
+                            <tr><td>Location</td><td>{dto.Location}</td></tr>
+                            </table>";
+
+                        await _emailService.SendEmailAsync(interviewer.Email, subject, body);
                     }
                 }
 
@@ -1436,152 +1476,1329 @@ int userId)
             });
         }
 
-        public async Task<bool> SendOfferLetterAsync(int offerId)
+        //        public async Task<bool> SendOfferLetterAsync(int offerId)
+        //        {
+        //            var offerRepo = _unitOfWork.Repository<CandidateOffer>();
+        //            var candidateRepo = _unitOfWork.Repository<Candidate>();
+
+        //            var offer = await offerRepo.GetByIdAsync(offerId);
+        //            if (offer == null) throw new Exception("Offer not found");
+
+        //            var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
+        //            if (candidate == null) throw new Exception("Candidate not found");
+
+        //            // ===== FILE PATH =====
+        //            string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "OfferLetters");
+        //            if (!Directory.Exists(root)) Directory.CreateDirectory(root);
+
+        //            string fileName = $"Offer_{candidate.FirstName}.pdf";
+        //            string fullPath = Path.Combine(root, fileName);
+
+        //            // ===== PDF CREATION =====
+        //            using (var writer = new PdfWriter(fullPath))
+        //            using (var pdf = new PdfDocument(writer))
+        //            using (var document = new iText.Layout.Document(pdf))
+        //            {
+        //                document.SetMargins(20, 20, 20, 20);
+
+        //                // Date
+        //                document.Add(new Paragraph($"Date: {DateTime.Now:dd-MMM-yyyy}")
+        //                    .SetTextAlignment(TextAlignment.RIGHT));
+
+        //                // Candidate Address
+        //                document.Add(new Paragraph($@"
+        //{candidate.FirstName} {candidate.LastName}
+
+        //Asian Suncity,
+        //#1101, 11th Floor,
+        //B Block, Kondapur,
+        //Hyderabad, Telangana 500084"));
+
+
+        //                document.Add(
+        //    new Paragraph("Sub: Employment Offer Letter")
+        //    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+        //);
+
+        //                document.Add(new Paragraph($"Dear {candidate.FirstName}{candidate.LastName},"));
+
+
+        //                document.Add(
+        //  new Paragraph("Congratulations!")
+        //  .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)));
+
+
+        //              document.Add(new Paragraph($@"
+        //With reference to your application and subsequent interview with us for a career in our
+        //organization, we are pleased to offer you the position of {candidate.Designation} with Cortracker IT Solutions Pvt Ltd.
+        //"));
+
+        //                document.Add(new Paragraph($"Your total compensation will be Rs.CTC: ₹ {offer.OfferedCtc} per annum which shall be inclusive\r\nof all benefits and taxes."));
+
+
+        //                document.Add(new Paragraph($"Your base location will be Hyderabad, India, and you are requested to join us on Date of Joining: {offer.ExpectedDoj:dd-MMM-yyyy},on the following terms and conditions:"));
+
+
+
+        //                document.Add(new Paragraph($"On the date of joining, you will be required to submit all documents requested for verification\r\nand appointment formalities. Submission of all documents is mandatory for background\r\nverification, validation, and completion of the joining process."));
+
+        //                document.Add(new Paragraph($"You will be entitled to one paid leave per month (sick/casual) after successful completion of\r\nthe probationary period of three months. Any unused leave during the probation period may\r\nbe carried forward."));
+
+        //                document.Add(new Paragraph($"Your employment is at-will, meaning either you or the Company may terminate the\r\nemployment with or without cause by giving 30 days’ notice.\r\n"));
+        //                document.Add(new Paragraph($"This offer is subject to verification of your educational and previous employment records.\r\nAny misrepresentation or falsification of information will result in immediate termination"));
+
+
+        //                document.Add(
+        //new Paragraph("Please bring the following documents on the day of joining along with the originals for\r\nverification:")
+        //.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+        //);
+        //                document.Add(new Paragraph("1. Signed copy of this offer letter."));
+        //                document.Add(new Paragraph("2. Recent passport-size photographs (4 copies)."));
+        //                document.Add(new Paragraph("3. Copies of educational certificates (SSC / Intermediate / Graduation / PG)"));
+        //                document.Add(new Paragraph("4. Copy of offer and relieving letters from previous employers."));
+        //                document.Add(new Paragraph("5. Last 3 months’ salary slips and Form 16"));
+        //                document.Add(new Paragraph("6. PAN card (mandatory).\r\n"));
+        //                document.Add(new Paragraph("7. Proof of address – Passport/Aadhaar Card/Electricity Bill/Telephone Bill/Ration\r\nCard."));
+
+        //                document.Add(new Paragraph(""));
+
+        //                document.Add(new Paragraph(@"
+        //We are delighted to welcome you to the team and look forward to a mutually rewarding
+        //association. Please sign and return a copy of this letter as confirmation of your acceptance.
+        //"));
+
+        //                document.Add(new Paragraph(""));
+
+        //                document.Add(new Paragraph("Best Regards,"));
+        //                document.Add(
+        // new Paragraph("HR Department")
+        // .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+        //);
+
+
+        //                document.Add(new Paragraph("--------------------------------------------------------------------------------------------------------"));
+
+        //                // Acceptance
+
+        //                document.Add(
+        //new Paragraph("Acceptance of Offer")
+        //.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+        //);
+        //                document.Add(new Paragraph($@"
+        //I, {candidate.FirstName}{candidate.LastName} , acknowledge that I have read, understood, and accept this offer letter
+        //and agree to abide by the terms and conditions of employment as outlined herein.
+
+
+        //Sign: _____________      Date: _____________
+
+        //Place: Hyderabad
+        //"));
+        //            }
+
+        //            // ===== SAVE PATH =====
+        //            offer.OfferLetterPath = $"Uploads/OfferLetters/{fileName}";
+        //            offerRepo.Update(offer);
+        //            await _unitOfWork.CompleteAsync();
+
+        //            string loginUrl = _configuration["AppSettings:LoginUrl"];
+        //            string downloadUrl = $"{loginUrl}/{offer.OfferLetterPath}";
+
+        //            // ===== EMAIL =====
+        //            string subject = "Offer Letter – Cortracker HRMS";
+        //            string body = $@"
+        //<p>Dear {candidate.FirstName}{candidate.LastName},</p>
+        //<p>Your offer letter is ready.</p>
+        //<p><a href='{downloadUrl}'>Download Offer Letter</a></p>
+        //<p>Regards,<br/>HR Team</p>";
+
+        //            await _emailService.SendEmailAsync(
+        //                candidate.Email,
+        //                subject,
+        //                body,
+        //                string.IsNullOrEmpty(offer.HrEmail)
+        //                    ? null
+        //                    : new List<string> { offer.HrEmail }
+        //            );
+
+        //            return true;
+        //        }
+
+
+        // ================================================================
+        // ================= SEND OFFER LETTER ============================
+        // ================================================================
+
+      public async Task<bool> SendOfferLetterAsync(int offerId)
+{
+    // ============================================================
+    // ====================== REPOSITORIES =========================
+    // ============================================================
+
+    var offerRepo = _unitOfWork.Repository<CandidateOffer>();
+    var candidateRepo = _unitOfWork.Repository<Candidate>();
+
+    // ============================================================
+    // ======================== OFFER =============================
+    // ============================================================
+
+    var offer = await offerRepo.GetByIdAsync(offerId);
+
+    if (offer == null)
+        throw new Exception("Offer not found");
+
+    // ============================================================
+    // ====================== CANDIDATE ===========================
+    // ============================================================
+
+    var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
+
+    if (candidate == null)
+        throw new Exception("Candidate not found");
+
+    // ============================================================
+    // ======================== COMPANY ===========================
+    // ============================================================
+
+    var company = _hRMSContext.Companies
+        .Where(c => c.CompanyId == offer.CompanyId)
+        .Select(c => new
         {
-            var offerRepo = _unitOfWork.Repository<CandidateOffer>();
-            var candidateRepo = _unitOfWork.Repository<Candidate>();
+            c.CompanyId,
+            c.CompanyName,
+            c.CompanyLogo
+        })
+        .FirstOrDefault();
 
-            var offer = await offerRepo.GetByIdAsync(offerId);
-            if (offer == null) throw new Exception("Offer not found");
+    if (company == null)
+        throw new Exception("Company not found");
 
-            var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
-            if (candidate == null) throw new Exception("Candidate not found");
+    // ============================================================
+    // ================= OFFER LETTER FOLDER ======================
+    // ============================================================
 
-            // ===== FILE PATH =====
-            string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "OfferLetters");
-            if (!Directory.Exists(root)) Directory.CreateDirectory(root);
+    string offerLetterFolder = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "wwwroot",
+        "Uploads",
+        "OfferLetters"
+    );
 
-            string fileName = $"Offer_{candidate.FirstName}.pdf";
-            string fullPath = Path.Combine(root, fileName);
+    if (!Directory.Exists(offerLetterFolder))
+    {
+        Directory.CreateDirectory(offerLetterFolder);
+    }
 
-            // ===== PDF CREATION =====
-            using (var writer = new PdfWriter(fullPath))
-            using (var pdf = new PdfDocument(writer))
-            using (var document = new iText.Layout.Document(pdf))
+    // ============================================================
+    // ======================= FILE NAME ==========================
+    // ============================================================
+
+    string safeName =
+        $"{candidate.FirstName}_{candidate.LastName}"
+        .Replace(" ", "_");
+
+    string fileName =
+        $"Offer_{safeName}_{offerId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+
+    string fullPath = Path.Combine(
+        offerLetterFolder,
+        fileName
+    );
+
+    // ============================================================
+    // ======================= DELETE OLD =========================
+    // ============================================================
+
+    if (File.Exists(fullPath))
+    {
+        File.Delete(fullPath);
+    }
+
+    // ============================================================
+    // ===================== PDF GENERATION =======================
+    // ============================================================
+
+    using (var writer = new PdfWriter(fullPath))
+    using (var pdf = new PdfDocument(writer))
+    using (var document = new iText.Layout.Document(pdf))
+    {
+        // ========================================================
+        // ===================== WATERMARK =========================
+        // ========================================================
+
+        pdf.AddEventHandler(
+            PdfDocumentEvent.END_PAGE,
+            new WatermarkHandler(company.CompanyLogo)
+        );
+
+        document.SetMargins(40, 40, 40, 40);
+
+        // ========================================================
+        // ======================= FONTS ===========================
+        // ========================================================
+
+        PdfFont normalFont =
+            PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+
+        PdfFont boldFont =
+            PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+        PdfFont italicFont =
+            PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE);
+
+        // ========================================================
+        // ===================== HEADER TABLE ======================
+        // ========================================================
+
+        var headerTable = new Table(
+            UnitValue.CreatePercentArray(new float[] { 1, 2 })
+        ).UseAllAvailableWidth();
+
+        // ========================================================
+        // ======================== LOGO ===========================
+        // ========================================================
+
+        Cell logoCell = new Cell()
+            .SetBorder(Border.NO_BORDER);
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(company.CompanyLogo))
             {
-                document.SetMargins(20, 20, 20, 20);
+                string base64Data = company.CompanyLogo;
 
-                // Date
-                document.Add(new Paragraph($"Date: {DateTime.Now:dd-MMM-yyyy}")
-                    .SetTextAlignment(TextAlignment.RIGHT));
+                if (base64Data.Contains(","))
+                {
+                    base64Data = base64Data.Substring(
+                        base64Data.IndexOf(",") + 1
+                    );
+                }
 
-                // Candidate Address
-                document.Add(new Paragraph($@"
+                byte[] imageBytes =
+                    Convert.FromBase64String(base64Data);
+
+                var imageData =
+                    ImageDataFactory.Create(imageBytes);
+
+                var logo = new Image(imageData)
+                    .ScaleToFit(120, 80)
+                    .SetAutoScale(true);
+
+                logoCell.Add(logo);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Logo Error: " + ex.Message);
+        }
+
+        headerTable.AddCell(logoCell);
+
+        // ========================================================
+        // ================= COMPANY DETAILS =======================
+        // ========================================================
+
+        var companyCell = new Cell()
+            .SetBorder(Border.NO_BORDER)
+            .SetTextAlignment(TextAlignment.RIGHT);
+
+        companyCell.Add(
+            new Paragraph(company.CompanyName)
+                .SetFont(boldFont)
+                .SetFontSize(24)
+                .SetFontColor(new DeviceRgb(25, 45, 80))
+        );
+
+        companyCell.Add(
+            new Paragraph("Hyderabad, Telangana, India")
+                .SetFont(normalFont)
+                .SetFontSize(10)
+                .SetFontColor(ColorConstants.DARK_GRAY)
+        );
+
+        companyCell.Add(
+            new Paragraph("www.companywebsite.com")
+                .SetFont(italicFont)
+                .SetFontSize(9)
+                .SetFontColor(ColorConstants.GRAY)
+        );
+
+        headerTable.AddCell(companyCell);
+
+        document.Add(headerTable);
+
+        document.Add(new Paragraph(" "));
+
+        document.Add(
+            new LineSeparator(
+                new SolidLine(1f)
+            )
+        );
+
+        document.Add(new Paragraph(" "));
+
+        // ========================================================
+        // ======================= TITLE ===========================
+        // ========================================================
+
+        document.Add(
+            new Paragraph("OFFER LETTER")
+                .SetFont(boldFont)
+                .SetFontSize(28)
+                
+                .SetFontColor(new DeviceRgb(25, 45, 80))
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(5)
+        );
+
+        document.Add(
+            new Paragraph("CONFIDENTIAL EMPLOYMENT DOCUMENT")
+                .SetFont(normalFont)
+                .SetFontSize(10)
+                .SetFontColor(ColorConstants.GRAY)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(20)
+        );
+
+        // ========================================================
+        // ========================= DATE ==========================
+        // ========================================================
+
+        document.Add(
+            new Paragraph($"Date : {DateTime.Now:dd MMMM yyyy}")
+                .SetFont(normalFont)
+                .SetTextAlignment(TextAlignment.RIGHT)
+                .SetFontSize(11)
+        );
+
+        document.Add(new Paragraph(" "));
+
+        // ========================================================
+        // ====================== CANDIDATE ========================
+        // ========================================================
+
+        document.Add(
+            new Paragraph($@"
+To,
+
 {candidate.FirstName} {candidate.LastName}
 
-Asian Suncity,
-#1101, 11th Floor,
-B Block, Kondapur,
-Hyderabad, Telangana 500084"));
+Hyderabad, Telangana
+India")
+            .SetFont(normalFont)
+            .SetFontSize(11)
+        );
 
-                
-                document.Add(
-    new Paragraph("Sub: Employment Offer Letter")
-    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-);
+        document.Add(new Paragraph(" "));
 
-                document.Add(new Paragraph($"Dear {candidate.FirstName}{candidate.LastName},"));
+        // ========================================================
+        // ======================== SUBJECT ========================
+        // ========================================================
 
-                
-                document.Add(
-  new Paragraph("Congratulations!")
-  .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)));
+        document.Add(
+            new Paragraph("Subject : Offer of Employment")
+                .SetFont(boldFont)
+                .SetFontSize(14)
+                .SetFontColor(new DeviceRgb(25, 45, 80))
+        );
 
+        document.Add(new Paragraph(" "));
 
-              document.Add(new Paragraph($@"
-With reference to your application and subsequent interview with us for a career in our
-organization, we are pleased to offer you the position of {candidate.Designation} with Cortracker IT Solutions Pvt Ltd.
-"));
+        // ========================================================
+        // ======================== GREETING =======================
+        // ========================================================
 
-                document.Add(new Paragraph($"Your total compensation will be Rs.CTC: ₹ {offer.OfferedCtc} per annum which shall be inclusive\r\nof all benefits and taxes."));
+        document.Add(
+            new Paragraph(
+                $"Dear {candidate.FirstName} {candidate.LastName},"
+            )
+            .SetFont(normalFont)
+            .SetFontSize(11)
+        );
 
+        document.Add(new Paragraph(" "));
 
-                document.Add(new Paragraph($"Your base location will be Hyderabad, India, and you are requested to join us on Date of Joining: {offer.ExpectedDoj:dd-MMM-yyyy},on the following terms and conditions:"));
+        // ========================================================
+        // ========================== BODY =========================
+        // ========================================================
 
+        document.Add(
+            new Paragraph(
+                $@"We are pleased to offer you employment with {company.CompanyName} for the position of {candidate.Designation}.
 
+Your experience, professional expertise, and capabilities impressed us during the interview process, and we are confident that you will make a significant contribution to our organization.
 
-                document.Add(new Paragraph($"On the date of joining, you will be required to submit all documents requested for verification\r\nand appointment formalities. Submission of all documents is mandatory for background\r\nverification, validation, and completion of the joining process."));
+The details of your employment offer are as follows:"
+            )
+            .SetFont(normalFont)
+            .SetFontSize(11)
+            .SetTextAlignment(TextAlignment.JUSTIFIED)
+            .SetMinHeight(1.5f)
+        );
 
-                document.Add(new Paragraph($"You will be entitled to one paid leave per month (sick/casual) after successful completion of\r\nthe probationary period of three months. Any unused leave during the probation period may\r\nbe carried forward."));
+        document.Add(new Paragraph(" "));
 
-                document.Add(new Paragraph($"Your employment is at-will, meaning either you or the Company may terminate the\r\nemployment with or without cause by giving 30 days’ notice.\r\n"));
-                document.Add(new Paragraph($"This offer is subject to verification of your educational and previous employment records.\r\nAny misrepresentation or falsification of information will result in immediate termination"));
+        // ========================================================
+        // ===================== OFFER DETAILS =====================
+        // ========================================================
 
-                
-                document.Add(
-new Paragraph("Please bring the following documents on the day of joining along with the originals for\r\nverification:")
-.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-);
-                document.Add(new Paragraph("1. Signed copy of this offer letter."));
-                document.Add(new Paragraph("2. Recent passport-size photographs (4 copies)."));
-                document.Add(new Paragraph("3. Copies of educational certificates (SSC / Intermediate / Graduation / PG)"));
-                document.Add(new Paragraph("4. Copy of offer and relieving letters from previous employers."));
-                document.Add(new Paragraph("5. Last 3 months’ salary slips and Form 16"));
-                document.Add(new Paragraph("6. PAN card (mandatory).\r\n"));
-                document.Add(new Paragraph("7. Proof of address – Passport/Aadhaar Card/Electricity Bill/Telephone Bill/Ration\r\nCard."));
+        Table detailsTable = new Table(
+            UnitValue.CreatePercentArray(new float[] { 1, 2 })
+        )
+        .UseAllAvailableWidth()
+        .SetBorder(
+            new SolidBorder(
+                new DeviceRgb(220, 220, 220),
+                1
+            )
+        )
+        .SetMarginTop(10)
+        .SetMarginBottom(20);
 
-                document.Add(new Paragraph(""));
+        detailsTable.AddCell(GetLabelCell("Designation", boldFont));
+        detailsTable.AddCell(GetValueCell(candidate.Designation, normalFont));
 
-                document.Add(new Paragraph(@"
-We are delighted to welcome you to the team and look forward to a mutually rewarding
-association. Please sign and return a copy of this letter as confirmation of your acceptance.
-"));
+        detailsTable.AddCell(GetLabelCell("Department", boldFont));
+        detailsTable.AddCell(GetValueCell("Information Technology", normalFont));
 
-                document.Add(new Paragraph(""));
+        detailsTable.AddCell(GetLabelCell("Joining Date", boldFont));
+        detailsTable.AddCell(
+            GetValueCell(
+                offer.ExpectedDoj.ToString("dd MMM yyyy"),
+                normalFont
+            )
+        );
 
-                document.Add(new Paragraph("Best Regards,"));
-                document.Add(
- new Paragraph("HR Department")
- .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-);
-                
+        detailsTable.AddCell(GetLabelCell("Annual CTC", boldFont));
+        detailsTable.AddCell(
+            GetValueCell(
+                $"₹ {offer.OfferedCtc:N0} Per Annum",
+                normalFont
+            )
+        );
 
-                document.Add(new Paragraph("--------------------------------------------------------------------------------------------------------"));
+        detailsTable.AddCell(GetLabelCell("Work Location", boldFont));
+        detailsTable.AddCell(GetValueCell("Hyderabad", normalFont));
 
-                // Acceptance
-                
-                document.Add(
-new Paragraph("Acceptance of Offer")
-.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
-);
-                document.Add(new Paragraph($@"
-I, {candidate.FirstName}{candidate.LastName} , acknowledge that I have read, understood, and accept this offer letter
-and agree to abide by the terms and conditions of employment as outlined herein.
+        document.Add(detailsTable);
 
+        // ========================================================
+        // ================= TERMS & CONDITIONS ====================
+        // ========================================================
 
-Sign: _____________      Date: _____________
+        document.Add(
+            new Paragraph("Terms & Conditions")
+                .SetFont(boldFont)
+                .SetFontSize(15)
+                .SetFontColor(new DeviceRgb(25, 45, 80))
+        );
 
-Place: Hyderabad
-"));
+        document.Add(new Paragraph(" "));
+
+        string[] terms =
+        {
+            "• You are required to submit all educational and employment documents during onboarding.",
+            "• Your employment will be governed by the company’s policies and code of conduct.",
+            "• The first six months of employment shall be considered as probation period.",
+            "• Either party may terminate employment by providing 30 days written notice.",
+            "• This offer is subject to successful background verification."
+        };
+
+        foreach (var term in terms)
+        {
+            document.Add(
+                new Paragraph(term)
+                    .SetFont(normalFont)
+                    .SetFontSize(11)
+                    .SetMarginLeft(10)
+                    .SetMinHeight(1.4f)
+            );
+        }
+
+        document.Add(new Paragraph(" "));
+
+        // ========================================================
+        // ======================== CLOSING ========================
+        // ========================================================
+
+        document.Add(
+            new Paragraph(
+                @"We welcome you to our organization and look forward to a successful and rewarding association with you.
+
+Please sign and return a copy of this letter as confirmation of your acceptance."
+            )
+            .SetFont(normalFont)
+            .SetFontSize(11)
+            .SetTextAlignment(TextAlignment.JUSTIFIED)
+            .SetMinHeight(1.5f)
+        );
+
+        document.Add(new Paragraph(" "));
+        document.Add(new Paragraph(" "));
+        document.Add(new Paragraph(" "));
+
+        // ========================================================
+        // ======================= SIGNATURE =======================
+        // ========================================================
+
+        document.Add(
+            new Paragraph($"For {company.CompanyName}")
+                .SetFont(boldFont)
+                .SetFontSize(12)
+        );
+
+        document.Add(new Paragraph(" "));
+        document.Add(new Paragraph(" "));
+        document.Add(new Paragraph(" "));
+
+        document.Add(
+            new Paragraph("Authorized Signatory")
+                .SetFont(normalFont)
+                .SetFontSize(11)
+        );
+
+        document.Add(new Paragraph(" "));
+
+        document.Add(
+            new LineSeparator(
+                new SolidLine(1f)
+            )
+        );
+
+        document.Add(new Paragraph(" "));
+
+        // ========================================================
+        // ======================= ACCEPTANCE ======================
+        // ========================================================
+
+        document.Add(
+            new Paragraph("Employee Acceptance")
+                .SetFont(boldFont)
+                .SetFontSize(15)
+                .SetFontColor(new DeviceRgb(25, 45, 80))
+        );
+
+        document.Add(new Paragraph(" "));
+
+        document.Add(
+            new Paragraph($@"
+I, {candidate.FirstName} {candidate.LastName}, hereby accept the employment offer and agree to the terms and conditions mentioned in this letter.
+
+Employee Signature : ________________________
+
+Date : _____________________________________
+")
+            .SetFont(normalFont)
+            .SetFontSize(11)
+            .SetMinHeight(1.5f)
+        );
+
+        // ========================================================
+        // ========================= FOOTER ========================
+        // ========================================================
+
+        document.Add(new Paragraph(" "));
+
+        document.Add(
+            new LineSeparator(
+                new SolidLine(1f)
+            )
+            .SetMarginTop(15)
+        );
+
+        document.Add(
+            new Paragraph(
+                $"{company.CompanyName} | Human Resources Department"
+            )
+            .SetTextAlignment(TextAlignment.CENTER)
+            .SetFontSize(9)
+            .SetFontColor(ColorConstants.GRAY)
+        );
+
+        document.Add(
+            new Paragraph(
+                "This document is system generated and confidential."
+            )
+            .SetTextAlignment(TextAlignment.CENTER)
+            .SetFontSize(8)
+            .SetFontColor(ColorConstants.LIGHT_GRAY)
+        );
+    }
+
+    // ============================================================
+    // ================= SAVE FILE PATH ===========================
+    // ============================================================
+
+    offer.OfferLetterPath =
+        $"Uploads/OfferLetters/{fileName}";
+
+    offerRepo.Update(offer);
+
+    await _unitOfWork.CompleteAsync();
+
+    // ============================================================
+    // ======================== EMAIL =============================
+    // ============================================================
+
+    string subject = "Offer Letter – HRMS";
+
+    string body = $@"
+<html>
+<body style='font-family: Arial, sans-serif; color:#333; line-height:1.8;'>
+
+<p>Dear {candidate.FirstName} {candidate.LastName},</p>
+
+<p>Congratulations!</p>
+
+<p>
+We are pleased to offer you employment with 
+<strong>{company.CompanyName}</strong>.
+</p>
+
+<p>
+Please find attached your official Offer Letter.
+</p>
+
+<p>
+We look forward to having you as part of our organization.
+</p>
+
+<br/>
+
+<p>
+Regards,<br/>
+<strong>HR Department</strong><br/>
+{company.CompanyName}
+</p>
+
+</body>
+</html>";
+
+    // ============================================================
+    // ======================= SEND EMAIL =========================
+    // ============================================================
+
+    await _emailService.SendEmailAsync(
+        candidate.Email,
+        subject,
+        body,
+        string.IsNullOrWhiteSpace(offer.HrEmail)
+            ? null
+            : new List<string> { offer.HrEmail },
+        new List<string> { fullPath }
+    );
+
+    return true;
+}
+
+// ================================================================
+// ===================== HELPER METHODS ============================
+// ================================================================
+
+private Cell GetLabelCell(string text, PdfFont font)
+{
+    return new Cell()
+        .Add(
+            new Paragraph(text)
+                .SetFont(font)
+                .SetFontSize(10)
+                .SetFontColor(ColorConstants.WHITE)
+        )
+        .SetBackgroundColor(
+            new DeviceRgb(25, 45, 80)
+        )
+        .SetPadding(10)
+        .SetBorder(Border.NO_BORDER);
+}
+
+private Cell GetValueCell(string text, PdfFont font)
+{
+    return new Cell()
+        .Add(
+            new Paragraph(text)
+                .SetFont(font)
+                .SetFontSize(10)
+        )
+        .SetPadding(10)
+        .SetBorderBottom(
+            new SolidBorder(
+                new DeviceRgb(230, 230, 230),
+                1
+            )
+        )
+        .SetBorderTop(Border.NO_BORDER)
+        .SetBorderLeft(Border.NO_BORDER)
+        .SetBorderRight(Border.NO_BORDER);
+}
+
+// ================================================================
+// ==================== WATERMARK HANDLER =========================
+// ================================================================
+
+public class WatermarkHandler : AbstractPdfDocumentEventHandler
+{
+    private readonly string _base64Logo;
+
+    public WatermarkHandler(string base64Logo)
+    {
+        _base64Logo = base64Logo;
+    }
+
+    protected override void OnAcceptedEvent(
+        AbstractPdfDocumentEvent currentEvent
+    )
+    {
+        try
+        {
+            PdfDocumentEvent docEvent =
+                (PdfDocumentEvent)currentEvent;
+
+            PdfDocument pdf =
+                docEvent.GetDocument();
+
+            PdfPage page =
+                docEvent.GetPage();
+
+            Rectangle pageSize =
+                page.GetPageSize();
+
+            string cleanBase64 = _base64Logo;
+
+            if (cleanBase64.Contains(","))
+            {
+                cleanBase64 =
+                    cleanBase64.Substring(
+                        cleanBase64.IndexOf(",") + 1
+                    );
             }
 
-            // ===== SAVE PATH =====
-            offer.OfferLetterPath = $"Uploads/OfferLetters/{fileName}";
-            offerRepo.Update(offer);
-            await _unitOfWork.CompleteAsync();
+            byte[] imageBytes =
+                Convert.FromBase64String(cleanBase64);
 
-            string loginUrl = _configuration["AppSettings:LoginUrl"];
-            string downloadUrl = $"{loginUrl}/{offer.OfferLetterPath}";
+            ImageData imageData =
+                ImageDataFactory.Create(imageBytes);
 
-            // ===== EMAIL =====
-            string subject = "Offer Letter – Cortracker HRMS";
-            string body = $@"
-<p>Dear {candidate.FirstName}{candidate.LastName},</p>
-<p>Your offer letter is ready.</p>
-<p><a href='{downloadUrl}'>Download Offer Letter</a></p>
-<p>Regards,<br/>HR Team</p>";
+            Image watermark =
+                new Image(imageData);
 
-            await _emailService.SendEmailAsync(
-                candidate.Email,
-                subject,
-                body,
-                string.IsNullOrEmpty(offer.HrEmail)
-                    ? null
-                    : new List<string> { offer.HrEmail }
-            );
+            watermark
+                .ScaleToFit(300, 300)
+                .SetOpacity(0.08f);
 
-            return true;
+            float x =
+                (pageSize.GetWidth() - 300) / 2;
+
+            float y =
+                (pageSize.GetHeight() - 300) / 2;
+
+            PdfCanvas pdfCanvas =
+                new PdfCanvas(
+                    page.NewContentStreamBefore(),
+                    page.GetResources(),
+                    pdf
+                );
+
+            iText.Layout.Canvas canvas =
+                new iText.Layout.Canvas(
+                    pdfCanvas,
+                    pageSize
+                );
+
+            watermark.SetFixedPosition(x, y);
+
+            canvas.Add(watermark);
+
+            canvas.Close();
         }
+        catch
+        {
+            // Ignore watermark errors
+        }
+    }
+}
+
+        //        public async Task<bool> SendOfferLetterAsync(int offerId)
+        //        {
+        //            // =====================================================
+        //            // ===== REPOSITORIES =====
+        //            // =====================================================
+
+        //            var offerRepo = _unitOfWork.Repository<CandidateOffer>();
+        //            var candidateRepo = _unitOfWork.Repository<Candidate>();
+
+        //            // =====================================================
+        //            // ===== GET OFFER =====
+        //            // =====================================================
+
+        //            var offer = await offerRepo.GetByIdAsync(offerId);
+
+        //            if (offer == null)
+        //                throw new Exception("Offer not found");
+
+        //            // =====================================================
+        //            // ===== GET CANDIDATE =====
+        //            // =====================================================
+
+        //            var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
+
+        //            if (candidate == null)
+        //                throw new Exception("Candidate not found");
+
+        //            // =====================================================
+        //            // ===== GET COMPANY =====
+        //            // =====================================================
+
+        //            var company = _hRMSContext.Companies
+        //                .Where(c => c.CompanyId == offer.CompanyId)
+        //                .Select(c => new
+        //                {
+        //                    c.CompanyId,
+        //                    c.CompanyName,
+        //                    c.CompanyLogo
+        //                })
+        //                .FirstOrDefault();
+
+        //            if (company == null)
+        //                throw new Exception("Company not found");
+
+        //            // =====================================================
+        //            // ===== OFFER LETTER DIRECTORY =====
+        //            // =====================================================
+
+        //            string offerLetterFolder = Path.Combine(
+        //                Directory.GetCurrentDirectory(),
+        //                "wwwroot",
+        //                "Uploads",
+        //                "OfferLetters"
+        //            );
+
+        //            if (!Directory.Exists(offerLetterFolder))
+        //            {
+        //                Directory.CreateDirectory(offerLetterFolder);
+        //            }
+
+        //            // =====================================================
+        //            // ===== SAFE FILE NAME =====
+        //            // =====================================================
+
+        //            string safeName =
+        //                $"{candidate.FirstName}_{candidate.LastName}"
+        //                .Replace(" ", "_");
+
+        //            string fileName =
+        //                $"Offer_{safeName}_{offerId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+
+        //            string fullPath = Path.Combine(
+        //                offerLetterFolder,
+        //                fileName
+        //            );
+
+        //            // =====================================================
+        //            // ===== DELETE OLD FILE IF EXISTS =====
+        //            // =====================================================
+
+        //            if (File.Exists(fullPath))
+        //            {
+        //                File.Delete(fullPath);
+        //            }
+
+        //            // =====================================================
+        //            // ===== PDF GENERATION =====
+        //            // =====================================================
+
+        //            using (var writer = new PdfWriter(fullPath))
+        //            using (var pdf = new PdfDocument(writer))
+        //            using (var document = new iText.Layout.Document(pdf))
+        //            {
+        //                document.SetMargins(30, 30, 30, 30);
+
+        //                // =================================================
+        //                // ===== FONTS =====
+        //                // =================================================
+
+        //                PdfFont normalFont =
+        //                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+
+        //                PdfFont boldFont =
+        //                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+        //                // =================================================
+        //                // ===== HEADER TABLE =====
+        //                // =================================================
+
+        //                var headerTable = new Table(
+        //                    UnitValue.CreatePercentArray(new float[] { 1, 2 })
+        //                ).UseAllAvailableWidth();
+
+        //                // =================================================
+        //                // ===== LOGO =====
+        //                // =================================================
+
+        //                Cell logoCell = new Cell()
+        //                    .SetBorder(Border.NO_BORDER);
+
+        //                try
+        //                {
+        //                    if (!string.IsNullOrWhiteSpace(company.CompanyLogo))
+        //                    {
+        //                        // Example:
+        //                        // data:image/png;base64,iVBORw0KGgoAAAANS...
+        //                        // OR
+        //                        // /9j/4AAQSkZJRgABAQAAAQABAAD...
+
+        //                        string base64Data = company.CompanyLogo;
+
+        //                        // ===== REMOVE PREFIX =====
+        //                        if (base64Data.Contains(","))
+        //                        {
+        //                            base64Data = base64Data.Substring(
+        //                                base64Data.IndexOf(",") + 1
+        //                            );
+        //                        }
+
+        //                        // ===== CONVERT BASE64 TO BYTE[] =====
+        //                        byte[] imageBytes =
+        //                            Convert.FromBase64String(base64Data);
+
+        //                        // ===== CREATE IMAGE =====
+        //                        var imageData =
+        //                            ImageDataFactory.Create(imageBytes);
+
+        //                        var logo = new Image(imageData)
+        //                            .ScaleToFit(120, 80)
+        //                            .SetAutoScale(true);
+
+        //                        logoCell.Add(logo);
+        //                    }
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    Console.WriteLine("Logo Error: " + ex.Message);
+        //                }
+
+        //                headerTable.AddCell(logoCell);
+
+        //                // =================================================
+        //                // ===== COMPANY DETAILS =====
+        //                // =================================================
+
+        //                var companyCell = new Cell()
+        //                    .SetBorder(Border.NO_BORDER)
+        //                    .SetTextAlignment(TextAlignment.RIGHT);
+
+        //                companyCell.Add(
+        //                    new Paragraph(company.CompanyName)
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(18)
+        //                );
+
+        //                companyCell.Add(
+        //                    new Paragraph("Hyderabad, Telangana, India")
+        //                        .SetFont(normalFont)
+        //                        .SetFontSize(10)
+        //                        .SetFontColor(ColorConstants.DARK_GRAY)
+        //                );
+
+        //                headerTable.AddCell(companyCell);
+
+        //                document.Add(headerTable);
+
+        //                // =================================================
+        //                // ===== LINE =====
+        //                // =================================================
+
+        //                document.Add(new Paragraph(" "));
+        //                document.Add(new LineSeparator(new SolidLine()));
+
+        //                // =================================================
+        //                // ===== DATE =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph($"Date: {DateTime.Now:dd-MMM-yyyy}")
+        //                        .SetFont(normalFont)
+        //                        .SetTextAlignment(TextAlignment.RIGHT)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== CANDIDATE ADDRESS =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph($@"
+        //{candidate.FirstName} {candidate.LastName}
+
+        //Hyderabad, Telangana
+        //India
+        //")
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== SUBJECT =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph("Subject: Employment Offer Letter")
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(14)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== GREETING =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph(
+        //                        $"Dear {candidate.FirstName} {candidate.LastName},"
+        //                    )
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== CONGRATULATIONS =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph("Congratulations!")
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(12)
+        //                );
+
+        //                document.Add(
+        //                    new Paragraph(
+        //                        $@"With reference to your application and subsequent interview process with us,
+        //we are pleased to offer you the position of {candidate.Designation} at
+        //{company.CompanyName}."
+        //                    )
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== CTC =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph(
+        //                        $"Your total compensation will be ₹ {offer.OfferedCtc:N0} per annum inclusive of all applicable benefits and taxes."
+        //                    )
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== DOJ =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph(
+        //                        $"Your base location will be Hyderabad, India, and you are requested to join on {offer.ExpectedDoj:dd-MMM-yyyy}."
+        //                    )
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== TERMS & CONDITIONS =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph("Terms & Conditions")
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(13)
+        //                );
+
+        //                string[] terms =
+        //                {
+        //            "1. You are required to submit all necessary documents during joining.",
+        //            "2. Your employment will be governed by company policies and procedures.",
+        //            "3. Leave and other benefits will be applicable after successful completion of probation.",
+        //            "4. Either party may terminate employment by providing 30 days notice.",
+        //            "5. This offer is subject to successful background verification."
+        //        };
+
+        //                foreach (var term in terms)
+        //                {
+        //                    document.Add(
+        //                        new Paragraph(term)
+        //                            .SetFont(normalFont)
+        //                            .SetFontSize(11)
+        //                    );
+        //                }
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== DOCUMENTS REQUIRED =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph("Documents Required During Joining")
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(13)
+        //                );
+
+        //                string[] documents =
+        //                {
+        //            "1. Signed copy of this Offer Letter",
+        //            "2. Passport-size photographs",
+        //            "3. Educational certificates",
+        //            "4. Previous employment documents",
+        //            "5. Last 3 months salary slips",
+        //            "6. PAN Card and Aadhaar Card"
+        //        };
+
+        //                foreach (var doc in documents)
+        //                {
+        //                    document.Add(
+        //                        new Paragraph(doc)
+        //                            .SetFont(normalFont)
+        //                            .SetFontSize(11)
+        //                    );
+        //                }
+
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== CLOSING =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph(
+        //                        @"We are delighted to welcome you to the organization and look forward to a successful professional association."
+        //                    )
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+
+        //                document.Add(
+        //                    new Paragraph("Best Regards,")
+        //                        .SetFont(normalFont)
+        //                        .SetFontSize(11)
+        //                );
+
+        //                document.Add(
+        //                    new Paragraph("HR Department")
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(11)
+        //                );
+
+        //                document.Add(new Paragraph(" "));
+        //                document.Add(new LineSeparator(new SolidLine()));
+        //                document.Add(new Paragraph(" "));
+
+        //                // =================================================
+        //                // ===== ACCEPTANCE =====
+        //                // =================================================
+
+        //                document.Add(
+        //                    new Paragraph("Acceptance of Offer")
+        //                        .SetFont(boldFont)
+        //                        .SetFontSize(13)
+        //                );
+
+        //                document.Add(
+        //                    new Paragraph($@"
+        //I, {candidate.FirstName} {candidate.LastName}, acknowledge that I have read and understood the terms and conditions mentioned in this offer letter and hereby accept the offer.
+
+        //Signature: ______________________
+
+        //Date: __________________________
+
+        //Place: Hyderabad
+        //")
+        //                    .SetFont(normalFont)
+        //                    .SetFontSize(11)
+        //                );
+        //            }
+
+        //            // =====================================================
+        //            // ===== SAVE FILE PATH =====
+        //            // =====================================================
+
+        //            offer.OfferLetterPath =
+        //                $"Uploads/OfferLetters/{fileName}";
+
+        //            offerRepo.Update(offer);
+
+        //            await _unitOfWork.CompleteAsync();
+
+        //            // =====================================================
+        //            // ===== EMAIL =====
+        //            // =====================================================
+
+        //            string subject = "Offer Letter – HRMS";
+
+        //            string body = $@"
+        //<html>
+        //<body style='font-family: Arial, sans-serif; color:#333; line-height:1.6;'>
+
+        //    <p>Dear {candidate.FirstName} {candidate.LastName},</p>
+
+        //    <p>
+        //        Congratulations!
+        //    </p>
+
+        //    <p>
+        //        We are delighted to extend an offer of employment with 
+        //        <strong>{company.CompanyName}</strong>.
+        //    </p>
+
+        //    <p>
+        //        Please find your official Offer Letter attached with this email.
+        //        Kindly review the document carefully and confirm your acceptance.
+        //    </p>
+
+        //    <p>
+        //        We are excited about the opportunity to have you join our team and
+        //        look forward to a successful professional journey together.
+        //    </p>
+
+        //    <br/>
+
+        //    <p>
+        //        Regards,<br/>
+        //        <strong>HR Department</strong><br/>
+        //        {company.CompanyName}
+        //    </p>
+
+        //</body>
+        //</html>";
+
+        //            // =====================================================
+        //            // ===== SEND EMAIL =====
+        //            // =====================================================
+
+        //            await _emailService.SendEmailAsync(
+        //                candidate.Email,
+        //                subject,
+        //                body,
+        //                string.IsNullOrWhiteSpace(offer.HrEmail)
+        //                    ? null
+        //                    : new List<string> { offer.HrEmail },
+        //                new List<string> { fullPath }
+        //            );
+
+        //            return true;
+        //        }
 
         public async Task<(byte[] fileBytes, string fileName)> DownloadOfferLetterAsync(int offerId)
         {
@@ -1756,6 +2973,82 @@ Place: Hyderabad
                     Stage = cand?.StageId ?? 0   // ✅ REAL stage (7)
                 };
             });
+        }
+        public async Task<int> SubmitJobApplicationAsync(JobApplicationDto dto, IFormFile? resume)
+        {
+            using var tx = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                string resumePath = null;
+
+                // FILE SAVE
+                if (resume != null && resume.Length > 0)
+                {
+                    string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "Resumes");
+
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
+
+                    string fileName = $"{Guid.NewGuid()}_{resume.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await resume.CopyToAsync(stream);
+                    }
+
+                    resumePath = $"/Uploads/Resumes/{fileName}";
+                }
+
+                var entity = new JobApplication
+                {
+                    CandidateName = dto.CandidateName,
+                    Email = dto.Email,
+                    Phone = dto.Phone,
+                    JobTitle = dto.JobTitle,
+                    ExperienceYears = dto.ExperienceYears,
+                    Technology = dto.Technology,
+                    ResumeUrl = resumePath,   // ✔ THIS WILL NOW WORK
+                    Status = "Applied",
+                    AppliedDate = DateTime.Now,
+                    IsActive = true
+                };
+
+                await _unitOfWork.Repository<JobApplication>().AddAsync(entity);
+                await _unitOfWork.CompleteAsync();
+                await tx.CommitAsync();
+
+                return entity.ApplicationId;
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
+        public async Task<List<JobApplicationDto>> GetJobApplicationsAsync()
+        {
+            var data = await _unitOfWork.Repository<JobApplication>()
+                .GetAllAsync();
+
+            return data
+            .OrderByDescending(x => x.AppliedDate)
+            .Select(x => new JobApplicationDto
+            {
+                ApplicationId = x.ApplicationId,
+                CandidateName = x.CandidateName,
+                Email = x.Email,
+                Phone = x.Phone,
+                JobTitle = x.JobTitle,
+                ExperienceYears = x.ExperienceYears,
+                Technology = x.Technology,
+                ResumeUrl = x.ResumeUrl,
+
+                Status = x.Status,
+                AppliedDate = x.AppliedDate
+            })
+            .ToList();
         }
     }
 }
