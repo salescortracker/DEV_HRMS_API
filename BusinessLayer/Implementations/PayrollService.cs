@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,17 +15,19 @@ namespace BusinessLayer.Implementations
     public class PayrollService: IPayrollService
     {
         private readonly HRMSContext _context;
+        private readonly IEmailService _emailService;
 
-        public PayrollService(HRMSContext context)
+        public PayrollService(HRMSContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         /* ============================================================
-             ATTENDANCE SUMMARY
-          ============================================================ */
+             ATTENDANCE SUMMARY (UPDATED WITH LATE LOGIC)
+        ============================================================ */
 
-        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays)>
+        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays, int lateCount)>
         GetEmployeeAttendanceSummary(int employeeId, int month, int year)
         {
             var employee = await _context.Users
@@ -37,7 +41,7 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync();
 
             if (employee == null)
-                return (0, 0, 0, 0);
+                return (0, 0, 0, 0, 0);
 
             DateOnly startDate = new DateOnly(year, month, 1);
             DateOnly endDate = new DateOnly(year, month, DateTime.DaysInMonth(year, month));
@@ -51,15 +55,32 @@ namespace BusinessLayer.Implementations
                     a.AttendanceDate <= endDate)
                 .ToListAsync();
 
+            /* ================= PRESENT ================= */
             int present = attendance.Count(a => a.Status == "Present");
 
+            /* ================= LEAVES ================= */
             int leave = attendance.Count(a =>
                 a.Status == "SickLeave" ||
                 a.Status == "CasualLeave" ||
                 a.Status == "PaidLeave");
 
-            int half = attendance.Count(a => a.Status == "HalfDay");
+            /* ================= MANUAL HALF DAYS ================= */
+            int manualHalfDays = attendance.Count(a => a.Status == "HalfDay");
 
+            /* ================= LATE ARRIVALS ================= */
+            // 👉 IMPORTANT: Group by date to avoid duplicate entries per day
+            int lateArrivals = attendance
+                .Where(a => a.LateMinutes.HasValue && a.LateMinutes.Value > 0)
+                .GroupBy(a => a.AttendanceDate)
+                .Count();
+
+            // 👉 Rule: Every 3 late = 1 half day
+            int lateHalfDays = lateArrivals / 3;
+
+            /* ================= FINAL HALF DAYS ================= */
+            int half = manualHalfDays + lateHalfDays;
+
+            /* ================= WORKING DAYS ================= */
             int totalDays = DateTime.DaysInMonth(year, month);
 
             int weekendDays = Enumerable.Range(1, totalDays)
@@ -69,7 +90,7 @@ namespace BusinessLayer.Implementations
 
             int workingDays = totalDays - weekendDays;
 
-            return (workingDays, present, leave, half);
+            return (workingDays, present, leave, half, lateArrivals);
         }
 
         /* ============================================================
@@ -181,12 +202,14 @@ namespace BusinessLayer.Implementations
 
             /* ================= ATTENDANCE ================= */
 
+            // UPDATED: now includes lateCount
             var attendance = await GetEmployeeAttendanceSummary(
                 empSalary.EmployeeId, month, year);
 
             int allowedLeaves = 1;
             int allowedHalfDays = 2;
 
+            // Existing logic (no change needed)
             int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
             int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
 
@@ -199,19 +222,6 @@ namespace BusinessLayer.Implementations
                 (extraHalfDays * (perDaySalary / 2));
 
             attendanceDeduction = Math.Round(attendanceDeduction, 2);
-
-            if (attendanceDeduction > 0)
-            {
-                totalDeduction += attendanceDeduction;
-
-                payrollDetails.Add(new PayrollDetail
-                {
-                    ComponentId = 0,
-                    Amount = attendanceDeduction,
-                    UserId = userId,
-                    CreatedAt = DateTime.UtcNow
-                });
-            }
 
             /* ================= EXPENSES ================= */
 
@@ -265,6 +275,16 @@ namespace BusinessLayer.Implementations
                 var attendance = await GetEmployeeAttendanceSummary(
                     empSalary.EmployeeId, dto.Month, dto.Year);
 
+                var existingPayroll = await _context.PayrollTransactions
+                    .FirstOrDefaultAsync(x =>
+                    x.EmployeeId == empSalary.EmployeeId &&
+                    x.Month == dto.Month &&
+                    x.Year == dto.Year &&
+                    x.UserId == userId
+                    );
+
+                var status = existingPayroll != null ? "Processed" : "Preview";
+
                 var detailList = details.Select(d => new PayrollDetailDto
                 {
                     ComponentId = d.ComponentId,
@@ -285,12 +305,13 @@ namespace BusinessLayer.Implementations
                     NetSalary = gross - totalDeduction,
                     AttendanceDeduction = attendanceDeduction,
                     Expenses = expenses,
-                    Status = "Preview",
+                    Status = status,
                     WorkingDays = attendance.workingDays,
                     PresentDays = attendance.presentDays,
                     LeaveDays = attendance.leaveDays,
                     HalfDays = attendance.halfDays,
-                    Details = detailList
+                    Details = detailList,
+                    LateCount = attendance.lateCount, // ✅ NEW
                 });
             }
 
@@ -343,7 +364,9 @@ namespace BusinessLayer.Implementations
                         UserId = userId,
                         CompanyId = empSalary.CompanyId,
                         RegionId = empSalary.RegionId,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        IsDownloadApproved = false,
+                        RequestStatus = "Not Requested",
                     };
 
                     _context.PayrollTransactions.Add(payrollTransaction);
@@ -403,6 +426,614 @@ namespace BusinessLayer.Implementations
                 UserId = userId,
                 CreatedAt = DateTime.UtcNow
             };
+        }
+
+
+        /* ============================================================
+          Get Payslips By Range for employee
+       ============================================================ */
+
+        public async Task<List<PayrollTransactionDto>> GetPayslipsByRange(PayslipFilterDto dto)
+        {
+            var transactions = await _context.PayrollTransactions
+                .Where(x =>
+                    x.EmployeeId == dto.EmployeeId &&
+                    x.CompanyId == dto.CompanyId.ToString() &&
+                    x.RegionId == dto.RegionId.ToString() &&
+                    x.Year == dto.Year &&
+                    x.Month >= dto.FromMonth &&
+                    x.Month <= dto.ToMonth &&
+                    x.Status == "Processed"
+                )
+                .ToListAsync();
+
+            // 🔥 LOAD MASTER DATA ONCE
+            var users = await _context.Users.ToListAsync();
+
+            var departments = await _context.Departments
+                .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
+                .ToListAsync();
+
+            var designations = await _context.Designations
+    .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
+    .ToListAsync();
+
+            var personalDetails = await _context.EmployeePersonalDetails
+                .Where(p => p.CompanyId == dto.CompanyId && p.RegionId == dto.RegionId)
+                .ToListAsync();
+
+            var result = new List<PayrollTransactionDto>();
+
+            foreach (var trx in transactions)
+            {
+                // 🔥 USER
+                var user = users.FirstOrDefault(u => u.UserId == trx.EmployeeId);
+
+                // 🔥 BANK DETAILS (USING USERID)
+                var bank = await _context.EmployeeBankDetails
+                    .Where(b =>
+                        b.UserId == trx.EmployeeId &&
+                        b.CompanyId == dto.CompanyId &&
+                        b.RegionId == dto.RegionId
+                    )
+                    .OrderByDescending(b => b.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                // 🔥 PERSONAL DETAILS
+                var personal = personalDetails.FirstOrDefault(p =>
+                    p.UserId == trx.EmployeeId &&
+                    p.CompanyId == dto.CompanyId &&
+                    p.RegionId == dto.RegionId
+                );
+
+                // 🔥 DEPARTMENT NAME
+                var departmentName = departments
+                    .FirstOrDefault(d => d.DepartmentId == user?.DepartmentId)
+                    ?.DepartmentName;
+
+                var designationName = designations
+    .FirstOrDefault(d => d.DesignationId == user?.DesignationId)
+    ?.DesignationName;
+
+                // 🔥 DESIGNATION (DIRECT STRING)
+                // var designationName = user?.Designation;
+
+                // 🔥 PAYROLL DETAILS (EARNINGS + DEDUCTIONS)
+                var details = await _context.PayrollDetails
+                    .Where(d => d.PayrollId == trx.PayrollId)
+                    .ToListAsync();
+
+                var componentIds = details.Select(d => d.ComponentId).ToList();
+
+                var components = await _context.SalaryComponents
+                    .Where(c => componentIds.Contains(c.ComponentId))
+                    .ToListAsync();
+
+                var detailDtos = details.Select(d => new PayrollDetailDto
+                {
+                    ComponentId = d.ComponentId,
+                    Amount = d.Amount,
+                    ComponentName = components
+                        .FirstOrDefault(c => c.ComponentId == d.ComponentId)?.ComponentName ?? "Other",
+                    Type = components
+                        .FirstOrDefault(c => c.ComponentId == d.ComponentId)?.Type ?? "Other"
+                }).ToList();
+
+                // 🔥 ATTENDANCE
+                var attendance = await GetEmployeeAttendanceSummary(
+                    trx.EmployeeId, trx.Month, trx.Year);
+
+                decimal attendanceDeduction = 0;
+
+                int allowedLeaves = 1;
+                int allowedHalfDays = 2;
+
+                int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
+                int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
+
+                decimal perDaySalary = attendance.workingDays == 0
+                    ? 0
+                    : trx.GrossSalary / attendance.workingDays;
+
+                attendanceDeduction =
+                    (extraLeaves * perDaySalary) +
+                    (extraHalfDays * (perDaySalary / 2));
+
+                attendanceDeduction = Math.Round(attendanceDeduction, 2);
+
+                // 🔥 EXPENSES
+                var expenses = await GetApprovedExpenses(
+                    trx.EmployeeId, trx.Month, trx.Year);
+
+                // 🔥 FINAL RESULT
+                result.Add(new PayrollTransactionDto
+                {
+                    PayrollId = trx.PayrollId,
+                    EmployeeId = trx.EmployeeId,
+                    Month = trx.Month,
+                    Year = trx.Year,
+                    Status = trx.Status,
+
+                    GrossSalary = trx.GrossSalary,
+                    TotalDeductions = trx.TotalDeductions,
+                    NetSalary = trx.NetSalary,
+
+                    AttendanceDeduction = attendanceDeduction,
+                    Expenses = expenses,
+
+                    // ✅ EMPLOYEE DETAILS
+                    EmployeeName = user?.FullName,
+                    Designation = designationName ?? "-",
+                    Department = departmentName ?? "-",
+                    Location = "Hyderabad",
+
+                    // ✅ DATE OF JOINING (FIXED TYPE)
+                    JoiningDate = personal?.DateOfJoining,
+
+                    EmployeeCode = user?.EmployeeCode ?? "-",
+
+                    // ✅ BANK DETAILS
+                    Bank = bank?.BankName ?? "-",
+                    AccountNo = bank?.AccountNumber ?? "-",
+
+                    // ✅ PAN
+                    Pan = personal?.Pannumber ?? "-",
+
+                    // ✅ DETAILS
+                    Details = detailDtos,
+
+                    RequestStatus = trx.RequestStatus ?? "Not Requested",
+                    IsDownloadApproved = trx.IsDownloadApproved ?? false,
+                    HrEmail = trx.HrEmail
+                });
+            }
+
+            return result;
+        }
+
+        /* ============================================================
+         Send Payslip Email Request to HR
+      ============================================================ */
+        public async Task SendPayslipRequestEmail(SendPayslipDto dto)
+        {
+            if (dto.PayrollIds == null || !dto.PayrollIds.Any())
+                throw new Exception("No payrolls selected");
+
+            // 🔥 Get payrolls
+            var payrolls = await _context.PayrollTransactions
+                .Where(x => dto.PayrollIds.Contains(x.PayrollId))
+                .ToListAsync();
+
+            if (!payrolls.Any())
+                throw new Exception("Payroll not found");
+
+            // 🔥 Get employee
+            var employee = await _context.Users
+                .Where(x => x.UserId == payrolls.First().EmployeeId)
+                .Select(x => new { x.FullName })
+                .FirstOrDefaultAsync();
+
+            string employeeName = employee?.FullName ?? "Employee";
+
+            var culture = System.Globalization.CultureInfo.CurrentCulture;
+
+            string fromMonthName = culture.DateTimeFormat.GetMonthName(dto.FromMonth);
+            string toMonthName = culture.DateTimeFormat.GetMonthName(dto.ToMonth);
+
+            string monthDisplay = dto.FromMonth == dto.ToMonth
+                ? fromMonthName
+                : $"{fromMonthName} to {toMonthName}";
+
+            // 🔥 UPDATE STATUS IN DB
+            foreach (var trx in payrolls)
+            {
+                trx.RequestStatus = "Pending";
+                trx.IsDownloadApproved = false;
+                trx.HrEmail = dto.Email; // 🔥 SAVE HR EMAIL HERE
+            }
+
+            await _context.SaveChangesAsync();
+
+            // 🔥 SINGLE EMAIL FOR ALL MONTHS
+            var body = $@"
+<div style='font-family:Segoe UI, Arial, sans-serif; background-color:#f4f6f9; padding:20px;'>
+
+  <div style='max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.15);'>
+
+    <!-- HEADER -->
+    <div style='background:#dc3545; color:#ffffff; padding:18px; text-align:center; font-size:22px; font-weight:bold;'>
+      Payslip Download Request
+    </div>
+
+    <!-- BODY -->
+    <div style='padding:25px; color:#333; font-size:15px;'>
+
+      <p>Dear HR,</p>
+
+      <p>
+        Employee <b>{employeeName}</b> has requested payslips.
+      </p>
+
+      <!-- TABLE -->
+      <table style='width:100%; border-collapse:collapse; margin-top:15px; font-size:14px;'>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Employee Name
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {employeeName}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Month
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {monthDisplay}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Year
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {dto.Year}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Total Payslips
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {dto.PayrollIds.Count}
+          </td>
+        </tr>
+
+      </table>
+
+      <p style='margin-top:20px;'>
+        Kindly review and approve the request at your earliest convenience.
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style='background:#f1f1f1; padding:12px; text-align:center; font-size:12px; color:#777;'>
+      © {DateTime.Now.Year} Cortracker360 HRMS System
+    </div>
+
+  </div>
+
+</div>";
+
+            await _emailService.SendEmailAsync(
+                dto.Email,
+                "Payslip Range Request",
+                body,
+                null
+            );
+        }
+
+        /* ============================================================
+                   Get Pending Requests In Hr Screens
+        ============================================================ */
+        public async Task<List<HrRequestDto>> GetPendingRequests(int companyId, int regionId, string hrEmail)
+        {
+            var data = await _context.PayrollTransactions
+                .Where(x =>
+                    x.CompanyId.Trim() == companyId.ToString() &&
+                    x.RegionId.Trim() == regionId.ToString() &&
+                    x.HrEmail.ToLower() == hrEmail.ToLower() &&
+                    x.RequestStatus.Trim().ToLower() == "pending"
+                )
+                .ToListAsync();
+
+            var users = await _context.Users.ToListAsync();
+            var culture = System.Globalization.CultureInfo.CurrentCulture;
+
+            var result = data
+                .GroupBy(x => new { x.EmployeeId, x.Year })
+                .Select(g => new HrRequestDto
+                {
+                    PayrollIds = g.Select(x => x.PayrollId).ToList(),
+                    EmployeeId = g.Key.EmployeeId,
+                    EmployeeName = users.FirstOrDefault(u => u.UserId == g.Key.EmployeeId)?.FullName,
+                    FromMonth = g.Min(x => x.Month),
+                    ToMonth = g.Max(x => x.Month),
+                    FromMonthName = culture.DateTimeFormat.GetMonthName(g.Min(x => x.Month)),
+                    ToMonthName = culture.DateTimeFormat.GetMonthName(g.Max(x => x.Month)),
+                    Year = g.Key.Year
+                })
+                .ToList();
+
+            return result;
+        }
+
+        /* ============================================================
+           Approve Reject to download the Payslips to Employee
+        ============================================================ */
+        public async Task ApproveRejectPayslips(HrApproveRejectDto dto)
+        {
+            var payrolls = await _context.PayrollTransactions
+                .Where(x => dto.PayrollIds.Contains(x.PayrollId))
+                .ToListAsync();
+
+            if (!payrolls.Any())
+                return;
+
+            // 🔥 Get Employee Details
+            var employee = await _context.Users
+                .Where(x => x.UserId == payrolls.First().EmployeeId)
+                .Select(x => new { x.FullName, x.Email })
+                .FirstOrDefaultAsync();
+
+            string employeeName = employee?.FullName ?? "Employee";
+            string employeeEmail = employee?.Email;
+
+            var culture = System.Globalization.CultureInfo.CurrentCulture;
+
+            int fromMonth = payrolls.Min(x => x.Month);
+            int toMonth = payrolls.Max(x => x.Month);
+
+            string fromMonthName = culture.DateTimeFormat.GetMonthName(fromMonth);
+            string toMonthName = culture.DateTimeFormat.GetMonthName(toMonth);
+
+            string monthDisplay = fromMonth == toMonth
+                ? fromMonthName
+                : $"{fromMonthName} to {toMonthName}";
+
+            int year = payrolls.First().Year;
+
+            // 🔥 UPDATE DB
+            foreach (var trx in payrolls)
+            {
+                if (dto.Action == "Approved")
+                {
+                    trx.RequestStatus = "Approved";
+                    trx.IsDownloadApproved = true;
+                }
+                else
+                {
+                    trx.RequestStatus = "Rejected";
+                    trx.IsDownloadApproved = false;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // 🔥 EMAIL TEMPLATE COLOR BASED ON ACTION
+            string headerColor = dto.Action == "Approved" ? "#28a745" : "#dc3545";
+            string statusText = dto.Action;
+
+            // 🔥 EMAIL BODY (SAME STYLE AS YOUR CODE)
+            var body = $@"
+<div style='font-family:Segoe UI, Arial, sans-serif; background-color:#f4f6f9; padding:20px;'>
+
+  <div style='max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.15);'>
+
+    <!-- HEADER -->
+    <div style='background:{headerColor}; color:#ffffff; padding:18px; text-align:center; font-size:22px; font-weight:bold;'>
+      Payslip Request {statusText}
+    </div>
+
+    <!-- BODY -->
+    <div style='padding:25px; color:#333; font-size:15px;'>
+
+      <p>Dear {employeeName},</p>
+
+      <p>
+        Your payslip request has been <b>{statusText}</b>.
+      </p>
+
+      <!-- TABLE -->
+      <table style='width:100%; border-collapse:collapse; margin-top:15px; font-size:14px;'>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Employee Name
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {employeeName}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Month
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {monthDisplay}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Year
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {year}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Total Payslips
+          </td>
+          <td style='padding:10px; border:1px solid #ddd;'>
+            {dto.PayrollIds.Count}
+          </td>
+        </tr>
+
+        <tr>
+          <td style='padding:10px; border:1px solid #ddd; background:#f8f9fa; font-weight:bold;'>
+            Status
+          </td>
+          <td style='padding:10px; border:1px solid #ddd; font-weight:bold; color:{headerColor};'>
+            {statusText}
+          </td>
+        </tr>
+
+      </table>
+
+      <p style='margin-top:20px;'>
+        You can now proceed accordingly.
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style='background:#f1f1f1; padding:12px; text-align:center; font-size:12px; color:#777;'>
+      © {DateTime.Now.Year} Cortracker360 HRMS System
+    </div>
+
+  </div>
+
+</div>";
+
+            // 🔥 SEND EMAIL
+            if (!string.IsNullOrEmpty(employeeEmail))
+            {
+                await _emailService.SendEmailAsync(
+                    employeeEmail,
+                    $"Payslip Request {statusText}",
+                    body,
+                    null
+                );
+            }
+        }
+
+        /* ============================================================
+           Get All Payrolls By selected months Range
+        ============================================================ */
+        public async Task<List<PayrollTransactionDto>> GetAllPayrolls(HrPayrollFilterDto dto)
+        {
+            var query = _context.PayrollTransactions
+                .Where(x =>
+                    x.CompanyId == dto.CompanyId.ToString() &&
+                    x.RegionId == dto.RegionId.ToString() &&
+                    x.Year == dto.Year &&
+                    x.Month >= dto.FromMonth &&
+                    x.Month <= dto.ToMonth
+                );
+
+            if (dto.EmployeeId.HasValue)
+                query = query.Where(x => x.EmployeeId == dto.EmployeeId);
+
+            var transactions = await query.ToListAsync();
+
+            // 🔥 MASTER DATA (LOAD ONCE)
+            var users = await _context.Users.ToListAsync();
+
+            var departments = await _context.Departments
+                .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
+                .ToListAsync();
+
+            var designations = await _context.Designations
+      .Where(d => d.CompanyId == dto.CompanyId && d.RegionId == dto.RegionId)
+      .ToListAsync();
+
+            var personalDetails = await _context.EmployeePersonalDetails
+                .Where(p => p.CompanyId == dto.CompanyId && p.RegionId == dto.RegionId)
+                .ToListAsync();
+
+            var result = new List<PayrollTransactionDto>();
+
+            foreach (var trx in transactions)
+            {
+                // 🔥 USER
+                var user = users.FirstOrDefault(u => u.UserId == trx.EmployeeId);
+
+                // 🔥 BANK DETAILS (FIXED USING USERID)
+                var bank = await _context.EmployeeBankDetails
+                    .Where(b =>
+                        b.UserId == trx.EmployeeId &&
+                        b.CompanyId == dto.CompanyId &&
+                        b.RegionId == dto.RegionId
+                    )
+                    .OrderByDescending(b => b.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                // 🔥 PERSONAL DETAILS (DATE OF JOINING)
+                var personal = personalDetails
+                    .FirstOrDefault(p =>
+                        p.UserId == trx.EmployeeId &&
+                        p.CompanyId == dto.CompanyId &&
+                        p.RegionId == dto.RegionId
+                    );
+
+                // 🔥 DEPARTMENT NAME
+                var departmentName = departments
+                    .FirstOrDefault(d => d.DepartmentId == user?.DepartmentId)
+                    ?.DepartmentName;
+
+                var designationName = designations
+          .FirstOrDefault(d => d.DesignationId == user?.DesignationId)
+          ?.DesignationName;
+
+                // 🔥 DESIGNATION (STRING DIRECT)
+                //  var designationName = user?.Designation;
+
+                // 🔥 PAYROLL DETAILS (EARNINGS + DEDUCTIONS)
+                var details = await _context.PayrollDetails
+                    .Where(d => d.PayrollId == trx.PayrollId)
+                    .ToListAsync();
+
+                var componentIds = details.Select(d => d.ComponentId).ToList();
+
+                var components = await _context.SalaryComponents
+                    .Where(c => componentIds.Contains(c.ComponentId))
+                    .ToListAsync();
+
+                var detailDtos = details.Select(d => new PayrollDetailDto
+                {
+                    ComponentId = d.ComponentId,
+                    Amount = d.Amount,
+                    ComponentName = components
+                        .FirstOrDefault(c => c.ComponentId == d.ComponentId)?.ComponentName ?? "Other",
+                    Type = components
+                        .FirstOrDefault(c => c.ComponentId == d.ComponentId)?.Type ?? "Other"
+                }).ToList();
+
+                // 🔥 FINAL RESULT
+                result.Add(new PayrollTransactionDto
+                {
+                    PayrollId = trx.PayrollId,
+                    EmployeeId = trx.EmployeeId,
+                    Month = trx.Month,
+                    Year = trx.Year,
+
+                    GrossSalary = trx.GrossSalary,
+                    TotalDeductions = trx.TotalDeductions,
+                    NetSalary = trx.NetSalary,
+
+                    // ✅ USER DETAILS
+                    EmployeeName = user?.FullName,
+                    Designation = designationName ?? "-",
+                    Department = departmentName,
+                    Location = "Hyderabad",
+
+                    // ✅ DATE OF JOINING FROM PERSONAL TABLE
+                    JoiningDate = personal?.DateOfJoining,
+
+                    EmployeeCode = user?.EmployeeCode,
+
+                    // ✅ BANK DETAILS
+                    Bank = bank?.BankName,
+                    AccountNo = bank?.AccountNumber,
+
+                    // ✅ PAN FROM PERSONAL TABLE
+                    Pan = personal?.Pannumber ?? "-",
+
+                    // ✅ DETAILS (EARNINGS + DEDUCTIONS)
+                    Details = detailDtos
+                });
+            }
+
+            return result;
         }
     }
     

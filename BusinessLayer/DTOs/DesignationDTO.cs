@@ -21,6 +21,8 @@ namespace BusinessLayer.DTOs
         public string companyName { get; set; }
         public string regionName { get; set; }
         public string departmentName { get; set; }
+        public int? GradeID { get; set; }
+        public string? GradeName { get; set; }
     }
     public class CreateUpdateDesignationDto
     {
@@ -38,6 +40,8 @@ namespace BusinessLayer.DTOs
         public int createdBy { get; set; }
         public string companyName { get; set; }
         public string regionName { get; set; }
+        public int? GradeID { get; set; }
+        public string? GradeName { get; set; }
     }
     public class ServiceResponse<T>
     {

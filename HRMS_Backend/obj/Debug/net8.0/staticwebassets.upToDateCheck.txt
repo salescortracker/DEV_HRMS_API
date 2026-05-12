@@ -67,6 +67,8 @@ wwwroot\Uploads\EmployeeProfileDetails\260f1bec-d38b-4838-a03a-b5614e20e4c9_KBP0
 wwwroot\Uploads\EmployeeProfileDetails\47f23d06-b3cc-4bc8-b3c3-dfc20c3d222d_KBP05723.JPG
 wwwroot\Uploads\EmployeeProfileDetails\5fc17915-cf74-46f4-a85d-7b8de3d332f2_DSC_5411 (1).jpg
 wwwroot\Uploads\EmployeeProfileDetails\6c720ea2-d532-42d7-9a52-fa0018ead1d6_Screenshot (4001).png
+wwwroot\Uploads\EmployeeProfileDetails\86a27239-ce8e-4bd2-b740-3b5a957b40cf_WhatsApp Image 2025-06-25 at 10.06.31 AM.jpeg
+wwwroot\Uploads\EmployeeProfileDetails\8d923261-9fa0-405f-b90f-732e5cec1340_WhatsApp Image 2025-06-25 at 10.06.31 AM.jpeg
 wwwroot\Uploads\EmployeeProfileDetails\99955c7e-66b1-4547-82b4-734d04a17e3b_KBP05723.JPG
 wwwroot\Uploads\EmployeeProfileDetails\aabe3db4-e603-4f2d-8234-7cd370f68a8d_KBP05723.JPG
 wwwroot\Uploads\EmployeeProfileDetails\d7aabad6-3e5a-45e0-ac79-ed9b9309b8c9_DSC_5411 (1).jpg

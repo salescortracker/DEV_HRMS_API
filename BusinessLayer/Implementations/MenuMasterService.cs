@@ -75,6 +75,12 @@ namespace BusinessLayer.Implementations
                 Icon = dto.Icon,
                 OrderNo = dto.OrderNo,
                 IsActive = dto.IsActive ?? true,
+                // ✅ NEW FIELDS
+                CanView = dto.CanView,
+                CanAdd = dto.CanAdd,
+                CanEdit = dto.CanEdit,
+                CanDelete = dto.CanDelete,
+                CanApprove = dto.CanApprove,
                 CreatedBy = createdBy,
                 CreatedDate = DateTime.Now
             };
@@ -98,6 +104,11 @@ namespace BusinessLayer.Implementations
             entity.Icon = dto.Icon;
             entity.OrderNo = dto.OrderNo;
             entity.IsActive = dto.IsActive;
+            entity.CanView = dto.CanView;
+            entity.CanAdd = dto.CanAdd;
+            entity.CanEdit = dto.CanEdit;
+            entity.CanDelete = dto.CanDelete;
+            entity.CanApprove = dto.CanApprove;
             entity.ModifiedBy = modifiedBy;
             entity.ModifiedAt = DateTime.Now;
 
@@ -136,7 +147,12 @@ namespace BusinessLayer.Implementations
                 Url = m.Url,
                 Icon = m.Icon,
                 OrderNo = m.OrderNo,
-                IsActive = m.IsActive
+                IsActive = m.IsActive,
+                CanView = m.CanView,
+                CanAdd = m.CanAdd,
+                CanEdit = m.CanEdit,
+                CanDelete = m.CanDelete,
+                CanApprove = m.CanApprove
             };
         }
     }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Implementations
 {
-    public class ModeOfStudyService:IModeOfStudyService
+    public class ModeOfStudyService: IModeOfStudyService
     {
         private readonly HRMSContext _context;
         //private readonly UnitOfWork _unitOfWork;
@@ -18,11 +18,10 @@ namespace BusinessLayer.Implementations
         public ModeOfStudyService(HRMSContext context)
         {
             _context = context;
+            
+         }
 
-
-        }
-
-        public async Task<IEnumerable<ModeOfStudyDto>> GetAllModeOfStudtAsync(int userId)
+        public async Task<IEnumerable<ModeOfStudyDto>> GetAllModeOfStudytAsync(int userId)
         {
             return await _context.ModeOfStudies
                 .Where(x => !x.IsDeleted && x.UserId == userId)
@@ -40,7 +39,7 @@ namespace BusinessLayer.Implementations
         }
 
         // ✅ GET BY ID
-        public async Task<ModeOfStudyDto?> GetByIdModeOfStudtAsync(int id)
+        public async Task<ModeOfStudyDto?> GetByIdModeOfStudytAsync(int id)
         {
             var entity = await _context.ModeOfStudies
                 .FirstOrDefaultAsync(x => x.ModeOfStudyId == id && !x.IsDeleted);
@@ -56,8 +55,17 @@ namespace BusinessLayer.Implementations
         }
 
         // ✅ CREATE
-        public async Task<bool> CreateModeOfStudtAsync(ModeOfStudyDto dto)
+        public async Task<bool> CreateModeOfStudytAsync(ModeOfStudyDto dto)
         {
+            var exists = await _context.ModeOfStudies
+       .AnyAsync(x => x.ModeName.ToLower() == dto.ModeName.ToLower()
+                   && x.UserId == dto.UserId
+                   && !x.IsDeleted);
+
+            if (exists)
+            {
+                throw new Exception("Mode already exists for this user");
+            }
             var entity = new ModeOfStudy
             {
                 ModeName = dto.ModeName,
@@ -75,8 +83,18 @@ namespace BusinessLayer.Implementations
         }
 
         // ✅ UPDATE
-        public async Task<bool> UpdateModeOfStudtAsync(ModeOfStudyDto dto)
+        public async Task<bool> UpdateModeOfStudytAsync(ModeOfStudyDto dto)
         {
+            var exists = await _context.ModeOfStudies
+        .AnyAsync(x => x.ModeName.ToLower() == dto.ModeName.ToLower()
+                    && x.UserId == dto.UserId
+                    && x.ModeOfStudyId != dto.ModeOfStudyId
+                    && !x.IsDeleted);
+
+            if (exists)
+            {
+                throw new Exception("Mode already exists for this user");
+            }
             var entity = await _context.ModeOfStudies
                 .FirstOrDefaultAsync(x => x.ModeOfStudyId == dto.ModeOfStudyId && x.UserId == dto.UserId && !x.IsDeleted);
 
@@ -92,8 +110,8 @@ namespace BusinessLayer.Implementations
             return await _context.SaveChangesAsync() > 0;
         }
 
-        // ✅ DELETE (Soft Delete)
-        public async Task<bool> DeleteModeOfStudtAsync(int id)
+        
+        public async Task<bool> DeleteModeOfStudytAsync(int id)
         {
             var entity = await _context.ModeOfStudies
                 .FirstOrDefaultAsync(x =>

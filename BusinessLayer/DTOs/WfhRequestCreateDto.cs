@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class WfhRequestCreateDto
     {
@@ -19,5 +13,7 @@ namespace BusinessLayer.DTOs
         public int CompanyID { get; set; }
         public int? RegionID { get; set; }
         public int UserId { get; set; }
+        public string? HrEmail { get; set; } // ✅ ADD THIS
+
     }
 }

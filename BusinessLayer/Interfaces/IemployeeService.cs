@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using DataAccessLayer.DBContext;
 
 namespace BusinessLayer.Interfaces
 {
@@ -18,7 +19,7 @@ namespace BusinessLayer.Interfaces
         Task<bool> updateEmpEduAsync(EmployeeEducationDto model);
         Task<bool> deleteEmpEduAsync(int educationId);
         Task<IEnumerable<EmployeeEducationDto>> getAllEmpEduAsync();
-        Task<IEnumerable<ModeOfStudyDto>> GetModeOfStudyListAsync();
+        Task<IEnumerable<ModeOfStudyDto>> GetModeOfStudyListAsync(int companyId, int regionId);
 
         Task<IEnumerable<EmployeeJobHistoryDto>> getAllempJobAsync();
         Task<IEnumerable<EmployeeJobHistoryDto>> getByUserIdEmpJobAsync(int userId);
@@ -33,7 +34,7 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateImmigrationAsync(EmployeeImmigrationDto dto);
         Task<bool> DeleteImmigrationAsync(int id);
 
-        Task<List<VisaTypeDto>> GetVisaTypesAsync(int companyId, int regionId);
+        Task<List<VisaTypeMasterDto>> GetVisaTypesAsync(int companyId, int regionId);
         Task<List<WorkAuthStatusDto>> GetStatusListAsync();
 
         Task<IEnumerable<DocumentTypeDto>> GetActiveDocumentTypesAsync();
@@ -54,9 +55,10 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<EmployeeLetterDto>> getAllempLetterAsync();
         Task<IEnumerable<EmployeeLetterDto>> getByUserIdempLetterAsync(int userId);
         Task<EmployeeLetterDto?> getByIdempLetterAsync(int id);
-        Task<int> addempLetterAsync(EmployeeLetterDto model);
+        Task<int> addempLetterAsync(EmployeeLetterDto model, List<EmployeeLetterFile> files);
         Task<bool> updateempLetterAsync(EmployeeLetterDto model);
         Task<bool> deleteempLetterAsync(int id);
+        Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode);
 
         Task<IEnumerable<EmployeeBankDetailsDto>> getAllempBankAsync(int userId);
         Task<EmployeeBankDetailsDto?> getByIdempBankAsync(int id);
@@ -117,5 +119,6 @@ namespace BusinessLayer.Interfaces
         Task<EmployeeEmergencyContactDto> AddempEmergencyAsync(EmployeeEmergencyContactDto contactDto);
         Task<EmployeeEmergencyContactDto?> UpdateempEmergencyAsync(EmployeeEmergencyContactDto contactDto);
         Task<bool> DeleteempEmergencyAsync(int emergencyContactId);
+        Task<string?> GetProfilePictureByUserIdAsync(int userId);
     }
 }

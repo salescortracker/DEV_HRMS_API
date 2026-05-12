@@ -37,6 +37,7 @@ public partial class PerformanceReview
 
     public string? SelfReviewSummary { get; set; }
 
+    public virtual ICollection<PerformanceKpi> KPIs { get; set; }
     public string? Status { get; set; }
 
     public decimal? FinalScore { get; set; }
@@ -50,5 +51,6 @@ public partial class PerformanceReview
     public DateTime? ModifiedAt { get; set; }
 
     public int? ModifiedBy { get; set; }
-    public virtual ICollection<PerformanceKpi> KPIs { get; set; }
+
+    public string? HrEmail { get; set; }
 }

@@ -41,6 +41,18 @@ namespace BusinessLayer.Implementations
 
         public async Task<ApiResponse<string>> CreateAsync(InterviewLevelDto dto)
         {
+            // ✅ Duplicate check
+            var duplicate = (await _unitOfWork.Repository<InterviewLevel>().FindAsync(x =>
+                !x.IsDeleted &&
+                 x.UserId == dto.UserId &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.InterviewLevels.ToLower() == dto.InterviewLevels.ToLower()
+            )).Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!, "Duplicate Interview Level exists.", false);
+
             var entity = new InterviewLevel
             {
                 CompanyId = dto.CompanyID,
@@ -66,6 +78,19 @@ namespace BusinessLayer.Implementations
 
             if (entity == null || entity.IsDeleted)
                 return new ApiResponse<string>(null!, "Record not found", false);
+
+            // ✅ Duplicate check (exclude current record)
+            var duplicate = (await _unitOfWork.Repository<InterviewLevel>().FindAsync(x =>
+                !x.IsDeleted &&
+                 x.UserId == dto.UserId &&
+                x.InterviewLevelsId != dto.InterviewLevelsID &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.InterviewLevels.ToLower() == dto.InterviewLevels.ToLower()
+            )).Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!, "Duplicate Interview Level exists.", false);
 
             entity.CompanyId = dto.CompanyID;
             entity.RegionId = dto.RegionID;

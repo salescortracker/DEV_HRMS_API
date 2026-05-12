@@ -21,6 +21,7 @@ namespace HRMS_Backend.Controllers
             _expenseService = expenseService;
             _env = env;
             _context = context;
+
         }
         // -------------------------------------------------------------
         // CREATE EXPENSE
@@ -111,16 +112,20 @@ namespace HRMS_Backend.Controllers
         }
 
         [HttpGet("GetAllExpenseCategoriesAsync")]
-        public async Task<IActionResult> GetAllExpenseCategoriesAsync()
+        public async Task<IActionResult> GetAllExpenseCategoriesAsync(int companyId, int regionId)
         {
             try
             {
                 var expenses = await _expenseService.GetAllExpenseCategoriesAsync();
 
+                var filtered = expenses
+                    .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+                    .ToList();
+
                 return Ok(new
                 {
                     success = true,
-                    data = expenses
+                    data = filtered
                 });
             }
             catch (Exception ex)
@@ -133,6 +138,30 @@ namespace HRMS_Backend.Controllers
                 });
             }
         }
+
+        //[HttpGet("GetAllExpenseCategoriesAsync")]
+        //public async Task<IActionResult> GetAllExpenseCategoriesAsync()
+        //{
+        //    try
+        //    {
+        //        var expenses = await _expenseService.GetAllExpenseCategoriesAsync();
+
+        //        return Ok(new
+        //        {
+        //            success = true,
+        //            data = expenses
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new
+        //        {
+        //            success = false,
+        //            message = ex.Message,
+        //            data = new List<object>()
+        //        });
+        //    }
+        //}
 
         // -------------------------------------------------------------
         // GET EXPENSE LIMIT
@@ -200,11 +229,11 @@ namespace HRMS_Backend.Controllers
         }
 
         [HttpGet("GetExpensesAll")]
-        public async Task<IActionResult> GetExpensesAll()
+        public async Task<IActionResult> GetExpensesAll(int companyId, int regionId)
         {
             try
             {
-                var expenses = await _expenseService.GetAllExpensesAsync();
+                var expenses = await _expenseService.GetAllExpensesAsync(companyId, regionId);
 
                 return Ok(new
                 {

@@ -65,6 +65,24 @@ namespace BusinessLayer.Implementations
         }
         public async Task<int> SubmitLeaveAsync(LeaveRequestDto dto)
         {
+            //   CHECK DUPLICATE / OVERLAP
+            var existingLeaves = await _unitOfWork.Repository<LeaveRequest>()
+                  .FindAsync(x => x.UserId == dto.UserId);
+
+            bool isDuplicate = existingLeaves.Any(l =>
+            {
+                var existingStart = l.StartDate.ToDateTime(TimeOnly.MinValue);
+                var existingEnd = l.EndDate.ToDateTime(TimeOnly.MinValue);
+
+                // 👉 Overlap condition
+                return dto.StartDate <= existingEnd && dto.EndDate >= existingStart;
+            });
+
+            if (isDuplicate)
+            {
+                throw new Exception("Leave already exists for selected date range.");
+            }
+
             // ✅ Get Weekoffs for company + region
             var weekoffs = await _unitOfWork.Repository<Weekoff>()
                 .FindAsync(x => !x.IsDeleted &&
@@ -107,7 +125,8 @@ namespace BusinessLayer.Implementations
                 Status = "Pending",
                 AppliedDate = DateTime.Now,
                 CreatedAt = DateTime.Now,
-                CreatedBy = dto.UserId
+                CreatedBy = dto.UserId,
+                HrEmail = dto.HrEmail,
             };
 
             await _unitOfWork.Repository<LeaveRequest>().AddAsync(entity);
@@ -244,8 +263,10 @@ namespace BusinessLayer.Implementations
 
             string portalUrl = _configuration["AppSettings:PortalUrl"];
 
-            string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
-            string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
+            //string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
+            //string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
+            string approveUrl = $"{_configuration["AppSettings:LoginUrl"]}";
+            string rejectUrl = $"{_configuration["AppSettings:LoginUrl"]}";
 
             string subject = "New Leave Request";
 
@@ -266,7 +287,20 @@ namespace BusinessLayer.Implementations
         </body>
         </html>";
 
-            await _emailService.SendEmailAsync(manager.Email, subject, body);
+            // await _emailService.SendEmailAsync(manager.Email, subject, body);
+            List<string> ccEmails = new List<string>();
+
+            if (!string.IsNullOrEmpty(leave.HrEmail))
+            {
+                ccEmails.Add(leave.HrEmail);
+            }
+
+            await _emailService.SendEmailAsync(
+                manager.Email,
+                subject,
+                body,
+                ccEmails
+            );
         }
 
         // ✅ SINGLE APPROVE

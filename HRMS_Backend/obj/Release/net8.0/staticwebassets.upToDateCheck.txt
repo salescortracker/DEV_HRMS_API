@@ -3,7 +3,6 @@ wwwroot\DDCopies\853b7f1f-bf07-4f47-8fc0-0347a1a48bea_CompanyList (1).pdf
 wwwroot\DDCopies\9887a01d-f886-4cb0-91e6-abc115280794_CompanyList (4).pdf
 wwwroot\DDCopies\d548def8-bedc-41c2-8641-72c79eb0deab_CompanyList (4).pdf
 wwwroot\DDCopies\e63399d5-7b85-411f-95c0-2efc73eee834_CompanyList (3).pdf
-wwwroot\Uploads\db258659-beaf-46a8-a5e3-3c0357a61d3d_Screenshot(4002).png
 wwwroot\Uploads\EmployeeCertifications\43b981a5-3bad-442b-8fda-5a3b1c4c78b4_CompanyList (5).pdf
 wwwroot\Uploads\EmployeeCertifications\488cbf76-7602-447b-b1c0-6238f530ed05_CompanyList (3).pdf
 wwwroot\Uploads\EmployeeCertifications\4d485f37-b32c-420e-803c-22e468758e96_CompanyList (4).pdf
@@ -85,6 +84,7 @@ wwwroot\Uploads\ExpenseReceipts\ff42335f-248b-438c-abb7-0056353d0877_CompanyList
 wwwroot\Uploads\Helpdesk\106126e9-7060-4fc0-a52d-97dbf639eef4_CompanyList (5).pdf
 wwwroot\Uploads\Helpdesk\9891341f-9c2f-4b3a-9513-d02a96c515a0_CompanyList (5).pdf
 wwwroot\Uploads\Helpdesk\afce91cb-3db3-4ca2-ab14-8b36a44573ce_CompanyList (5).pdf
+wwwroot\Uploads\db258659-beaf-46a8-a5e3-3c0357a61d3d_Screenshot(4002).png
 wwwroot\Uploads\immigration\0c80b5d9-f11d-479d-9270-875390d13592_CompanyList (4).pdf
 wwwroot\Uploads\immigration\101d95e0-dadb-42ef-8f49-6bf9d759bba3_CompanyList (5).pdf
 wwwroot\Uploads\immigration\1352d1a6-e800-4aec-bcb8-3403b9ee94f4_CompanyList (4).pdf
@@ -117,3 +117,4 @@ wwwroot\Uploads\immigration\e011e5f3-bd43-4f79-a0d0-4a90fb32497b_CompanyList (5)
 wwwroot\Uploads\immigration\e4a06fcc-3806-4045-96a1-b4ab347b855b_CompanyList (5).pdf
 wwwroot\Uploads\immigration\f0395d48-2808-4cae-adf2-3323bd160225_CompanyList (5).pdf
 wwwroot\Uploads\immigration\f1a8848f-3b5e-45d8-8243-4b278cb90a8c_CompanyList (5).pdf
+wwwroot\files\hrms_training.pptx

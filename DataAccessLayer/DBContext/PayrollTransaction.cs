@@ -35,5 +35,11 @@ public partial class PayrollTransaction
 
     public string? RegionId { get; set; }
 
+    public bool? IsDownloadApproved { get; set; }
+
+    public string? RequestStatus { get; set; }
+
+    public string? HrEmail { get; set; }
+
     public virtual ICollection<PayrollDetail> PayrollDetails { get; set; } = new List<PayrollDetail>();
 }

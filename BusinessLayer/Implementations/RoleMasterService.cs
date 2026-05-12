@@ -89,10 +89,29 @@ namespace BusinessLayer.Implementations
         }
 
         // Update existing role
+        //public async Task<RoleMasterDto> UpdateRoleAsync(int id, RoleMasterDto dto)
+        //{
+        //    var entity = await _unitOfWork.Repository<RoleMaster>().GetByIdAsync(id);
+        //    if (entity == null) throw new Exception("Role not found");
+
+        //    entity.RoleName = dto.RoleName;
+        //    entity.RoleDescription = dto.RoleDescription;
+        //    entity.IsActive = dto.IsActive;
+        //    entity.ModifiedBy = dto.ModifiedBy;
+        //    entity.ModifiedAt = DateTime.Now;
+
+        //    _unitOfWork.Repository<RoleMaster>().Update(entity);
+        //    await _unitOfWork.CompleteAsync();
+
+        //    return MapToDto(entity);
+        //}
+        // Update existing role
         public async Task<RoleMasterDto> UpdateRoleAsync(int id, RoleMasterDto dto)
         {
             var entity = await _unitOfWork.Repository<RoleMaster>().GetByIdAsync(id);
             if (entity == null) throw new Exception("Role not found");
+            entity.CompanyId = dto.CompanyId;
+            entity.RegionId = dto.RegionId;
 
             entity.RoleName = dto.RoleName;
             entity.RoleDescription = dto.RoleDescription;

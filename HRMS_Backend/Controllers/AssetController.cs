@@ -72,9 +72,9 @@ namespace HRMS_Backend.Controllers
         /// Get all Status 
         /// </summary>
         [HttpGet("statuses")]
-        public async Task<ActionResult<List<AssetStatusDto>>> GetAssetStatuses()
+        public async Task<ActionResult<List<AssetStatusDto>>> GetAssetStatuses(int companyId, int regionId)
         {
-            var statuses = await _assetService.GetAllAssetStatusesAsync();
+            var statuses = await _assetService.GetAllAssetStatusesAsync(companyId, regionId);
             return Ok(statuses);
         }
         /// <summary>
@@ -141,6 +141,58 @@ namespace HRMS_Backend.Controllers
                     message = ex.Message
                 });
             }
+        }
+        [HttpPost("CreateRequest")]
+        public async Task<ActionResult<int>> CreateRequest([FromBody] AssetRequestDto dto)
+        {
+            var id = await _assetService.CreateAssetRequestAsync(dto);
+            return Ok(id);
+        }
+
+        [HttpGet("user-requests")]
+        public async Task<ActionResult<List<AssetRequestDto>>> GetRequestsByUser(int userId)
+        {
+            var data = await _assetService.GetAssetRequestsByUserAsync(userId);
+            return Ok(data);
+        }
+        [HttpGet("approved-requests")]
+        public async Task<ActionResult<List<AssetRequestDto>>> GetApprovedRequests(
+     [FromQuery] int companyId,
+     [FromQuery] int regionId)
+        {
+            var data = await _assetApprovalService
+                .GetApprovedRequestsAsync(companyId, regionId);
+
+            return Ok(data);
+        }
+        [HttpGet("available-assets")]
+        public async Task<ActionResult<List<AssetDto>>> GetAvailableAssets(
+      int companyId,
+      int regionId,
+      int userId)
+        {
+            var data = await _assetService.GetAvailableAssetsAsync(companyId, regionId, userId);
+            return Ok(data);
+        }
+
+        [HttpPost("assign-asset")]
+        public async Task<IActionResult> AssignAsset([FromBody] AssetAssignmentDto dto)
+        {
+            var id = await _assetService.CreateAssignmentAsync(dto);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Asset Assigned Successfully",
+                id = id
+            });
+        }
+
+        [HttpGet("assignments")]
+        public async Task<IActionResult> GetAssignments(int companyId, int regionId)
+        {
+            var data = await _assetService.GetAssignmentsAsync(companyId, regionId);
+            return Ok(data);
         }
 
     }

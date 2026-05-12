@@ -63,6 +63,8 @@ public partial class User
 
     public string? LoginType { get; set; }
 
+    public int? DesignationId { get; set; }
+
     public virtual Company Company { get; set; } = null!;
 
     public virtual ICollection<EmployeeMaster> EmployeeMasterCreatedByNavigations { get; set; } = new List<EmployeeMaster>();

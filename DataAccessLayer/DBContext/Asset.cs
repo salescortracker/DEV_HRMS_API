@@ -55,5 +55,13 @@ public partial class Asset
 
     public DateTime? ApprovedAt { get; set; }
 
+    public int? AssetTypeId { get; set; }
+
+    public int? AssetCategoryId { get; set; }
+
+    public virtual AssetCategory? AssetCategory { get; set; }
+
     public virtual AssetStatus AssetStatus { get; set; } = null!;
+
+    public virtual AssetType? AssetType { get; set; }
 }

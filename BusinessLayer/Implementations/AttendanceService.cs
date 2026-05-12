@@ -13,10 +13,12 @@ namespace BusinessLayer.Implementations
     public class AttendanceService : IAttendanceService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly HRMSContext _hrmsContext;
 
-        public AttendanceService(IUnitOfWork unitOfWork)
+        public AttendanceService(IUnitOfWork unitOfWork,HRMSContext hRMSContext)
         {
             _unitOfWork = unitOfWork;
+            _hrmsContext = hRMSContext;
         }
 
         // ================================
@@ -26,15 +28,35 @@ namespace BusinessLayer.Implementations
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
 
-
             var users = (await _unitOfWork.Repository<User>().GetAllAsync())
                 .Where(e => e.CompanyId == companyId
                          && e.RegionId == regionId
                          && !string.IsNullOrEmpty(e.EmployeeCode))
                 .ToList();
 
+            // ✅ ADD THIS BLOCK HERE
+            if (IsWeekend(today))
+            {
+                return users.Select(emp => new EmployeeAttendanceDto
+                {
+                    EmployeeCode = emp.EmployeeCode,
+                    EmployeeName = emp.FullName,
+                    AttendanceDate = DateTime.Today,
+                    Status = "WeekOff",
+                    ClockIn = null,
+                    ClockOut = null,
+                    GrossTime = null,
+                    ShiftName = "",
+                    ShiftStartTime = "",
+                    ShiftEndTime = "",
+                    LateMinutes = 0
+                }).ToList();
+            }
+
             var clockRecords = await _unitOfWork.Repository<ClockInOut>().GetAllAsync();
             var leaves = await _unitOfWork.Repository<LeaveRequest>().GetAllAsync();
+            var shiftAllocations = await _unitOfWork.Repository<ShiftAllocation>().GetAllAsync();
+            var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
             var leaveTypes = await _unitOfWork.Repository<LeaveType>().GetAllAsync();
 
             var result = new List<EmployeeAttendanceDto>();
@@ -45,6 +67,19 @@ namespace BusinessLayer.Implementations
                 string clockInTime = null;
                 string clockOutTime = null;
                 string grossTime = null;
+                int? lateMinutes = null;
+
+                // ===== GET SHIFT =====
+                var shiftAlloc = shiftAllocations
+                    .FirstOrDefault(s => s.EmployeeCode == emp.EmployeeCode && s.IsActive);
+
+                var shiftMaster = shiftMasters
+                    .Where(sm => sm.CompanyId == companyId && sm.RegionId == regionId).FirstOrDefault();
+
+                TimeOnly? shiftStart = shiftMaster.ShiftStartTime;
+                TimeOnly? shiftEnd = shiftMaster?.ShiftEndTime;
+                string shiftName = shiftMaster?.ShiftName;
+                TimeOnly? graceTimeValue = shiftMaster?.GraceTime;
 
                 // ================= LEAVE CHECK =================
                 var leave = leaves.FirstOrDefault(l =>
@@ -72,7 +107,7 @@ namespace BusinessLayer.Implementations
                         .ToList();
 
                     var clockIn = records
-                       .FirstOrDefault(r => r.ActionType == "ClockIn")?.ActionTime;
+                        .FirstOrDefault(r => r.ActionType == "ClockIn")?.ActionTime;
 
                     var clockOut = records
                         .LastOrDefault(r => r.ActionType == "ClockOut")?.ActionTime;
@@ -83,16 +118,52 @@ namespace BusinessLayer.Implementations
                     if (clockOut != null)
                         clockOutTime = clockOut.Value.ToString("HH:mm");
 
+                    // ===== GROSS TIME =====
+                    // If ClockIn exists → at least Present
+                    if (clockIn != null)
+                    {
+                        status = "Present";
+                    }
+
+                    // If both exist → calculate properly
                     if (clockIn != null && clockOut != null)
                     {
                         var duration = clockOut.Value - clockIn.Value;
-
                         grossTime = duration.ToString(@"hh\:mm");
 
-                        if (duration.TotalHours >= 7)
+                        if (duration.TotalHours >= 5)
                             status = "Present";
                         else
                             status = "HalfDay";
+                    }
+
+
+                    // ===== LATE MINUTES =====
+                    if (clockIn != null && shiftStart.HasValue)
+                    {
+                        var clockInTimeOnly = clockIn.Value;
+
+                        // ✅ Convert GraceTime properly
+                        int graceMinutes = 0;
+
+                        if (graceTimeValue.HasValue)
+                        {
+                            graceMinutes = (graceTimeValue.Value.Hour * 60)
+                                         + graceTimeValue.Value.Minute;
+                        }
+
+                        // ✅ Apply grace time to shift start
+                        var allowedTime = shiftStart.Value.AddMinutes(graceMinutes);
+
+                        // ✅ ONLY calculate after grace
+                        if (clockInTimeOnly > allowedTime)
+                        {
+                            lateMinutes = (int)(clockInTimeOnly - allowedTime).TotalMinutes;
+                        }
+                        else
+                        {
+                            lateMinutes = 0;
+                        }
                     }
                 }
 
@@ -104,7 +175,14 @@ namespace BusinessLayer.Implementations
                     Status = status,
                     ClockIn = clockInTime,
                     ClockOut = clockOutTime,
-                    GrossTime = grossTime
+                    GrossTime = grossTime,
+
+                    // ✅ IMPORTANT ADD THESE
+                    ShiftName = shiftName,
+                    ShiftStartTime = shiftStart?.ToString("HH:mm"),
+                    ShiftEndTime = shiftEnd?.ToString("HH:mm"),
+                    LateMinutes = lateMinutes,
+                    //GraceTime = graceTimeValue?.ToString("HH:mm")
                 });
             }
 
@@ -119,8 +197,19 @@ namespace BusinessLayer.Implementations
 
             var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
 
-            // Get existing attendance records for that date
-            var existingRecords = (await repo.GetAllAsync())
+            if (IsWeekend(attendanceDate))
+            {
+                throw new Exception("Cannot save attendance for WeekOff (Saturday/Sunday)");
+            }
+
+            var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
+
+            //var existingRecords = (await repo.GetAllAsync())
+            //    .Where(x => x.CompanyId == dto.CompanyId &&
+            //                x.RegionId == dto.RegionId &&
+            //                x.AttendanceDate == attendanceDate)
+            //    .ToList();
+            var existingRecords = _hrmsContext.EmployeeAttendances
                 .Where(x => x.CompanyId == dto.CompanyId &&
                             x.RegionId == dto.RegionId &&
                             x.AttendanceDate == attendanceDate)
@@ -128,12 +217,51 @@ namespace BusinessLayer.Implementations
 
             foreach (var emp in dto.Employees)
             {
+                // ✅ SAME LOGIC AS GET METHOD
+                var shiftMaster = shiftMasters
+                    .Where(sm => sm.CompanyId == dto.CompanyId && sm.RegionId == dto.RegionId)
+                    .FirstOrDefault();
+
+                TimeOnly? shiftStart = shiftMaster?.ShiftStartTime;
+                TimeOnly? shiftEnd = shiftMaster?.ShiftEndTime;
+                string shiftName = shiftMaster?.ShiftName;
+                TimeOnly? graceTimeValue = shiftMaster?.GraceTime;
+
+                int? lateMinutes = null;
+
+                // ✅ FIXED LATE CALCULATION
+                if (!string.IsNullOrEmpty(emp.ClockIn) && shiftStart.HasValue)
+                {
+                    var clockIn = TimeOnly.Parse(emp.ClockIn);
+
+                    int graceMinutes = 0;
+
+                    if (graceTimeValue.HasValue)
+                    {
+                        graceMinutes = (graceTimeValue.Value.Hour * 60)
+                                     + graceTimeValue.Value.Minute;
+                    }
+
+                    var allowedTime = shiftStart.Value.AddMinutes(graceMinutes);
+
+                    if (clockIn > allowedTime)
+                    {
+                        lateMinutes = (int)(
+                            clockIn.ToTimeSpan() - allowedTime.ToTimeSpan()
+                        ).TotalMinutes;
+                    }
+                    else
+                    {
+                        lateMinutes = 0;
+                    }
+                }
+
                 var existing = existingRecords
                     .FirstOrDefault(x => x.EmployeeCode == emp.EmployeeCode);
 
                 if (existing != null)
                 {
-                    // ================= UPDATE EXISTING =================
+                    // UPDATE
                     existing.Status = emp.Status;
 
                     existing.ClockInTime = string.IsNullOrEmpty(emp.ClockIn)
@@ -148,10 +276,15 @@ namespace BusinessLayer.Implementations
 
                     existing.ModifiedBy = userId.ToString();
                     existing.ModifiedAt = DateTime.Now;
+
+                    existing.ShiftName = shiftName;
+                    existing.ShiftStartTime = shiftStart;
+                    existing.ShiftEndTime = shiftEnd;
+                    existing.LateMinutes = lateMinutes;
                 }
                 else
                 {
-                    // ================= INSERT NEW =================
+                    // INSERT
                     var entity = new EmployeeAttendance
                     {
                         RegionId = dto.RegionId,
@@ -171,8 +304,13 @@ namespace BusinessLayer.Implementations
 
                         GrossTime = emp.GrossTime,
 
+                        ShiftName = shiftName,
+                        ShiftStartTime = shiftStart,
+                        ShiftEndTime = shiftEnd,
+                        LateMinutes = lateMinutes,
+
                         CreatedBy = userId,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = DateTime.Now,
                     };
 
                     await repo.AddAsync(entity);
@@ -191,8 +329,8 @@ namespace BusinessLayer.Implementations
     DateTime fromDate,
     DateTime toDate)
         {
-            var data = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
-
+            // var data = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
+            var data = _hrmsContext.EmployeeAttendances.Select(y => new { y.CompanyId,y.RegionId,y.AttendanceDate,y.ShiftName,y.ShiftStartTime,y.ShiftEndTime,y.EmployeeCode,y.EmployeeName,y.ClockInTime,y.ClockOutTime,y.GrossTime,y.Status,y.LateMinutes}).ToList();
             var startDate = DateOnly.FromDateTime(fromDate);
             var endDate = DateOnly.FromDateTime(toDate);
 
@@ -203,8 +341,35 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.HasValue &&
                     x.AttendanceDate.Value >= startDate &&
                     x.AttendanceDate.Value <= endDate)
+                .Select(x =>
+                {
+                    EmployeeAttendance employeeAttendance = new EmployeeAttendance
+                    {
+                        CompanyId = x.CompanyId,
+                        RegionId = x.RegionId,
+                        AttendanceDate = x.AttendanceDate,
+                        EmployeeCode=x.EmployeeCode,
+                        EmployeeName=x.EmployeeName,
+                        LateMinutes=x.LateMinutes,
+                        Status=x.Status,
+                        ClockInTime=x.ClockInTime,
+                        ClockOutTime=x.ClockOutTime,
+                        GrossTime=x.GrossTime,
+                        ShiftStartTime=x.ShiftStartTime,
+                        ShiftEndTime=x.ShiftEndTime,
+                        ShiftName=x.ShiftName
+                       
+                    };
+                    var dto = MapToDto(employeeAttendance);
+
+                    if (IsWeekend(x.AttendanceDate.Value))
+                    {
+                        dto.Status = "WeekOff";
+                    }
+
+                    return dto;
+                })
                 .OrderByDescending(x => x.AttendanceDate)
-                .Select(MapToDto)
                 .ToList();
         }
 
@@ -226,7 +391,17 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.Value >= startDate &&
                     x.AttendanceDate.Value <= endDate)
                 .OrderByDescending(x => x.AttendanceDate)
-                .Select(MapToDto)
+                .Select(x =>
+                {
+                    var dto = MapToDto(x);
+
+                    if (x.AttendanceDate.HasValue && IsWeekend(x.AttendanceDate.Value))
+                    {
+                        dto.Status = "WeekOff";
+                    }
+
+                    return dto;
+                })
                 .ToList();
         }
 
@@ -247,7 +422,17 @@ namespace BusinessLayer.Implementations
                     x.AttendanceDate.Value.Month == today.Month &&
                     x.AttendanceDate.Value.Year == today.Year)
                 .OrderByDescending(x => x.AttendanceDate)
-                .Select(MapToDto)
+                .Select(x =>
+                {
+                    var dto = MapToDto(x);
+
+                    if (x.AttendanceDate.HasValue && IsWeekend(x.AttendanceDate.Value))
+                    {
+                        dto.Status = "WeekOff";
+                    }
+
+                    return dto;
+                })
                 .ToList();
         }
 
@@ -274,9 +459,199 @@ namespace BusinessLayer.Implementations
 
                 ClockIn = entity.ClockInTime?.ToString("HH:mm"),
                 ClockOut = entity.ClockOutTime?.ToString("HH:mm"),
-                GrossTime = entity.GrossTime
+                GrossTime = entity.GrossTime,
+                ShiftName = entity.ShiftName,
+                //GraceTime = entity.GraceTime,
+
+                ShiftStartTime = entity.ShiftStartTime?.ToString("HH:mm"),
+
+                ShiftEndTime = entity.ShiftEndTime?.ToString("HH:mm"),
+
+                LateMinutes = entity.LateMinutes
             };
         }
 
+        // ================================
+        // GetEmployeesByDate
+        // ================================
+
+        public async Task<List<EmployeeAttendanceDto>> GetEmployeesByDate(int companyId, int regionId, DateTime date)
+        {
+            var selectedDate = DateOnly.FromDateTime(date);
+
+            var users = (await _unitOfWork.Repository<User>().GetAllAsync())
+                .Where(e => e.CompanyId == companyId
+                         && e.RegionId == regionId
+                         && !string.IsNullOrEmpty(e.EmployeeCode))
+                .ToList();
+
+            var clockRecords = await _unitOfWork.Repository<ClockInOut>().GetAllAsync();
+            var leaves = await _unitOfWork.Repository<LeaveRequest>().GetAllAsync();
+            var shiftMasters = await _unitOfWork.Repository<ShiftMaster>().GetAllAsync();
+            var leaveTypes = await _unitOfWork.Repository<LeaveType>().GetAllAsync();
+
+            var result = new List<EmployeeAttendanceDto>();
+
+            foreach (var emp in users)
+            {
+                if (IsWeekend(selectedDate))
+                {
+                    result.Add(new EmployeeAttendanceDto
+                    {
+                        EmployeeCode = emp.EmployeeCode,
+                        EmployeeName = emp.FullName,
+                        AttendanceDate = date,
+                        Status = "WeekOff",
+                        ClockIn = null,
+                        ClockOut = null,
+                        GrossTime = null,
+                        ShiftName = "",
+                        ShiftStartTime = "",
+                        ShiftEndTime = "",
+                        LateMinutes = 0
+                    });
+
+                    continue;
+                }
+                string status = "Absent";
+                string clockInTime = null;
+                string clockOutTime = null;
+                string grossTime = null;
+                int? lateMinutes = null;
+
+                // ✅ GET SHIFT
+                var shiftMaster = shiftMasters
+                    .FirstOrDefault(sm => sm.CompanyId == companyId && sm.RegionId == regionId);
+
+                TimeOnly? shiftStart = shiftMaster?.ShiftStartTime;
+                TimeOnly? shiftEnd = shiftMaster?.ShiftEndTime;
+                string shiftName = shiftMaster?.ShiftName;
+                TimeOnly? graceTimeValue = shiftMaster?.GraceTime;
+
+                // ================= LEAVE CHECK =================
+                var leave = leaves.FirstOrDefault(l =>
+                    l.UserId == emp.UserId &&
+                    l.Status == "Approved" &&
+                    l.StartDate <= selectedDate &&
+                    l.EndDate >= selectedDate);
+
+                if (leave != null)
+                {
+                    var leaveType = leaveTypes
+                        .FirstOrDefault(t => t.LeaveTypeId == leave.LeaveTypeId);
+
+                    status = leaveType?.LeaveTypeName ?? "Leave";
+                }
+                else
+                {
+                    var records = clockRecords
+                        .Where(c =>
+                            c.EmployeeCode == emp.EmployeeCode &&
+                            c.CompanyId == companyId &&
+                            c.RegionId == regionId &&
+                            c.AttendanceDate == selectedDate)
+                        .OrderBy(c => c.ActionTime)
+                        .ToList();
+
+                    var clockIn = records.FirstOrDefault(r => r.ActionType == "ClockIn")?.ActionTime;
+                    var clockOut = records.LastOrDefault(r => r.ActionType == "ClockOut")?.ActionTime;
+
+                    if (clockIn != null)
+                    {
+                        clockInTime = clockIn.Value.ToString("HH:mm");
+                        status = "Present";
+                    }
+
+                    if (clockOut != null)
+                    {
+                        clockOutTime = clockOut.Value.ToString("HH:mm");
+                    }
+
+                    // ✅ GROSS TIME
+                    if (clockIn != null && clockOut != null)
+                    {
+                        var duration = clockOut.Value - clockIn.Value;
+                        grossTime = duration.ToString(@"hh\:mm");
+
+                        status = duration.TotalHours >= 5 ? "Present" : "HalfDay";
+                    }
+
+                    // ✅ ✅ FIXED LATE LOGIC (IMPORTANT)
+                    if (clockIn != null && shiftStart.HasValue)
+                    {
+                        int graceMinutes = 0;
+
+                        if (graceTimeValue.HasValue)
+                        {
+                            graceMinutes = (graceTimeValue.Value.Hour * 60)
+                                         + graceTimeValue.Value.Minute;
+                        }
+
+                        var allowedTime = shiftStart.Value.AddMinutes(graceMinutes);
+
+                        if (clockIn.Value > allowedTime)
+                        {
+                            lateMinutes = (int)(clockIn.Value - allowedTime).TotalMinutes;
+                        }
+                        else
+                        {
+                            lateMinutes = 0;
+                        }
+                    }
+                }
+
+                result.Add(new EmployeeAttendanceDto
+                {
+                    EmployeeCode = emp.EmployeeCode,
+                    EmployeeName = emp.FullName,
+                    AttendanceDate = date,
+                    Status = status,
+                    ClockIn = clockInTime,
+                    ClockOut = clockOutTime,
+                    GrossTime = grossTime,
+
+                    // ✅ IMPORTANT RETURN THESE
+                    ShiftName = shiftName,
+                    ShiftStartTime = shiftStart?.ToString("HH:mm"),
+                    ShiftEndTime = shiftEnd?.ToString("HH:mm"),
+                    LateMinutes = lateMinutes
+                });
+            }
+
+            return result;
+        }
+
+        // ================================
+        // GetUnsavedDates
+        // ================================
+        public async Task<List<DateTime>> GetUnsavedDates(int companyId, int regionId)
+        {
+            var attendanceData = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
+
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(d => DateTime.Today.AddDays(-d).Date)
+                .Where(d => d.DayOfWeek != DayOfWeek.Saturday &&
+                            d.DayOfWeek != DayOfWeek.Sunday)
+                .ToList();
+
+            var savedDates = attendanceData
+                .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+                .Select(x => x.AttendanceDate.Value.ToDateTime(TimeOnly.MinValue).Date)
+                .Distinct()
+                .ToList();
+
+            var unsavedDates = last7Days
+                .Where(d => !savedDates.Contains(d))
+                .ToList();
+
+            return unsavedDates;
+        }
+
+
+        private bool IsWeekend(DateOnly date)
+        {
+            return date.DayOfWeek == DayOfWeek.Saturday ||
+                   date.DayOfWeek == DayOfWeek.Sunday;
+        }
     }
 }

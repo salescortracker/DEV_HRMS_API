@@ -4,6 +4,7 @@ using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace HRMS_Backend.Controllers
 {
@@ -310,9 +311,9 @@ public class UpdateResignationStatusRequest
         /// </summary>
         /// <returns></returns>
         [HttpGet("modeofstudy")]
-        public async Task<IActionResult> GetModeOfStudy()
+        public async Task<IActionResult> GetModeOfStudy([FromQuery] int companyId, [FromQuery] int regionId)
         {
-            var data = await _employeeService.GetModeOfStudyListAsync();
+            var data = await _employeeService.GetModeOfStudyListAsync(companyId, regionId);
             return Ok(data);
         }
 
@@ -345,7 +346,7 @@ public class UpdateResignationStatusRequest
             var data = await _employeeService.getByUserIdEmpCertAsync(userId);
 
             if (data == null || !data.Any())
-                return NotFound(new { message = "No certifications found" });
+                return Ok(data);
 
             return Ok(data);
         }
@@ -491,7 +492,7 @@ public class UpdateResignationStatusRequest
             var data = await _employeeService.getByUserIdEmpJobAsync(userId);
 
             if (data == null || !data.Any())
-                return NotFound(new { message = "No job history found" });
+                return Ok(data);
 
             return Ok(data);
         }
@@ -785,20 +786,20 @@ public class UpdateResignationStatusRequest
             };
         }
 
-        //[HttpGet("GetVisaTypes")]
-        //public async Task<IActionResult> GetVisaTypes()
-        //{
-        //    var list = await _employeeService.GetVisaTypesAsync();
-        //    var response = list.
-        //        Select(v => new
-        //        {
-        //            visaTypeId = v.VisaTypeId,
-        //            visaTypeName = v.VisaTypeName
-        //        })
-        //        .ToList();
+        [HttpGet("GetVisaTypes")]
+        public async Task<IActionResult> GetVisaTypes(int companyId, int regionId)
+        {
+            var list = await _employeeService.GetVisaTypesAsync(companyId, regionId);
 
-        //    return Ok(response);
-        //}
+            var response = list.Select(v => new
+            {
+                visaTypeId = v.VisaTypeId,
+                visaTypeName = v.VisaTypeName
+            }).ToList();
+
+            return Ok(response);
+        }
+
         [HttpGet("GetStatuses")]
         public async Task<IActionResult> GetStatuses()
         {
@@ -1113,22 +1114,28 @@ public class UpdateResignationStatusRequest
 
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
+            List<EmployeeLetterFile> fileEntities = new();
 
-            if (model.DocumentFile != null)
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
             {
-                string fileName = $"{Guid.NewGuid()}_{model.DocumentFile.FileName}";
-                string fullPath = Path.Combine(folder, fileName);
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.DocumentFile.CopyToAsync(stream);
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
 
-                model.FileName = fileName;
-                model.FilePath = $"Uploads/EmployeeLetters/{fileName}";
+                    fileEntities.Add(new EmployeeLetterFile
+                    {
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeLetters/{fileName}"
+                    });
+                }
             }
-
             model.CreatedBy = model.UserId;
 
-            var id = await _employeeService.addempLetterAsync(model);
+            var id = await _employeeService.addempLetterAsync(model, fileEntities);
             return Ok(new { message = "Saved successfully", id });
         }
         /// <summary>
@@ -1149,16 +1156,24 @@ public class UpdateResignationStatusRequest
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            if (model.DocumentFile != null)
+            List<EmployeeLetterFile> fileEntities = new();
+
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
             {
-                string fileName = $"{Guid.NewGuid()}_{model.DocumentFile.FileName}";
-                string fullPath = Path.Combine(folder, fileName);
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(folder, fileName);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.DocumentFile.CopyToAsync(stream);
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
 
-                model.FileName = fileName;
-                model.FilePath = $"Uploads/EmployeeLetters/{fileName}";
+                    fileEntities.Add(new EmployeeLetterFile
+                    {
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeLetters/{fileName}"
+                    });
+                }
             }
 
             model.ModifiedBy = model.UserId;
@@ -1185,8 +1200,22 @@ public class UpdateResignationStatusRequest
 
             return Ok(new { message = "Deleted successfully" });
         }
+        [HttpGet("GetMyLetters/{employeeCode}")]
+        public async Task<IActionResult> GetMyLetters(string employeeCode)
+        {
+            if (string.IsNullOrEmpty(employeeCode))
+                return BadRequest("Invalid employee code");
+
+            var data = await _employeeService.getLettersForEmployeeAsync(employeeCode);
+
+            if (data == null || !data.Any())
+                return NotFound(new { message = "No letters found" });
+
+            return Ok(data);
+        }
 
         #endregion
+
         #endregion
         #region employee bank,dd,w4 details
         //-----------------------------------DROP-DOWN (ACCOUNT TYPE = EMPLOYEE.BANKDETAILS)----------------------------//
@@ -1495,6 +1524,15 @@ public class UpdateResignationStatusRequest
         // ---------------------------------------------------------
         // GET PERSONAL DETAILS BY USER ID
         // ---------------------------------------------------------
+        [HttpGet("GetProfilePicture/{userId}")]
+        public async Task<IActionResult> GetProfilePicture(int userId)
+        {
+            if (userId <= 0)
+                return BadRequest("Invalid UserId");
+
+            var profilePictureName = await _employeeService.GetProfilePictureByUserIdAsync(userId);
+            return Ok(profilePictureName); 
+        }
         [HttpGet("GetByUserIdempProfile/{userId}")]
         public async Task<IActionResult> GetByUserIdempProfile(int userId)
         {
@@ -1997,35 +2035,70 @@ public class UpdateResignationStatusRequest
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
+        //[HttpPost("SubmitLeave")]
+        //public async Task<IActionResult> SubmitLeave([FromForm] LeaveRequestDto dto)
+        //{
+        //    string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        //    string path = Path.Combine(root, "Uploads", "LeaveDocuments");
+
+        //    if (!Directory.Exists(path))
+        //        Directory.CreateDirectory(path);
+
+        //    // ✅ File upload
+        //    if (dto.SupportingDocument != null && dto.SupportingDocument.Length > 0)
+        //    {
+        //        string fileName = $"{Guid.NewGuid()}_{dto.SupportingDocument.FileName}";
+        //        string fullPath = Path.Combine(path, fileName);
+
+        //        using var stream = new FileStream(fullPath, FileMode.Create);
+        //        await dto.SupportingDocument.CopyToAsync(stream);
+
+        //        dto.FileName = fileName;
+        //        dto.FilePath = $"Uploads/LeaveDocuments/{fileName}";
+        //    }
+
+        //    // ✅ Save Leave
+        //    int leaveId = await _leaveService.SubmitLeaveAsync(dto);
+
+        //    // ✅ Send Email to Manager
+        //    await _leaveService.SendLeaveEmailToManagerAsync(leaveId);
+
+        //    return Ok(new { message = "Leave submitted and email sent successfully", id = leaveId });
+        //}
         [HttpPost("SubmitLeave")]
         public async Task<IActionResult> SubmitLeave([FromForm] LeaveRequestDto dto)
         {
-            string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            string path = Path.Combine(root, "Uploads", "LeaveDocuments");
-
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-
-            // ✅ File upload
-            if (dto.SupportingDocument != null && dto.SupportingDocument.Length > 0)
+            try
             {
-                string fileName = $"{Guid.NewGuid()}_{dto.SupportingDocument.FileName}";
-                string fullPath = Path.Combine(path, fileName);
+                string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string path = Path.Combine(root, "Uploads", "LeaveDocuments");
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await dto.SupportingDocument.CopyToAsync(stream);
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
 
-                dto.FileName = fileName;
-                dto.FilePath = $"Uploads/LeaveDocuments/{fileName}";
+                // File upload
+                if (dto.SupportingDocument != null && dto.SupportingDocument.Length > 0)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{dto.SupportingDocument.FileName}";
+                    string fullPath = Path.Combine(path, fileName);
+
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await dto.SupportingDocument.CopyToAsync(stream);
+
+                    dto.FileName = fileName;
+                    dto.FilePath = $"Uploads/LeaveDocuments/{fileName}";
+                }
+
+                int leaveId = await _leaveService.SubmitLeaveAsync(dto);
+
+                await _leaveService.SendLeaveEmailToManagerAsync(leaveId);
+
+                return Ok(new { message = "Leave submitted successfully", id = leaveId });
             }
-
-            // ✅ Save Leave
-            int leaveId = await _leaveService.SubmitLeaveAsync(dto);
-
-            // ✅ Send Email to Manager
-            await _leaveService.SendLeaveEmailToManagerAsync(leaveId);
-
-            return Ok(new { message = "Leave submitted and email sent successfully", id = leaveId });
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message }); // ✅ IMPORTANT
+            }
         }
         /// <summary>
         /// 
@@ -2420,6 +2493,14 @@ public class UpdateResignationStatusRequest
 
         #endregion
 
+        //[HttpGet("GetResignationsForManager")]
+        //public async Task<IActionResult> GetResignationsForManager(int managerUserId)
+        //{
+        //    var data = await _resignationService
+        //        .GetResignationsForReportingManagerAsync(managerUserId);
+
+        //    return Ok(data);
+        //}
         [HttpGet("GetResignationsForManager")]
         public async Task<IActionResult> GetResignationsForManager(int managerUserId)
         {

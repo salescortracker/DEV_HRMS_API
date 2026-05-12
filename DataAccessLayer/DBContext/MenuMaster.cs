@@ -27,5 +27,15 @@ public partial class MenuMaster
 
     public DateTime? ModifiedAt { get; set; }
 
+    public bool? CanView { get; set; }
+
+    public bool? CanAdd { get; set; }
+
+    public bool? CanEdit { get; set; }
+
+    public bool? CanDelete { get; set; }
+
+    public bool? CanApprove { get; set; }
+
     public virtual ICollection<MenuRoleMaster> MenuRoleMasters { get; set; } = new List<MenuRoleMaster>();
 }

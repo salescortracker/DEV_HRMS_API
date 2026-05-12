@@ -25,7 +25,11 @@ public partial class Region
 
     public bool? IsActive { get; set; }
 
+    public virtual ICollection<AssetCategory> AssetCategories { get; set; } = new List<AssetCategory>();
+
     public virtual ICollection<AssetStatus> AssetStatuses { get; set; } = new List<AssetStatus>();
+
+    public virtual ICollection<AssetType> AssetTypes { get; set; } = new List<AssetType>();
 
     public virtual ICollection<AttachmentType> AttachmentTypes { get; set; } = new List<AttachmentType>();
 
@@ -36,6 +40,8 @@ public partial class Region
     public virtual ICollection<CertificationType> CertificationTypes { get; set; } = new List<CertificationType>();
 
     public virtual Company Company { get; set; } = null!;
+
+    public virtual ICollection<Currency> Currencies { get; set; } = new List<Currency>();
 
     public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
 
@@ -57,6 +63,8 @@ public partial class Region
 
     public virtual ICollection<KpiCategory> KpiCategories { get; set; } = new List<KpiCategory>();
 
+    public virtual ICollection<LateLogin> LateLogins { get; set; } = new List<LateLogin>();
+
     public virtual ICollection<LeaveStatus> LeaveStatuses { get; set; } = new List<LeaveStatus>();
 
     public virtual ICollection<LeaveType> LeaveTypes { get; set; } = new List<LeaveType>();
@@ -66,6 +74,8 @@ public partial class Region
     public virtual ICollection<PolicyCategory> PolicyCategories { get; set; } = new List<PolicyCategory>();
 
     public virtual ICollection<Priority> Priorities { get; set; } = new List<Priority>();
+
+    public virtual ICollection<ProjectMaster> ProjectMasters { get; set; } = new List<ProjectMaster>();
 
     public virtual ICollection<ProjectStatus> ProjectStatuses { get; set; } = new List<ProjectStatus>();
 

@@ -13,13 +13,14 @@ namespace BusinessLayer.Interfaces
         Task<MissedPunchRequest> CreateMissedPunchRequest(CreateMissedPunchRequestDto dto);
 
         Task<IEnumerable<MissedPunchRequest>> GetMissedPunchRequest(
-            int companyId, int? regionId);
+    int companyId, int? regionId, int userId);
 
-        Task<IEnumerable<MissedPunchRequest>> GetApprovalMissedPunchRequest(
+        Task<IEnumerable<MissedPunchApprovalListDto>> GetApprovalMissedPunchRequest(
             int companyId, int? regionId, int managerId);
 
         Task<bool> UpdateMissedPunch(UpdateMissedPunchDto dto);
 
         Task<int> BulkApproveRejectPunch(BulkApproveRejectPunchDto dto);
+        
     }
 }

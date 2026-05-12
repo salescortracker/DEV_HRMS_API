@@ -47,6 +47,8 @@ public partial class LeaveRequest
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual LeaveType LeaveType { get; set; } = null!;
 
     public virtual User? ReportingManager { get; set; }

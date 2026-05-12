@@ -68,8 +68,9 @@ namespace BusinessLayer.Implementations
                 CreatedDate = DateTime.Now,
                 ReceiptPath = dto.ReceiptPath,
                 Status = "Pending",
-                DepartmentName=dto.departmentName
-                
+                DepartmentName=dto.departmentName,
+                HrEmail = dto.HrEmail
+
             };
 
             _context.Expenses.Add(expense);
@@ -87,10 +88,30 @@ namespace BusinessLayer.Implementations
                 {
                     var emailBody = BuildManagerEmail(user.FullName, expense);
 
+                    //await _emailService.SendEmailAsync(
+                    //    manager.Email,
+                    //    "Expense Approval Required",
+                    //    emailBody
+                    //);
+
+                    // ✅ Prepare CC list
+                    List<string>? ccList = null;
+
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList = dto.HrEmail
+                            .Split(',')
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                            .ToList();
+                    }
+
+                    // ✅ Send email with CC
                     await _emailService.SendEmailAsync(
                         manager.Email,
                         "Expense Approval Required",
-                        emailBody
+                        emailBody,
+                        ccList
                     );
                 }
             }
@@ -186,7 +207,8 @@ namespace BusinessLayer.Implementations
                 {
                     Expense = e,
                     EmployeeName = u.FullName,
-                    EmployeeEmail = u.Email
+                    EmployeeEmail = u.Email,
+                    HrEmail = e.HrEmail   // ✅ IMPORTANT
                 }
             ).ToListAsync();
 
@@ -221,10 +243,29 @@ namespace BusinessLayer.Implementations
                         dto.Action
                     );
 
+                    //await _emailService.SendEmailAsync(
+                    //    item.EmployeeEmail,
+                    //    $"Expense {dto.Action}",
+                    //    body
+                    //);
+                    var ccList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                    {
+                        ccList = item.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                            .Distinct()
+                            .ToList();
+                    }
+
+                    // ✅ SEND EMAIL WITH CC
                     await _emailService.SendEmailAsync(
                         item.EmployeeEmail,
                         $"Expense {dto.Action}",
-                        body
+                        body,
+                        ccList
                     );
                 }
             }
@@ -264,11 +305,15 @@ namespace BusinessLayer.Implementations
                 })
                 .ToListAsync();
         }
-        public async Task<List<CreateExpenseDto>> GetAllExpensesAsync()
+        public async Task<List<CreateExpenseDto>> GetAllExpensesAsync(int companyId, int regionId)
         {
             var expenses = await _context.Expenses
                 .AsNoTracking()
-                .Include(e => e.ExpenseCategory) // Include category info
+                .Include(e => e.ExpenseCategory)
+                .Where(e =>
+            e.CompanyId == companyId &&
+            e.RegionId == regionId
+        )// Include category info
                 .OrderByDescending(e => e.CreatedDate)
                 .ToListAsync();
 

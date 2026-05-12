@@ -38,4 +38,6 @@ public partial class MissedPunchRequest
     public int? ModifiedBy { get; set; }
 
     public int UserId { get; set; }
+
+    public string? HrEmail { get; set; }
 }

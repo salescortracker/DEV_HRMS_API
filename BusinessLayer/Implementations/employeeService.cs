@@ -351,10 +351,13 @@ namespace BusinessLayer.Implementations
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ModeOfStudyDto>> GetModeOfStudyListAsync()
+        public async Task<IEnumerable<ModeOfStudyDto>> GetModeOfStudyListAsync(int companyId, int regionId)
         {
             return await _context.ModeOfStudies
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive
+                         && !x.IsDeleted
+                         && x.CompanyId == companyId
+                         && x.RegionId == regionId)
                 .Select(x => new ModeOfStudyDto
                 {
                     ModeOfStudyId = x.ModeOfStudyId,
@@ -742,17 +745,21 @@ namespace BusinessLayer.Implementations
         }
 
 
-        public async Task<List<VisaTypeDto>> GetVisaTypesAsync(int companyId, int regionId)
+        public async Task<List<VisaTypeMasterDto>> GetVisaTypesAsync(int companyId, int regionId)
         {
             return await _context.VisaTypes
-                .Where(v => v.CompanyId == companyId && v.RegionId == regionId && v.IsActive && (v.IsDeleted == false || v.IsDeleted == null))
-                .Select(v => new VisaTypeDto
+                .Where(v => v.CompanyId == companyId
+                         && v.RegionId == regionId
+                         && v.IsActive
+                         && (v.IsDeleted == false || v.IsDeleted == null))
+                .Select(v => new VisaTypeMasterDto
                 {
                     VisaTypeId = v.VisaTypeId,
                     VisaTypeName = v.VisaType1
                 })
                 .ToListAsync();
         }
+
 
         public async Task<List<WorkAuthStatusDto>> GetStatusListAsync()
         {
@@ -968,16 +975,17 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
+                    //EmployeeCode = x.EmployeeCode,
                     IssueDate = x.IssueDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
                     CreatedAt = x.CreatedAt,
                     ModifiedBy = x.ModifiedBy,
-                    ModifiedAt = x.ModifiedAt
+                    ModifiedAt = x.ModifiedAt,
+                  //  EmployeeName = x.EmployeeName,
                 })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -989,29 +997,31 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<IEnumerable<EmployeeFormDto>> getByUserIdempFormAsync(int userId)
         {
-            return await _context.EmployeeForms
+            var data = await _context.EmployeeForms
                 .Where(x => x.UserId == userId)
-                .Select(x => new EmployeeFormDto
-                {
-                    Id = x.Id,
-                    RegionId = x.RegionId,
-                    CompanyId = x.CompanyId,
-                    UserId = x.UserId,
-                    DocumentTypeId = x.DocumentTypeId,
-                    DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    IssueDate = x.IssueDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
-                    Remarks = x.Remarks,
-                    IsConfidential = x.IsConfidential,
-                    CreatedBy = x.CreatedBy,
-                    CreatedAt = x.CreatedAt,
-                    ModifiedBy = x.ModifiedBy,
-                    ModifiedAt = x.ModifiedAt
-                })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
+
+            return data.Select(x => new EmployeeFormDto
+            {
+                Id = x.Id,
+                RegionId = x.RegionId,
+                CompanyId = x.CompanyId,
+                UserId = x.UserId,
+                DocumentTypeId = x.DocumentTypeId,
+                DocumentName = x.DocumentName,
+                //EmployeeCode = x.EmployeeCode,
+                //EmployeeName = x.EmployeeName, // ✅ will come now
+                //IssueDate = x.IssueDate,
+                //FileName = x.FileName,
+                //FilePath = x.FilePath,
+                Remarks = x.Remarks,
+                IsConfidential = x.IsConfidential,
+                CreatedBy = x.CreatedBy,
+                CreatedAt = x.CreatedAt,
+                ModifiedBy = x.ModifiedBy,
+                ModifiedAt = x.ModifiedAt
+            });
         }
         /// <summary>
         /// 
@@ -1030,10 +1040,10 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
+                    //EmployeeCode = x.EmployeeCode,
                     IssueDate = x.IssueDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
@@ -1057,14 +1067,15 @@ namespace BusinessLayer.Implementations
                 UserId = model.UserId,
                 DocumentTypeId = model.DocumentTypeId,
                 DocumentName = model.DocumentName,
-                EmployeeCode = model.EmployeeCode,
+                //EmployeeCode = model.EmployeeCode,
                 IssueDate = model.IssueDate,
-                FileName = model.FileName,
-                FilePath = model.FilePath,
+                //FileName = model.FileName,
+                //FilePath = model.FilePath,
                 Remarks = model.Remarks,
                 IsConfidential = model.IsConfidential,
                 CreatedBy = model.CreatedBy,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                //EmployeeName = model.EmployeeName
             };
 
             await _context.EmployeeForms.AddAsync(entity);
@@ -1087,14 +1098,15 @@ namespace BusinessLayer.Implementations
             entity.UserId = model.UserId;
             entity.DocumentTypeId = model.DocumentTypeId;
             entity.DocumentName = model.DocumentName;
-            entity.EmployeeCode = model.EmployeeCode;
+            //entity.EmployeeCode = model.EmployeeCode;
             entity.IssueDate = model.IssueDate;
-            entity.FileName = model.FileName;
-            entity.FilePath = model.FilePath ?? entity.FilePath;
+            //entity.FileName = model.FileName;
+            //entity.FilePath = model.FilePath ?? entity.FilePath;
             entity.Remarks = model.Remarks;
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
+            //entity.EmployeeName = model.EmployeeName;
 
             await _context.SaveChangesAsync();
             return true;
@@ -1131,12 +1143,12 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    EmployeeName = x.EmployeeName,
+                    //EmployeeCode = x.EmployeeCode,
+                    //EmployeeName = x.EmployeeName,
                     IssuedDate = x.IssuedDate,
                     ValidityDate = x.ValidityDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
@@ -1160,16 +1172,25 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    EmployeeName = x.EmployeeName,
+                    //EmployeeCode = x.EmployeeCode,
+                    //EmployeeName = x.EmployeeName,
                     IssuedDate = x.IssuedDate,
                     ValidityDate = x.ValidityDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
-                    CreatedAt = x.CreatedAt
+                    CreatedAt = x.CreatedAt,
+                    EmployeeCode = string.Join(",",
+            x.EmployeeLetterEmployees.Select(e => e.EmployeeCode)),
+
+                    EmployeeName = string.Join(",",
+            x.EmployeeLetterEmployees.Select(e => e.EmployeeName)),
+
+                    // ✅ Files (take first OR join all)
+                    FileName = string.Join(",",
+            x.EmployeeLetterFiles.Select(f => f.FileName))
                 })
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
@@ -1187,12 +1208,12 @@ namespace BusinessLayer.Implementations
                     UserId = x.UserId,
                     DocumentTypeId = x.DocumentTypeId,
                     DocumentName = x.DocumentName,
-                    EmployeeCode = x.EmployeeCode,
-                    EmployeeName = x.EmployeeName,
+                    //EmployeeCode = x.EmployeeCode,
+                    //EmployeeName = x.EmployeeName,
                     IssuedDate = x.IssuedDate,
                     ValidityDate = x.ValidityDate,
-                    FileName = x.FileName,
-                    FilePath = x.FilePath,
+                    //FileName = x.FileName,
+                    //FilePath = x.FilePath,
                     Remarks = x.Remarks,
                     IsConfidential = x.IsConfidential,
                     CreatedBy = x.CreatedBy,
@@ -1203,7 +1224,7 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> addempLetterAsync(EmployeeLetterDto model)
+        public async Task<int> addempLetterAsync(EmployeeLetterDto model, List<EmployeeLetterFile> files)
         {
             var entity = new EmployeeLetter
             {
@@ -1212,12 +1233,8 @@ namespace BusinessLayer.Implementations
                 UserId = model.UserId,
                 DocumentTypeId = model.DocumentTypeId,
                 DocumentName = model.DocumentName,
-                EmployeeCode = model.EmployeeCode,
-                EmployeeName = model.EmployeeName,
                 IssuedDate = model.IssuedDate,
                 ValidityDate = model.ValidityDate,
-                FileName = model.FileName,
-                FilePath = model.FilePath,
                 Remarks = model.Remarks,
                 IsConfidential = model.IsConfidential,
                 CreatedBy = model.CreatedBy,
@@ -1225,6 +1242,29 @@ namespace BusinessLayer.Implementations
             };
 
             _context.EmployeeLetters.Add(entity);
+            await _context.SaveChangesAsync();
+
+            // ✅ SAVE EMPLOYEES
+            var empCodes = model.EmployeeCode.Split(',');
+            var empNames = model.EmployeeName.Split(',');
+
+            for (int i = 0; i < empCodes.Length; i++)
+            {
+                _context.EmployeeLetterEmployees.Add(new EmployeeLetterEmployee
+                {
+                    LetterId = entity.Id,
+                    EmployeeCode = empCodes[i],
+                    EmployeeName = empNames[i]
+                });
+            }
+
+            // ✅ SAVE FILES
+            foreach (var file in files)
+            {
+                file.LetterId = entity.Id;
+                _context.EmployeeLetterFiles.Add(file);
+            }
+
             await _context.SaveChangesAsync();
 
             return entity.Id;
@@ -1236,21 +1276,74 @@ namespace BusinessLayer.Implementations
             if (entity == null)
                 return false;
 
+            // ✅ Update main table
             entity.RegionId = model.RegionId;
             entity.CompanyId = model.CompanyId;
             entity.UserId = model.UserId;
             entity.DocumentTypeId = model.DocumentTypeId;
             entity.DocumentName = model.DocumentName;
-            entity.EmployeeCode = model.EmployeeCode;
-            entity.EmployeeName = model.EmployeeName;
             entity.IssuedDate = model.IssuedDate;
             entity.ValidityDate = model.ValidityDate;
-            entity.FileName = model.FileName;
-            entity.FilePath = model.FilePath ?? entity.FilePath;
             entity.Remarks = model.Remarks;
             entity.IsConfidential = model.IsConfidential;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedAt = DateTime.Now;
+
+            // =========================
+            // ✅ UPDATE EMPLOYEES
+            // =========================
+            var existingEmployees = _context.EmployeeLetterEmployees
+                .Where(x => x.LetterId == model.Id);
+
+            _context.EmployeeLetterEmployees.RemoveRange(existingEmployees);
+
+            if (!string.IsNullOrEmpty(model.EmployeeCode))
+            {
+                var empCodes = model.EmployeeCode.Split(',');
+                var empNames = model.EmployeeName.Split(',');
+
+                for (int i = 0; i < empCodes.Length; i++)
+                {
+                    _context.EmployeeLetterEmployees.Add(new EmployeeLetterEmployee
+                    {
+                        LetterId = model.Id,
+                        EmployeeCode = empCodes[i],
+                        EmployeeName = empNames[i]
+                    });
+                }
+            }
+
+            // =========================
+            // ✅ UPDATE FILES
+            // =========================
+            if (model.DocumentFiles != null && model.DocumentFiles.Any())
+            {
+                //var existingFiles = _context.EmployeeLetterFiles
+                //    .Where(x => x.LetterId == model.Id);
+
+                //_context.EmployeeLetterFiles.RemoveRange(existingFiles);
+
+                foreach (var file in model.DocumentFiles)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "EmployeeLetters");
+
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
+
+                    string fullPath = Path.Combine(folder, fileName);
+
+                    using var stream = new FileStream(fullPath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    _context.EmployeeLetterFiles.Add(new EmployeeLetterFile
+                    {
+                        LetterId = model.Id,
+                        FileName = fileName,
+                        FilePath = $"Uploads/EmployeeLetters/{fileName}"
+                    });
+                }
+            }
 
             await _context.SaveChangesAsync();
             return true;
@@ -1262,9 +1355,48 @@ namespace BusinessLayer.Implementations
             if (entity == null)
                 return false;
 
+            // ✅ DELETE CHILD TABLE 1 (Employees)
+            var employees = _context.EmployeeLetterEmployees
+                .Where(x => x.LetterId == id);
+            _context.EmployeeLetterEmployees.RemoveRange(employees);
+
+            // ✅ DELETE CHILD TABLE 2 (Files)
+            var files = _context.EmployeeLetterFiles
+                .Where(x => x.LetterId == id);
+            _context.EmployeeLetterFiles.RemoveRange(files);
+
             _context.EmployeeLetters.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
+        }
+        public async Task<IEnumerable<EmployeeLetterDto>> getLettersForEmployeeAsync(string employeeCode)
+        {
+            return await _context.EmployeeLetters
+                .Where(x => x.EmployeeLetterEmployees
+                    .Any(e => e.EmployeeCode == employeeCode))
+                .Select(x => new EmployeeLetterDto
+                {
+                    Id = x.Id,
+                    DocumentTypeId = x.DocumentTypeId,
+                    DocumentName = x.DocumentName,
+                    IssuedDate = x.IssuedDate,
+                    ValidityDate = x.ValidityDate,
+                    Remarks = x.Remarks,
+                    IsConfidential = x.IsConfidential,
+
+                    // Employees
+                    EmployeeCode = string.Join(",",
+                        x.EmployeeLetterEmployees.Select(e => e.EmployeeCode)),
+
+                    EmployeeName = string.Join(",",
+                        x.EmployeeLetterEmployees.Select(e => e.EmployeeName)),
+
+                    // Files
+                    FileName = string.Join(",",
+                        x.EmployeeLetterFiles.Select(f => f.FileName))
+                })
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
         }
         #endregion
         #region employee Bank Details
@@ -2311,6 +2443,12 @@ namespace BusinessLayer.Implementations
 
             return all.Select(MapToDto).ToList();
         }
+        public async Task<string?> GetProfilePictureByUserIdAsync(int userId)
+        {
+            var entity = await _unitOfWork.Repository<EmployeePersonalDetail>().GetAllAsync();
+            var employee = entity.FirstOrDefault(x => x.UserId == userId);
+            return employee?.ProfilePictureName; 
+        }
         // GET by user id
         public async Task<PersonalDetailsDto?> GetByUserIdempProfileAsync(int userId)
         {
@@ -2460,6 +2598,7 @@ namespace BusinessLayer.Implementations
                 PreviousExperience = entity.PreviousExperienceText,
                 brandGrade = entity.BandGrade,
                 esicNumber = entity.EsicNumber,
+                ProfilePictureName = entity.ProfilePictureName,
                 pfNumber = entity.Pfnumber,
                 employmentType = entity.EmployeeType,
                 dateofJoining = entity.DateOfJoining,

@@ -154,13 +154,18 @@ namespace HRMS_Backend.Controllers
             return status ? Ok("Allocation updated successfully") : NotFound("Allocation not found");
         }
 
-        [HttpDelete("DeleteAllocation/{id}")]
+        //[HttpDelete("DeleteAllocation/{id}")]
+        //public async Task<IActionResult> DeleteAllocation(int id)
+        //{
+        //    var status = await _shiftAllocationService.DeleteAllocationAsync(id);
+        //    return status ? Ok("Allocation deleted") : NotFound("Allocation not found");
+        //}
+        [HttpPost("DeleteAllocation/{id}")]
         public async Task<IActionResult> DeleteAllocation(int id)
         {
             var status = await _shiftAllocationService.DeleteAllocationAsync(id);
             return status ? Ok("Allocation deleted") : NotFound("Allocation not found");
         }
-
 
 
 
@@ -183,6 +188,12 @@ namespace HRMS_Backend.Controllers
             if (result == null)
                 return NotFound(new { message = "Record not found" });
 
+            return Ok(result);
+        }
+        [HttpGet("GetWeeklyByEmployee")]
+        public async Task<IActionResult> GetWeeklyByEmployee(string employeeCode)
+        {
+            var result = await _clockInOutService.GetWeeklyByEmployeeAsync(employeeCode);
             return Ok(result);
         }
 
@@ -232,6 +243,17 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> GetEmployeeShift(string employeeCode)
         {
             var result = await _shiftAllocationService.GetEmployeeShiftByEmployeeCodeAsync(employeeCode);
+
+            if (result == null)
+                return NotFound(new { message = "Shift not allocated for this employee" });
+
+            return Ok(result);
+        }
+        [HttpGet("getShiftallocationNameForClockInOut/{employeeCode}/{companyId}/{regionId}")]
+        public async Task<IActionResult> GetEmployeeShift(string employeeCode, int companyId, int regionId)
+        {
+            var result = await _shiftAllocationService
+                .GetEmployeeShiftByEmployeeCodeAsync(employeeCode, companyId, regionId);
 
             if (result == null)
                 return NotFound(new { message = "Shift not allocated for this employee" });
@@ -313,7 +335,8 @@ namespace HRMS_Backend.Controllers
             return Ok(new { success = result });
         }
 
-        #region missedpunchrequests
+        #region Missed Punch Request Api's
+
         [HttpPost("createmissedpunchrequest")]
         public async Task<IActionResult> CreateMissedPunchRequest(
         CreateMissedPunchRequestDto dto)
@@ -322,11 +345,12 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
+     
         [HttpGet("getmissedpunchrequest")]
         public async Task<IActionResult> GetMissedPunchRequest(
-            int companyId, int? regionId)
+            int companyId, int? regionId, int userId)
         {
-            return Ok(await _service.GetMissedPunchRequest(companyId, regionId));
+            return Ok(await _service.GetMissedPunchRequest(companyId, regionId, userId));
         }
 
         [HttpGet("getapprovalmissedpunchrequest")]
@@ -371,11 +395,18 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> Create(
             [FromBody] WfhRequestCreateDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var result = await _workfromhomeservice.CreateWorkFromHomeRequest(dto);
-            return Ok(result);
+                var result = await _workfromhomeservice.CreateWorkFromHomeRequest(dto);
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // 🔹 EMPLOYEE – MY REQUESTS
@@ -527,7 +558,7 @@ namespace HRMS_Backend.Controllers
         #endregion
         //--------------------------company policy-------------------------------------//
 
-        #region
+        #region  Policies
         [HttpPost]
         [Route("GetAllPolicies")]
         public async Task<IActionResult> GetAllPolicies()
@@ -612,6 +643,27 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> MonthlyReport(int companyId, int regionId)
         {
             var result = await _attendanceService.GetMonthlyReport(companyId, regionId);
+            return Ok(result);
+        }
+
+        // =============================
+        // GET EMPLOYEES BY DATE
+        // =============================
+        [HttpGet("GetEmployeesByDate")]
+        public async Task<IActionResult> GetEmployeesByDate(int companyId, int regionId, DateTime date)
+        {
+            var result = await _attendanceService.GetEmployeesByDate(companyId, regionId, date);
+            return Ok(result);
+        }
+
+
+        // =============================
+        // GET UNSAVED DATES
+        // =============================
+        [HttpGet("UnsavedDates")]
+        public async Task<IActionResult> GetUnsavedDates(int companyId, int regionId)
+        {
+            var result = await _attendanceService.GetUnsavedDates(companyId, regionId);
             return Ok(result);
         }
 

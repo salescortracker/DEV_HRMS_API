@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DataAccessLayer.DBContext;
+
+namespace BusinessLayer.DTOs
+{
+    public class ProjectMasterDto
+    {
+        public int ProjectMasterId { get; set; }
+
+        public int UserId { get; set; }
+
+        public int CompanyId { get; set; }
+
+        public int RegionId { get; set; }
+
+        public string ProjectName { get; set; } = null!;
+
+        public bool IsActive { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        public int CreatedBy { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public int? ModifiedBy { get; set; }
+
+        public DateTime? ModifiedAt { get; set; }
+
+    }
+}

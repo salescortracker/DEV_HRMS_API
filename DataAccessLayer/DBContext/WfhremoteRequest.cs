@@ -38,4 +38,6 @@ public partial class WfhremoteRequest
     public DateTime? ApprovedOn { get; set; }
 
     public DateTime? UpdatedOn { get; set; }
+
+    public string? HrEmail { get; set; }
 }

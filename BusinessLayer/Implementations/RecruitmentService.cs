@@ -1,9 +1,16 @@
-﻿using BusinessLayer.DTOs;
+﻿using System.Reflection.Metadata;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
 
 namespace BusinessLayer.Implementations
 {
@@ -20,35 +27,35 @@ namespace BusinessLayer.Implementations
             _emailService = emailService;
         }
 
-        //public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
-        //{
-        //    // Get designations
-        //    var designations = await _unitOfWork.Repository<Designation>()
-        //        .FindAsync(x =>
-        //            x.CompanyId == companyId &&
-        //            x.RegionId == regionId &&
-        //            x.IsActive &&
-        //            !x.IsDeleted);
+        public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
+        {
+            // Get designations
+            var designations = await _unitOfWork.Repository<Designation>()
+                .FindAsync(x =>
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive &&
+                    !x.IsDeleted);
 
-        //    // Get departments
-        //    var departments = await _unitOfWork.Repository<Department>()
-        //        .FindAsync(x => x.IsActive && !x.IsDeleted);
+            // Get departments
+            var departments = await _unitOfWork.Repository<Department>()
+                .FindAsync(x => x.IsActive && !x.IsDeleted);
 
-        //    // Join manually
-        //    var result = from d in designations
-        //                 join dep in departments
-        //                 on d.DepartmentId equals dep.DepartmentId into deptGroup
-        //                 from dep in deptGroup.DefaultIfEmpty()
-        //                 select new
-        //                 {
-        //                     designationId = d.DesignationId,
-        //                     designationName = d.DesignationName,
-        //                     departmentId = d.DepartmentId,
-        //                     departmentName = dep != null ? dep.DepartmentName : ""
-        //                 };
+            // Join manually
+            var result = from d in designations
+                         join dep in departments
+                         on d.DepartmentId equals dep.DepartmentId into deptGroup
+                         from dep in deptGroup.DefaultIfEmpty()
+                         select new
+                         {
+                             designationId = d.DesignationId,
+                             designationName = d.DesignationName,
+                             departmentId = d.DepartmentId,
+                             departmentName = dep != null ? dep.DepartmentName : ""
+                         };
 
-        //    return result;
-        //}
+            return result;
+        }
         public async Task<IEnumerable<RecruitmentNoticePeriodDto>> GetNoticePeriodsAsync(int companyId, int regionId)
         {
             var data = await _unitOfWork.Repository<RecruitmentNoticePeriod>()
@@ -456,18 +463,14 @@ namespace BusinessLayer.Implementations
         }
 
         public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+ int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    
                     c.StageId == 2 &&                 // 🔥 ONLY SCREENING
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    
+                    c.UserId == userId &&
                     c.IsActive
                 );
 
@@ -507,11 +510,9 @@ string designation)
                     .AddAsync(screening);
 
                 // 🔥 Move Candidate to INTERVIEW stage
-                var candidateRepo = _unitOfWork.Repository<Candidate>();
-                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId);
-
-                if (candidate == null)
-                    throw new Exception("Candidate not found");
+                var candidateRepo = _unitOfWork.Repository<Candidate>(); 
+                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
+                    ?? throw new Exception("Candidate not found");
 
                 if (dto.ScreeningStatus == "Selected")
                 {
@@ -619,18 +620,13 @@ string designation)
         /////////////////Interview
 
         public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    c.UserId == userId &&
                     c.StageId == 3 &&                 // 🔥 ONLY SCREENING
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    
                     c.IsActive
                 );
 
@@ -671,102 +667,72 @@ string designation)
 
             try
             {
-                var interview = new CandidateInterview
-                {
-                    RegionId = dto.RegionId,
-                    CompanyId = dto.CompanyId,
-                    UserId = dto.UserId,
-                    CandidateId = dto.CandidateId,
-                    LevelNo = dto.LevelNo,
-                    InterviewerId = dto.InterviewerId,
-                    InterviewerName = dto.InterviewerName,
-                    InterviewDate = dto.InterviewDate,
-                    Location = dto.Location,
-                    MeetingLink = dto.MeetingLink,
-                    Description = dto.Description,
-                    Result = dto.Result ?? "Pending",
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = dto.UserId
-                };
-
-                await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
-
-                // ================= FETCH CANDIDATE =================
                 var candidateRepo = _unitOfWork.Repository<Candidate>();
-                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId);
+                var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
+                    ?? throw new Exception("Candidate not found");
 
-                if (candidate == null)
-                    throw new Exception("Candidate not found");
+                //  MULTIPLE INTERVIEWERS LOOP
+                foreach (var interviewerId in dto.InterviewerIds)
+                {
+                    var interviewer = await _unitOfWork.Repository<User>()
+                        .GetByIdAsync(interviewerId);
 
+                    if (interviewer == null) continue;
+
+                    var interview = new CandidateInterview
+                    {
+                        RegionId = dto.RegionId,
+                        CompanyId = dto.CompanyId,
+                        UserId = dto.UserId,
+                        CandidateId = dto.CandidateId,
+                        LevelNo = dto.LevelNo,
+                        InterviewerId = interviewerId,
+                        InterviewerName = interviewer.FullName,
+                        InterviewDate = dto.InterviewDate,
+                        Location = dto.Location,
+                        MeetingLink = dto.MeetingLink,
+                        Description = dto.Description,
+                        Result = "Pending",
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = dto.UserId
+                    };
+
+                    await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
+
+                    //  EMAIL TO INTERVIEWER
+                    if (!string.IsNullOrEmpty(interviewer.Email))
+                    {
+                        string subject = $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
+
+                        string body = $@"
+<h3>Interview Scheduled</h3>
+<p>Dear {interviewer.FullName},</p>
+
+<p>Interview Details:</p>
+<table>
+<tr><td>Candidate</td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
+<tr><td>Level</td><td>{dto.LevelNo}</td></tr>
+<tr><td>Date</td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
+<tr><td>Location</td><td>{dto.Location}</td></tr>
+</table>";
+
+                        await _emailService.SendEmailAsync(interviewer.Email, subject, body);
+                    }
+                }
+
+                //  UPDATE CANDIDATE ONCE
                 candidate.StageId = 4;
                 candidate.ModifiedAt = DateTime.Now;
                 candidate.ModifiedBy = dto.UserId;
-
                 candidateRepo.Update(candidate);
 
-                // ================= FETCH INTERVIEWER =================
-                var interviewer = await _unitOfWork.Repository<User>()
-                    .GetByIdAsync(dto.InterviewerId);
-
-                if (interviewer == null)
-                    throw new Exception("Interviewer not found");
-
-                // ================= INTERVIEWER EMAIL =================
-                string interviewerSubject =
-                    $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
-
-                string interviewerBody = $@"
-<h2>Interview Scheduled</h2>
-<p>Dear {interviewer.FullName},</p>
-
-<p>An interview has been scheduled with the candidate.</p>
-
-<table>
-<tr><td><b>Candidate</b></td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
-<tr><td><b>Level</b></td><td>{dto.LevelNo}</td></tr>
-<tr><td><b>Date</b></td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
-<tr><td><b>Location</b></td><td>{dto.Location}</td></tr>
-<tr><td><b>Meeting Link</b></td><td>{dto.MeetingLink}</td></tr>
-</table>
-
-<p>Please attend the interview.</p>";
-
-                // ================= CANDIDATE EMAIL =================
-                string candidateSubject = "Your Interview Has Been Scheduled";
-
-                string candidateBody = $@"
-<h2>Interview Scheduled</h2>
-
-<p>Dear {candidate.FirstName},</p>
-
-<p>Your interview has been scheduled.</p>
-
-<table>
-<tr><td><b>Interviewer</b></td><td>{interviewer.FullName}</td></tr>
-<tr><td><b>Date</b></td><td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td></tr>
-<tr><td><b>Location</b></td><td>{dto.Location}</td></tr>
-<tr><td><b>Meeting Link</b></td><td>{dto.MeetingLink}</td></tr>
-</table>
-
-<p>Best Regards,<br/>HR Team</p>";
-
-                // ================= SEND EMAILS =================
-
-                if (!string.IsNullOrEmpty(interviewer.Email))
-                {
-                    await _emailService.SendEmailAsync(
-                        interviewer.Email,
-                        interviewerSubject,
-                        interviewerBody
-                    );
-                }
-
+                // EMAIL TO CANDIDATE
                 if (!string.IsNullOrEmpty(candidate.Email))
                 {
                     await _emailService.SendEmailAsync(
                         candidate.Email,
-                        candidateSubject,
-                        candidateBody
+                        "Interview Scheduled",
+                        $"Your interview is scheduled on {dto.InterviewDate:yyyy-MM-dd HH:mm}"
                     );
                 }
 
@@ -876,7 +842,7 @@ string designation)
                 interview.InterviewDate = dto.InterviewDate;
                 interview.Location = dto.Location;
                 interview.MeetingLink = dto.MeetingLink;
-
+                interview.HrEmail = dto.HrEmail;
                 interview.Result = dto.Result;
                 interview.Description = dto.Description;
                 interview.ModifiedAt = DateTime.Now;
@@ -1032,48 +998,50 @@ string designation)
                 DateToJoin = DateTime.Now.AddDays(15)
             };
         }
-        public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
-        {
-            // Get designations
-            var designations = await _unitOfWork.Repository<Designation>()
-                .FindAsync(x =>
-                    x.CompanyId == companyId &&
-                    x.RegionId == regionId &&
-                    x.IsActive &&
-                    !x.IsDeleted);
+        //public async Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId)
+        //{
+        //    // Get designations
+        //    var designations = await _unitOfWork.Repository<Designation>()
+        //        .FindAsync(x =>
+        //            x.CompanyId == companyId &&
+        //            x.RegionId == regionId &&
+        //            x.IsActive &&
+        //            !x.IsDeleted);
 
-            // Get departments
-            var departments = await _unitOfWork.Repository<Department>()
-                .FindAsync(x => x.IsActive && !x.IsDeleted);
+        //    // Get departments
+        //    var departments = await _unitOfWork.Repository<Department>()
+        //        .FindAsync(x => x.IsActive && !x.IsDeleted);
 
-            // Join manually
-            var result = from d in designations
-                         join dep in departments
-                         on d.DepartmentId equals dep.DepartmentId into deptGroup
-                         from dep in deptGroup.DefaultIfEmpty()
-                         select new
-                         {
-                             designationId = d.DesignationId,
-                             designationName = d.DesignationName,
-                             departmentId = d.DepartmentId,
-                             departmentName = dep != null ? dep.DepartmentName : ""
-                         };
+        //    // Join manually
+        //    var result = from d in designations
+        //                 join dep in departments
+        //                 on d.DepartmentId equals dep.DepartmentId into deptGroup
+        //                 from dep in deptGroup.DefaultIfEmpty()
+        //                 select new
+        //                 {
+        //                     designationId = d.DesignationId,
+        //                     designationName = d.DesignationName,
+        //                     departmentId = d.DepartmentId,
+        //                     departmentName = dep != null ? dep.DepartmentName : ""
+        //                 };
 
-            return result;
-        }
+        //    return result;
+        //}
         public async Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+//int companyId,
+//int regionId,
+//string department,
+//string designation
+int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    //c.CompanyId == companyId &&
+                    //c.RegionId == regionId &&
                     c.StageId == 5 &&
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    c.UserId == userId &&
+                    //c.Department == department &&
+                    //c.Designation == designation &&
                     c.IsActive
                 );
 
@@ -1108,7 +1076,8 @@ string designation)
                     OfferLetterPath = dto.OfferLetterPath,
                     FilePath = dto.FilePath,
                     CreatedBy = dto.UserId,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    HrEmail = dto.HrEmail,
                 };
 
                 await _unitOfWork.Repository<CandidateOffer>().AddAsync(offer);
@@ -1211,49 +1180,141 @@ string designation)
             var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
             if (candidate == null) throw new Exception("Candidate not found");
 
-            // ===== FILE SAVE (HTML OFFER LETTER) =====
+            // ===== FILE PATH =====
             string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "OfferLetters");
             if (!Directory.Exists(root)) Directory.CreateDirectory(root);
 
-            string fileName = $"Offer_{candidate.FirstName}_{offer.OfferId}.html";
+            string fileName = $"Offer_{candidate.FirstName}.pdf";
             string fullPath = Path.Combine(root, fileName);
 
-            string html = $@"
-<!DOCTYPE html>
-<html>
-<body style='font-family:Segoe UI'>
-  <h2>Offer Letter</h2>
-  <p>Dear {candidate.FirstName},</p>
-  <p>We are pleased to offer you the position of <b>{candidate.Designation}</b>.</p>
-  <p><b>CTC:</b> {offer.OfferedCtc}</p>
-  <p><b>Date of Joining:</b> {offer.ExpectedDoj:dd-MMM-yyyy}</p>
-  <p><b>HR:</b> {offer.Hrname}</p>
-  <p>Regards,<br/>HR Team</p>
-</body>
-</html>";
+            // ===== PDF CREATION =====
+            using (var writer = new PdfWriter(fullPath))
+            using (var pdf = new PdfDocument(writer))
+            using (var document = new iText.Layout.Document(pdf))
+            {
+                document.SetMargins(20, 20, 20, 20);
 
-            await File.WriteAllTextAsync(fullPath, html);
+                // Date
+                document.Add(new Paragraph($"Date: {DateTime.Now:dd-MMM-yyyy}")
+                    .SetTextAlignment(TextAlignment.RIGHT));
+
+                // Candidate Address
+                document.Add(new Paragraph($@"
+{candidate.FirstName} {candidate.LastName}
+
+Asian Suncity,
+#1101, 11th Floor,
+B Block, Kondapur,
+Hyderabad, Telangana 500084"));
+
+                
+                document.Add(
+    new Paragraph("Sub: Employment Offer Letter")
+    .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+
+                document.Add(new Paragraph($"Dear {candidate.FirstName}{candidate.LastName},"));
+
+                
+                document.Add(
+  new Paragraph("Congratulations!")
+  .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD)));
+
+
+              document.Add(new Paragraph($@"
+With reference to your application and subsequent interview with us for a career in our
+organization, we are pleased to offer you the position of {candidate.Designation} with Cortracker IT Solutions Pvt Ltd.
+"));
+
+                document.Add(new Paragraph($"Your total compensation will be Rs.CTC: ₹ {offer.OfferedCtc} per annum which shall be inclusive\r\nof all benefits and taxes."));
+
+
+                document.Add(new Paragraph($"Your base location will be Hyderabad, India, and you are requested to join us on Date of Joining: {offer.ExpectedDoj:dd-MMM-yyyy},on the following terms and conditions:"));
+
+
+
+                document.Add(new Paragraph($"On the date of joining, you will be required to submit all documents requested for verification\r\nand appointment formalities. Submission of all documents is mandatory for background\r\nverification, validation, and completion of the joining process."));
+
+                document.Add(new Paragraph($"You will be entitled to one paid leave per month (sick/casual) after successful completion of\r\nthe probationary period of three months. Any unused leave during the probation period may\r\nbe carried forward."));
+
+                document.Add(new Paragraph($"Your employment is at-will, meaning either you or the Company may terminate the\r\nemployment with or without cause by giving 30 days’ notice.\r\n"));
+                document.Add(new Paragraph($"This offer is subject to verification of your educational and previous employment records.\r\nAny misrepresentation or falsification of information will result in immediate termination"));
+
+                
+                document.Add(
+new Paragraph("Please bring the following documents on the day of joining along with the originals for\r\nverification:")
+.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+                document.Add(new Paragraph("1. Signed copy of this offer letter."));
+                document.Add(new Paragraph("2. Recent passport-size photographs (4 copies)."));
+                document.Add(new Paragraph("3. Copies of educational certificates (SSC / Intermediate / Graduation / PG)"));
+                document.Add(new Paragraph("4. Copy of offer and relieving letters from previous employers."));
+                document.Add(new Paragraph("5. Last 3 months’ salary slips and Form 16"));
+                document.Add(new Paragraph("6. PAN card (mandatory).\r\n"));
+                document.Add(new Paragraph("7. Proof of address – Passport/Aadhaar Card/Electricity Bill/Telephone Bill/Ration\r\nCard."));
+
+                document.Add(new Paragraph(""));
+
+                document.Add(new Paragraph(@"
+We are delighted to welcome you to the team and look forward to a mutually rewarding
+association. Please sign and return a copy of this letter as confirmation of your acceptance.
+"));
+
+                document.Add(new Paragraph(""));
+
+                document.Add(new Paragraph("Best Regards,"));
+                document.Add(
+ new Paragraph("HR Department")
+ .SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+                
+
+                document.Add(new Paragraph("--------------------------------------------------------------------------------------------------------"));
+
+                // Acceptance
+                
+                document.Add(
+new Paragraph("Acceptance of Offer")
+.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD))
+);
+                document.Add(new Paragraph($@"
+I, {candidate.FirstName}{candidate.LastName} , acknowledge that I have read, understood, and accept this offer letter
+and agree to abide by the terms and conditions of employment as outlined herein.
+
+
+Sign: _____________      Date: _____________
+
+Place: Hyderabad
+"));
+            }
 
             // ===== SAVE PATH =====
             offer.OfferLetterPath = $"Uploads/OfferLetters/{fileName}";
             offerRepo.Update(offer);
             await _unitOfWork.CompleteAsync();
+
             string loginUrl = _configuration["AppSettings:LoginUrl"];
-            // ===== EMAIL WITH DOWNLOAD LINK =====
             string downloadUrl = $"{loginUrl}/{offer.OfferLetterPath}";
 
+            // ===== EMAIL =====
             string subject = "Offer Letter – Cortracker HRMS";
             string body = $@"
-<p>Dear {candidate.FirstName},</p>
+<p>Dear {candidate.FirstName}{candidate.LastName},</p>
 <p>Your offer letter is ready.</p>
-<p><a href='{downloadUrl}'>Click here to download your offer letter</a></p>
+<p><a href='{downloadUrl}'>Download Offer Letter</a></p>
 <p>Regards,<br/>HR Team</p>";
 
-            await _emailService.SendEmailAsync(candidate.Email, subject, body);
+            await _emailService.SendEmailAsync(
+                candidate.Email,
+                subject,
+                body,
+                string.IsNullOrEmpty(offer.HrEmail)
+                    ? null
+                    : new List<string> { offer.HrEmail }
+            );
 
             return true;
         }
-
 
         public async Task<(byte[] fileBytes, string fileName)> DownloadOfferLetterAsync(int offerId)
         {
@@ -1274,18 +1335,20 @@ string designation)
 
 
         public async Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(
-int companyId,
-int regionId,
-string department,
-string designation)
+//int companyId,
+//int regionId,
+//string department,
+//string designation,
+            int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    c.CompanyId == companyId &&
-                    c.RegionId == regionId &&
+                    //c.CompanyId == companyId &&
+                    //c.RegionId == regionId &&
                     c.StageId == 6 &&                 // 🔥 ONLY SCREENING
-                    c.Department == department &&
-                    c.Designation == designation &&
+                    c.UserId == userId &&
+                    //c.Department == department &&
+                    //c.Designation == designation &&
                     c.IsActive
                 );
 

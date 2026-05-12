@@ -34,5 +34,24 @@ namespace BusinessLayer.DTOs
         public decimal AttendanceDeduction { get; set; }
 
         public decimal Expenses { get; set; }
+
+        public bool? IsDownloadApproved { get; set; }
+        public string? RequestStatus { get; set; }
+        public string? HrEmail { get; set; }
+        public string? EmployeeName { get; set; }
+
+        public string Designation { get; set; }
+        public string Department { get; set; }
+        public string Location { get; set; }
+        public DateTime? JoiningDate { get; set; }
+
+        public string EmployeeCode { get; set; }
+        public string Bank { get; set; }
+        public string AccountNo { get; set; }
+        public string Pan { get; set; }
+        public int LateCount { get; set; } // ✅ ADD THIS
+
     }
 }
+
+

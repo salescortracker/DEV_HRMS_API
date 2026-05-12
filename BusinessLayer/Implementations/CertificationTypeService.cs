@@ -15,154 +15,349 @@ namespace BusinessLayer.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        // ================= GET ALL =================
-        public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetAllAsync(
-            int userId, int regionId)
-        {
-            var list = await _unitOfWork.Repository<CertificationType>()
-                .FindAsync(x =>
-                    x.UserId == userId );
+        //    // ================= GET ALL =================
+        //    public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetAllAsync(
+        //        int userId, int regionId)
+        //    {
+        //        var list = await _unitOfWork.Repository<CertificationType>()
+        //            .FindAsync(x =>
+        //                x.UserId == userId );
 
-            return new ApiResponse<IEnumerable<CertificationTypeDto>>(
-                list.Select(x => new CertificationTypeDto
-                {
-                    CertificationTypeID = x.CertificationTypeId,
-                    CompanyID = x.CompanyId,
-                    RegionID = x.RegionId,
-                    CertificationTypeName = x.CertificationTypeName,
-                    IsActive = x.IsActive ?? false
-                })
-            );
+        //        return new ApiResponse<IEnumerable<CertificationTypeDto>>(
+        //            list.Select(x => new CertificationTypeDto
+        //            {
+        //                CertificationTypeID = x.CertificationTypeId,
+        //                CompanyID = x.CompanyId,
+        //                RegionID = x.RegionId,
+        //                CertificationTypeName = x.CertificationTypeName,
+        //                IsActive = x.IsActive ?? false
+        //            })
+        //        );
+        //    }
+
+        //    public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetCmpregionAllAsync(
+        //      int companyId, int regionId)
+        //    {
+        //        var list = await _unitOfWork.Repository<CertificationType>()
+        //            .FindAsync(x =>
+        //                x.CompanyId == companyId && x.RegionId==regionId);
+
+        //        return new ApiResponse<IEnumerable<CertificationTypeDto>>(
+        //            list.Select(x => new CertificationTypeDto
+        //            {
+        //                CertificationTypeID = x.CertificationTypeId,
+        //                CompanyID = x.CompanyId,
+        //                RegionID = x.RegionId,
+        //                CertificationTypeName = x.CertificationTypeName,
+        //                IsActive = x.IsActive ?? false
+        //            })
+        //        );
+        //    }
+
+
+        //    // ================= GET BY ID =================
+        //    public async Task<ApiResponse<CertificationTypeDto?>> GetByIdAsync(int id)
+        //    {
+        //        var entity = await _unitOfWork
+        //            .Repository<CertificationType>()
+        //            .GetByIdAsync(id);
+
+        //        if (entity == null)
+        //            return new ApiResponse<CertificationTypeDto?>(
+        //                null, "Certification type not found.", false);
+
+        //        return new ApiResponse<CertificationTypeDto?>(
+        //            new CertificationTypeDto
+        //            {
+        //                CertificationTypeID = entity.CertificationTypeId,
+        //                CompanyID = entity.CompanyId,
+        //                RegionID = entity.RegionId,
+        //                CertificationTypeName = entity.CertificationTypeName,
+        //                IsActive = entity.IsActive ?? false
+        //            });
+        //    }
+
+        //    // ================= CREATE =================
+        //    public async Task<ApiResponse<CertificationTypeDto>> CreateAsync(
+        //    CreateUpdateCertificationTypeDto dto)
+        //    {
+        //        var exists = (await _unitOfWork.Repository<CertificationType>()
+        //            .FindAsync(x =>
+        //                x.CertificationTypeName.ToLower() ==
+        //                dto.CertificationTypeName.ToLower()))
+        //            .Any();
+
+        //        if (exists)
+        //            return new ApiResponse<CertificationTypeDto>(
+        //                null!, "Certification Type already exists.", false);
+
+        //        var entity = new CertificationType
+        //        {
+        //            CompanyId = dto.CompanyID,
+        //            RegionId = dto.RegionID,
+        //            CertificationTypeName = dto.CertificationTypeName.Trim(),
+        //            IsActive = dto.IsActive,
+        //            UserId=dto.userId
+        //           // CreatedBy = createdBy
+        //        };
+
+        //        await _unitOfWork.Repository<CertificationType>().AddAsync(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return new ApiResponse<CertificationTypeDto>(new CertificationTypeDto
+        //        {
+        //            CertificationTypeID = entity.CertificationTypeId,
+        //            CompanyID = entity.CompanyId,
+        //            RegionID = entity.RegionId,
+        //            CertificationTypeName = entity.CertificationTypeName,
+        //            IsActive = entity.IsActive ?? false
+        //        });
+        //    }
+
+        //    // ================= UPDATE =================
+        //    public async Task<ApiResponse<CertificationTypeDto>> UpdateAsync(
+        //         CreateUpdateCertificationTypeDto dto)
+        //    {
+        //        var entity = await _unitOfWork
+        //            .Repository<CertificationType>()
+        //            .GetByIdAsync(dto.certificationTypeId);
+
+        //        if (entity == null)
+        //            return new ApiResponse<CertificationTypeDto>(
+        //                null!, "Not found", false);
+
+        //        entity.CompanyId = dto.CompanyID;
+        //        entity.RegionId = dto.RegionID;
+        //        entity.CertificationTypeName = dto.CertificationTypeName;
+        //        entity.IsActive = dto.IsActive;
+        //       // entity.ModifiedBy = modifiedBy;
+
+        //        _unitOfWork.Repository<CertificationType>().Update(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return new ApiResponse<CertificationTypeDto>(
+        //            new CertificationTypeDto
+        //            {
+        //                CertificationTypeID = entity.CertificationTypeId,
+        //                CompanyID = entity.CompanyId,
+        //                RegionID = entity.RegionId,
+        //                CertificationTypeName = entity.CertificationTypeName,
+        //                IsActive = entity.IsActive ?? false
+        //            });
+        //    }
+
+        //    // ================= HARD DELETE =================
+        //    public async Task<ApiResponse<object>> DeleteAsync(int id)
+        //    {
+        //        var entity = await _unitOfWork
+        //            .Repository<CertificationType>()
+        //            .GetByIdAsync(id);
+
+        //        if (entity == null)
+        //            return new ApiResponse<object>(
+        //                null!, "Not found", false);
+
+        //        _unitOfWork.Repository<CertificationType>().Remove(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return new ApiResponse<object>(
+        //            null!, "Deleted successfully");
+        //    }
+
+
+        //    // ================= BULK INSERT =================
+        //    public async Task<ApiResponse<(int inserted, int duplicates, int failed)>> BulkInsertAsync(
+        //        IEnumerable<CreateUpdateCertificationTypeDto> items, int createdBy)
+        //    {
+        //        int inserted = 0, duplicates = 0, failed = 0;
+
+        //        foreach (var dto in items)
+        //        {
+        //            try
+        //            {
+        //                var exists = (await _unitOfWork.Repository<CertificationType>()
+        //                    .FindAsync(x =>
+        //                        x.CompanyId == dto.CompanyID &&
+        //                        x.RegionId == dto.RegionID &&
+        //                        x.CertificationTypeName.ToLower() ==
+        //                        dto.CertificationTypeName.ToLower()))
+        //                    .Any();
+
+        //                if (exists)
+        //                {
+        //                    duplicates++;
+        //                    continue;
+        //                }
+
+        //                var entity = new CertificationType
+        //                {
+        //                    CompanyId = dto.CompanyID,
+        //                    RegionId = dto.RegionID,
+        //                    CertificationTypeName = dto.CertificationTypeName,
+        //                    IsActive = dto.IsActive,
+        //                    CreatedBy = createdBy
+        //                };
+
+        //                await _unitOfWork.Repository<CertificationType>()
+        //                    .AddAsync(entity);
+
+        //                inserted++;
+        //            }
+        //            catch
+        //            {
+        //                failed++;
+        //            }
+        //        }
+
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return new ApiResponse<(int, int, int)>(
+        //            (inserted, duplicates, failed),
+        //            $"{inserted} inserted, {duplicates} duplicates, {failed} failed");
+        //    }
+
+        //}
+        // GET ALL
+        public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetAll(int userId)
+        {
+            var certs = await _unitOfWork.Repository<CertificationType>()
+                .FindAsync(x => !x.IsDeleted && x.UserId == userId);
+
+            var companies = await _unitOfWork.Repository<Company>().GetAllAsync();
+            var regions = await _unitOfWork.Repository<Region>().GetAllAsync();
+
+            var dto = certs.Select(x => new CertificationTypeDto
+            {
+                CertificationTypeID = x.CertificationTypeId,
+                CompanyID = x.CompanyId,
+                RegionID = x.RegionId,
+                CertificationTypeName = x.CertificationTypeName,
+                IsActive = x.IsActive ?? false,
+                userId = x.UserId ?? 0,
+
+                // ✅ FIX HERE
+                CompanyName = companies
+                    .FirstOrDefault(c => c.CompanyId == x.CompanyId)?.CompanyName,
+
+                RegionName = regions
+                    .FirstOrDefault(r => r.RegionId == x.RegionId)?.RegionName
+            });
+
+            return new ApiResponse<IEnumerable<CertificationTypeDto>>(dto, "Success");
         }
 
-        public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetCmpregionAllAsync(
-          int companyId, int regionId)
-        {
-            var list = await _unitOfWork.Repository<CertificationType>()
-                .FindAsync(x =>
-                    x.CompanyId == companyId && x.RegionId==regionId);
-
-            return new ApiResponse<IEnumerable<CertificationTypeDto>>(
-                list.Select(x => new CertificationTypeDto
-                {
-                    CertificationTypeID = x.CertificationTypeId,
-                    CompanyID = x.CompanyId,
-                    RegionID = x.RegionId,
-                    CertificationTypeName = x.CertificationTypeName,
-                    IsActive = x.IsActive ?? false
-                })
-            );
-        }
-
-
-        // ================= GET BY ID =================
+        // GET BY ID
         public async Task<ApiResponse<CertificationTypeDto?>> GetByIdAsync(int id)
         {
-            var entity = await _unitOfWork
-                .Repository<CertificationType>()
-                .GetByIdAsync(id);
+            var entity = await _unitOfWork.Repository<CertificationType>().GetByIdAsync(id);
 
-            if (entity == null)
-                return new ApiResponse<CertificationTypeDto?>(
-                    null, "Certification type not found.", false);
+            if (entity == null || entity.IsDeleted)
+                return new ApiResponse<CertificationTypeDto?>(null, "Not found", false);
 
-            return new ApiResponse<CertificationTypeDto?>(
-                new CertificationTypeDto
-                {
-                    CertificationTypeID = entity.CertificationTypeId,
-                    CompanyID = entity.CompanyId,
-                    RegionID = entity.RegionId,
-                    CertificationTypeName = entity.CertificationTypeName,
-                    IsActive = entity.IsActive ?? false
-                });
-        }
-
-        // ================= CREATE =================
-        public async Task<ApiResponse<CertificationTypeDto>> CreateAsync(
-        CreateUpdateCertificationTypeDto dto)
-        {
-            var exists = (await _unitOfWork.Repository<CertificationType>()
-                .FindAsync(x =>
-                    x.CertificationTypeName.ToLower() ==
-                    dto.CertificationTypeName.ToLower()))
-                .Any();
-
-            if (exists)
-                return new ApiResponse<CertificationTypeDto>(
-                    null!, "Certification Type already exists.", false);
-
-            var entity = new CertificationType
-            {
-                CompanyId = dto.CompanyID,
-                RegionId = dto.RegionID,
-                CertificationTypeName = dto.CertificationTypeName.Trim(),
-                IsActive = dto.IsActive,
-                UserId=dto.userId
-               // CreatedBy = createdBy
-            };
-
-            await _unitOfWork.Repository<CertificationType>().AddAsync(entity);
-            await _unitOfWork.CompleteAsync();
-
-            return new ApiResponse<CertificationTypeDto>(new CertificationTypeDto
+            var dto = new CertificationTypeDto
             {
                 CertificationTypeID = entity.CertificationTypeId,
                 CompanyID = entity.CompanyId,
                 RegionID = entity.RegionId,
                 CertificationTypeName = entity.CertificationTypeName,
-                IsActive = entity.IsActive ?? false
-            });
+                IsActive = entity.IsActive ?? false,
+                userId = entity.UserId ?? 0
+            };
+
+            return new ApiResponse<CertificationTypeDto?>(dto, "Success");
         }
 
-        // ================= UPDATE =================
-        public async Task<ApiResponse<CertificationTypeDto>> UpdateAsync(
-             CreateUpdateCertificationTypeDto dto)
+        // CREATE
+        public async Task<ApiResponse<string>> CreateAsync(CreateUpdateCertificationTypeDto dto)
         {
-            var entity = await _unitOfWork
-                .Repository<CertificationType>()
+            var duplicate = (await _unitOfWork.Repository<CertificationType>().FindAsync(x =>
+                !x.IsDeleted &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.CertificationTypeName.ToLower() == dto.CertificationTypeName.ToLower()))
+                .Any();
+
+            if (duplicate)
+                return new ApiResponse<string>(null!, "Duplicate Certification Type exists.", false);
+
+            var entity = new CertificationType
+            {
+                CompanyId = dto.CompanyID,
+                RegionId = dto.RegionID,
+                CertificationTypeName = dto.CertificationTypeName,
+                IsActive = dto.IsActive,
+                IsDeleted = false,
+                CreatedDate = DateTime.UtcNow,
+                CreatedBy = dto.userId,
+                UserId = dto.userId
+            };
+
+            await _unitOfWork.Repository<CertificationType>().AddAsync(entity);
+            await _unitOfWork.CompleteAsync();
+
+            return new ApiResponse<string>("Created successfully");
+        }
+
+        // UPDATE
+        public async Task<ApiResponse<string>> UpdateAsync(CreateUpdateCertificationTypeDto dto)
+        {
+            var entity = await _unitOfWork.Repository<CertificationType>()
                 .GetByIdAsync(dto.certificationTypeId);
 
-            if (entity == null)
-                return new ApiResponse<CertificationTypeDto>(
-                    null!, "Not found", false);
+            if (entity == null || entity.IsDeleted)
+                return new ApiResponse<string>(null!, "Not found", false);
 
             entity.CompanyId = dto.CompanyID;
             entity.RegionId = dto.RegionID;
             entity.CertificationTypeName = dto.CertificationTypeName;
             entity.IsActive = dto.IsActive;
-           // entity.ModifiedBy = modifiedBy;
+            entity.ModifiedDate = DateTime.UtcNow;
+            entity.ModifiedBy = dto.userId;
 
             _unitOfWork.Repository<CertificationType>().Update(entity);
             await _unitOfWork.CompleteAsync();
 
-            return new ApiResponse<CertificationTypeDto>(
-                new CertificationTypeDto
-                {
-                    CertificationTypeID = entity.CertificationTypeId,
-                    CompanyID = entity.CompanyId,
-                    RegionID = entity.RegionId,
-                    CertificationTypeName = entity.CertificationTypeName,
-                    IsActive = entity.IsActive ?? false
-                });
+            return new ApiResponse<string>("Updated successfully");
         }
 
-        // ================= HARD DELETE =================
-        public async Task<ApiResponse<object>> DeleteAsync(int id)
+        // DELETE
+        public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork
-                .Repository<CertificationType>()
-                .GetByIdAsync(id);
+            var entity = await _unitOfWork.Repository<CertificationType>().GetByIdAsync(id);
 
-            if (entity == null)
-                return new ApiResponse<object>(
-                    null!, "Not found", false);
+            if (entity == null || entity.IsDeleted)
+                return new ApiResponse<string>(null!, "Not found", false);
 
-            _unitOfWork.Repository<CertificationType>().Remove(entity);
+            entity.IsDeleted = true;
+            entity.ModifiedDate = DateTime.UtcNow;
+
+            _unitOfWork.Repository<CertificationType>().Update(entity);
             await _unitOfWork.CompleteAsync();
 
-            return new ApiResponse<object>(
-                null!, "Deleted successfully");
+            return new ApiResponse<string>("Deleted successfully");
         }
+        public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetCmpregionAllAsync(
+      int companyId, int regionId)
+        {
+            var list = await _unitOfWork.Repository<CertificationType>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.IsActive == true &&   // ✅ IMPORTANT
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId);
+
+            return new ApiResponse<IEnumerable<CertificationTypeDto>>(
+                list.Select(x => new CertificationTypeDto
+                {
+                    CertificationTypeID = x.CertificationTypeId,
+                    CompanyID = x.CompanyId,
+                    RegionID = x.RegionId,
+                    CertificationTypeName = x.CertificationTypeName,
+                    IsActive = x.IsActive ?? false
+                })
+            );
+        }
+
 
 
         // ================= BULK INSERT =================

@@ -35,5 +35,7 @@ public partial class CandidateOffer
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual Candidate Candidate { get; set; } = null!;
 }

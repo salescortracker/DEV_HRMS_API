@@ -9,7 +9,7 @@ namespace BusinessLayer.DTOs
     public class ModeOfStudyDto
     {
         public int ModeOfStudyId { get; set; }
-        public string ModeName { get; set; } = string.Empty;
+        public string ModeName { get; set; } 
 
         public int CompanyId { get; set; }
 

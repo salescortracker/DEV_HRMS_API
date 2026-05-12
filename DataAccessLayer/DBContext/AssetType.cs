@@ -1,0 +1,41 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DataAccessLayer.DBContext;
+
+public partial class AssetType
+{
+    public int AssetTypeId { get; set; }
+
+    public int UserId { get; set; }
+
+    public int CompanyId { get; set; }
+
+    public int RegionId { get; set; }
+
+    public string AssetTypeName { get; set; } = null!;
+
+    public string? Description { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public int CreatedBy { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+
+    public int? ModifiedBy { get; set; }
+
+    public DateTime? ModifiedAt { get; set; }
+
+    public int? AssetCategoryId { get; set; }
+
+    public virtual AssetCategory? AssetCategory { get; set; }
+
+    public virtual ICollection<Asset> Assets { get; set; } = new List<Asset>();
+
+    public virtual Company Company { get; set; } = null!;
+
+    public virtual Region Region { get; set; } = null!;
+}

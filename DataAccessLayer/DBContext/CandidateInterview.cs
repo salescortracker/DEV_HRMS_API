@@ -39,6 +39,8 @@ public partial class CandidateInterview
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual Candidate Candidate { get; set; } = null!;
 
     public virtual InterviewLevel LevelNoNavigation { get; set; } = null!;

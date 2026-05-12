@@ -49,6 +49,8 @@ public partial class Expense
 
     public string? DepartmentName { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual Department? Department { get; set; }
 
     public virtual ExpenseCategory? ExpenseCategory { get; set; }

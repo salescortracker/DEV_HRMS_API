@@ -51,19 +51,33 @@ namespace HRMS_Backend.Controllers
         }
 
         // PUT: api/EmployeePayRoll/components/1/5
-        [HttpPut("components/{id}/{userId}")]
-        public async Task<IActionResult> UpdateComponent(int id, int userId, [FromBody] SalaryComponentDto dto)
+        //[HttpPut("components/{id}/{userId}")]
+        //public async Task<IActionResult> UpdateComponent(int id, int userId, [FromBody] SalaryComponentDto dto)
+        //{
+        //    var result = await _salaryComponentService.UpdateAsync(id, dto, userId);
+        //    if (result == null) return NotFound();
+        //    return Ok(result);
+        //}
+        [HttpPost("components/update")]
+        public async Task<IActionResult> UpdateComponent([FromBody] SalaryComponentDto dto)
         {
-            var result = await _salaryComponentService.UpdateAsync(id, dto, userId);
+            var result = await _salaryComponentService.UpdateAsync(dto.ComponentId, dto, dto.UserId);
             if (result == null) return NotFound();
             return Ok(result);
         }
 
         // DELETE: api/EmployeePayRoll/components/1/5
-        [HttpDelete("components/{id}/{userId}")]
-        public async Task<IActionResult> DeleteComponent(int id, int userId)
+        //[HttpDelete("components/{id}/{userId}")]
+        //public async Task<IActionResult> DeleteComponent(int id, int userId)
+        //{
+        //    var result = await _salaryComponentService.DeleteAsync(id, userId);
+        //    if (!result) return NotFound();
+        //    return Ok(new { message = "Deleted Successfully" });
+        //}
+        [HttpPost("components/delete")]
+        public async Task<IActionResult> DeleteComponent([FromBody] DeleteComponentDto model)
         {
-            var result = await _salaryComponentService.DeleteAsync(id, userId);
+            var result = await _salaryComponentService.DeleteAsync(model.ComponentId, model.UserId);
             if (!result) return NotFound();
             return Ok(new { message = "Deleted Successfully" });
         }
@@ -167,6 +181,57 @@ namespace HRMS_Backend.Controllers
         }
 
         #endregion
+
+        #region Employee Pay slip Downloads = Requests API's
+
+        // 🔥 GET FILTERED PAYSLIPS
+        [HttpPost("payslip-range")]
+        public async Task<IActionResult> GetPayslipsByRange([FromBody] PayslipFilterDto dto)
+        {
+            var result = await _payrollService.GetPayslipsByRange(dto);
+            return Ok(result);
+        }
+
+        // 🔥 SEND EMAIL
+        [HttpPost("request-payslip")]
+        public async Task<IActionResult> RequestPayslip([FromBody] SendPayslipDto dto)
+        {
+            await _payrollService.SendPayslipRequestEmail(dto);
+
+            return Ok(new { message = "Request sent to HR successfully" });
+        }
+
+        [HttpPost("hr/pending")]
+        public async Task<IActionResult> GetPending([FromBody] HrPendingRequestDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Invalid request");
+
+            var data = await _payrollService.GetPendingRequests(
+                dto.CompanyId,
+                dto.RegionId,
+                dto.Email
+            );
+
+            return Ok(data);
+        }
+
+        [HttpPost("hr/action")]
+        public async Task<IActionResult> Action([FromBody] HrApproveRejectDto dto)
+        {
+            await _payrollService.ApproveRejectPayslips(dto);
+            return Ok();
+        }
+
+        [HttpPost("hr/all")]
+        public async Task<IActionResult> GetAll([FromBody] HrPayrollFilterDto dto)
+        {
+            var data = await _payrollService.GetAllPayrolls(dto);
+            return Ok(data);
+        }
+
+        #endregion
+
     }
 
 }

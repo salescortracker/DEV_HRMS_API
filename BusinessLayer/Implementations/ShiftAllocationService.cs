@@ -58,7 +58,7 @@ namespace BusinessLayer.Implementations
                     ShiftName = x.ShiftName,
                     ShiftStartTime = x.ShiftStartTime.ToString("HH:mm"),
                     ShiftEndTime = x.ShiftEndTime.ToString("HH:mm"),
-                    GraceTime = x.GraceTime,
+                   GraceTime = x.GraceTime,
                     IsActive = x.IsActive,
                     CompanyID = x.CompanyId,
                     RegionID = x.RegionId,
@@ -127,6 +127,7 @@ namespace BusinessLayer.Implementations
             entity.ShiftName = dto.ShiftName;
             entity.ShiftStartTime = TimeOnly.Parse(dto.ShiftStartTime);
             entity.ShiftEndTime = TimeOnly.Parse(dto.ShiftEndTime);
+            entity.GraceTime = dto.GraceTime;   
             entity.GraceTime = dto.GraceTime;
             entity.ModifiedAt = DateTime.Now;
             entity.ModifiedBy = dto.ModifiedBy;
@@ -337,6 +338,31 @@ namespace BusinessLayer.Implementations
                     ShiftEndTime = sm.ShiftEndTime
                 }
             ).FirstOrDefaultAsync();
+        }
+        public async Task<EmployeeShiftDto?> GetEmployeeShiftByEmployeeCodeAsync(
+      string employeeCode,
+      int companyId,
+      int regionId)
+        {
+            var result = await (
+                from s in _context.ShiftAllocations.AsNoTracking()
+                join sm in _context.ShiftMasters.AsNoTracking()
+                    on s.ShiftId equals sm.ShiftId
+                where s.EmployeeCode == employeeCode
+                      && s.CompanyId == companyId
+                      && s.RegionId == regionId
+                orderby s.ShiftAllocationId descending   // latest allocation
+                select new EmployeeShiftDto
+                {
+                    ShiftName = sm.ShiftName,
+                    ShiftStartTime = sm.ShiftStartTime,
+                    ShiftEndTime = sm.ShiftEndTime,
+                    GrassTime = sm.GraceTime,   // latest value
+                    allocationId = s.ShiftAllocationId
+                }
+            ).FirstOrDefaultAsync();
+
+            return result;
         }
     }
 }

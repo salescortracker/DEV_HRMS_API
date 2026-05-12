@@ -49,5 +49,7 @@ public partial class EmployeeKpi
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual ICollection<EmployeeKpiitem> EmployeeKpiitems { get; set; } = new List<EmployeeKpiitem>();
 }

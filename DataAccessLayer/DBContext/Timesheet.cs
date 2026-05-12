@@ -37,6 +37,8 @@ public partial class Timesheet
 
     public DateTime? ModifiedAt { get; set; }
 
+    public string? HrEmail { get; set; }
+
     public virtual User? ManagerUser { get; set; }
 
     public virtual ICollection<TimesheetApproval> TimesheetApprovals { get; set; } = new List<TimesheetApproval>();

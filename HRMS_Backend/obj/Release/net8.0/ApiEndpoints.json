@@ -21,6 +21,37 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AssetController",
+    "Method": "GetApprovedRequests",
+    "RelativePath": "api/Asset/approved-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.AssetRequestDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AssetController",
     "Method": "AssetsApproveReject",
     "RelativePath": "api/Asset/assetsApproveReject",
     "HttpMethod": "POST",
@@ -37,6 +68,79 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AssetController",
+    "Method": "AssignAsset",
+    "RelativePath": "api/Asset/assign-asset",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetAssignmentDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AssetController",
+    "Method": "GetAssignments",
+    "RelativePath": "api/Asset/assignments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AssetController",
+    "Method": "GetAvailableAssets",
+    "RelativePath": "api/Asset/available-assets",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.AssetDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AssetController",
     "Method": "CreateAsset",
     "RelativePath": "api/Asset/CreateAsset",
     "HttpMethod": "POST",
@@ -46,6 +150,32 @@
       {
         "Name": "assetDto",
         "Type": "BusinessLayer.DTOs.AssetDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Int32",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AssetController",
+    "Method": "CreateRequest",
+    "RelativePath": "api/Asset/CreateRequest",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetRequestDto",
         "IsRequired": true
       }
     ],
@@ -156,7 +286,18 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.AssetStatusDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
@@ -184,6 +325,32 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AssetController",
+    "Method": "GetRequestsByUser",
+    "RelativePath": "api/Asset/user-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.AssetRequestDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AssetController",
@@ -584,7 +751,7 @@
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "DeleteAllocation",
     "RelativePath": "api/Attendance/DeleteAllocation/{id}",
-    "HttpMethod": "DELETE",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -808,6 +975,32 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetEmployeesByDate",
+    "RelativePath": "api/Attendance/GetEmployeesByDate",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "date",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "GetLoggedInUser",
     "RelativePath": "api/Attendance/GetLoggedInUser/{userId}",
     "HttpMethod": "GET",
@@ -854,6 +1047,11 @@
       {
         "Name": "regionId",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
         "IsRequired": false
       }
     ],
@@ -908,6 +1106,32 @@
         "Name": "regionId",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetEmployeeShift",
+    "RelativePath": "api/Attendance/getShiftallocationNameForClockInOut/{employeeCode}/{companyId}/{regionId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "employeeCode",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -986,6 +1210,22 @@
       {
         "Name": "regionId",
         "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetWeeklyByEmployee",
+    "RelativePath": "api/Attendance/GetWeeklyByEmployee",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "employeeCode",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -1155,8 +1395,18 @@
         "IsRequired": false
       },
       {
+        "Name": "HrEmail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "Projects",
         "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.TimesheetProjectDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Requests",
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.TimesheetRequestDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       }
     ],
@@ -1190,6 +1440,27 @@
         "Name": "employeeCode",
         "Type": "System.String",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetUnsavedDates",
+    "RelativePath": "api/Attendance/UnsavedDates",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1434,6 +1705,32 @@
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ChatController",
+    "Method": "Ask",
+    "RelativePath": "api/chat",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "ChatRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ChatController",
+    "Method": "GetSuggestions",
+    "RelativePath": "api/chat/suggestions",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -2051,6 +2348,11 @@
         "Name": "UploadFile",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
+      },
+      {
+        "Name": "EmployeeName",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -2255,8 +2557,8 @@
         "IsRequired": false
       },
       {
-        "Name": "DocumentFile",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "Name": "DocumentFiles",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
         "IsRequired": false
       }
     ],
@@ -2433,6 +2735,11 @@
       {
         "Name": "userId",
         "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "ProfilePictureName",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -2749,8 +3056,48 @@
         "IsRequired": false
       },
       {
-        "Name": "VisaType.VisaTypeName",
+        "Name": "VisaType.VisaType1",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.IsDeleted",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.CreatedBy",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.ModifiedBy",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.ModifiedAt",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.UserId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -3836,6 +4183,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetMyLetters",
+    "RelativePath": "api/Employee/GetMyLetters/{employeeCode}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "employeeCode",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetPermission",
     "RelativePath": "api/Employee/GetPermission",
     "HttpMethod": "GET",
@@ -3856,6 +4219,22 @@
         "Name": "action",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetProfilePicture",
+    "RelativePath": "api/Employee/GetProfilePicture/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -4062,7 +4441,18 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -4162,7 +4552,18 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -4325,6 +4726,11 @@
       {
         "Name": "AppliedDate",
         "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "HrEmail",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -4960,6 +5366,11 @@
         "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
+      },
+      {
+        "Name": "ProfilePictureName",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -5076,6 +5487,11 @@
       {
         "Name": "UploadFile",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "EmployeeName",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -5265,8 +5681,48 @@
         "IsRequired": false
       },
       {
-        "Name": "VisaType.VisaTypeName",
+        "Name": "VisaType.VisaType1",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.IsDeleted",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.CreatedBy",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.ModifiedBy",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.ModifiedAt",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "VisaType.UserId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -5663,8 +6119,8 @@
         "IsRequired": false
       },
       {
-        "Name": "DocumentFile",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "Name": "DocumentFiles",
+        "Type": "System.Collections.Generic.List\u00601[[Microsoft.AspNetCore.Http.IFormFile, Microsoft.AspNetCore.Http.Features, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60]]",
         "IsRequired": false
       }
     ],
@@ -6304,53 +6760,6 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
-    "Method": "UpdateComponent",
-    "RelativePath": "api/EmployeePayRoll/components/{id}/{userId}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "userId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "dto",
-        "Type": "BusinessLayer.DTOs.SalaryComponentDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
-    "Method": "DeleteComponent",
-    "RelativePath": "api/EmployeePayRoll/components/{id}/{userId}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "userId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
     "Method": "GetAllComponents",
     "RelativePath": "api/EmployeePayRoll/components/{userId}",
     "HttpMethod": "GET",
@@ -6378,6 +6787,38 @@
         "Type": "System.Int32",
         "IsRequired": true
       },
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.SalaryComponentDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "DeleteComponent",
+    "RelativePath": "api/EmployeePayRoll/components/delete",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "BusinessLayer.DTOs.DeleteComponentDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "UpdateComponent",
+    "RelativePath": "api/EmployeePayRoll/components/update",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.SalaryComponentDto",
@@ -6525,6 +6966,70 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "Action",
+    "RelativePath": "api/EmployeePayRoll/hr/action",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.HrApproveRejectDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "GetAll",
+    "RelativePath": "api/EmployeePayRoll/hr/all",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.HrPayrollFilterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "GetPending",
+    "RelativePath": "api/EmployeePayRoll/hr/pending",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.HrPendingRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "GetPayslipsByRange",
+    "RelativePath": "api/EmployeePayRoll/payslip-range",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.PayslipFilterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
     "Method": "PreviewPayroll",
     "RelativePath": "api/EmployeePayRoll/preview/{userId}",
     "HttpMethod": "POST",
@@ -6560,6 +7065,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.ProcessPayrollRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeePayRollController",
+    "Method": "RequestPayslip",
+    "RelativePath": "api/EmployeePayRoll/request-payslip",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.SendPayslipDto",
         "IsRequired": true
       }
     ],
@@ -6683,6 +7204,11 @@
         "Name": "departmentName",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "HrEmail",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -6710,7 +7236,18 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -6767,7 +7304,18 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -6959,6 +7507,11 @@
         "Name": "FilePath",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "HrEmail",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -7077,8 +7630,88 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "GetAllAssetStatuses",
+    "Method": "GetAssetCategories",
+    "RelativePath": "api/MasterData/asset-categories",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAssetCategoryById",
+    "RelativePath": "api/MasterData/asset-categories/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAllAssetStatus",
     "RelativePath": "api/MasterData/asset-status",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAssetTypes",
+    "RelativePath": "api/MasterData/asset-types",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAssetCategoriestype",
+    "RelativePath": "api/MasterData/assetcategoriestype",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "AssetCategoryDropDown",
+    "RelativePath": "api/MasterData/assetcategoryfilter",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -7098,53 +7731,26 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "CreateAssetStatus",
-    "RelativePath": "api/MasterData/asset-status",
-    "HttpMethod": "POST",
+    "Method": "GetByCompanyRegion",
+    "RelativePath": "api/MasterData/assettypesfilter",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "dto",
-        "Type": "BusinessLayer.DTOs.AssetStatusDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "UpdateAssetStatus",
-    "RelativePath": "api/MasterData/asset-status/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
+        "Name": "companyId",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       },
       {
-        "Name": "dto",
-        "Type": "BusinessLayer.DTOs.AssetStatusDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "DeleteAssetStatus",
-    "RelativePath": "api/MasterData/asset-status/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
+        "Name": "regionId",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
+      },
+      {
+        "Name": "assetCategoryId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -7189,18 +7795,13 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetCertificationTypes",
-    "RelativePath": "api/MasterData/certification-types",
+    "RelativePath": "api/MasterData/certification-type-list",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "companyId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "regionId",
+        "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
       }
@@ -7210,7 +7811,7 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetCertificationTypeById",
-    "RelativePath": "api/MasterData/certification-types/{id}",
+    "RelativePath": "api/MasterData/certification-type/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -7219,27 +7820,6 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "BulkInsertCertificationTypes",
-    "RelativePath": "api/MasterData/certification-types/bulk",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dtos",
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BusinessLayer.DTOs.CreateUpdateCertificationTypeDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "IsRequired": true
-      },
-      {
-        "Name": "createdBy",
-        "Type": "System.Int32",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -7283,6 +7863,86 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateAccountType",
+    "RelativePath": "api/MasterData/CreateAccountType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AccountTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateAssetCategory",
+    "RelativePath": "api/MasterData/CreateAssetCategory",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetCategoryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateAsssetStatus",
+    "RelativePath": "api/MasterData/CreateAssetStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetStatusDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateAssetType",
+    "RelativePath": "api/MasterData/CreateAssetType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateAttachmentType",
+    "RelativePath": "api/MasterData/CreateAttachmnet",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AttachmentTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "CreateCertificationType",
     "RelativePath": "api/MasterData/CreateCertificationType",
     "HttpMethod": "POST",
@@ -7308,6 +7968,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.CategoryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateCurrency",
+    "RelativePath": "api/MasterData/CreateCurrency",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CurrencyDto",
         "IsRequired": true
       }
     ],
@@ -7404,6 +8080,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.GenderDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateGrade",
+    "RelativePath": "api/MasterData/CreateGrade",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.GradeDto",
         "IsRequired": true
       }
     ],
@@ -7523,6 +8215,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateProjectMaster",
+    "RelativePath": "api/MasterData/CreateProject",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.ProjectMasterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "CreateRecruitmentNoticePeriod",
     "RelativePath": "api/MasterData/CreateRecruitmentNoticePeriod",
     "HttpMethod": "POST",
@@ -7601,6 +8309,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateVisaType",
+    "RelativePath": "api/MasterData/CreateVisaType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.VisaTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "CreateWeekoff",
     "RelativePath": "api/MasterData/CreateWeekoff",
     "HttpMethod": "POST",
@@ -7617,9 +8341,126 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetCurrencies",
+    "RelativePath": "api/MasterData/currencies",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CurrencyDropDown",
+    "RelativePath": "api/MasterData/currencyfilter",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteAccountType",
+    "RelativePath": "api/MasterData/DeleteAccountType/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteAssetCategory",
+    "RelativePath": "api/MasterData/DeleteAssetCategory",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteAsssetStatus",
+    "RelativePath": "api/MasterData/DeleteAssetStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteAssetType",
+    "RelativePath": "api/MasterData/DeleteAssetType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteAttachmentType",
+    "RelativePath": "api/MasterData/DeleteAttachmnet/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteAttendanceStatus",
     "RelativePath": "api/MasterData/DeleteAttendanceStatus/{id}",
-    "HttpMethod": "DELETE",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -7667,6 +8508,22 @@
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteCompanyNewsCategory",
     "RelativePath": "api/MasterData/DeleteCompanyNewsCategory",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteCurrency",
+    "RelativePath": "api/MasterData/DeleteCurrency",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -7798,6 +8655,38 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteGrade",
+    "RelativePath": "api/MasterData/DeleteGrade",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "helpdeskcategory",
+    "RelativePath": "api/MasterData/Deletehelpdeskcategory/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteHoliday",
     "RelativePath": "api/MasterData/DeleteHoliday",
     "HttpMethod": "POST",
@@ -7879,15 +8768,15 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteModeOfStudy",
-    "RelativePath": "api/MasterData/DeleteModeOfStudy/{id}",
-    "HttpMethod": "DELETE",
+    "RelativePath": "api/MasterData/DeleteModeOfStudy",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -7968,6 +8857,38 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteProject",
+    "RelativePath": "api/MasterData/DeleteProject/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteProjectMaster",
+    "RelativePath": "api/MasterData/DeleteProjectMaster/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteRecruitmentNoticePeriod",
     "RelativePath": "api/MasterData/DeleteRecruitmentNoticePeriod",
     "HttpMethod": "POST",
@@ -8007,6 +8928,22 @@
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteScreeningResult",
     "RelativePath": "api/MasterData/DeleteScreeningResult",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteVisaType",
+    "RelativePath": "api/MasterData/DeleteVisaType",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -8069,8 +9006,8 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "GetAll",
-    "RelativePath": "api/MasterData/GetAllAttendanceStatus",
+    "Method": "GetemploymentTypeByCompanyRegion",
+    "RelativePath": "api/MasterData/employment-type/filter",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -8082,6 +9019,59 @@
       },
       {
         "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAccountTypes",
+    "RelativePath": "api/MasterData/GetAccountTypes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAccountTypeList",
+    "RelativePath": "api/MasterData/GetAllAccountType",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAllAttendanceStatus",
+    "RelativePath": "api/MasterData/GetAllAttendanceStatus",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
       }
@@ -8212,6 +9202,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAllProjectsMasters",
+    "RelativePath": "api/MasterData/GetAllProjects",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetAlluserIdAsync",
     "RelativePath": "api/MasterData/GetAlluserIdAsync",
     "HttpMethod": "GET",
@@ -8221,6 +9227,22 @@
       {
         "Name": "userId",
         "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAttachmentByCategory",
+    "RelativePath": "api/MasterData/GetAttachmentByCategory",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "category",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -8254,6 +9276,22 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetByUserAttachmentType",
+    "RelativePath": "api/MasterData/GetByUserAttachment",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -8387,6 +9425,27 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetDesignationsbycompanycode",
+    "RelativePath": "api/MasterData/GetDesignationsbycompanycode",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetEventById",
     "RelativePath": "api/MasterData/GetEventById/{id}",
     "HttpMethod": "GET",
@@ -8501,6 +9560,38 @@
       {
         "Name": "filter",
         "Type": "System.Object",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetGradeAll",
+    "RelativePath": "api/MasterData/GetGradeAll",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetGradeById",
+    "RelativePath": "api/MasterData/GetGradeById/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
@@ -8629,6 +9720,27 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetProjectsByCompanyRegion",
+    "RelativePath": "api/MasterData/GetProjectsByCompanyRegion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetResignationById",
     "RelativePath": "api/MasterData/GetResignationById/{id}",
     "HttpMethod": "GET",
@@ -8733,43 +9845,6 @@
     "Method": "GetByIds",
     "RelativePath": "api/MasterData/helpdesk-category/{id}",
     "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "Update",
-    "RelativePath": "api/MasterData/helpdesk-category/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "dto",
-        "Type": "BusinessLayer.DTOs.CreateUpdateHelpdeskCategoryDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "helpdeskcategory",
-    "RelativePath": "api/MasterData/helpdesk-category/{id}",
-    "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -9033,43 +10108,6 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "UpdateProject",
-    "RelativePath": "api/MasterData/project-status/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "dto",
-        "Type": "BusinessLayer.DTOs.ProjectStatusDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "DeleteProject",
-    "RelativePath": "api/MasterData/project-status/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetRecruitmentNoticePeriodList",
     "RelativePath": "api/MasterData/recruitmentnoticeperiod-list",
     "HttpMethod": "GET",
@@ -9150,17 +10188,92 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "UpdateAttendanceStatus",
-    "RelativePath": "api/MasterData/UpdateAttendanceStatus",
+    "Method": "UpdateAccountType",
+    "RelativePath": "api/MasterData/UpdateAccountType",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AccountTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateAssetCategory",
+    "RelativePath": "api/MasterData/UpdateAssetCategory",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetCategoryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateAsssetStatus",
+    "RelativePath": "api/MasterData/UpdateAssetStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetStatusDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateAssetType",
+    "RelativePath": "api/MasterData/UpdateAssetType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AssetTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateAttachmentType",
+    "RelativePath": "api/MasterData/UpdateAttachmnet",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AttachmentTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateAttendanceStatus",
+    "RelativePath": "api/MasterData/UpdateAttendanceStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.AttendanceStatusDto",
@@ -9217,6 +10330,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.CategoryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateCurrency",
+    "RelativePath": "api/MasterData/UpdateCurrency",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CurrencyDto",
         "IsRequired": true
       }
     ],
@@ -9349,6 +10478,43 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.GenderDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateGrade",
+    "RelativePath": "api/MasterData/UpdateGrade",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.GradeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "Update",
+    "RelativePath": "api/MasterData/Updatehelpdeskcategory/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CreateUpdateHelpdeskCategoryDto",
         "IsRequired": true
       }
     ],
@@ -9531,6 +10697,43 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateProjectMaster",
+    "RelativePath": "api/MasterData/UpdateProject",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.ProjectMasterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateProject",
+    "RelativePath": "api/MasterData/UpdateProject/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.ProjectStatusDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "UpdateRecruitmentNoticePeriod",
     "RelativePath": "api/MasterData/UpdateRecruitmentNoticePeriod",
     "HttpMethod": "POST",
@@ -9614,6 +10817,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateVisaType",
+    "RelativePath": "api/MasterData/UpdateVisaType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.VisaTypeDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "UpdateWeekoff",
     "RelativePath": "api/MasterData/UpdateWeekoff",
     "HttpMethod": "POST",
@@ -9623,6 +10842,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.WeekoffDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetVisaTypeList",
+    "RelativePath": "api/MasterData/visatype-list/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
@@ -9927,23 +11162,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "companyId",
+        "Name": "userId",
         "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "regionId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "department",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "designation",
-        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -10005,23 +11225,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "companyId",
+        "Name": "userId",
         "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "regionId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "department",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "designation",
-        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -10078,23 +11283,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "companyId",
+        "Name": "userId",
         "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "regionId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "department",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "designation",
-        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -10109,23 +11299,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "companyId",
+        "Name": "userId",
         "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "regionId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "department",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "designation",
-        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -10173,6 +11348,22 @@
       {
         "Name": "stageId",
         "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "ParseResume",
+    "RelativePath": "api/Recruitment/ParseResumeCandidate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ResumeFile",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
       }
     ],
@@ -10914,8 +12105,18 @@
         "IsRequired": false
       },
       {
+        "Name": "HrEmail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "Projects",
         "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.TimesheetProjectDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Requests",
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.TimesheetRequestDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       }
     ],
@@ -11289,8 +12490,8 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "DeleteUser",
-    "RelativePath": "api/UserManagement/DeleteUser/{id}",
-    "HttpMethod": "DELETE",
+    "RelativePath": "api/UserManagement/DeleteUser",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [

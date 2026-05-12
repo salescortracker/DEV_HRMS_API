@@ -20,11 +20,12 @@ namespace BusinessLayer.Implementations
             var data = await _unitOfWork.Repository<ClockInOut>().GetAllAsync();
 
             return data
-                .OrderByDescending(x => x.AttendanceDate)
+                .OrderByDescending(x => x.AttendanceDate)   
                 .ThenByDescending(x => x.ActionTime)
                 .Select(MapToDto)
                 .ToList();
         }
+
 
         public async Task<ClockInOutDto?> GetByIdAsync(int id)
         {
@@ -115,6 +116,53 @@ namespace BusinessLayer.Implementations
                 //    : null,
                 Status = entity.Status
             };
+        }
+
+        public async Task<IEnumerable<object>> GetWeeklyByEmployeeAsync(string employeeCode)
+        {
+            var data = await _unitOfWork.Repository<ClockInOut>().GetAllAsync();
+
+            // ✅ Filter by employeeCode
+            var employeeData = data
+                .Where(x => x.EmployeeCode == employeeCode)
+                .OrderBy(x => x.AttendanceDate)
+                .ThenBy(x => x.ActionTime)
+                .ToList();
+
+            // ✅ Group by date (FIXED)
+            var result = employeeData
+                .GroupBy(x => x.AttendanceDate)
+                .Select(g =>
+                {
+                    double totalMinutes = 0;
+                    TimeOnly? lastIn = null;
+
+                    foreach (var record in g)
+                    {
+                        if (record.ActionType == "ClockIn")
+                        {
+                            lastIn = record.ActionTime;
+                        }
+                        else if (record.ActionType == "ClockOut" && lastIn != null)
+                        {
+                            var diff = (record.ActionTime - lastIn.Value).TotalMinutes;
+
+                            if (diff > 0)
+                                totalMinutes += diff;
+
+                            lastIn = null;
+                        }
+                    }
+
+                    return new
+                    {
+                        AttendanceDate = g.Key.ToString("yyyy-MM-dd"),
+                        TotalHours = Math.Round(totalMinutes / 60, 2)
+                    };
+                })
+                .ToList();
+
+            return result;
         }
     }
 }

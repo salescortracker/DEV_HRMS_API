@@ -37,5 +37,7 @@ public partial class LeaveType
 
     public virtual ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
 
+    public virtual ICollection<LeaveTypeGrade> LeaveTypeGrades { get; set; } = new List<LeaveTypeGrade>();
+
     public virtual Region Region { get; set; } = null!;
 }

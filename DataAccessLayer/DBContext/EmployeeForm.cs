@@ -17,13 +17,7 @@ public partial class EmployeeForm
 
     public string DocumentName { get; set; } = null!;
 
-    public string EmployeeCode { get; set; } = null!;
-
     public DateOnly IssueDate { get; set; }
-
-    public string FileName { get; set; } = null!;
-
-    public string? FilePath { get; set; }
 
     public string? Remarks { get; set; }
 
@@ -37,5 +31,9 @@ public partial class EmployeeForm
 
     public DateTime? ModifiedAt { get; set; }
 
-    public virtual DocumentType DocumentType { get; set; } = null!;
+    public virtual AttachmentType DocumentType { get; set; } = null!;
+
+    public virtual ICollection<EmployeeFormEmployee> EmployeeFormEmployees { get; set; } = new List<EmployeeFormEmployee>();
+
+    public virtual ICollection<EmployeeFormFile> EmployeeFormFiles { get; set; } = new List<EmployeeFormFile>();
 }

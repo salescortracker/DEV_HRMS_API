@@ -153,6 +153,19 @@ namespace BusinessLayer.Implementations
 
             if (!dto.UserId.HasValue || !dto.CompanyId.HasValue || !dto.RegionId.HasValue)
                 throw new Exception("UserId, CompanyId and RegionId are required.");
+            var existing = await _unitOfWork.Repository<EmployeeResignation>()
+    .FindAsync(x =>
+        x.UserId == dto.UserId &&
+        x.CompanyId == dto.CompanyId &&
+        x.RegionId == dto.RegionId &&
+        x.Status != "Rejected" && // optional rule
+        x.LastWorkingDay == dto.LastWorkingDay
+    );
+
+            if (existing.Any())
+            {
+                throw new Exception("Resignation already exists for selected Last Working Day");
+            }
 
             var entity = new EmployeeResignation
             {
@@ -167,7 +180,8 @@ namespace BusinessLayer.Implementations
                 CompanyId = dto.CompanyId.Value,
                 RegionId = dto.RegionId.Value,
                 UserId = dto.UserId.Value,
-                RoleId = dto.RoleId
+                RoleId = dto.RoleId,
+                HrEmail = dto.HrEmail
             };
 
             await _unitOfWork.Repository<EmployeeResignation>().AddAsync(entity);
@@ -220,12 +234,47 @@ namespace BusinessLayer.Implementations
             // ✅ ONE EMAIL ONLY
             // TO  → Reporting Manager
             // CC  → HR
+            //await _emailService.SendEmailAsync(
+            //    manager.Email,
+            //    subject,
+            //    body,
+            //    hrCcEmails
+            //);
+
+            // ✅ Combine HR emails + UI CC emails
+            List<string> finalCcList = new List<string>();
+
+            // HR emails
+            if (hrCcEmails != null && hrCcEmails.Any())
+                finalCcList.AddRange(hrCcEmails);
+
+            // UI entered CC email
+            if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+            {
+                var uiCc = dto.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToList();
+
+                finalCcList.AddRange(uiCc);
+            }
+
+            // Remove duplicates
+            finalCcList = finalCcList.Distinct().ToList();
+
+            // ✅ Send main email
             await _emailService.SendEmailAsync(
                 manager.Email,
                 subject,
                 body,
-                hrCcEmails
+                finalCcList
             );
+
+            //// 🔥 IMPORTANT (guarantee delivery)
+            //foreach (var cc in finalCcList)
+            //{
+            //    await _emailService.SendEmailAsync(cc, subject, body);
+            //}
 
             return MapToDto(entity);
         }
@@ -355,10 +404,30 @@ namespace BusinessLayer.Implementations
                         hrUsers = await GetHrUsersAsync(entity.CompanyId.Value, entity.RegionId.Value);
                     }
 
-                    var hrCc = hrUsers
-                        .Where(x => !string.IsNullOrWhiteSpace(x.Email))
-                        .Select(x => x.Email)
-                        .ToList();
+                    var finalCcList = new List<string>();
+
+                    // ✅ HR Users
+                    if (hrUsers != null && hrUsers.Any())
+                    {
+                        finalCcList.AddRange(
+                            hrUsers
+                            .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                            .Select(x => x.Email)
+                        );
+                    }
+
+                    // ✅ UI Entered CC (IMPORTANT FIX)
+                    if (!string.IsNullOrWhiteSpace(entity.HrEmail))
+                    {
+                        var uiCc = entity.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim());
+
+                        finalCcList.AddRange(uiCc);
+                    }
+
+                    // ✅ Remove duplicates
+                    finalCcList = finalCcList.Distinct().ToList();
 
                     var subject = isManagerApprove
                         ? $"Resignation Approved - {entity.EmployeeId}"
@@ -372,7 +441,7 @@ namespace BusinessLayer.Implementations
 <br/>
 <p>Regards,<br/><b>HRMS</b></p>";
 
-                    await _emailService.SendEmailAsync(employee.Email, subject, body, hrCc);
+                    await _emailService.SendEmailAsync(employee.Email, subject, body, finalCcList);
                 }
             }
 
@@ -382,25 +451,31 @@ namespace BusinessLayer.Implementations
 
         public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForReportingManagerAsync(int managerUserId)
         {
-            var employees = await _unitOfWork.Repository<User>()
-                .FindAsync(u => u.ReportingTo == managerUserId && u.Status == "Active");
+            // 🔥 GET ALL USERS + RESIGNATIONS (LIKE EXPENSE FLOW)
+            var users = await _unitOfWork.Repository<User>().GetAllAsync();
+            var resignations = await _unitOfWork.Repository<EmployeeResignation>().GetAllAsync();
 
-            var employeeUserIds = employees.Select(x => x.UserId).ToList();
+            // 🔥 JOIN + FILTER (IMPORTANT)
+            var result = (
+                from r in resignations
+                join u in users on r.UserId equals u.UserId
+                where u.ReportingTo == managerUserId 
+                orderby r.Status == "Pending" ? 0 : 1, r.CreatedAt descending
+                select new EmployeeResignationDto
+                {
+                    ResignationId = r.ResignationId,
+                    EmployeeId = u.EmployeeCode, // ✅ Correct mapping
+                    ResignationType = r.ResignationType,
+                    NoticePeriod = r.NoticePeriod,
+                    LastWorkingDay = r.LastWorkingDay,
+                    ResignationReason = r.ResignationReason,
+                    Status = r.Status,
+                    ManagerReason = r.ManagerReason
+                }
+            ).ToList();
 
-            if (!employeeUserIds.Any())
-                return Enumerable.Empty<EmployeeResignationDto>();
-
-            var resignations = await _unitOfWork.Repository<EmployeeResignation>()
-                .FindAsync(r =>
-                    r.UserId.HasValue &&
-                    employeeUserIds.Contains(r.UserId.Value)
-                ); // ✅ NO STATUS FILTER
-
-            return resignations
-                .OrderByDescending(r => r.CreatedAt)
-                .Select(MapToDto);
+            return result;
         }
-
         public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForHRAsync(
     int companyId,
     int regionId)
