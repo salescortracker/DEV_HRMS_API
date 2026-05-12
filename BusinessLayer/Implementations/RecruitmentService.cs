@@ -11,6 +11,7 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 
 using iText.IO.Image;
@@ -695,16 +696,31 @@ int userId)
             try
             {
                 var candidateRepo = _unitOfWork.Repository<Candidate>();
+
                 var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
                     ?? throw new Exception("Candidate not found");
 
-                //  MULTIPLE INTERVIEWERS LOOP
+                // GET LEVEL NAME
+                var levelRepo = _unitOfWork.Repository<InterviewLevel>();
+
+                var levelData = await levelRepo.GetByIdAsync(dto.LevelNo);
+
+                string levelName = levelData?.InterviewLevels ?? "";
+
+                // STORE INTERVIEWERS FOR EMAIL AFTER COMMIT
+                var interviewerList = new List<User>();
+
+                // ================= SAVE INTERVIEWS =================
                 foreach (var interviewerId in dto.InterviewerIds)
                 {
-                    var interviewer = await _unitOfWork.Repository<User>()
+                    var interviewer = await _unitOfWork
+                        .Repository<User>()
                         .GetByIdAsync(interviewerId);
 
-                    if (interviewer == null) continue;
+                    if (interviewer == null)
+                        continue;
+
+                    interviewerList.Add(interviewer);
 
                     var interview = new CandidateInterview
                     {
@@ -720,17 +736,103 @@ int userId)
                         MeetingLink = dto.MeetingLink,
                         Description = dto.Description,
                         Result = "Pending",
+                        HrEmail = dto.HrEmail,
                         CreatedAt = DateTime.Now,
                         CreatedBy = dto.UserId
                     };
 
-                    await _unitOfWork.Repository<CandidateInterview>().AddAsync(interview);
+                    await _unitOfWork
+                        .Repository<CandidateInterview>()
+                        .AddAsync(interview);
+                }
 
-                    //  EMAIL TO INTERVIEWER
-                    if (!string.IsNullOrEmpty(interviewer.Email))
+                // ================= UPDATE CANDIDATE =================
+                candidate.StageId = 4;
+                candidate.ModifiedAt = DateTime.Now;
+                candidate.ModifiedBy = dto.UserId;
+
+                candidateRepo.Update(candidate);
+
+                // ================= SAVE DATABASE FIRST =================
+                await _unitOfWork.CompleteAsync();
+
+                // IMPORTANT
+                await transaction.CommitAsync();
+
+                // =====================================================
+                // EMAIL SECTION
+                // EMAIL FAILURE SHOULD NOT ROLLBACK DATABASE
+                // =====================================================
+
+                // ================= EMAIL TO INTERVIEWERS =================
+                foreach (var interviewer in interviewerList)
+                {
+                    try
                     {
-                        string subject = $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
+                        if (!string.IsNullOrEmpty(interviewer.Email))
+                        {
+                            string subject =
+                                $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
 
+                            string body = $@"
+<h3>Interview Scheduled</h3>
+
+<p>Dear {interviewer.FullName},</p>
+
+<p>Interview Details:</p>
+
+<table border='1' cellpadding='6' cellspacing='0' style='border-collapse:collapse;'>
+
+<tr>
+    <td><b>Candidate</b></td>
+    <td>{candidate.FirstName} {candidate.LastName}</td>
+</tr>
+
+<tr>
+    <td><b>Level</b></td>
+    <td>{levelName}</td>
+</tr>
+
+<tr>
+    <td><b>Date & Time</b></td>
+    <td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td>
+</tr>
+
+<tr>
+    <td><b>Location</b></td>
+    <td>{dto.Location}</td>
+</tr>
+
+<tr>
+    <td><b>Meeting Link</b></td>
+    <td>
+        <a href='{dto.MeetingLink}' target='_blank'>
+            Join Meeting
+        </a>
+    </td>
+</tr>
+
+<tr>
+    <td><b>Description</b></td>
+    <td>{dto.Description}</td>
+</tr>
+
+</table>
+
+<br/>
+
+<p>Regards,<br/>HR Team</p>";
+
+                            await _emailService.SendEmailAsync(
+                                interviewer.Email,
+                                subject,
+                                body
+                            );
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Interviewer email failed: " + ex.Message);
                         string body = $@"
                             <h3>Interview Scheduled</h3>
                             <p>Dear {interviewer.FullName},</p>
@@ -747,38 +849,79 @@ int userId)
                     }
                 }
 
-                //  UPDATE CANDIDATE ONCE
-                candidate.StageId = 4;
-                candidate.ModifiedAt = DateTime.Now;
-                candidate.ModifiedBy = dto.UserId;
-                candidateRepo.Update(candidate);
-
-                // EMAIL TO CANDIDATE
-                if (!string.IsNullOrEmpty(candidate.Email))
+                // ================= EMAIL TO CANDIDATE =================
+                try
                 {
-                    await _emailService.SendEmailAsync(
-                        candidate.Email,
-                        "Interview Scheduled",
-                        $"Your interview is scheduled on {dto.InterviewDate:yyyy-MM-dd HH:mm}"
-                    );
-                }
+                    if (!string.IsNullOrEmpty(candidate.Email))
+                    {
+                        string candidateBody = $@"
+<h3>Interview Scheduled</h3>
 
-                await _unitOfWork.CompleteAsync();
-                await transaction.CommitAsync();
+<p>Dear {candidate.FirstName} {candidate.LastName},</p>
+
+<p>Your interview has been scheduled successfully.</p>
+
+<table border='1' cellpadding='6' cellspacing='0' style='border-collapse:collapse;'>
+
+<tr>
+    <td><b>Level</b></td>
+    <td>{levelName}</td>
+</tr>
+
+<tr>
+    <td><b>Date & Time</b></td>
+    <td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td>
+</tr>
+
+<tr>
+    <td><b>Location</b></td>
+    <td>{dto.Location}</td>
+</tr>
+
+<tr>
+    <td><b>Meeting Link</b></td>
+    <td>
+        <a href='{dto.MeetingLink}' target='_blank'>
+            Join Meeting
+        </a>
+    </td>
+</tr>
+
+<tr>
+    <td><b>Description</b></td>
+    <td>{dto.Description}</td>
+</tr>
+
+</table>
+
+<br/>
+
+<p>Regards,<br/>HR Team</p>";
+
+                        await _emailService.SendEmailAsync(
+                            candidate.Email,
+                            "Interview Scheduled",
+                            candidateBody
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Candidate email failed: " + ex.Message);
+                }
 
                 return true;
             }
-            catch
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
                 throw;
             }
         }
-
         public async Task<IEnumerable<CandidateInterviewDto>> GetInterviewRecordsAsync(
-     int userId,
-     int companyId,
-     int regionId)
+      int userId,
+      int companyId,
+      int regionId)
         {
             var interviews = await _unitOfWork.Repository<CandidateInterview>()
                 .FindAsync(x =>
@@ -790,9 +933,20 @@ int userId)
             if (!interviews.Any())
                 return Enumerable.Empty<CandidateInterviewDto>();
 
-            var candidateIds = interviews.Select(x => x.CandidateId).Distinct().ToList();
-            var interviewerIds = interviews.Select(x => x.InterviewerId).Distinct().ToList();
-            var levelIds = interviews.Select(x => x.LevelNo).Distinct().ToList();
+            var candidateIds = interviews
+                .Select(x => x.CandidateId)
+                .Distinct()
+                .ToList();
+
+            var interviewerIds = interviews
+                .Select(x => x.InterviewerId)
+                .Distinct()
+                .ToList();
+
+            var levelIds = interviews
+                .Select(x => x.LevelNo)
+                .Distinct()
+                .ToList();
 
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(x => candidateIds.Contains(x.CandidateId));
@@ -803,48 +957,88 @@ int userId)
             var levels = await _unitOfWork.Repository<InterviewLevel>()
                 .FindAsync(x => levelIds.Contains(x.InterviewLevelsId));
 
-            return interviews
-                .OrderByDescending(x => x.CreatedAt)
-                .Select(iv =>
+            // GROUPING
+            var groupedInterviews = interviews
+                .GroupBy(x => new
                 {
-                    var candidate = candidates.First(c => c.CandidateId == iv.CandidateId);
-                    var interviewer = interviewers.First(u => u.UserId == iv.InterviewerId);
-                    var level = levels.FirstOrDefault(l => l.InterviewLevelsId == iv.LevelNo);
-
-                    return new CandidateInterviewDto
-                    {
-                        InterviewId = iv.InterviewId,
-                        CompanyId = iv.CompanyId,
-                        RegionId = iv.RegionId,
-                        UserId = iv.UserId,
-                        CandidateId = iv.CandidateId,
-
-                        LevelNo = iv.LevelNo,
-                        InterviewLevels = level?.InterviewLevels, // 🔥 FIX HERE
-
-                        InterviewerId = iv.InterviewerId,
-                        InterviewerName = interviewer.FullName,
-                        InterviewDate = iv.InterviewDate,
-                        Location = iv.Location,
-                        MeetingLink = iv.MeetingLink,
-                        Description = iv.Description,
-                        Result = iv.Result,
-                        StageId = candidate.StageId,
-
-                        SeqNo = candidate.SeqNo,
-                        CandidateName = string.IsNullOrEmpty(candidate.LastName)
-                            ? candidate.FirstName
-                            : $"{candidate.FirstName} {candidate.LastName}",
-
-                        Mobile = candidate.Mobile,
-                        Department = candidate.Department,
-                        Designation = candidate.Designation,
-                        ExpectedSalary = candidate.ExpectedSalary
-                    };
+                    x.CandidateId,
+                    x.LevelNo,
+                    x.InterviewDate,
+                    x.Location,
+                    x.Description
                 });
+
+            var result = groupedInterviews.Select(group =>
+            {
+                var first = group.First();
+
+                var candidate = candidates
+                    .FirstOrDefault(c => c.CandidateId == first.CandidateId);
+
+                var level = levels
+                    .FirstOrDefault(l => l.InterviewLevelsId == first.LevelNo);
+
+                // MULTIPLE INTERVIEWER NAMES
+                var interviewerNames = string.Join(", ",
+                    group.Select(g =>
+                    {
+                        var interviewer = interviewers
+                            .FirstOrDefault(i => i.UserId == g.InterviewerId);
+
+                        return interviewer?.FullName;
+                    })
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Distinct()
+                );
+
+                return new CandidateInterviewDto
+                {
+                    InterviewId = first.InterviewId,
+                    CompanyId = first.CompanyId,
+                    RegionId = first.RegionId,
+                    UserId = first.UserId,
+                    CandidateId = first.CandidateId,
+
+                    LevelNo = first.LevelNo,
+
+                    InterviewLevels = level?.InterviewLevels ?? "",
+
+                    // COMMA SEPARATED NAMES
+                    InterviewerName = interviewerNames,
+
+                    InterviewDate = first.InterviewDate,
+
+                    Location = first.Location,
+
+                    MeetingLink = first.MeetingLink,
+
+                    Description = first.Description,
+
+                    Result = first.Result,
+
+                    StageId = candidate?.StageId ?? 0,
+
+                    SeqNo = candidate?.SeqNo,
+
+                    CandidateName = candidate == null
+                        ? ""
+                        : $"{candidate.FirstName} {candidate.LastName}",
+
+                    Mobile = candidate?.Mobile,
+
+                    Department = candidate?.Department,
+
+                    Designation = candidate?.Designation,
+
+                    ExpectedSalary = candidate?.ExpectedSalary,
+                    HrEmail = first.HrEmail,
+                };
+            })
+            .OrderByDescending(x => x.InterviewDate)
+            .ToList();
+
+            return result;
         }
-
-
 
         /// ///appointment
 
@@ -860,10 +1054,8 @@ int userId)
                 var interview = await interviewRepo.GetByIdAsync(dto.InterviewId)
                        ?? throw new Exception("Interview record not found");
 
-                //if (dto.LevelNo <= 0)
-                //    throw new Exception("Invalid Interview Level");
+                // ================= UPDATE INTERVIEW =================
 
-                //interview.LevelNo = dto.LevelNo;
                 interview.InterviewerId = dto.InterviewerId;
                 interview.InterviewerName = dto.InterviewerName;
                 interview.InterviewDate = dto.InterviewDate;
@@ -877,24 +1069,49 @@ int userId)
 
                 interviewRepo.Update(interview);
 
-                // 🔹 Candidate
+                // ================= UPDATE CANDIDATE =================
+
                 var candidateRepo = _unitOfWork.Repository<Candidate>();
+
                 var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
                     ?? throw new Exception("Candidate not found");
 
-                // ================= STATUS → STAGE =================
                 if (dto.Result == "Selected")
+                {
                     candidate.StageId = 5;
-                else
+                }
+                else if (dto.Result == "Rejected")
+                {
+                    candidate.StageId = 12;
+                }
+                else if (dto.Result == "Level 1 Complete")
+                {
                     candidate.StageId = 4;
+                }
+                else
+                {
+                    candidate.StageId = 4;
+                }
 
                 candidate.ModifiedAt = DateTime.Now;
                 candidate.ModifiedBy = dto.UserId;
+
                 candidateRepo.Update(candidate);
 
-                // ================= EMAILS =================
+                // ================= SAVE DB FIRST =================
 
-                // 🔹 HR USERS (RoleId = 4)
+                await _unitOfWork.CompleteAsync();
+                await tx.CommitAsync();
+
+                // ================= GET LEVEL NAME =================
+
+                var level = await _unitOfWork.Repository<InterviewLevel>()
+                    .GetByIdAsync(interview.LevelNo);
+
+                string levelName = level?.InterviewLevels ?? "";
+
+                // ================= HR USERS =================
+
                 var hrUsers = await _unitOfWork.Repository<User>()
                     .FindAsync(u =>
                         u.RoleId == 4 &&
@@ -903,58 +1120,121 @@ int userId)
                         !string.IsNullOrEmpty(u.Email)
                     );
 
-                if (string.IsNullOrEmpty(candidate.Email))
-                    throw new Exception("Candidate email not found");
+                // ================= EMAILS =================
 
-                // ================= HR EMAIL =================
-                string hrSubject = $"Interview Result Updated – {candidate.FirstName} {candidate.LastName}";
-                string hrBody = $@"
+                try
+                {
+                    // ================= HR EMAIL =================
+
+                    string hrSubject =
+                        $"Interview Result Updated – {candidate.FirstName} {candidate.LastName}";
+
+                    string hrBody = $@"
 <!DOCTYPE html>
 <html>
 <body style='font-family:Segoe UI'>
-  <h2>Interview Status Updated</h2>
-  <p>Dear HR Team,</p>
 
-  <table>
-    <tr><td><b>Candidate</b></td><td>{candidate.FirstName} {candidate.LastName}</td></tr>
-    <tr><td><b>Level</b></td><td>{interview.LevelNo}</td></tr>
-    <tr><td><b>Status</b></td><td>{dto.Result}</td></tr>
-    <tr><td><b>Description</b></td><td>{dto.Description}</td></tr>
-  </table>
+    <h2>Interview Status Updated</h2>
+
+    <p>Dear HR Team,</p>
+
+    <table cellpadding='6' cellspacing='0' border='1' 
+           style='border-collapse:collapse;'>
+
+        <tr>
+            <td><b>Candidate</b></td>
+            <td>{candidate.FirstName} {candidate.LastName}</td>
+        </tr>
+
+        <tr>
+            <td><b>Level</b></td>
+            <td>{levelName}</td>
+        </tr>
+
+        <tr>
+            <td><b>Status</b></td>
+            <td>{dto.Result}</td>
+        </tr>
+
+        <tr>
+            <td><b>Description</b></td>
+            <td>{dto.Description}</td>
+        </tr>
+
+    </table>
+
 </body>
 </html>";
 
-                // ✅ Send ONE email to ALL HRs (loop is fine but content same)
-                foreach (var hr in hrUsers)
-                    await _emailService.SendEmailAsync(hr.Email!, hrSubject, hrBody);
+                    foreach (var hr in hrUsers)
+                    {
+                        await _emailService.SendEmailAsync(
+                            hr.Email!,
+                            hrSubject,
+                            hrBody
+                        );
+                    }
 
-                // ================= CANDIDATE EMAIL =================
-                string candidateSubject = $"Interview Result – {candidate.FirstName}";
-                string candidateBody = $@"
+                    // ================= CANDIDATE EMAIL =================
+
+                    if (!string.IsNullOrEmpty(candidate.Email))
+                    {
+                        string candidateSubject =
+                            $"Interview Result – {candidate.FirstName}";
+
+                        string candidateBody = $@"
 <!DOCTYPE html>
 <html>
 <body style='font-family:Segoe UI'>
-  <h2>Interview Update</h2>
-  <p>Dear {candidate.FirstName},</p>
 
-  <p>Your interview result has been updated:</p>
+    <h2>Interview Update</h2>
 
-  <table>
-    <tr><td><b>Level</b></td><td>{interview.LevelNo}</td></tr>
-    <tr><td><b>Status</b></td><td>{dto.Result}</td></tr>
-    <tr><td><b>Description</b></td><td>{dto.Description}</td></tr>
-  </table>
+    <p>Dear {candidate.FirstName},</p>
 
-  <p>Regards,<br/>HR Team</p>
+    <p>Your interview result has been updated:</p>
+
+    <table cellpadding='6' cellspacing='0' border='1' 
+           style='border-collapse:collapse;'>
+
+        <tr>
+            <td><b>Level</b></td>
+            <td>{levelName}</td>
+        </tr>
+
+        <tr>
+            <td><b>Status</b></td>
+            <td>{dto.Result}</td>
+        </tr>
+
+        <tr>
+            <td><b>Description</b></td>
+            <td>{dto.Description}</td>
+        </tr>
+
+    </table>
+
+    <br/>
+
+    <p>
+        Regards,<br/>
+        HR Team
+    </p>
+
 </body>
 </html>";
 
-                await _emailService.SendEmailAsync(candidate.Email, candidateSubject, candidateBody);
-
-                // ❌ NO INTERVIEWER EMAIL
-
-                await _unitOfWork.CompleteAsync();
-                await tx.CommitAsync();
+                        await _emailService.SendEmailAsync(
+                            candidate.Email,
+                            candidateSubject,
+                            candidateBody
+                        );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    
+                    Console.WriteLine("Email Error: " + ex.Message);
+                }
 
                 return true;
             }

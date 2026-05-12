@@ -1121,8 +1121,10 @@ public class UpdateResignationStatusRequest
                     {
                         FormId = model.Id,
                         EmployeeCode = model.EmployeeCode,
+                        //EmployeeName = emp?.FirstName ?? "",
                         FileName = fileName,
-                        FilePath = $"Uploads/EmployeeResponses/{fileName}"
+                        FilePath = $"Uploads/EmployeeResponses/{fileName}",
+                        Status = "Pending"
                     });
                 }
             }
@@ -1176,7 +1178,21 @@ public class UpdateResignationStatusRequest
 
             return Ok(new { message = $"Status updated successfully and email sent to employees" });
         }
+        [HttpPost("UpdateEmployeeFileStatus")]
+        public async Task<IActionResult> UpdateEmployeeFileStatus(UpdateEmployeeFileStatusDto dto)
+        {
+            var file = await _context.EmployeeFormEmployeeFiles
+                .FirstOrDefaultAsync(x => x.Id == dto.FileId);
 
+            if (file == null)
+                return NotFound();
+
+            file.Status = dto.Status;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Status Updated" });
+        }
 
         #endregion
 
