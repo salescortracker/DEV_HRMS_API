@@ -3,7 +3,6 @@ using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -22,7 +21,8 @@ builder.Services.AddCors(options =>
     {
         policy
         //.WithOrigins("https://qa-hr.cortracker360.com")
-             .WithOrigins("https://preprod-hr.cortracker360.com", "http://localhost:4200", "http://localhost:55296", "http://localhost:54236", "http://localhost:8080", "https://qa-hr.cortracker360.com") // 👈 exact frontend URL
+             .WithOrigins("https://preprod-hr.cortracker360.com", "http://localhost:4200", "http://localhost:60177", "http://localhost:54236",
+             "http://localhost:8080", "https://qa-hr.cortracker360.com") // 👈 exact frontend URL
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials(); // 👈 REQUIRED for withCredentials
@@ -90,7 +90,6 @@ builder.Services.AddScoped<ISalaryComponentService, SalaryComponentService>();
 builder.Services.AddScoped<ISalaryStructureService, SalaryStructureService>();
 builder.Services.AddScoped<IEmployeeSalaryService, EmployeeSalaryService>();
 builder.Services.AddScoped<IPayrollService, PayrollService>();
-builder.Services.AddScoped<IEventTypeService, EventTypeService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IModeOfStudyService, ModeOfStudyService>();
 builder.Services.AddScoped<ICompanyNewsPolicyService, CompanyNewsPolicyService>();
@@ -112,26 +111,61 @@ builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IVisatypeService, VisatypeService>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
-builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
-builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
-builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
-builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<ICountryService, CountryService>();
+
+
+
+//var app = builder.Build();
+
+//// Configure the HTTP request pipeline.
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+//// --------------------
+//// 4️⃣ Use CORS
+//// --------------------
+//app.UseCors(corsPolicyName);
+//app.UseHttpsRedirection();
+//// 🔹 Enable static files (wwwroot)
+//app.UseStaticFiles(); // ✅ REQUIRED
+
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(
+//        Path.Combine(builder.Environment.WebRootPath, "Uploads")),
+//    RequestPath = "/Uploads"
+//});
+//app.UseRouting();
+
+//app.UseAuthorization();
+
+//app.MapControllers();
+
+//app.Run();
+
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-// --------------------
-// 4️⃣ Use CORS
-// --------------------
+
+// 1️⃣ Routing first
+app.UseRouting();
+
+// 2️⃣ CORS second
 app.UseCors(corsPolicyName);
-app.UseHttpsRedirection();
-// 🔹 Enable static files (wwwroot)
-app.UseStaticFiles(); // ✅ REQUIRED
+
+// 3️⃣ Comment HTTPS for localhost testing
+// app.UseHttpsRedirection();
+
+// 4️⃣ Static files
+app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -139,13 +173,15 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(builder.Environment.WebRootPath, "Uploads")),
     RequestPath = "/Uploads"
 });
-app.UseRouting();
 
+// 5️⃣ Auth
 app.UseAuthorization();
 
+// 6️⃣ Controllers
 app.MapControllers();
 
 app.Run();
+
 
 
 // Program.ts code working 
