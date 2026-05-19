@@ -115,6 +115,14 @@ builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
 builder.Services.AddScoped<ILateLoginPolicyService, LateLoginPolicyService>();
 builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
 builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddScoped<
+    IEmployeeBirthdayService,
+    EmployeeBirthdayService>();
+
+builder.Services.AddHostedService<
+    BirthdayEmailBackgroundService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 var app = builder.Build();
