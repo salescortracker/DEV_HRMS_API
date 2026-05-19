@@ -95,5 +95,21 @@ namespace HRMS_Backend.Controllers
             var data = await _helpdeskservice.GetEmployeesByManagerAsync(managerId);
             return Ok(data);
         }
+
+        //REPORTS
+
+        [HttpGet("GetAllTicketReports/{companyId}/{regionId}")]
+        public async Task<IActionResult> GetAllTicketReports(int companyId, int regionId)
+        {
+            var data = await _helpdeskservice.GetAllTicketReportsAsync(companyId, regionId);
+            return Ok(data);
+        }
+
+        [HttpGet("GetManagerTicketReports/{managerId}")]
+        public async Task<IActionResult> GetManagerTicketReports(int managerId)
+        {
+            var data = await _helpdeskservice.GetManagerTicketReportsAsync(managerId);
+            return Ok(data);
+        }
     }
 }

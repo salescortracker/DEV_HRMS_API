@@ -11,14 +11,17 @@ namespace BusinessLayer.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly HRMSContext _hRMSContext;
 
         public HelpdeskService(IUnitOfWork unitOfWork,
                                IEmailService emailService,
-                               IConfiguration configuration)
+                               IConfiguration configuration,
+                               HRMSContext hRMSContext)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _configuration = configuration;
+            _hRMSContext = hRMSContext;
         }
 
         public async Task<IEnumerable<Priority>> GetActivePrioritiesAsync(int companyId, int regionId)
@@ -275,8 +278,72 @@ namespace BusinessLayer.Implementations
             }).ToList();
         }
 
+        public async Task<IEnumerable<object>> GetAllTicketReportsAsync(int companyId, int regionId)
+        {
+            var tickets = await _unitOfWork.Repository<Ticket>()
+                .FindAsync(x => x.CompanyId == companyId && x.RegionId == regionId);
+
+            var users = await _unitOfWork.Repository<User>()
+                .GetAllAsync();
+
+            var categories = await _unitOfWork.Repository<HelpDeskCategory>()
+                .GetAllAsync();
+
+            var priorities = await _unitOfWork.Repository<Priority>()
+                .GetAllAsync();
+
+            return tickets.Select(t => new
+            {
+                t.TicketId,
+                t.TicketNumber,
+                Description = t.Description,
+                Status = t.Status,
+                Priority = priorities.FirstOrDefault(p => p.PriorityId == t.PriorityId)?.PriorityName,
+                AssignedTo = users.FirstOrDefault(u => u.UserId == t.ApprovedBy)?.FullName,
+                CreatedDate = t.CreatedAt,
+                Category = categories.FirstOrDefault(c => c.HelpDeskCategoryId == t.CategoryId)?.HelpDeskCategoryName,
+                EmployeeName = users.FirstOrDefault(u => u.UserId == t.UserId)?.FullName
+            })
+            .OrderByDescending(x => x.CreatedDate)
+            .ToList();
+        }
+
+        public async Task<IEnumerable<object>> GetManagerTicketReportsAsync(int managerId)
+        {
+            var hr = _hRMSContext.Users
+                .Where(x => x.UserId == managerId)
+                .Select(x => new { x.UserId, x.Email })
+                .FirstOrDefault();
+
+            var employees = await _unitOfWork.Repository<User>()
+                .FindAsync(x => x.ReportingTo == managerId);
+
+            var employeeIds = employees.Select(x => x.UserId).ToList();
+
+            var tickets = _hRMSContext.Tickets
+                .Where(x => (employeeIds.Contains(x.UserId) || x.HrEmail == hr.Email))
+                .ToList();
+
+            var users = await _unitOfWork.Repository<User>().GetAllAsync();
+            var categories = await _unitOfWork.Repository<HelpDeskCategory>().GetAllAsync();
+            var priorities = await _unitOfWork.Repository<Priority>().GetAllAsync();
+
+            return tickets.Select(t => new
+            {
+                t.TicketId,
+                t.TicketNumber,
+                Description = t.Description,
+                Status = t.Status,
+                Priority = priorities.FirstOrDefault(p => p.PriorityId == t.PriorityId)?.PriorityName,
+                AssignedTo = users.FirstOrDefault(u => u.UserId == t.ApprovedBy)?.FullName,
+                CreatedDate = t.CreatedAt,
+                Category = categories.FirstOrDefault(c => c.HelpDeskCategoryId == t.CategoryId)?.HelpDeskCategoryName,
+                EmployeeName = users.FirstOrDefault(u => u.UserId == t.UserId)?.FullName
+            })
+            .OrderByDescending(x => x.CreatedDate)
+            .ToList();
+        }
 
 
-    
-}
+    }
 }
