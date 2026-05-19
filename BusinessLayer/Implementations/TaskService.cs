@@ -14,39 +14,67 @@ namespace BusinessLayer.Implementations
     public class TaskService : ITaskService
     {
         private readonly IUnitOfWork _unitOfWork;
-       
+        private readonly IEmailService _emailService;
 
-        public TaskService(IUnitOfWork unitOfWork)
+        public TaskService(IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
-          
+            _emailService = emailService;
         }
 
         public async Task<ApiResponse<IEnumerable<TaskDto>>> GetAll(int userId)
         {
-            var list = (await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>()
-                .FindAsync(x => x.IsDeleted == false && x.UserId == userId))
-                .Select(x => new TaskDto
-                {
-                    TaskId = x.TaskId,
-                    CompanyId = x.CompanyId,
-                    RegionId = x.RegionId,
-                    UserId = x.UserId,
-                    TaskName = x.TaskName,
-                    ProjectId = x.ProjectId,
-                    AssignedTo = x.AssignedTo,
-                    PriorityId = x.PriorityId,
-                    StatusId = x.StatusId,
-                    StartDate = x.StartDate,
-                    DueDate = x.DueDate,
-                    Comment = x.Comment
-                });
+            // STEP 1: Get tasks
+            var tasks = await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>()
+                .FindAsync(x => x.IsDeleted == false && x.UserId == userId);
+
+            var taskList = tasks.ToList();
+
+            // STEP 2: Get task ids
+            var taskIds = taskList.Select(t => t.TaskId).ToList();
+
+            // STEP 3: Load files
+            var files = await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskFile>()
+                .FindAsync(f => taskIds.Contains(f.TaskId));
+
+            // STEP 4: Map result
+            var list = taskList.Select(x => new TaskDto
+            {
+                TaskId = x.TaskId,
+                CompanyId = x.CompanyId,
+                RegionId = x.RegionId,
+                UserId = x.UserId,
+                TaskName = x.TaskName,
+                ProjectId = x.ProjectId,
+                AssignedTo = x.AssignedTo,
+                PriorityId = x.PriorityId,
+                StatusId = x.StatusId,
+                StartDate = x.StartDate,
+                DueDate = x.DueDate,
+                Comment = x.Comment,
+
+                // ✅ FILES
+                TaskFilesList = files
+                    .Where(f => f.TaskId == x.TaskId)
+                    .Select(f => new TaskFileDto
+                    {
+                        TaskFileId = f.TaskFileId,
+                        FileName = f.FileName,
+                        FilePath = f.FilePath,
+                        FileType = f.FileType,
+                        FileSize = f.FileSize
+                    })
+                    .ToList()
+            });
 
             return new ApiResponse<IEnumerable<TaskDto>>(list);
         }
 
         public async Task<ApiResponse<string>> CreateAsync(TaskDto dto)
         {
+            // =========================
+            // SAVE TASK
+            // =========================
             var entity = new DataAccessLayer.DBContext.TaskAssignment
             {
                 CompanyId = dto.CompanyId,
@@ -65,15 +93,140 @@ namespace BusinessLayer.Implementations
                 IsDeleted = false
             };
 
-            await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>().AddAsync(entity);
+            await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>()
+                .AddAsync(entity);
+
             await _unitOfWork.CompleteAsync();
 
-            // 🔥 FILE UPLOAD
-           
+            // =========================
+            // SEND EMAIL TO ASSIGNED EMPLOYEE
+            // =========================
+            var assignedUser = await _unitOfWork.Repository<User>()
+                .FindAsync(x => x.FullName == dto.AssignedTo);
+            var projectName = await _unitOfWork.Repository<ProjectMaster>()
+    .FindAsync(x => x.ProjectMasterId == dto.ProjectId);
+
+var project = projectName.FirstOrDefault()?.ProjectName ?? "N/A";
+
+var priorityName = await _unitOfWork.Repository<Priority>()
+    .FindAsync(x => x.PriorityId == dto.PriorityId);
+
+var priority = priorityName.FirstOrDefault()?.PriorityName ?? "N/A";
+
+            var emp = assignedUser.FirstOrDefault();
+
+            if (emp != null && !string.IsNullOrEmpty(emp.Email))
+            {
+                var body = $@"
+            <h3>New Task Assigned</h3>
+            <p><b>Task:</b> {dto.TaskName}</p>
+           <p><b>Project:</b> {project}</p>
+<p><b>Priority:</b> {priority}</p>
+            <p><b>Start Date:</b> {dto.StartDate:dd-MM-yyyy}</p>
+            <p><b>Due Date:</b> {dto.DueDate:dd-MM-yyyy}</p>
+            <p><b>Comment:</b> {dto.Comment}</p>
+            <br/>
+            <p>Please check your task dashboard.</p>
+        ";
+
+                await _emailService.SendEmailAsync(
+                    emp.Email,
+                    "New Task Assigned",
+                    body
+                );
+            }
+
+            // =========================
+            // SEND EMAIL FOR @MENTIONS
+            // =========================
+            if (!string.IsNullOrEmpty(dto.Comment))
+            {
+                var mentions = ExtractMentions(dto.Comment);
+
+                if (mentions.Count > 0)
+                {
+                    var users = await _unitOfWork.Repository<User>()
+     .FindAsync(u =>
+         mentions.Any(m =>
+             u.FullName.ToLower().Contains(m.ToLower())
+         )
+     );
+
+                    foreach (var user in users)
+                    {
+                        if (!string.IsNullOrEmpty(user.Email))
+                        {
+                            var mentionBody = $@"
+                        <h3>You were mentioned in a task comment</h3>
+                        <p><b>Task:</b> {dto.TaskName}</p>
+                        <p><b>Comment:</b> {dto.Comment}</p>
+                    ";
+
+                            await _emailService.SendEmailAsync(
+                                user.Email,
+                                "You were mentioned in a Task",
+                                mentionBody
+                            );
+                        }
+                    }
+                }
+            }
+
+            // =========================
+            // SAVE FILES (YOUR EXISTING CODE)
+            // =========================
+            if (dto.Files != null && dto.Files.Count > 0)
+            {
+                string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string uploadPath = Path.Combine(root, "Uploads", "Tasks");
+
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                foreach (var file in dto.Files)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(uploadPath, fileName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    var taskFile = new DataAccessLayer.DBContext.TaskFile
+                    {
+                        TaskId = entity.TaskId,
+                        FileName = file.FileName,
+                        FilePath = $"Uploads/Tasks/{fileName}",
+                        FileType = file.ContentType,
+                        FileSize = file.Length,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskFile>()
+                        .AddAsync(taskFile);
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
 
             return new ApiResponse<string>("Task created successfully");
         }
+        private List<string> ExtractMentions(string comment)
+        {
+            if (string.IsNullOrWhiteSpace(comment))
+                return new List<string>();
 
+            return comment
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Where(x => x.StartsWith("@"))
+                .Select(x => x.TrimStart('@')
+                              .Replace(",", "")
+                              .Replace(".", "")
+                              .Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
         public async Task<ApiResponse<string>> UpdateAsync(TaskDto dto)
         {
             var entity = await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>()
@@ -82,19 +235,154 @@ namespace BusinessLayer.Implementations
             if (entity == null)
                 return new ApiResponse<string>(null!, "Not found", false);
 
+            // store old assigned user for comparison
+            var oldAssigned = entity.AssignedTo;
+
+            // =========================
+            // UPDATE TASK
+            // =========================
             entity.TaskName = dto.TaskName;
-            entity.ProjectId = dto.ProjectId;      // ✅ Added
-            entity.StartDate = dto.StartDate;
+            entity.ProjectId = dto.ProjectId;
             entity.AssignedTo = dto.AssignedTo;
             entity.PriorityId = dto.PriorityId;
             entity.StatusId = dto.StatusId;
+            entity.StartDate = dto.StartDate;
             entity.DueDate = dto.DueDate;
             entity.Comment = dto.Comment;
             entity.ModifiedAt = DateTime.Now;
             entity.ModifiedBy = dto.UserId;
 
-            _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>().Update(entity);
+            _unitOfWork.Repository<DataAccessLayer.DBContext.TaskAssignment>()
+                .Update(entity);
+
             await _unitOfWork.CompleteAsync();
+
+            // =========================
+            // EMAIL IF TASK REASSIGNED
+            // =========================
+            if (oldAssigned != dto.AssignedTo)
+            {
+                var assignedUser = await _unitOfWork.Repository<User>()
+                    .FindAsync(x => x.FullName == dto.AssignedTo);
+
+                var emp = assignedUser.FirstOrDefault();
+
+                if (emp != null && !string.IsNullOrEmpty(emp.Email))
+                {
+                    await _emailService.SendEmailAsync(
+                        emp.Email,
+                        "Task Reassigned",
+                        $"You have been assigned a new task: <b>{dto.TaskName}</b>"
+                    );
+                }
+            }
+
+            // =========================
+            // EMAIL FOR @MENTIONS
+            // =========================
+            if (!string.IsNullOrEmpty(dto.Comment))
+            {
+                var mentions = ExtractMentions(dto.Comment);
+
+                if (mentions.Count > 0)
+                {
+                    var users = await _unitOfWork.Repository<User>()
+      .FindAsync(u =>
+          mentions.Any(m =>
+              u.FullName.ToLower().Contains(m.ToLower())
+          )
+      );
+
+                    foreach (var user in users)
+                    {
+                        if (!string.IsNullOrEmpty(user.Email))
+                        {
+                            await _emailService.SendEmailAsync(
+                                user.Email,
+                                "You were mentioned in a Task",
+                                $@"
+                            <h3>Task Comment Mention</h3>
+                            <p><b>Task:</b> {dto.TaskName}</p>
+                            <p><b>Comment:</b> {dto.Comment}</p>
+                        "
+                            );
+                        }
+                    }
+                }
+            }
+
+            // =========================
+            // DELETE FILES (your existing logic)
+            // =========================
+            if (!string.IsNullOrEmpty(dto.DeletedFileIds))
+            {
+                var deletedIds = System.Text.Json.JsonSerializer
+                    .Deserialize<List<int>>(dto.DeletedFileIds);
+
+                if (deletedIds != null && deletedIds.Count > 0)
+                {
+                    foreach (var fileId in deletedIds)
+                    {
+                        var fileEntity = await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskFile>()
+                            .GetByIdAsync(fileId);
+
+                        if (fileEntity != null)
+                        {
+                            string fullPath = Path.Combine(
+                                Directory.GetCurrentDirectory(),
+                                "wwwroot",
+                                fileEntity.FilePath!
+                            );
+
+                            if (File.Exists(fullPath))
+                                File.Delete(fullPath);
+
+                            _unitOfWork.Repository<DataAccessLayer.DBContext.TaskFile>()
+                                .Remove(fileEntity);
+                        }
+                    }
+
+                    await _unitOfWork.CompleteAsync();
+                }
+            }
+
+            // =========================
+            // ADD NEW FILES (your existing logic)
+            // =========================
+            if (dto.Files != null && dto.Files.Count > 0)
+            {
+                string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string uploadPath = Path.Combine(root, "Uploads", "Tasks");
+
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
+
+                foreach (var file in dto.Files)
+                {
+                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    string fullPath = Path.Combine(uploadPath, fileName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    var taskFile = new DataAccessLayer.DBContext.TaskFile
+                    {
+                        TaskId = entity.TaskId,
+                        FileName = file.FileName,
+                        FilePath = $"Uploads/Tasks/{fileName}",
+                        FileType = file.ContentType,
+                        FileSize = file.Length,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskFile>()
+                        .AddAsync(taskFile);
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
 
             return new ApiResponse<string>("Updated successfully");
         }
@@ -112,34 +400,55 @@ namespace BusinessLayer.Implementations
         }
         public async Task<ApiResponse<IEnumerable<TaskDto>>> GetMyTasks(int userId)
         {
-            // 🔥 Step 1: Get logged-in user
             var user = await _unitOfWork.Repository<User>()
                 .GetByIdAsync(userId);
 
             if (user == null)
                 return new ApiResponse<IEnumerable<TaskDto>>(null!, "User not found", false);
 
-            // 🔥 Step 2: Get tasks where AssignedTo = employee name/code
-            var list = (await _unitOfWork.Repository<TaskAssignment>()
+            // STEP 1: Get tasks
+            var tasks = await _unitOfWork.Repository<TaskAssignment>()
                 .FindAsync(x => x.IsDeleted == false &&
-                                x.AssignedTo == user.FullName))   // 👈 KEY LINE
-                .Select(x => new TaskDto
-                {
-                    TaskId = x.TaskId,
-                    CompanyId = x.CompanyId,
-                    RegionId = x.RegionId,
-                    UserId = x.UserId,
-                    TaskName = x.TaskName,
-                    ProjectId = x.ProjectId,
-                    AssignedTo = x.AssignedTo,
-                    PriorityId = x.PriorityId,
-                    StatusId = x.StatusId,
-                    StartDate = x.StartDate,
-                    DueDate = x.DueDate,
-                    Comment = x.Comment
-                });
+                                x.AssignedTo == user.FullName);
 
-            return new ApiResponse<IEnumerable<TaskDto>>(list);
+            var taskList = tasks.ToList();
+
+            // STEP 2: Load TaskFiles separately (NO INCLUDE)
+            var taskIds = taskList.Select(t => t.TaskId).ToList();
+
+            var files = await _unitOfWork.Repository<TaskFile>()
+                .FindAsync(f => taskIds.Contains(f.TaskId));
+
+            // STEP 3: Map
+            var result = taskList.Select(x => new TaskDto
+            {
+                TaskId = x.TaskId,
+                CompanyId = x.CompanyId,
+                RegionId = x.RegionId,
+                UserId = x.UserId,
+                TaskName = x.TaskName,
+                ProjectId = x.ProjectId,
+                AssignedTo = x.AssignedTo,
+                PriorityId = x.PriorityId,
+                StatusId = x.StatusId,
+                StartDate = x.StartDate,
+                DueDate = x.DueDate,
+                Comment = x.Comment,
+
+                TaskFilesList = files
+                    .Where(f => f.TaskId == x.TaskId)
+                    .Select(f => new TaskFileDto
+                    {
+                        TaskFileId = f.TaskFileId,
+                        FileName = f.FileName,
+                        FilePath = f.FilePath,
+                        FileType = f.FileType,
+                        FileSize = f.FileSize
+                    })
+                    .ToList()
+            });
+
+            return new ApiResponse<IEnumerable<TaskDto>>(result);
         }
     }
 }
