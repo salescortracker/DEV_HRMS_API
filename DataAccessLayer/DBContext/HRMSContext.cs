@@ -3984,9 +3984,9 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.FileName).HasMaxLength(255);
-            entity.Property(e => e.FilePath).HasMaxLength(500);
-            entity.Property(e => e.FileType).HasMaxLength(50);
+            entity.Property(e => e.FileName).HasMaxLength(500);
+            entity.Property(e => e.FilePath).HasMaxLength(1000);
+            entity.Property(e => e.FileType).HasMaxLength(200);
 
             entity.HasOne(d => d.Task).WithMany(p => p.TaskFiles)
                 .HasForeignKey(d => d.TaskId)

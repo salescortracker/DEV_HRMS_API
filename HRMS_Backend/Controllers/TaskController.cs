@@ -23,36 +23,10 @@ namespace HRMS_Backend.Controllers
         [HttpPost("CreateTask")]
         public async Task<IActionResult> CreateTask([FromForm] TaskDto dto)
         {
-            // 🔥 FILE SAVE HERE
-            if (dto.Files != null && dto.Files.Count > 0)
-            {
-                string root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                string path = Path.Combine(root, "Uploads", "Tasks");
-
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                List<string> savedFiles = new List<string>();
-
-                foreach (var file in dto.Files)
-                {
-                    string fileName = $"{Guid.NewGuid()}_{file.FileName}";
-                    string fullPath = Path.Combine(path, fileName);
-
-                    using var stream = new FileStream(fullPath, FileMode.Create);
-                    await file.CopyToAsync(stream);
-
-                    savedFiles.Add(fileName);
-                }
-
-                // optional: pass to service if needed
-            }
-
             return Ok(await _taskService.CreateAsync(dto));
         }
-
         [HttpPost("UpdateTask")]
-        public async Task<IActionResult> UpdateTask([FromBody] TaskDto dto)
+        public async Task<IActionResult> UpdateTask([FromForm] TaskDto dto)
         {
             return Ok(await _taskService.UpdateAsync(dto));
         }

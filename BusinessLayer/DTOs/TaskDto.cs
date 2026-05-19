@@ -27,5 +27,7 @@ namespace BusinessLayer.DTOs
         public string? Comment { get; set; }
 
         public List<IFormFile>? Files { get; set; }   // 🔥 important
+        public List<TaskFileDto>? TaskFilesList { get; set; }
+        public string? DeletedFileIds { get; set; }
     }
 }
