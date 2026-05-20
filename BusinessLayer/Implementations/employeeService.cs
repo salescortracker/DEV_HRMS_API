@@ -2242,37 +2242,93 @@ namespace BusinessLayer.Implementations
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        //public async Task<int> addempFamilyAsync(EmployeeFamilyDto model)
+        //{
+        //    // Start with provided relationship string if any
+        //    string relationshipName = model.Relationship ?? string.Empty;
+
+        //    // If caller provided a RelationshipId, try to get the master value
+        //    if (model.RelationshipId.HasValue)
+        //    {
+        //        var relFromMaster = await _context.Relationships
+        //            .Where(r => r.RelationshipId == model.RelationshipId.Value)
+        //            .Select(r => r.RelationshipName)
+        //            .FirstOrDefaultAsync();
+
+        //        // If we found a name in master, use it; otherwise keep whatever model.Relationship had
+        //        if (!string.IsNullOrEmpty(relFromMaster))
+        //            relationshipName = relFromMaster;
+        //    }
+
+        //    // Ensure non-null (DB column is NOT NULL)
+        //    if (relationshipName == null)
+        //        relationshipName = string.Empty;
+
+        //    var entity = new EmployeeFamilyDetail
+        //    {
+        //        UserId = model.UserId,
+        //        CompanyId = model.CompanyId,
+        //        RegionId = model.RegionId,
+        //        Name = model.Name,
+        //        Relationship = relationshipName,            // <-- guaranteed non-null
+        //        RelationshipId = model.RelationshipId,
+        //        DateOfBirth = DateOnly.FromDateTime(model.DateOfBirth),
+        //        Gender = model.Gender,
+        //        GenderId = model.GenderId,
+        //        Occupation = model.Occupation,
+        //        Phone = model.Phone,
+        //        Address = model.Address,
+        //        IsDependent = model.IsDependent,
+        //        CreatedBy = model.CreatedBy,
+        //        CreatedDate = DateTime.Now
+        //    };
+
+        //    await _context.EmployeeFamilyDetails.AddAsync(entity);
+        //    await _context.SaveChangesAsync();
+
+        //    return entity.FamilyId;
+        //}
+
         public async Task<int> addempFamilyAsync(EmployeeFamilyDto model)
         {
-            // Start with provided relationship string if any
+            // Get relationship name from master table
             string relationshipName = model.Relationship ?? string.Empty;
 
-            // If caller provided a RelationshipId, try to get the master value
             if (model.RelationshipId.HasValue)
             {
-                var relFromMaster = await _context.Relationships
+                relationshipName = await _context.Relationships
                     .Where(r => r.RelationshipId == model.RelationshipId.Value)
                     .Select(r => r.RelationshipName)
-                    .FirstOrDefaultAsync();
-
-                // If we found a name in master, use it; otherwise keep whatever model.Relationship had
-                if (!string.IsNullOrEmpty(relFromMaster))
-                    relationshipName = relFromMaster;
+                    .FirstOrDefaultAsync() ?? relationshipName;
             }
 
-            // Ensure non-null (DB column is NOT NULL)
-            if (relationshipName == null)
-                relationshipName = string.Empty;
+            relationshipName = relationshipName.Trim();
+
+            var dob = DateOnly.FromDateTime(model.DateOfBirth);
+
+            // Professional Duplicate Check
+            var isDuplicate = await _context.EmployeeFamilyDetails.AnyAsync(x =>
+                x.UserId == model.UserId &&
+                x.CompanyId == model.CompanyId &&
+                x.RegionId == model.RegionId &&
+                x.Name.Trim().ToLower() == model.Name.Trim().ToLower() &&
+                x.RelationshipId == model.RelationshipId &&
+                x.DateOfBirth == dob);
+
+            if (isDuplicate)
+            {
+                throw new Exception("Family member already exists for this employee.");
+            }
 
             var entity = new EmployeeFamilyDetail
             {
                 UserId = model.UserId,
                 CompanyId = model.CompanyId,
                 RegionId = model.RegionId,
-                Name = model.Name,
-                Relationship = relationshipName,            // <-- guaranteed non-null
+                Name = model.Name.Trim(),
+                Relationship = relationshipName,
                 RelationshipId = model.RelationshipId,
-                DateOfBirth = DateOnly.FromDateTime(model.DateOfBirth),
+                DateOfBirth = dob,
                 Gender = model.Gender,
                 GenderId = model.GenderId,
                 Occupation = model.Occupation,
@@ -2288,54 +2344,120 @@ namespace BusinessLayer.Implementations
 
             return entity.FamilyId;
         }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
+        //public async Task<bool> updateempFamilyAsync(EmployeeFamilyDto model)
+        //{
+        //    var entity = await _context.EmployeeFamilyDetails.FindAsync(model.FamilyId);
+        //    if (entity == null)
+        //        return false;
+
+        //    entity.UserId = model.UserId;
+        //    entity.CompanyId = model.CompanyId;
+        //    entity.RegionId = model.RegionId;
+        //    entity.Name = model.Name;
+
+        //    // Update Relationship name if RelationshipId provided (preferred)
+        //    if (model.RelationshipId.HasValue)
+        //    {
+        //        var relFromMaster = await _context.Relationships
+        //            .Where(r => r.RelationshipId == model.RelationshipId.Value)
+        //            .Select(r => r.RelationshipName)
+        //            .FirstOrDefaultAsync();
+
+        //        if (!string.IsNullOrEmpty(relFromMaster))
+        //            entity.Relationship = relFromMaster;
+        //        else
+        //            entity.Relationship = model.Relationship ?? entity.Relationship ?? string.Empty;
+        //    }
+        //    else if (!string.IsNullOrEmpty(model.Relationship))
+        //    {
+        //        entity.Relationship = model.Relationship;
+        //    }
+        //    // else keep existing entity.Relationship
+
+        //    if (model.DateOfBirth != default)
+        //        entity.DateOfBirth = DateOnly.FromDateTime(model.DateOfBirth);
+
+        //    entity.Gender = model.Gender ?? entity.Gender;
+        //    entity.GenderId = model.GenderId ?? entity.GenderId;
+        //    entity.Occupation = model.Occupation ?? entity.Occupation;
+        //    entity.Phone = model.Phone ?? entity.Phone;
+        //    entity.Address = model.Address ?? entity.Address;
+        //    entity.IsDependent = model.IsDependent;
+        //    entity.ModifiedBy = model.ModifiedBy;
+        //    entity.ModifiedDate = DateTime.Now;
+
+        //    await _context.SaveChangesAsync();
+        //    return true;
+        //}
+
+
         public async Task<bool> updateempFamilyAsync(EmployeeFamilyDto model)
         {
-            var entity = await _context.EmployeeFamilyDetails.FindAsync(model.FamilyId);
-            if (entity == null)
-                return false;
+            var entity = await _context.EmployeeFamilyDetails
+                .FirstOrDefaultAsync(x => x.FamilyId == model.FamilyId);
 
+            if (entity == null)
+            {
+                throw new Exception("Family member record not found.");
+            }
+
+            // Get relationship name from master table
+            string relationshipName = model.Relationship ?? entity.Relationship ?? string.Empty;
+
+            if (model.RelationshipId.HasValue)
+            {
+                relationshipName = await _context.Relationships
+                    .Where(r => r.RelationshipId == model.RelationshipId.Value)
+                    .Select(r => r.RelationshipName)
+                    .FirstOrDefaultAsync() ?? relationshipName;
+            }
+
+            relationshipName = relationshipName.Trim();
+
+            var dob = DateOnly.FromDateTime(model.DateOfBirth);
+
+            // Professional Duplicate Check (excluding current record)
+            var isDuplicate = await _context.EmployeeFamilyDetails.AnyAsync(x =>
+                x.FamilyId != model.FamilyId &&
+                x.UserId == model.UserId &&
+                x.CompanyId == model.CompanyId &&
+                x.RegionId == model.RegionId &&
+                x.Name.Trim().ToLower() == model.Name.Trim().ToLower() &&
+                x.RelationshipId == model.RelationshipId &&
+                x.DateOfBirth == dob);
+
+            if (isDuplicate)
+            {
+                throw new Exception("Family member already exists for this employee.");
+            }
+
+            // Update fields
             entity.UserId = model.UserId;
             entity.CompanyId = model.CompanyId;
             entity.RegionId = model.RegionId;
-            entity.Name = model.Name;
-
-            // Update Relationship name if RelationshipId provided (preferred)
-            if (model.RelationshipId.HasValue)
-            {
-                var relFromMaster = await _context.Relationships
-                    .Where(r => r.RelationshipId == model.RelationshipId.Value)
-                    .Select(r => r.RelationshipName)
-                    .FirstOrDefaultAsync();
-
-                if (!string.IsNullOrEmpty(relFromMaster))
-                    entity.Relationship = relFromMaster;
-                else
-                    entity.Relationship = model.Relationship ?? entity.Relationship ?? string.Empty;
-            }
-            else if (!string.IsNullOrEmpty(model.Relationship))
-            {
-                entity.Relationship = model.Relationship;
-            }
-            // else keep existing entity.Relationship
-
-            if (model.DateOfBirth != default)
-                entity.DateOfBirth = DateOnly.FromDateTime(model.DateOfBirth);
-
-            entity.Gender = model.Gender ?? entity.Gender;
-            entity.GenderId = model.GenderId ?? entity.GenderId;
-            entity.Occupation = model.Occupation ?? entity.Occupation;
-            entity.Phone = model.Phone ?? entity.Phone;
-            entity.Address = model.Address ?? entity.Address;
+            entity.Name = model.Name.Trim();
+            entity.Relationship = relationshipName;
+            entity.RelationshipId = model.RelationshipId;
+            entity.DateOfBirth = dob;
+            entity.Gender = model.Gender;
+            entity.GenderId = model.GenderId;
+            entity.Occupation = model.Occupation;
+            entity.Phone = model.Phone;
+            entity.Address = model.Address;
             entity.IsDependent = model.IsDependent;
             entity.ModifiedBy = model.ModifiedBy;
             entity.ModifiedDate = DateTime.Now;
 
+            _context.EmployeeFamilyDetails.Update(entity);
+
             await _context.SaveChangesAsync();
+
             return true;
         }
         /// <summary>

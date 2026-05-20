@@ -1868,74 +1868,181 @@ public class UpdateResignationStatusRequest
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                // 🔹 Get UserId from request
                 int userId = model.UserId ?? 0;
 
-                if (userId == 0)
-                    return BadRequest("UserId is required");
+                if (userId <= 0)
+                    return BadRequest(new
+                    {
+                        Status = false,
+                        Message = "UserId is required"
+                    });
 
-                // 🔹 Get RoleId from Users table
+                // Get User Role
                 var user = await _context.Users
-                                .Where(u => u.UserId == userId)
-                                .Select(u => new { u.RoleId })
-                                .FirstOrDefaultAsync();
+                    .Where(u => u.UserId == userId)
+                    .Select(u => new { u.RoleId })
+                    .FirstOrDefaultAsync();
 
                 if (user == null)
-                    return BadRequest("User not found");
+                {
+                    return NotFound(new
+                    {
+                        Status = false,
+                        Message = "User not found"
+                    });
+                }
 
-                int roleId = user.RoleId;
-                // 🔹 Get MenuId from MenuMaster
+                // Get MenuId
                 var menuId = await _context.MenuMasters
-                    .Where(m => m.MenuName.Trim().ToLower() == "Family Details".ToLower() && m.IsActive == true)
+                    .Where(m => m.MenuName.Trim().ToLower() == "family details"
+                             && m.IsActive == true)
                     .Select(m => m.MenuId)
                     .FirstOrDefaultAsync();
 
                 if (menuId == 0)
-                    return BadRequest("Menu not found");
+                {
+                    return NotFound(new
+                    {
+                        Status = false,
+                        Message = "Menu not found"
+                    });
+                }
 
-                // 🔹 Check permission (MenuId = 7)
-
-
-                bool canAdd = await _menuRoleService.HasPermissionAsync(roleId, menuId, "create");
+                // Permission Check
+                bool canAdd = await _menuRoleService
+                    .HasPermissionAsync(user.RoleId, menuId, "create");
 
                 if (!canAdd)
                 {
-                    return StatusCode(403, "You don't have permission to add employee family details");
+                    return StatusCode(403, new
+                    {
+                        Status = false,
+                        Message = "You don't have permission to add family details"
+                    });
                 }
 
-                // 🔹 Set CreatedBy (Audit)
-                model.CreatedBy = model.CreatedBy == 0 && model.UserId.HasValue
-                    ? model.UserId.Value
+                // Audit Fields
+                model.CreatedBy = model.CreatedBy == 0
+                    ? userId
                     : model.CreatedBy;
 
-                // 🔹 Save data
+                // Save
                 var id = await _employeeService.addempFamilyAsync(model);
 
-                return Ok(new { message = "Saved successfully", id });
+                return Ok(new
+                {
+                    Status = true,
+                    Message = "Family member added successfully",
+                    Id = id
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, new
+                {
+                    Status = false,
+                    Message = ex.Message
+                });
             }
         }
-
         /// <summary>
         /// Update an existing family entry
         /// </summary>
         [HttpPost("updateempFamilyAsync")]
         public async Task<IActionResult> updateempFamilyAsync([FromForm] EmployeeFamilyDto model)
         {
-           
-            model.ModifiedBy = model.ModifiedBy == 0 && model.UserId.HasValue ? model.UserId.Value : model.ModifiedBy;
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var result = await _employeeService.updateempFamilyAsync(model);
+                int userId = model.UserId ?? 0;
 
-            if (!result)
-                return NotFound(new { message = "Record not found" });
+                if (userId <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        Status = false,
+                        Message = "UserId is required"
+                    });
+                }
 
-            return Ok(new { message = "Updated successfully" });
+                // Get User Role
+                var user = await _context.Users
+                    .Where(u => u.UserId == userId)
+                    .Select(u => new { u.RoleId })
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return NotFound(new
+                    {
+                        Status = false,
+                        Message = "User not found"
+                    });
+                }
+
+                // Get MenuId
+                var menuId = await _context.MenuMasters
+                    .Where(m => m.MenuName.Trim().ToLower() == "family details"
+                             && m.IsActive == true)
+                    .Select(m => m.MenuId)
+                    .FirstOrDefaultAsync();
+
+                if (menuId == 0)
+                {
+                    return NotFound(new
+                    {
+                        Status = false,
+                        Message = "Menu not found"
+                    });
+                }
+
+                // Permission Check
+                bool canEdit = await _menuRoleService
+                    .HasPermissionAsync(user.RoleId, menuId, "edit");
+
+                if (!canEdit)
+                {
+                    return StatusCode(403, new
+                    {
+                        Status = false,
+                        Message = "You don't have permission to update family details"
+                    });
+                }
+
+                // Audit Fields
+                model.ModifiedBy = model.ModifiedBy == 0
+                    ? userId
+                    : model.ModifiedBy;
+
+                // Update
+                var result = await _employeeService.updateempFamilyAsync(model);
+
+                if (!result)
+                {
+                    return NotFound(new
+                    {
+                        Status = false,
+                        Message = "Family member record not found"
+                    });
+                }
+
+                return Ok(new
+                {
+                    Status = true,
+                    Message = "Family member updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Status = false,
+                    Message = ex.Message
+                });
+            }
         }
-
         /// <summary>
         /// Delete a family record
         /// </summary>
