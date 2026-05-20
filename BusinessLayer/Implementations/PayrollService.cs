@@ -215,38 +215,116 @@ namespace BusinessLayer.Implementations
 
             /* ================= ATTENDANCE ================= */
 
-            // UPDATED: now includes lateCount
+            //        // UPDATED: now includes lateCount
+            //        var attendance = await GetEmployeeAttendanceSummary(
+            //            empSalary.EmployeeId, userId, month, year);
+            //        decimal lateDeductionAmount =
+            //attendance.lateDeductionDays * (attendance.workingDays == 0 ? 0 : gross / attendance.workingDays);
+
+            //        int allowedLeaves = 1;
+            //        int allowedHalfDays = 2;
+
+            //        // Existing logic (no change needed)
+            //        int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
+            //        int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
+
+            //        decimal perDaySalary = attendance.workingDays == 0
+            //            ? 0
+            //            : gross / attendance.workingDays;
+
+            //        decimal attendanceDeduction =
+            //            (extraLeaves * perDaySalary) +
+            //            (extraHalfDays * (perDaySalary / 2)) +
+            //            lateDeductionAmount;
+
+            //        attendanceDeduction = Math.Round(attendanceDeduction, 2);
+
+
+            /* ================= ATTENDANCE ================= */
+
             var attendance = await GetEmployeeAttendanceSummary(
-                empSalary.EmployeeId, userId, month, year);
-            decimal lateDeductionAmount =
-    attendance.lateDeductionDays * (attendance.workingDays == 0 ? 0 : gross / attendance.workingDays);
+                empSalary.EmployeeId,
+                userId,
+                month,
+                year
+            );
 
-            int allowedLeaves = 1;
-            int allowedHalfDays = 2;
+            // =========================================
+            // PER DAY SALARY
+            // =========================================
 
-            // Existing logic (no change needed)
-            int extraLeaves = Math.Max(0, attendance.leaveDays - allowedLeaves);
-            int extraHalfDays = Math.Max(0, attendance.halfDays - allowedHalfDays);
-
-            decimal perDaySalary = attendance.workingDays == 0
+            decimal perDaySalary =
+                attendance.workingDays == 0
                 ? 0
                 : gross / attendance.workingDays;
 
-            decimal attendanceDeduction =
-                (extraLeaves * perDaySalary) +
-                (extraHalfDays * (perDaySalary / 2)) +
-                lateDeductionAmount;
+            // =========================================
+            // HALF DAY CALCULATION
+            // 2 HALF DAYS = 1 DAY DEDUCTION
+            // =========================================
 
-            attendanceDeduction = Math.Round(attendanceDeduction, 2);
+            decimal halfDayDeduction =
+                attendance.halfDays * 0.5m;
 
-            /* ================= EXPENSES ================= */
+            // =========================================
+            // LATE DEDUCTION DAYS
+            // Example:
+            // 5 Late = 0.5 Day
+            // =========================================
 
-            var expenses = await GetApprovedExpenses(
-                empSalary.EmployeeId, month, year);
+            decimal lateDeductionDays =
+                attendance.lateDeductionDays;
+
+            // =========================================
+            // FINAL PAYABLE DAYS
+            // =========================================
+
+            decimal payableDays =
+                attendance.presentDays
+                - attendance.leaveDays
+                - halfDayDeduction
+                - lateDeductionDays;
+
+            // Prevent negative salary
+            if (payableDays < 0)
+            {
+                payableDays = 0;
+            }
+
+            // =========================================
+            // ATTENDANCE DEDUCTION AMOUNT
+            // =========================================
+
+            decimal attendanceDeductionAmount =
+                (attendance.leaveDays * perDaySalary)
+                + (halfDayDeduction * perDaySalary)
+                + (lateDeductionDays * perDaySalary);
+
+            attendanceDeductionAmount =
+                Math.Round(attendanceDeductionAmount, 2);
+
+            // =========================================
+            // ACTUAL EARNED SALARY
+            // =========================================
+
+            decimal earnedSalary =
+                payableDays * perDaySalary;
+
+            earnedSalary = Math.Round(earnedSalary, 2);
+
+            // =========================================
+            // EXPENSES
+            // =========================================
+
+            decimal expenses = await GetApprovedExpenses(
+                empSalary.EmployeeId,
+                month,
+                year
+            );
 
             if (expenses > 0)
             {
-                gross += expenses;
+                earnedSalary += expenses;
 
                 payrollDetails.Add(new PayrollDetail
                 {
@@ -257,10 +335,58 @@ namespace BusinessLayer.Implementations
                 });
             }
 
+            // =========================================
+            // DEDUCTIONS (PF/PT/etc)
+            // =========================================
+
+            decimal finalDeduction =
+                totalDeduction;
+
+            // =========================================
+            // FINAL GROSS
+            // =========================================
+
+            gross = earnedSalary;
+
+
+
+
+
+            /* ================= EXPENSES ================= */
+
+            //        var expenses = await GetApprovedExpenses(
+            //empSalary.EmployeeId, month, year);
+
+            //        if (expenses > 0)
+            //        {
+            //            gross += expenses;
+
+            //            payrollDetails.Add(new PayrollDetail
+            //            {
+            //                Amount = expenses,
+            //                UserId = userId,
+            //                CreatedAt = DateTime.UtcNow
+            //            });
+            //}
+
+            //return (
+            //    Math.Round(gross, 2),
+            //    Math.Round(totalDeduction, 2),
+            //    attendanceDeduction,
+            //    expenses,
+            //    payrollDetails
+            //);
+
+
+
+
+
+
+
             return (
                 Math.Round(gross, 2),
-                Math.Round(totalDeduction, 2),
-                attendanceDeduction,
+                Math.Round(finalDeduction, 2),
+                Math.Round(attendanceDeductionAmount, 2),
                 expenses,
                 payrollDetails
             );
