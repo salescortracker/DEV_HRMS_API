@@ -188,6 +188,9 @@ namespace BusinessLayer.Implementations
 
             bool isDuplicate = existingLeaves.Any(l =>
             {
+                if (l.Status == "Rejected")
+                    return false;
+
                 var existingStart = l.StartDate.ToDateTime(TimeOnly.MinValue);
                 var existingEnd = l.EndDate.ToDateTime(TimeOnly.MinValue);
 
@@ -207,20 +210,27 @@ namespace BusinessLayer.Implementations
                                 x.RegionId == dto.RegionId &&
                                 x.IsActive);
 
-            int totalDays = 0;
+            decimal totalDays = 0;
 
-            DateTime current = dto.StartDate;
-
-            while (current <= dto.EndDate)
+            if (dto.IsHalfDay)
             {
-                string dayName = current.DayOfWeek.ToString();
+                totalDays = 0.5m;
+            }
+            else
+            {
+                DateTime current = dto.StartDate;
 
-                bool isWeekoff = weekoffs.Any(x => x.Weekoff1 == dayName);
+                while (current <= dto.EndDate)
+                {
+                    string dayName = current.DayOfWeek.ToString();
 
-                if (!isWeekoff)
-                    totalDays++;
+                    bool isWeekoff = weekoffs.Any(x => x.Weekoff1 == dayName);
 
-                current = current.AddDays(1);
+                    if (!isWeekoff)
+                        totalDays++;
+
+                    current = current.AddDays(1);
+                }
             }
 
             // ✅ Override frontend value
@@ -297,7 +307,8 @@ namespace BusinessLayer.Implementations
                 LeaveTypeName = leaveTypes.FirstOrDefault(t => t.LeaveTypeId == l.LeaveTypeId)?.LeaveTypeName,
                 StartDate = l.StartDate.ToDateTime(TimeOnly.MinValue).Date,
                 EndDate = l.EndDate.ToDateTime(TimeOnly.MinValue).Date,
-                TotalDays = l.TotalDays,
+                IsHalfDay = l.IsHalfDay ?? false,
+                TotalDays = (l.IsHalfDay ?? false) ? 0.5m : l.TotalDays,
                 Reason = l.Reason,
                 Status = l.Status,
                 FileName = l.FileName,
@@ -442,6 +453,19 @@ namespace BusinessLayer.Implementations
                     $"Hello {user.FullName},<br>Your leave has been <b>approved</b>.");
             }
 
+
+            if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+            {
+                await _emailService.SendEmailAsync(
+                    leave.HrEmail,
+                    "Employee Leave Approved",
+                    $"Employee {user?.FullName} leave has been <b>approved</b>.<br/>" +
+                    $"From: {leave.StartDate}<br/>" +
+                    $"To: {leave.EndDate}<br/>" +
+                    $"Total Days: {leave.TotalDays}"
+                );
+            }
+
             return true;
         }
 
@@ -465,6 +489,19 @@ namespace BusinessLayer.Implementations
                     user.Email,
                     "Leave Rejected",
                     $"Hello {user.FullName},<br>Your leave has been <b>rejected</b>.");
+            }
+
+            // ✅ HR Email
+            if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+            {
+                await _emailService.SendEmailAsync(
+                    leave.HrEmail,
+                    "Employee Leave Rejected",
+                    $"Employee {user?.FullName} leave has been <b>rejected</b>.<br/>" +
+                    $"From: {leave.StartDate}<br/>" +
+                    $"To: {leave.EndDate}<br/>" +
+                    $"Total Days: {(leave.IsHalfDay == true ? "0.5" : leave.TotalDays.ToString())}"
+                );
             }
 
             return true;
