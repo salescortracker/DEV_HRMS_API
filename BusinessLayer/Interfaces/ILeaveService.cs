@@ -26,5 +26,6 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<LeaveRequestDto>> GetLeavesForUserAsync(int userId);
         Task<IEnumerable<LeaveRequestDto>> GetLeavesForManagerUserAsync(int managerId);
         Task<ApiResponse<List<LeaveReportDto>>> GetLeaveReport(LeaveReportRequest request);
+        Task<IEnumerable<LeaveBalanceDto>> GetLeaveBalanceAsync(int userId);
     }
 }

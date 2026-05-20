@@ -163,6 +163,86 @@ namespace BusinessLayer.Implementations
                 ManagerEmail = manager?.Email
             };
         }
+
+        public async Task<IEnumerable<LeaveBalanceDto>> GetLeaveBalanceAsync(int userId)
+        {
+            // USER
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            // DESIGNATION
+            var designation = await _context.Designations
+                .FirstOrDefaultAsync(x => x.DesignationId == user.DesignationId);
+
+            if (designation == null)
+                throw new Exception("Designation not mapped");
+
+            // GRADE
+            int? gradeId = designation.GradeId;
+
+            if (gradeId == null)
+                throw new Exception("Grade not mapped");
+
+            // LEAVE TYPES FOR GRADE
+            var leaveGrades = await (
+                from ltg in _context.LeaveTypeGrades
+                join lt in _context.LeaveTypes
+                    on ltg.LeaveTypeId equals lt.LeaveTypeId
+                where ltg.GradeId == gradeId
+                      && lt.IsActive == true
+                      && lt.IsDeleted == false
+                select new
+                {
+                    lt.LeaveTypeId,
+                    lt.LeaveTypeName,
+                    ltg.LeaveDays
+                }
+            ).ToListAsync();
+
+            var leaveRequests = await _context.LeaveRequests
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+
+            var result = leaveGrades.Select(x =>
+            {
+                var approved = leaveRequests
+                    .Where(l => l.LeaveTypeId == x.LeaveTypeId
+                             && l.Status == "Approved")
+                    .Sum(l => l.TotalDays);
+
+                var pending = leaveRequests
+                    .Where(l => l.LeaveTypeId == x.LeaveTypeId
+                             && l.Status == "Pending")
+                    .Sum(l => l.TotalDays);
+
+                var rejected = leaveRequests
+                    .Where(l => l.LeaveTypeId == x.LeaveTypeId
+                             && l.Status == "Rejected")
+                    .Sum(l => l.TotalDays);
+
+                return new LeaveBalanceDto
+                {
+                    LeaveTypeId = x.LeaveTypeId,
+                    LeaveTypeName = x.LeaveTypeName,
+
+                    AllocatedLeaves = x.LeaveDays,
+
+                    ApprovedLeaves = approved,
+
+                    PendingLeaves = pending,
+
+                    RejectedLeaves = rejected,
+
+                    RemainingLeaves = x.LeaveDays - approved - pending
+                };
+            }).ToList();
+
+            return result;
+        }
+
         public async Task<int> SubmitLeaveAsync(LeaveRequestDto dto)
         {
             var startDateOnly = DateOnly.FromDateTime(dto.StartDate);
