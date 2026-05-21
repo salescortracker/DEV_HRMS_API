@@ -41,5 +41,28 @@ namespace HRMS_Backend.Controllers
         {
             return Ok(await _taskService.GetMyTasks(userId));
         }
+        [HttpGet("report")]
+        public async Task<IActionResult> GetTaskReport(
+     int companyId,
+     int regionId,
+     int? employeeId,
+     int? statusId,
+     int? priorityId,
+     DateTime? fromDate,
+     DateTime? toDate)
+        {
+            var result = await _taskService.GetTaskReport(
+                companyId,
+                regionId,
+                employeeId,
+                statusId,
+                priorityId,
+                fromDate,
+                toDate
+            );
+
+            return Ok(result);
+        }
+
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.Common;
+﻿using BusinessLayer.Common;
 using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
@@ -450,5 +445,64 @@ var priority = priorityName.FirstOrDefault()?.PriorityName ?? "N/A";
 
             return new ApiResponse<IEnumerable<TaskDto>>(result);
         }
+
+        public async Task<ApiResponse<IEnumerable<TaskDto>>> GetTaskReport(
+      int companyId,
+      int regionId,
+      int? employeeId,
+      int? statusId,
+      int? priorityId,
+      DateTime? fromDate,
+      DateTime? toDate)
+        {
+            // STEP 1: Base query (company + region mandatory)
+            var query = await _unitOfWork.Repository<TaskAssignment>()
+                .FindAsync(x =>
+                    x.IsDeleted == false &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId
+                );
+
+            var tasks = query.AsQueryable();
+
+            // STEP 2: Filters
+            if (employeeId.HasValue)
+                tasks = tasks.Where(x => x.UserId == employeeId.Value);
+
+            if (statusId.HasValue)
+                tasks = tasks.Where(x => x.StatusId == statusId.Value);
+
+            if (priorityId.HasValue)
+                tasks = tasks.Where(x => x.PriorityId == priorityId.Value);
+
+            if (fromDate.HasValue)
+                tasks = tasks.Where(x =>
+                    x.StartDate >= DateOnly.FromDateTime(fromDate.Value));
+
+            if (toDate.HasValue)
+                tasks = tasks.Where(x =>
+                    x.DueDate <= DateOnly.FromDateTime(toDate.Value));
+
+            // STEP 3: Map to DTO
+            var result = tasks.Select(x => new TaskDto
+            {
+                TaskId = x.TaskId,
+                CompanyId = x.CompanyId,
+                RegionId = x.RegionId,
+                UserId = x.UserId,
+                TaskName = x.TaskName,
+                ProjectId = x.ProjectId,
+                AssignedTo = x.AssignedTo,
+                PriorityId = x.PriorityId,
+                StatusId = x.StatusId,
+                StartDate = x.StartDate,
+                DueDate = x.DueDate,
+                Comment = x.Comment
+            });
+
+            return new ApiResponse<IEnumerable<TaskDto>>(result);
+        }
+
+
     }
 }
