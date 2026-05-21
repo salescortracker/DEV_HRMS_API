@@ -80,16 +80,26 @@ namespace BusinessLayer.Implementations
                     RegionName = r.RegionName,
 
                     // ✅ THIS IS THE FIX
-            //        GradeAllocations = (
-            //    from g in _context.LeaveTypeGrades
-            //    where g.LeaveTypeId == lt.LeaveTypeId && g.IsActive == true
-            //    select new LeaveTypeGradeDto
-            //    {
-            //        GradeID = g.GradeId,
-            //        gradename = _context.Grades.Where(x =>x.GradeId == g.GradeId).FirstOrDefault().GradeName,
-            //        LeaveDays = g.LeaveDays
-            //    }
-            //).ToList()
+                    //        GradeAllocations = (
+                    //    from g in _context.LeaveTypeGrades
+                    //    where g.LeaveTypeId == lt.LeaveTypeId && g.IsActive == true
+                    //    select new LeaveTypeGradeDto
+                    //    {
+                    //        GradeID = g.GradeId,
+                    //        gradename = _context.Grades.Where(x =>x.GradeId == g.GradeId).FirstOrDefault().GradeName,
+                    //        LeaveDays = g.LeaveDays
+                    //    }
+                    //).ToList()
+                    GradeAllocations = (
+                from g in _context.LeaveTypeGrades
+                where g.LeaveTypeId == lt.LeaveTypeId && g.IsActive == true
+                select new LeaveTypeGradeDto
+                {
+                    GradeID = g.GradeId,
+                    gradename = _context.Grades.Where(x => x.GradeId == g.GradeId).FirstOrDefault().GradeName,
+                    LeaveDays = g.LeaveDays
+                }
+            ).ToList()
                 }
     ).ToListAsync();
 
@@ -163,8 +173,49 @@ namespace BusinessLayer.Implementations
         //    _context.LeaveTypes.Add(entity);
         //    return await _context.SaveChangesAsync() > 0;
         //}
+        //public async Task<bool> CreateLeaveTypeAsync(LeaveTypeDto dto)
+        //{
+        //    var entity = new LeaveType
+        //    {
+        //        CompanyId = dto.CompanyID,
+        //        RegionId = dto.RegionID,
+        //        LeaveTypeName = dto.LeaveTypeName,
+        //        IsActive = dto.IsActive,
+        //        IsDeleted = false,
+        //        CreatedAt = DateTime.Now,
+        //        UserId = dto.userId,
+        //        LeaveDays=dto.LeaveDays
+        //    };
+
+        //    _context.LeaveTypes.Add(entity);
+        //   return await _context.SaveChangesAsync()>0;
+
+        //    // 🔥 Insert Grade Mapping
+        //    //foreach (var g in dto.GradeAllocations)
+        //    //{
+        //    //    _context.LeaveTypeGrades.Add(new LeaveTypeGrade
+        //    //    {
+        //    //        LeaveTypeId = entity.LeaveTypeId,
+        //    //        GradeId = g.GradeID,
+        //    //        LeaveDays = g.LeaveDays
+        //    //    });
+        //    //}
+
+        //   // return await _context.SaveChangesAsync() > 0;
+        //}
         public async Task<bool> CreateLeaveTypeAsync(LeaveTypeDto dto)
         {
+            var exists = await _context.LeaveTypes.AnyAsync(x =>
+      x.CompanyId == dto.CompanyID &&
+      x.RegionId == dto.RegionID &&
+      x.LeaveTypeName.ToLower() == dto.LeaveTypeName.ToLower() &&
+      !x.IsDeleted);
+
+            if (exists)
+            {
+                throw new Exception("Leave Type already exists.");
+            }
+
             var entity = new LeaveType
             {
                 CompanyId = dto.CompanyID,
@@ -174,24 +225,24 @@ namespace BusinessLayer.Implementations
                 IsDeleted = false,
                 CreatedAt = DateTime.Now,
                 UserId = dto.userId,
-                LeaveDays=dto.LeaveDays
+                LeaveDays = dto.LeaveDays
             };
 
             _context.LeaveTypes.Add(entity);
-           return await _context.SaveChangesAsync()>0;
+            await _context.SaveChangesAsync();
 
-            // 🔥 Insert Grade Mapping
-            //foreach (var g in dto.GradeAllocations)
-            //{
-            //    _context.LeaveTypeGrades.Add(new LeaveTypeGrade
-            //    {
-            //        LeaveTypeId = entity.LeaveTypeId,
-            //        GradeId = g.GradeID,
-            //        LeaveDays = g.LeaveDays
-            //    });
-            //}
+            //🔥 Insert Grade Mapping
+            foreach (var g in dto.GradeAllocations)
+            {
+                _context.LeaveTypeGrades.Add(new LeaveTypeGrade
+                {
+                    LeaveTypeId = entity.LeaveTypeId,
+                    GradeId = g.GradeID,
+                    LeaveDays = g.LeaveDays
+                });
+            }
 
-           // return await _context.SaveChangesAsync() > 0;
+            return await _context.SaveChangesAsync() > 0;
         }
         //public async Task<bool> UpdateLeaveTypeAsync(LeaveTypeDto dto)
         //{
@@ -212,14 +263,68 @@ namespace BusinessLayer.Implementations
         //    return await _context.SaveChangesAsync() > 0;
         //}
 
+        //public async Task<bool> UpdateLeaveTypeAsync(LeaveTypeDto dto)
+        //{
+        //    var entity = await _context.LeaveTypes
+        //        .FirstOrDefaultAsync(x => x.LeaveTypeId == dto.LeaveTypeID && !x.IsDeleted);
+
+        //    if (entity == null) return false;
+
+        //    // ✅ Update main table
+        //    entity.LeaveTypeName = dto.LeaveTypeName;
+        //    entity.Description = dto.Description;
+        //    entity.CompanyId = dto.CompanyID;
+        //    entity.RegionId = dto.RegionID;
+        //    entity.IsActive = dto.IsActive;
+        //    entity.UserId = dto.userId;
+        //    entity.ModifiedAt = DateTime.Now;
+
+        //    // 🔥 STEP 1: Remove old mappings
+        //    var oldMappings = _context.LeaveTypeGrades
+        //        .Where(x => x.LeaveTypeId == dto.LeaveTypeID);
+
+        //    _context.LeaveTypeGrades.RemoveRange(oldMappings);
+
+        //    // 🔥 STEP 2: Insert new mappings
+        //    //foreach (var g in dto.GradeAllocations)
+        //    //{
+        //    //    _context.LeaveTypeGrades.Add(new LeaveTypeGrade
+        //    //    {
+        //    //        LeaveTypeId = dto.LeaveTypeID,
+        //    //        GradeId = g.GradeID,
+        //    //        LeaveDays = g.LeaveDays,
+        //    //        IsActive = true
+        //    //    });
+        //    //}
+
+        //    // ✅ Save all changes
+        //    return await _context.SaveChangesAsync() > 0;
+        //}
         public async Task<bool> UpdateLeaveTypeAsync(LeaveTypeDto dto)
         {
+            // ✅ CHECK DUPLICATE (Exclude Current Record)
+            var duplicateExists = await _context.LeaveTypes.AnyAsync(x =>
+                x.LeaveTypeId != dto.LeaveTypeID &&
+                x.CompanyId == dto.CompanyID &&
+                x.RegionId == dto.RegionID &&
+                x.LeaveTypeName.ToLower() == dto.LeaveTypeName.ToLower() &&
+                !x.IsDeleted);
+
+            if (duplicateExists)
+            {
+                throw new Exception("Leave Type already exists.");
+            }
+
+            // ✅ GET EXISTING RECORD
             var entity = await _context.LeaveTypes
-                .FirstOrDefaultAsync(x => x.LeaveTypeId == dto.LeaveTypeID && !x.IsDeleted);
+                .FirstOrDefaultAsync(x =>
+                    x.LeaveTypeId == dto.LeaveTypeID &&
+                    !x.IsDeleted);
 
-            if (entity == null) return false;
+            if (entity == null)
+                return false;
 
-            // ✅ Update main table
+            // ✅ UPDATE MAIN TABLE
             entity.LeaveTypeName = dto.LeaveTypeName;
             entity.Description = dto.Description;
             entity.CompanyId = dto.CompanyID;
@@ -227,26 +332,27 @@ namespace BusinessLayer.Implementations
             entity.IsActive = dto.IsActive;
             entity.UserId = dto.userId;
             entity.ModifiedAt = DateTime.Now;
+            entity.LeaveDays = dto.LeaveDays;
 
-            // 🔥 STEP 1: Remove old mappings
+            // ✅ REMOVE OLD GRADE MAPPINGS
             var oldMappings = _context.LeaveTypeGrades
                 .Where(x => x.LeaveTypeId == dto.LeaveTypeID);
 
             _context.LeaveTypeGrades.RemoveRange(oldMappings);
 
-            // 🔥 STEP 2: Insert new mappings
-            //foreach (var g in dto.GradeAllocations)
-            //{
-            //    _context.LeaveTypeGrades.Add(new LeaveTypeGrade
-            //    {
-            //        LeaveTypeId = dto.LeaveTypeID,
-            //        GradeId = g.GradeID,
-            //        LeaveDays = g.LeaveDays,
-            //        IsActive = true
-            //    });
-            //}
+            // ✅ INSERT NEW GRADE MAPPINGS
+            foreach (var g in dto.GradeAllocations)
+            {
+                _context.LeaveTypeGrades.Add(new LeaveTypeGrade
+                {
+                    LeaveTypeId = dto.LeaveTypeID,
+                    GradeId = g.GradeID,
+                    LeaveDays = g.LeaveDays,
+                    IsActive = true
+                });
+            }
 
-            // ✅ Save all changes
+            // ✅ SAVE CHANGES
             return await _context.SaveChangesAsync() > 0;
         }
 

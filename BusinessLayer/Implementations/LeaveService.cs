@@ -297,12 +297,13 @@ namespace BusinessLayer.Implementations
                 LeaveTypeName = leaveTypes.FirstOrDefault(t => t.LeaveTypeId == l.LeaveTypeId)?.LeaveTypeName,
                 StartDate = l.StartDate.ToDateTime(TimeOnly.MinValue).Date,
                 EndDate = l.EndDate.ToDateTime(TimeOnly.MinValue).Date,
-                TotalDays = l.TotalDays,
+                IsHalfDay = l.IsHalfDay ?? false,
+                TotalDays = (l.IsHalfDay ?? false) ? 0.5m : l.TotalDays,
                 Reason = l.Reason,
                 Status = l.Status,
                 FileName = l.FileName,
                 FilePath = l.FilePath
-            }).ToList();
+            });
         }
         public async Task<bool> ApproveLeaveFromEmailAsync(int leaveId)
         {
@@ -360,34 +361,36 @@ namespace BusinessLayer.Implementations
         }
         public async Task SendLeaveEmailToManagerAsync(int leaveRequestId)
         {
-            var leave = await _unitOfWork.Repository<LeaveRequest>()
-                .GetByIdAsync(leaveRequestId);
+            try
+            {
+                var leave = await _unitOfWork.Repository<LeaveRequest>()
+                    .GetByIdAsync(leaveRequestId);
 
-            if (leave == null || leave.ReportingManagerId == null)
-                return;
+                if (leave == null || leave.ReportingManagerId == null)
+                    return;
 
-            var manager = await _unitOfWork.Repository<User>()
-                .GetByIdAsync(leave.ReportingManagerId.Value);
+                var manager = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(leave.ReportingManagerId.Value);
 
-            var employee = await _unitOfWork.Repository<User>()
-                .GetByIdAsync(leave.UserId);
+                var employee = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(leave.UserId);
 
-            var leaveType = await _unitOfWork.Repository<LeaveType>()
-                .GetByIdAsync(leave.LeaveTypeId);
+                var leaveType = await _unitOfWork.Repository<LeaveType>()
+                    .GetByIdAsync(leave.LeaveTypeId);
 
-            if (manager == null || employee == null)
-                return;
+                if (manager == null || employee == null)
+                    return;
 
-            string portalUrl = _configuration["AppSettings:PortalUrl"];
+                string portalUrl = _configuration["AppSettings:PortalUrl"];
 
-            //string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
-            //string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
-            string approveUrl = $"{_configuration["AppSettings:LoginUrl"]}";
-            string rejectUrl = $"{_configuration["AppSettings:LoginUrl"]}";
+                //string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
+                //string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
+                string approveUrl = $"{_configuration["AppSettings:LoginUrl"]}";
+                string rejectUrl = $"{_configuration["AppSettings:LoginUrl"]}";
 
-            string subject = "New Leave Request";
+                string subject = "New Leave Request";
 
-            string body = $@"
+                string body = $@"
         <html>
         <body style='font-family:Segoe UI'>
             <h3>Leave Request</h3>
@@ -404,20 +407,25 @@ namespace BusinessLayer.Implementations
         </body>
         </html>";
 
-            // await _emailService.SendEmailAsync(manager.Email, subject, body);
-            List<string> ccEmails = new List<string>();
+                // await _emailService.SendEmailAsync(manager.Email, subject, body);
+                List<string> ccEmails = new List<string>();
 
-            if (!string.IsNullOrEmpty(leave.HrEmail))
-            {
-                ccEmails.Add(leave.HrEmail);
+                if (!string.IsNullOrEmpty(leave.HrEmail))
+                {
+                    ccEmails.Add(leave.HrEmail);
+                }
+
+                await _emailService.SendEmailAsync(
+                    manager.Email,
+                    subject,
+                    body,
+                    ccEmails
+                );
             }
-
-            await _emailService.SendEmailAsync(
-                manager.Email,
-                subject,
-                body,
-                ccEmails
-            );
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
         // ✅ SINGLE APPROVE

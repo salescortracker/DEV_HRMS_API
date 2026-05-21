@@ -2368,6 +2368,11 @@
         "Name": "EmployeeUploadedFiles",
         "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
+      },
+      {
+        "Name": "EmployeeUploads",
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.EmployeeUploadedFileDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -5263,6 +5268,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "UpdateEmployeeFileStatus",
+    "RelativePath": "api/Employee/UpdateEmployeeFileStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.UpdateEmployeeFileStatusDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "UpdateempPersonalAsync",
     "RelativePath": "api/Employee/UpdateempPersonalAsync",
     "HttpMethod": "POST",
@@ -5579,6 +5600,11 @@
       {
         "Name": "EmployeeUploadedFiles",
         "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "EmployeeUploads",
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.EmployeeUploadedFileDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       }
     ],
@@ -7992,6 +8018,59 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetCountries",
+    "RelativePath": "api/MasterData/countries",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetCountryById",
+    "RelativePath": "api/MasterData/countries/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetCountriesByCompanyRegion",
+    "RelativePath": "api/MasterData/countries/by-company-region",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "CreateAccountType",
     "RelativePath": "api/MasterData/CreateAccountType",
     "HttpMethod": "POST",
@@ -8104,6 +8183,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateCountry",
+    "RelativePath": "api/MasterData/CreateCountry",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CountryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "CreateCurrency",
     "RelativePath": "api/MasterData/CreateCurrency",
     "HttpMethod": "POST",
@@ -8193,6 +8288,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.EventDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "CreateEventType",
+    "RelativePath": "api/MasterData/CreateEventType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.EventTypeDto",
         "IsRequired": true
       }
     ],
@@ -8667,6 +8778,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteCountry",
+    "RelativePath": "api/MasterData/DeleteCountry",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteCurrency",
     "RelativePath": "api/MasterData/DeleteCurrency",
     "HttpMethod": "POST",
@@ -8754,6 +8881,22 @@
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeleteEvents",
     "RelativePath": "api/MasterData/DeleteEvents",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "DeleteEventType",
+    "RelativePath": "api/MasterData/DeleteEventType",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -9405,6 +9548,16 @@
         "Name": "category",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -9669,6 +9822,48 @@
         "Name": "RegionId",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetEventTypeAll",
+    "RelativePath": "api/MasterData/GetEventTypeAll",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetEventTypeById",
+    "RelativePath": "api/MasterData/GetEventTypeById/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -10572,6 +10767,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateCountry",
+    "RelativePath": "api/MasterData/UpdateCountry",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CountryDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "UpdateCurrency",
     "RelativePath": "api/MasterData/UpdateCurrency",
     "HttpMethod": "POST",
@@ -10681,6 +10892,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.EventDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "UpdateEventType",
+    "RelativePath": "api/MasterData/UpdateEventType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.EventTypeDto",
         "IsRequired": true
       }
     ],
@@ -11585,6 +11812,16 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "GetJobApplications",
+    "RelativePath": "api/Recruitment/job-applications",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
     "Method": "MoveStage",
     "RelativePath": "api/Recruitment/MoveStage",
     "HttpMethod": "POST",
@@ -11862,6 +12099,67 @@
         "Name": "offerId",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "SubmitApplication",
+    "RelativePath": "api/Recruitment/SubmitApplication",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ApplicationId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CandidateName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "JobTitle",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ExperienceYears",
+        "Type": "System.Nullable\u00601[[System.Decimal, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Technology",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ResumeUrl",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "AppliedDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

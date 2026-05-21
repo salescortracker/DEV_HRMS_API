@@ -45,7 +45,7 @@ namespace HRMS_Backend.Controllers
                 {
                     var file = Request.Form.Files[0];
 
-                    var root = _env.WebRootPath ??
+                    var root = 
                                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
                     var uploadFolder = Path.Combine(root, "Uploads", "ExpenseReceipts");

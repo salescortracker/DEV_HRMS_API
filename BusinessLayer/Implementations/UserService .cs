@@ -273,8 +273,8 @@ namespace BusinessLayer.Implementations
                     var userData = await (
         from u in _context.Users
         join r in _context.RoleMasters on u.RoleId equals r.RoleId
-        join reg in _context.Regions on u.RegionId equals reg.RegionId
-        join c in _context.Companies on u.CompanyId equals c.CompanyId
+       // join reg in _context.Regions on u.RegionId equals reg.RegionId
+        //join c in _context.Companies on u.CompanyId equals c.CompanyId
         join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
         from d in deptJoin.DefaultIfEmpty()
         join des in _context.Designations
@@ -294,8 +294,8 @@ namespace BusinessLayer.Implementations
             u.FullName,
 
             RoleName = r.RoleName,
-            RegionName = reg.RegionName,
-            CompanyName = c.CompanyName,
+           // RegionName = reg.RegionName,
+            //CompanyName = c.CompanyName,
 
             roleId = u.RoleId,
             companyId = u.CompanyId,
