@@ -2355,6 +2355,15 @@ public class UpdateResignationStatusRequest
                 return BadRequest(new { message = ex.Message }); // ✅ IMPORTANT
             }
         }
+
+        [HttpGet("GetLeaveBalance/{userId}")]
+        public async Task<IActionResult> GetLeaveBalance(int userId)
+        {
+            var result = await _leaveService.GetLeaveBalanceAsync(userId);
+
+            return Ok(result);
+        }
+
         /// <summary>
         /// 
         /// </summary>
