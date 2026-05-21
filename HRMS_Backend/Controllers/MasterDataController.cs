@@ -3407,14 +3407,14 @@ int regionId)
         }
 
         [HttpPost("SaveNews")]
-        public async Task<IActionResult> SaveNews([FromBody] CompanyNewsMasterDto dto)
+        public async Task<IActionResult> SaveNews([FromForm] CompanyNewsMasterDto dto)
         {
             var result = await _companyNewsPolicyService.AddNewsAsync(dto);
             return Ok(result);
         }
 
         [HttpPost("UpdateNews/{id}")]
-        public async Task<IActionResult> UpdateNews(int id, [FromBody] CompanyNewsMasterDto dto)
+        public async Task<IActionResult> UpdateNews(int id, [FromForm] CompanyNewsMasterDto dto)
         {
             var result = await _companyNewsPolicyService.UpdateNewsAsync(id, dto);
             return Ok(result);

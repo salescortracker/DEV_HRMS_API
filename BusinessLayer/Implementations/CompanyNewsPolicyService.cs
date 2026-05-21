@@ -83,23 +83,74 @@ namespace BusinessLayer.Implementations
         /// </summary>
         public async Task<CompanyNewsMasterDto> AddNewsAsync(CompanyNewsMasterDto dto)
         {
+            string? fileName = null;
+            string? filePath = null;
+
+            // ✅ File Upload
+            if (dto.Attachment != null)
+            {
+                var uploadsFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "news"
+                );
+
+                // Create folder if not exists
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Generate unique file name
+                fileName = Guid.NewGuid().ToString()
+                           + Path.GetExtension(dto.Attachment.FileName);
+
+                var fullPath = Path.Combine(uploadsFolder, fileName);
+
+                // Save file
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await dto.Attachment.CopyToAsync(stream);
+                }
+
+                // Save relative path
+                filePath = "/news/" + fileName;
+            }
+
+            // ✅ Save Entity
             var entity = new CompanyNewsMaster
             {
                 Title = dto.Title,
                 Description = dto.Description,
+
                 PostedDate = dto.PostedDate,
                 ExpiryDate = dto.ExpiryDate,
+
                 DepartmentId = dto.departmentId,
+
                 Category = dto.Category,
+
                 IsActive = dto.IsActive,
+
                 UserId = dto.UserId,
+
                 CompanyId = dto.CompanyId,
+
                 RegionId = dto.RegionId,
+
+                // ✅ Attachment
+                AttachmentName = fileName,
+                AttachmentPath = filePath,
+
                 CreatedBy = dto.CreatedBy,
+
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _unitOfWork.Repository<CompanyNewsMaster>().AddAsync(entity);
+            await _unitOfWork
+                .Repository<CompanyNewsMaster>()
+                .AddAsync(entity);
+
             await _unitOfWork.CompleteAsync();
 
             return MapNewsToDto(entity);
@@ -108,24 +159,92 @@ namespace BusinessLayer.Implementations
         /// <summary>
         /// Update existing news
         /// </summary>
-        public async Task<CompanyNewsMasterDto> UpdateNewsAsync(int id, CompanyNewsMasterDto dto)
+        public async Task<CompanyNewsMasterDto> UpdateNewsAsync(
+     int id,
+     CompanyNewsMasterDto dto)
         {
-            var entity = await _unitOfWork.Repository<CompanyNewsMaster>().GetByIdAsync(id);
+            var entity = await _unitOfWork
+                .Repository<CompanyNewsMaster>()
+                .GetByIdAsync(id);
 
             if (entity == null)
                 throw new Exception("News not found");
 
+            // ✅ Update Basic Fields
             entity.Title = dto.Title;
+
             entity.Description = dto.Description;
+
             entity.PostedDate = dto.PostedDate;
+
             entity.Category = dto.Category;
+
             entity.DepartmentId = dto.departmentId;
+
+            entity.CompanyId = dto.CompanyId;
+
+            entity.RegionId = dto.RegionId;
+
             entity.ExpiryDate = dto.ExpiryDate;
+
             entity.IsActive = dto.IsActive;
+
             entity.UpdatedBy = dto.UpdatedBy;
+
             entity.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.Repository<CompanyNewsMaster>().Update(entity);
+            // ✅ Upload New File
+            if (dto.Attachment != null)
+            {
+                var uploadsFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "news"
+                );
+
+                // Create folder if not exists
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Generate unique file name
+                var fileName = Guid.NewGuid().ToString()
+                               + Path.GetExtension(dto.Attachment.FileName);
+
+                var fullPath = Path.Combine(uploadsFolder, fileName);
+
+                // Save file
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await dto.Attachment.CopyToAsync(stream);
+                }
+
+                // Optional: Delete old file
+                if (!string.IsNullOrEmpty(entity.AttachmentPath))
+                {
+                    var oldFile = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        entity.AttachmentPath.TrimStart('/')
+                    );
+
+                    if (File.Exists(oldFile))
+                    {
+                        File.Delete(oldFile);
+                    }
+                }
+
+                // ✅ Save new attachment details
+                entity.AttachmentName = fileName;
+
+                entity.AttachmentPath = "/news/" + fileName;
+            }
+
+            _unitOfWork
+                .Repository<CompanyNewsMaster>()
+                .Update(entity);
+
             await _unitOfWork.CompleteAsync();
 
             return MapNewsToDto(entity);
@@ -270,25 +389,45 @@ namespace BusinessLayer.Implementations
 
         // ================= MAPPERS =================
 
-        private CompanyNewsMasterDto MapNewsToDto(CompanyNewsMaster x)
+        private CompanyNewsMasterDto MapNewsToDto(CompanyNewsMaster entity)
         {
             return new CompanyNewsMasterDto
             {
-                NewsId = x.NewsId,
-                Title = x.Title,
-                Description = x.Description,
-                PostedDate = x.PostedDate,
-                ExpiryDate = x.ExpiryDate,
-                Category = x.Category,
-                departmentId = x.DepartmentId,
-                IsActive = x.IsActive,
-                UserId = x.UserId,
-                CompanyId = x.CompanyId,
-                RegionId = x.RegionId,
-                CreatedBy = x.CreatedBy,
-                UpdatedBy = x.UpdatedBy,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                NewsId = entity.NewsId,
+
+                Title = entity.Title,
+
+                Description = entity.Description,
+
+                PostedDate = entity.PostedDate,
+
+                ExpiryDate = entity.ExpiryDate,
+
+                IsActive = entity.IsActive,
+
+                UserId = entity.UserId,
+
+                CompanyId = entity.CompanyId,
+
+                RegionId = entity.RegionId,
+
+                CreatedBy = entity.CreatedBy,
+
+                UpdatedBy = entity.UpdatedBy,
+
+                CreatedAt = entity.CreatedAt,
+
+                UpdatedAt = entity.UpdatedAt,
+
+                Category = entity.Category,
+
+                departmentId = entity.DepartmentId,
+
+                // ✅ IMPORTANT
+                AttachmentName = entity.AttachmentName,
+
+                // ✅ IMPORTANT
+                AttachmentPath = entity.AttachmentPath
             };
         }
 
