@@ -15,5 +15,14 @@ namespace BusinessLayer.Interfaces
         Task<ApiResponse<string>> UpdateAsync(TaskDto dto);
         Task<ApiResponse<string>> DeleteAsync(int id);
         Task<ApiResponse<IEnumerable<TaskDto>>> GetMyTasks(int userId);
+        Task<ApiResponse<IEnumerable<TaskDto>>> GetTaskReport(
+     int companyId,
+     int regionId,
+     int? employeeId,
+     int? statusId,
+     int? priorityId,
+     DateTime? fromDate,
+     DateTime? toDate);
+
     }
 }
