@@ -2323,14 +2323,42 @@ public class UpdateResignationStatusRequest
         public async Task<IActionResult> BulkApprove([FromBody] List<int> leaveIds)
         {
             var result = await _leaveService.BulkApproveLeavesAsync(leaveIds);
-            return result ? Ok("Bulk Approved") : BadRequest();
+
+            if (result)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bulk Approved"
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Bulk Approve Failed"
+            });
         }
 
         [HttpPost("BulkReject")]
         public async Task<IActionResult> BulkReject([FromBody] List<int> leaveIds)
         {
             var result = await _leaveService.BulkRejectLeavesAsync(leaveIds);
-            return result ? Ok("Bulk Rejected") : BadRequest();
+
+            if (result)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Bulk Rejected"
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Bulk Reject Failed"
+            });
         }
         [HttpGet("GetUserLeaves/{userId}")]
         public async Task<IActionResult> GetUserLeaves(int userId)
