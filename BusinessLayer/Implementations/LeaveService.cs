@@ -268,6 +268,9 @@ namespace BusinessLayer.Implementations
 
             bool isDuplicate = existingLeaves.Any(l =>
             {
+                if (l.Status == "Rejected")
+                    return false;
+
                 var existingStart = l.StartDate.ToDateTime(TimeOnly.MinValue);
                 var existingEnd = l.EndDate.ToDateTime(TimeOnly.MinValue);
 
@@ -287,20 +290,27 @@ namespace BusinessLayer.Implementations
                                 x.RegionId == dto.RegionId &&
                                 x.IsActive);
 
-            int totalDays = 0;
+            decimal totalDays = 0;
 
-            DateTime current = dto.StartDate;
-
-            while (current <= dto.EndDate)
+            if (dto.IsHalfDay)
             {
-                string dayName = current.DayOfWeek.ToString();
+                totalDays = 0.5m;
+            }
+            else
+            {
+                DateTime current = dto.StartDate;
 
-                bool isWeekoff = weekoffs.Any(x => x.Weekoff1 == dayName);
+                while (current <= dto.EndDate)
+                {
+                    string dayName = current.DayOfWeek.ToString();
 
-                if (!isWeekoff)
-                    totalDays++;
+                    bool isWeekoff = weekoffs.Any(x => x.Weekoff1 == dayName);
 
-                current = current.AddDays(1);
+                    if (!isWeekoff)
+                        totalDays++;
+
+                    current = current.AddDays(1);
+                }
             }
 
             // ✅ Override frontend value
@@ -377,12 +387,13 @@ namespace BusinessLayer.Implementations
                 LeaveTypeName = leaveTypes.FirstOrDefault(t => t.LeaveTypeId == l.LeaveTypeId)?.LeaveTypeName,
                 StartDate = l.StartDate.ToDateTime(TimeOnly.MinValue).Date,
                 EndDate = l.EndDate.ToDateTime(TimeOnly.MinValue).Date,
-                TotalDays = l.TotalDays,
+                IsHalfDay = l.IsHalfDay ?? false,
+                TotalDays = (l.IsHalfDay ?? false) ? 0.5m : l.TotalDays,
                 Reason = l.Reason,
                 Status = l.Status,
                 FileName = l.FileName,
                 FilePath = l.FilePath
-            }).ToList();
+            });
         }
         public async Task<bool> ApproveLeaveFromEmailAsync(int leaveId)
         {
@@ -440,34 +451,36 @@ namespace BusinessLayer.Implementations
         }
         public async Task SendLeaveEmailToManagerAsync(int leaveRequestId)
         {
-            var leave = await _unitOfWork.Repository<LeaveRequest>()
-                .GetByIdAsync(leaveRequestId);
+            try
+            {
+                var leave = await _unitOfWork.Repository<LeaveRequest>()
+                    .GetByIdAsync(leaveRequestId);
 
-            if (leave == null || leave.ReportingManagerId == null)
-                return;
+                if (leave == null || leave.ReportingManagerId == null)
+                    return;
 
-            var manager = await _unitOfWork.Repository<User>()
-                .GetByIdAsync(leave.ReportingManagerId.Value);
+                var manager = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(leave.ReportingManagerId.Value);
 
-            var employee = await _unitOfWork.Repository<User>()
-                .GetByIdAsync(leave.UserId);
+                var employee = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(leave.UserId);
 
-            var leaveType = await _unitOfWork.Repository<LeaveType>()
-                .GetByIdAsync(leave.LeaveTypeId);
+                var leaveType = await _unitOfWork.Repository<LeaveType>()
+                    .GetByIdAsync(leave.LeaveTypeId);
 
-            if (manager == null || employee == null)
-                return;
+                if (manager == null || employee == null)
+                    return;
 
-            string portalUrl = _configuration["AppSettings:PortalUrl"];
+                string portalUrl = _configuration["AppSettings:PortalUrl"];
 
-            //string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
-            //string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
-            string approveUrl = $"{_configuration["AppSettings:LoginUrl"]}";
-            string rejectUrl = $"{_configuration["AppSettings:LoginUrl"]}";
+                //string approveUrl = $"{portalUrl}/api/Leave/ApproveFromEmail/{leaveRequestId}";
+                //string rejectUrl = $"{portalUrl}/api/Leave/RejectFromEmail/{leaveRequestId}";
+                string approveUrl = $"{_configuration["AppSettings:LoginUrl"]}";
+                string rejectUrl = $"{_configuration["AppSettings:LoginUrl"]}";
 
-            string subject = "New Leave Request";
+                string subject = "New Leave Request";
 
-            string body = $@"
+                string body = $@"
         <html>
         <body style='font-family:Segoe UI'>
             <h3>Leave Request</h3>
@@ -484,20 +497,25 @@ namespace BusinessLayer.Implementations
         </body>
         </html>";
 
-            // await _emailService.SendEmailAsync(manager.Email, subject, body);
-            List<string> ccEmails = new List<string>();
+                // await _emailService.SendEmailAsync(manager.Email, subject, body);
+                List<string> ccEmails = new List<string>();
 
-            if (!string.IsNullOrEmpty(leave.HrEmail))
-            {
-                ccEmails.Add(leave.HrEmail);
+                if (!string.IsNullOrEmpty(leave.HrEmail))
+                {
+                    ccEmails.Add(leave.HrEmail);
+                }
+
+                await _emailService.SendEmailAsync(
+                    manager.Email,
+                    subject,
+                    body,
+                    ccEmails
+                );
             }
-
-            await _emailService.SendEmailAsync(
-                manager.Email,
-                subject,
-                body,
-                ccEmails
-            );
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
         // ✅ SINGLE APPROVE
@@ -520,6 +538,19 @@ namespace BusinessLayer.Implementations
                     user.Email,
                     "Leave Approved",
                     $"Hello {user.FullName},<br>Your leave has been <b>approved</b>.");
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+            {
+                await _emailService.SendEmailAsync(
+                    leave.HrEmail,
+                    "Employee Leave Approved",
+                    $"Employee {user?.FullName} leave has been <b>approved</b>.<br/>" +
+                    $"From: {leave.StartDate}<br/>" +
+                    $"To: {leave.EndDate}<br/>" +
+                    $"Total Days: {leave.TotalDays}"
+                );
             }
 
             return true;
@@ -545,6 +576,19 @@ namespace BusinessLayer.Implementations
                     user.Email,
                     "Leave Rejected",
                     $"Hello {user.FullName},<br>Your leave has been <b>rejected</b>.");
+            }
+
+            // ✅ HR Email
+            if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+            {
+                await _emailService.SendEmailAsync(
+                    leave.HrEmail,
+                    "Employee Leave Rejected",
+                    $"Employee {user?.FullName} leave has been <b>rejected</b>.<br/>" +
+                    $"From: {leave.StartDate}<br/>" +
+                    $"To: {leave.EndDate}<br/>" +
+                    $"Total Days: {(leave.IsHalfDay == true ? "0.5" : leave.TotalDays.ToString())}"
+                );
             }
 
             return true;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace BusinessLayer.DTOs
 {
@@ -36,5 +37,6 @@ namespace BusinessLayer.DTOs
         public string? AttachmentName { get; set; }
         public string? AttachmentPath { get; set; }
         public int? departmentId { get; set; }
+        public IFormFile? Attachment { get; set; }
     }
 }

@@ -2708,18 +2708,65 @@ namespace HRMS_Backend.Controllers
         [HttpPost("CreateLeaveType")]
         public async Task<IActionResult> CreateLeaveType([FromBody] LeaveTypeDto dto)
         {
-            var result = await _leaveTypeService.CreateLeaveTypeAsync(dto);
-            return result ? Ok() : BadRequest();
+            try
+            {
+                var result = await _leaveTypeService.CreateLeaveTypeAsync(dto);
+
+                if (!result)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Failed to create Leave Type."
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Leave Type created successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpPost("UpdateLeaveType")]
         public async Task<IActionResult> UpdateLeaveType([FromBody] LeaveTypeDto dto)
         {
-            var result = await _leaveTypeService.UpdateLeaveTypeAsync(dto);
-            if (!result)
-                return NotFound("Leave Type not found");
+            try
+            {
+                var result = await _leaveTypeService.UpdateLeaveTypeAsync(dto);
 
-            return Ok(new { success = true, message = "Updated successfully" });
+                if (!result)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Leave Type not found."
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpPost("DeleteLeaveType")]
@@ -3407,14 +3454,14 @@ int regionId)
         }
 
         [HttpPost("SaveNews")]
-        public async Task<IActionResult> SaveNews([FromBody] CompanyNewsMasterDto dto)
+        public async Task<IActionResult> SaveNews([FromForm] CompanyNewsMasterDto dto)
         {
             var result = await _companyNewsPolicyService.AddNewsAsync(dto);
             return Ok(result);
         }
 
         [HttpPost("UpdateNews/{id}")]
-        public async Task<IActionResult> UpdateNews(int id, [FromBody] CompanyNewsMasterDto dto)
+        public async Task<IActionResult> UpdateNews(int id, [FromForm] CompanyNewsMasterDto dto)
         {
             var result = await _companyNewsPolicyService.UpdateNewsAsync(id, dto);
             return Ok(result);
@@ -3996,5 +4043,6 @@ int regionId)
 
             return Ok(result);
         }
+
     }
 }

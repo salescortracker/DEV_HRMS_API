@@ -833,6 +833,8 @@ int userId)
                     catch (Exception ex)
                     {
                         Console.WriteLine("Interviewer email failed: " + ex.Message);
+                        string subject =
+                              $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
                         string body = $@"
                             <h3>Interview Scheduled</h3>
                             <p>Dear {interviewer.FullName},</p>

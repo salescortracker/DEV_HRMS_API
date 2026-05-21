@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
     {
         policy
         //.WithOrigins("https://qa-hr.cortracker360.com")
-             .WithOrigins("https://preprod-hr.cortracker360.com", "http://localhost:4200", "http://localhost:55296", "http://localhost:54236", "http://localhost:8080", "https://qa-hr.cortracker360.com") // 👈 exact frontend URL
+             .WithOrigins("https://preprod-hr.cortracker360.com", "http://localhost:4200", "http://localhost:50410", "http://localhost:54236", "http://localhost:8080", "https://qa-hr.cortracker360.com", "https://corhr.cortracker360.com") // 👈 exact frontend URL
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials(); // 👈 REQUIRED for withCredentials
