@@ -11,6 +11,7 @@
         public string? EmployeeName { get; set; }
         public string? EmployeeCode { get; set; }
         public string? Department { get; set; }
+        public string? DepartmentName { get; set; }
 
         public int AssetType { get; set; }
         public int? AssetCategory { get; set; }

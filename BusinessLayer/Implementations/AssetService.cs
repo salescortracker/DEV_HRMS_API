@@ -238,7 +238,7 @@ namespace BusinessLayer.Implementations
 
                 EmployeeName = dto.EmployeeName,
                 EmployeeCode = dto.EmployeeCode,
-                Department = dto.Department,
+                Department = dto.DepartmentName,
 
                 AssetTypeId = dto.AssetType,
                 AssetCategoryId = dto.AssetCategory,
@@ -291,7 +291,7 @@ namespace BusinessLayer.Implementations
             <p><b>Request ID:</b> {entity.RequestId}</p>
             <p><b>Employee Name:</b> {dto.EmployeeName}</p>
             <p><b>Employee Code:</b> {dto.EmployeeCode}</p>
-            <p><b>Department:</b> {dto.Department}</p>
+            <p><b>Department:</b> {dto.DepartmentName}</p>
            <p><b>Asset Type:</b> {assetTypeName ?? "-"}</p>
     <p><b>Asset Category:</b> {assetCategoryName ?? "-"}</p>
     <p><b>Priority:</b> {priorityName ?? "-"}</p>
@@ -339,7 +339,7 @@ namespace BusinessLayer.Implementations
 
                     EmployeeName = x.EmployeeName,
                     EmployeeCode = x.EmployeeCode,
-                    Department = x.Department,
+                    DepartmentName = x.Department,
 
                     AssetType = x.AssetTypeId,
                     AssetCategory = x.AssetCategoryId,
