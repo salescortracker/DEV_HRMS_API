@@ -13,5 +13,7 @@ namespace BusinessLayer.Interfaces
         // ✅ NEW METHOD — Reset status back to Submitted
         Task<ApiResponse<bool>>
             RequestAsync(int reviewId);
+
+        Task<ApiResponse<List<PerformanceReviewDto>>> GetEmployeeSubmissions(int userId);
     }
 }

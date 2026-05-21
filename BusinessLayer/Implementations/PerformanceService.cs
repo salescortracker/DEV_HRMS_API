@@ -355,6 +355,27 @@ namespace BusinessLayer.Implementations
 
             return new ApiResponse<bool>(true);
         }
+        public async Task<ApiResponse<List<PerformanceReviewDto>>> GetEmployeeSubmissions(int userId)
+        {
+            var data = await _context.PerformanceReviews
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.Id)
+                .Select(x => new PerformanceReviewDto
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    DepartmentProject = x.DepartmentProject,
+                    PerformanceCycle = x.PerformanceCycle,
+                    AppraisalYear = x.AppraisalYear,
+                    Status = x.Status,
+                    SelfReviewSummary = x.SelfReviewSummary,
+                    ApplicableStartDate = x.ApplicableStartDate,
+                    ApplicableEndDate = x.ApplicableEndDate
+                })
+                .ToListAsync();
+
+            return new ApiResponse<List<PerformanceReviewDto>>(data);
+        }
 
 
     }
