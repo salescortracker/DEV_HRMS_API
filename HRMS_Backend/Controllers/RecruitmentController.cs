@@ -339,13 +339,37 @@ int userId)
 
             var result = await _service.SubmitJobApplicationAsync(dto, resume);
 
-            return Ok(result);
+            return Ok(new { applicationId = result });
         }
         [HttpGet("job-applications")]
         public async Task<IActionResult> GetJobApplications()
         {
             var data = await _service.GetJobApplicationsAsync();
             return Ok(data);
+        }
+
+        [HttpPut("assign-company-region")]
+        public async Task<IActionResult> AssignCompanyRegion([FromBody] AssignCompanyRegionDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Invalid request");
+
+            var result = await _service.UpdateCompanyRegionAsync(
+                dto.Email,
+                dto.Mobile,
+                dto.CompanyId,
+                dto.RegionId,
+                dto.UserId
+            );
+
+            if (!result)
+                return NotFound("Candidate not found");
+
+            return Ok(new
+            {
+                success = true,
+                message = "Candidate, Experience, Qualification updated successfully"
+            });
         }
     }
 }

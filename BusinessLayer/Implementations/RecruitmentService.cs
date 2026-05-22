@@ -6,36 +6,29 @@ using DataAccessLayer.Repositories.GeneralRepository;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using iText.Kernel.Pdf;
-using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 
 using iText.IO.Image;
 using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Layout.Borders;
-using iText.Kernel.Font;
-using iText.IO.Font.Constants;
+
 using iText.Kernel.Colors;
-using iText.Commons.Actions;
 using iText.Kernel.Pdf.Canvas;
 using iText.Kernel.Pdf.Event;
-using iText.IO.Font.Constants;
-using iText.IO.Image;
-using iText.Kernel.Colors;
-using iText.Kernel.Font;
+
 using iText.Kernel.Geom;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas;
-using iText.Kernel.Pdf.Event;
-using iText.Layout;
-using iText.Layout.Borders;
-using iText.Layout.Element;
-using iText.Layout.Properties;
+
 using Path = System.IO.Path;
+using System.Text.RegularExpressions;
+using System.Text;
+using NPOI.HWPF;
+using DocumentFormat.OpenXml.Packaging;
+using NPOI.HWPF.Extractor;
+
 namespace BusinessLayer.Implementations
 {
     public class RecruitmentService : IRecruitmentService
@@ -274,7 +267,14 @@ namespace BusinessLayer.Implementations
                     c.Mobile,
                     c.Designation,
                     c.AppliedDate,
-                    c.FileName,
+
+                    // IMPORTANT FIX
+                    FileName = !string.IsNullOrWhiteSpace(c.FileName)
+        ? c.FileName
+        : c.FilePath,
+
+                    c.FilePath,
+
                     StageName = stage?.StageName ?? "Unknown",
                     Progress = stage?.ProgressPct ?? 0
                 };
@@ -330,6 +330,7 @@ namespace BusinessLayer.Implementations
 
             return new CandidateDto
             {
+                SeqNo = candidate.SeqNo,
                 CandidateId = candidate.CandidateId,
                 AppliedDate = candidate.AppliedDate?.ToDateTime(TimeOnly.MinValue),
                 FirstName = candidate.FirstName,
@@ -378,8 +379,8 @@ namespace BusinessLayer.Implementations
 
             if (candidate == null) return false;
             candidate.AppliedDate = dto.AppliedDate.HasValue
-       ? DateOnly.FromDateTime(dto.AppliedDate.Value)
-       : null;
+               ? DateOnly.FromDateTime(dto.AppliedDate.Value)
+               : null;
 
             candidate.FirstName = dto.FirstName;
             candidate.LastName = dto.LastName;
@@ -832,6 +833,8 @@ int userId)
                     }
                     catch (Exception ex)
                     {
+                        string subject =
+                              $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
                         Console.WriteLine("Interviewer email failed: " + ex.Message);
                         string body = $@"
                             <h3>Interview Scheduled</h3>
@@ -2982,15 +2985,23 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
             {
                 string resumePath = null;
 
-                // FILE SAVE
+                // =========================
+                // 1. SAVE FILE
+                // =========================
                 if (resume != null && resume.Length > 0)
                 {
+                    var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                    var ext = Path.GetExtension(resume.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(ext))
+                        throw new Exception("Invalid file type");
+
                     string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "Resumes");
 
                     if (!Directory.Exists(folder))
                         Directory.CreateDirectory(folder);
 
-                    string fileName = $"{Guid.NewGuid()}_{resume.FileName}";
+                    var fileName = $"{Guid.NewGuid()}_{resume.FileName}";
                     string fullPath = Path.Combine(folder, fileName);
 
                     using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -2998,9 +3009,12 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
                         await resume.CopyToAsync(stream);
                     }
 
-                    resumePath = $"/Uploads/Resumes/{fileName}";
+                    resumePath = $"Uploads/Resumes/{fileName}";
                 }
 
+                // =========================
+                // 2. SAVE JOB APPLICATION
+                // =========================
                 var entity = new JobApplication
                 {
                     CandidateName = dto.CandidateName,
@@ -3009,24 +3023,398 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
                     JobTitle = dto.JobTitle,
                     ExperienceYears = dto.ExperienceYears,
                     Technology = dto.Technology,
-                    ResumeUrl = resumePath,   // ✔ THIS WILL NOW WORK
+                    ResumeUrl = resumePath,
                     Status = "Applied",
                     AppliedDate = DateTime.Now,
                     IsActive = true
                 };
 
                 await _unitOfWork.Repository<JobApplication>().AddAsync(entity);
+                await _unitOfWork.CompleteAsync(); // gets ApplicationId
+
+                // =========================
+                // 3. PARSE RESUME
+                // =========================
+                string text = "";
+
+                if (!string.IsNullOrEmpty(resumePath))
+                {
+                    var fileFullPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        resumePath.TrimStart('/'));
+
+                    text = ExtractTextFromResume(fileFullPath);
+                }
+
+                var experienceBlock = GetSection(text, "Experience");
+                var educationBlock = GetSection(text, "Education");
+                var skills = GetSection(text, "Skills");
+
+                // =========================
+                // 4. CREATE CANDIDATE
+                // =========================
+                var candidate = new Candidate
+                {
+                    FirstName = dto.CandidateName,
+                    Email = dto.Email,
+                    Mobile = dto.Phone,
+                    Designation = dto.JobTitle,
+                    Skills = skills,
+                    FilePath = resumePath,
+                    // Sequence
+                    SeqNo = $"AppRes_{DateTime.Now:yyyy}_{entity.ApplicationId}",
+                    // Auto Applied Date
+                    AppliedDate = DateOnly.FromDateTime(DateTime.Now),
+                    // Auto Stage = Resume Received
+                    StageId = 1,
+                    // Audit
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                };
+
+                await _unitOfWork.Repository<Candidate>().AddAsync(candidate);
+                await _unitOfWork.CompleteAsync();
+
+                // =========================
+                // EXPERIENCE TABLE
+                // =========================
+
+                var experienceLines = experienceBlock
+                     .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                     .Select(x => x.Trim())
+                     .ToList();
+
+                string company = "";
+                string role = "";
+                DateTime fromDate = DateTime.Now;
+                DateTime toDate = DateTime.Now;
+
+                foreach (var line in experienceLines)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    if (line.Contains("Experience", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    // Safer pattern
+                    var match = Regex.Match(line,
+                        @"^(?<role>.+?)\s*[-–]\s*(?<company>.+?)\s*\((?<range>.+)\)$",
+                        RegexOptions.IgnoreCase);
+
+                    if (!match.Success)
+                        continue;
+
+                    role = match.Groups["role"].Value.Trim();
+                    company = match.Groups["company"].Value.Trim();
+
+                    var range = match.Groups["range"].Value;
+
+                    var dates = range.Split(new[] { '-', '–' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (dates.Length > 0)
+                        fromDate = ParseExperienceDate(dates[0].Trim()) ?? DateTime.Now;
+
+                    if (dates.Length > 1)
+                        toDate = ParseExperienceDate(dates[1].Trim()) ?? DateTime.Now;
+
+                    break;
+                }
+
+                CandidateExperience exp = new CandidateExperience
+                {
+                    CandidateId = candidate.CandidateId,
+                    Designation = role,
+                    Organization = company,
+                    FromDate = DateOnly.FromDateTime(fromDate),
+                    ToDate = DateOnly.FromDateTime(toDate),
+                    CreatedAt = DateTime.Now
+                };
+
+                await _unitOfWork.Repository<CandidateExperience>().AddAsync(exp);
+
+                // =========================
+                // 6. QUALIFICATION TABLE (FIXED)
+                // =========================
+
+
+                // DEGREE / QUALIFICATION
+                var qualMatch = Regex.Match(
+                    educationBlock,
+                    @"(B\.?Tech|Bachelor of Technology|Engineering|M\.?Tech|MBA|MCA|B\.?Sc|B\.?Com|Diploma|PhD)",
+                    RegexOptions.IgnoreCase
+                );
+
+                var qualification = qualMatch.Success ? qualMatch.Value : "Not Found"; 
+
+                // UNIVERSITY / COLLEGE
+                var universityMatch = Regex.Match(
+                    educationBlock,
+                    @"([A-Z][A-Za-z&.\s]+(University|College|Institute|School|Academy))",
+                    RegexOptions.IgnoreCase
+                );
+
+                var university = universityMatch.Success ? universityMatch.Value : "Not Found";
+
+                // YEARS
+                var yearMatches = Regex.Matches(educationBlock, @"(19\d{2}|20\d{2})")
+                    .Select(m => int.Parse(m.Value))
+                    .ToList();
+
+                int? fromYear = null;
+                int? toYear = null;
+
+                if (yearMatches.Count == 1)
+                {
+                    toYear = yearMatches[0];   // ONLY ONE YEAR FOUND
+                }
+                else if (yearMatches.Count >= 2)
+                {
+                    fromYear = yearMatches[0];
+                    toYear = yearMatches[1];
+                }
+
+                var qual = new CandidateQualification
+                {
+                    CandidateId = candidate.CandidateId,
+                    CreatedAt = DateTime.Now,
+                    Qualification = qualification,
+                    BoardUniversity = university,
+                    FromYear = fromYear ?? 0,
+                    ToYear = toYear ?? 0
+                };
+
+                await _unitOfWork.Repository<CandidateQualification>().AddAsync(qual);
+
+                // =========================
+                // 7. FINAL SAVE
+                // =========================
                 await _unitOfWork.CompleteAsync();
                 await tx.CommitAsync();
 
                 return entity.ApplicationId;
             }
-            catch
+            catch (Exception ex)
             {
                 await tx.RollbackAsync();
-                throw;
+                var inner = ex.InnerException?.Message;
+                var full = ex.ToString();
+
+                throw new Exception($"DB ERROR: {inner ?? full}");
             }
         }
+        private string ExtractTextFromResume(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return "";
+
+            var extension = Path.GetExtension(path).ToLower();
+
+            switch (extension)
+            {
+                case ".pdf":
+                    return ExtractTextFromPdf(path);
+
+                case ".docx":
+                    return ExtractTextFromDocx(path);
+
+                case ".doc":
+                    return ExtractTextFromDoc(path);
+
+                default:
+                    return "";
+            }
+        }
+        private string ExtractTextFromPdf(string path)
+        {
+            var text = new StringBuilder();
+
+            using var pdfReader = new iText.Kernel.Pdf.PdfReader(path);
+            using var pdfDoc = new iText.Kernel.Pdf.PdfDocument(pdfReader);
+
+            for (int i = 1; i <= pdfDoc.GetNumberOfPages(); i++)
+            {
+                var page = pdfDoc.GetPage(i);
+
+                text.Append(
+                    iText.Kernel.Pdf.Canvas.Parser.PdfTextExtractor.GetTextFromPage(page)
+                );
+            }
+
+            return text.ToString();
+        }
+        private string ExtractTextFromDocx(string path)
+        {
+            StringBuilder text = new StringBuilder();
+
+            using (WordprocessingDocument wordDoc =
+                   WordprocessingDocument.Open(path, false))
+            {
+                var body = wordDoc.MainDocumentPart.Document.Body;
+
+                if (body != null)
+                {
+                    text.Append(body.InnerText);
+                }
+            }
+
+            return text.ToString();
+        }
+        private string ExtractTextFromDoc(string path)
+        {
+            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+            HWPFDocument doc = new HWPFDocument(fs);
+
+            WordExtractor extractor = new WordExtractor(doc);
+
+            return extractor.Text;
+        }
+        private string GetSection(string text, string section)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+
+            text = Regex.Replace(text, @"\r", "\n");
+
+            var startKeywords = new Dictionary<string, string[]>
+    {
+        { "Experience", new[] { "Professional Experience", "Work Experience", "Experience" } },
+        { "Education", new[] { "Education", "Academic Details", "Qualifications" } },
+        { "Skills", new[] { "Skills", "Technical Skills", "Key Skills" } }
+    };
+
+            var stopKeywords = new[]
+            {
+        "Experience",
+        "Education",
+        "Projects",
+        "Certifications",
+        "Achievements",
+        "Declaration",
+        "Contact"
+    };
+
+            if (!startKeywords.ContainsKey(section))
+                return "";
+
+            foreach (var keyword in startKeywords[section])
+            {
+                int startIndex = text.IndexOf(keyword, StringComparison.OrdinalIgnoreCase);
+
+                if (startIndex >= 0)
+                {
+                    int endIndex = text.Length;
+
+                    foreach (var stop in stopKeywords)
+                    {
+                        int temp = text.IndexOf(stop, startIndex + keyword.Length, StringComparison.OrdinalIgnoreCase);
+
+                        if (temp > startIndex && temp < endIndex)
+                            endIndex = temp;
+                    }
+
+                    return text.Substring(startIndex, endIndex - startIndex).Trim();
+                }
+            }
+
+            return "";
+        }
+        private DateTime? ParseResumeDate(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            input = input.Trim().ToLower();
+
+            if (input.Contains("present") || input.Contains("current"))
+                return DateTime.Now;
+
+            if (DateTime.TryParse(input, out var parsedDate))
+                return parsedDate;
+
+            return null;
+        }
+        private DateTime? ParseExperienceDate(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            input = input.ToLower();
+
+            if (input.Contains("present") || input.Contains("current") || input.Contains("till now"))
+                return DateTime.Now;
+
+            // Try extracting year
+            var yearMatch = Regex.Match(input, @"(19\d{2}|20\d{2})");
+
+            if (yearMatch.Success)
+                return new DateTime(int.Parse(yearMatch.Value), 1, 1);
+
+            return null;
+        }
+
+        public async Task<bool> UpdateCompanyRegionAsync(string email, string mobile, int companyId, int regionId, int userId)
+        {
+            // 1. FIND CANDIDATE (BETTER: DB FILTER NOT GetAll)
+            var candidate = (await _unitOfWork.Repository<Candidate>()
+                .GetAllAsync())
+                .Where(x =>
+                    x.Email == email &&
+                    x.Mobile == mobile &&
+                    x.SeqNo.StartsWith("AppRes_"))
+                .OrderByDescending(x => x.CreatedAt) // IMPORTANT: take latest
+                .FirstOrDefault();
+
+            if (candidate == null)
+                return false;
+
+            var candidateId = candidate.CandidateId;
+
+            // 2. UPDATE CANDIDATE
+            candidate.CompanyId = companyId;
+            candidate.RegionId = regionId;
+            candidate.UserId = userId;
+
+            _unitOfWork.Repository<Candidate>().Update(candidate);
+
+            // 3. UPDATE EXPERIENCE
+            var experiences = (await _unitOfWork.Repository<CandidateExperience>()
+                .GetAllAsync())
+                .Where(x => x.CandidateId == candidateId)
+                .ToList();
+
+            foreach (var exp in experiences)
+            {
+                exp.CompanyId = companyId;
+                exp.RegionId = regionId;
+                exp.UserId = userId;
+
+                _unitOfWork.Repository<CandidateExperience>().Update(exp);
+            }
+
+            // 4. UPDATE QUALIFICATION
+            var qualifications = (await _unitOfWork.Repository<CandidateQualification>()
+                .GetAllAsync())
+                .Where(x => x.CandidateId == candidateId)
+                .ToList();
+
+            foreach (var qual in qualifications)
+            {
+                qual.CompanyId = companyId;
+                qual.RegionId = regionId;
+                qual.UserId = userId;
+
+                _unitOfWork.Repository<CandidateQualification>().Update(qual);
+            }
+
+            // 5. SAVE ALL CHANGES
+            await _unitOfWork.CompleteAsync();
+
+            return true;
+        }
+
         public async Task<List<JobApplicationDto>> GetJobApplicationsAsync()
         {
             var data = await _unitOfWork.Repository<JobApplication>()
@@ -3050,5 +3438,7 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
             })
             .ToList();
         }
+
+       
     }
 }

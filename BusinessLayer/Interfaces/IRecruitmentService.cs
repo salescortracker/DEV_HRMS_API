@@ -90,6 +90,7 @@ namespace BusinessLayer.Interfaces
 
         Task<int> SubmitJobApplicationAsync(JobApplicationDto dto, IFormFile? resume);
         Task<List<JobApplicationDto>> GetJobApplicationsAsync();
+        Task<bool> UpdateCompanyRegionAsync(string email, string mobile, int companyId, int regionId, int userId);
     }
 
 }
