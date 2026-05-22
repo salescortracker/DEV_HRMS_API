@@ -2018,94 +2018,175 @@ namespace BusinessLayer.Implementations
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<int> AddempEmerAsync(EmployeeEmergencyContactDto model)
+        #region ADD EMERGENCY CONTACT
+
+        public async Task<int> AddempEmerAsync(
+            EmployeeEmergencyContactDto model)
         {
-            try
+            // ✅ DUPLICATE CHECK
+
+            var duplicate = await _context.EmployeeEmergencyContacts
+                .FirstOrDefaultAsync(x =>
+
+                    x.UserId == model.UserId &&
+
+                    x.CompanyId == model.CompanyId &&
+
+                    x.RegionId == model.RegionId &&
+
+                    x.ContactName.Trim().ToLower() ==
+                        model.ContactName.Trim().ToLower() &&
+
+                    x.PhoneNumber == model.PhoneNumber &&
+
+                    x.RelationshipId == model.RelationshipId
+                );
+
+            if (duplicate != null)
             {
-                // Prefer relationship name from master if ID provided
-                string relationshipName = model.Relationship ?? string.Empty;
-                if (model.RelationshipId > 0)
-                {
-                    var relFromMaster = await _context.Relationships
-                        .Where(r => r.RelationshipId == model.RelationshipId)
-                        .Select(r => r.RelationshipName)
-                        .FirstOrDefaultAsync();
-
-                    if (!string.IsNullOrEmpty(relFromMaster))
-                        relationshipName = relFromMaster;
-                }
-
-                var entity = new EmployeeEmergencyContact
-                {
-
-                    UserId = model.UserId,
-                    CompanyId = model.CompanyId,
-                    RegionId = model.RegionId,
-                    ContactName = model.ContactName ?? string.Empty,
-                    RelationshipId = model.RelationshipId,
-                    // if your EF model has a Relationship string column, set it; else it's optional
-                    // assuming EF model only has RelationshipId (but you had navigation property)
-                    PhoneNumber = model.PhoneNumber,
-                    AlternatePhone = model.AlternatePhone,
-                    Email = model.Email,
-                    Address = model.Address,
-                    CreatedBy = model.CreatedBy,
-                    CreatedDate = model.CreatedDate ?? DateTime.Now
-                };
-
-                await _context.EmployeeEmergencyContacts.AddAsync(entity);
-                await _context.SaveChangesAsync();
-                return entity.EmergencyContactId;
+                throw new Exception(
+                    "Emergency contact already exists."
+                );
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
-        public async Task<bool> UpdateempEmerAsync(EmployeeEmergencyContactDto model)
-        {
-            var entity = await _context.EmployeeEmergencyContacts.FindAsync(model.EmergencyContactId);
-            if (entity == null)
-                return false;
+            // ✅ RELATIONSHIP NAME
 
+            string relationshipName =
+                model.Relationship ?? string.Empty;
 
-            entity.UserId = model.UserId;
-            entity.CompanyId = model.CompanyId;
-            entity.RegionId = model.RegionId;
-            entity.ContactName = model.ContactName ?? entity.ContactName;
-            entity.RelationshipId = model.RelationshipId != 0 ? model.RelationshipId : entity.RelationshipId;
-
-            // try update relationship name if needed (same pattern as family)
             if (model.RelationshipId > 0)
             {
                 var relFromMaster = await _context.Relationships
-                    .Where(r => r.RelationshipId == model.RelationshipId)
+                    .Where(r =>
+                        r.RelationshipId == model.RelationshipId)
                     .Select(r => r.RelationshipName)
                     .FirstOrDefaultAsync();
 
                 if (!string.IsNullOrEmpty(relFromMaster))
                 {
-                    // If you have a Relationship string column on the EF model, update it.
-                    // entity.Relationship = relFromMaster; // uncomment if present
+                    relationshipName = relFromMaster;
                 }
             }
-            else if (!string.IsNullOrEmpty(model.Relationship))
+
+            // ✅ ENTITY
+
+            var entity = new EmployeeEmergencyContact
             {
-                // entity.Relationship = model.Relationship; // uncomment if present
+                UserId = model.UserId,
+
+                CompanyId = model.CompanyId,
+
+                RegionId = model.RegionId,
+
+                ContactName = model.ContactName ?? string.Empty,
+
+                RelationshipId = model.RelationshipId,
+
+                PhoneNumber = model.PhoneNumber,
+
+                AlternatePhone = model.AlternatePhone,
+
+                Email = model.Email,
+
+                Address = model.Address,
+
+                CreatedBy = model.CreatedBy,
+
+                CreatedDate =
+                    model.CreatedDate ?? DateTime.Now
+            };
+
+            await _context.EmployeeEmergencyContacts
+                .AddAsync(entity);
+
+            await _context.SaveChangesAsync();
+
+            return entity.EmergencyContactId;
+        }
+
+        #endregion
+
+
+        #region UPDATE EMERGENCY CONTACT
+
+        public async Task<bool> UpdateempEmerAsync(
+            EmployeeEmergencyContactDto model)
+        {
+            var entity = await _context.EmployeeEmergencyContacts
+                .FindAsync(model.EmergencyContactId);
+
+            if (entity == null)
+                return false;
+
+            // ✅ DUPLICATE CHECK
+
+            var duplicate = await _context
+                .EmployeeEmergencyContacts
+                .FirstOrDefaultAsync(x =>
+
+                    x.EmergencyContactId !=
+                        model.EmergencyContactId &&
+
+                    x.UserId == model.UserId &&
+
+                    x.CompanyId == model.CompanyId &&
+
+                    x.RegionId == model.RegionId &&
+
+                    x.ContactName.Trim().ToLower() ==
+                        model.ContactName.Trim().ToLower() &&
+
+                    x.PhoneNumber == model.PhoneNumber &&
+
+                    x.RelationshipId ==
+                        model.RelationshipId
+                );
+
+            if (duplicate != null)
+            {
+                throw new Exception(
+                    "Emergency contact already exists."
+                );
             }
 
-            entity.PhoneNumber = model.PhoneNumber ?? entity.PhoneNumber;
-            entity.AlternatePhone = model.AlternatePhone ?? entity.AlternatePhone;
-            entity.Email = model.Email ?? entity.Email;
-            entity.Address = model.Address ?? entity.Address;
+            // ✅ UPDATE VALUES
+
+            entity.UserId = model.UserId;
+
+            entity.CompanyId = model.CompanyId;
+
+            entity.RegionId = model.RegionId;
+
+            entity.ContactName =
+                model.ContactName ?? entity.ContactName;
+
+            entity.RelationshipId =
+                model.RelationshipId != 0
+                ? model.RelationshipId
+                : entity.RelationshipId;
+
+            entity.PhoneNumber =
+                model.PhoneNumber ?? entity.PhoneNumber;
+
+            entity.AlternatePhone =
+                model.AlternatePhone ?? entity.AlternatePhone;
+
+            entity.Email =
+                model.Email ?? entity.Email;
+
+            entity.Address =
+                model.Address ?? entity.Address;
+
             entity.ModifiedBy = model.ModifiedBy;
+
             entity.ModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
+
             return true;
         }
 
+        #endregion
         public async Task<bool> DeleteempEmerAsync(int emergencyContactId)
         {
             var entity = await _context.EmployeeEmergencyContacts.FirstOrDefaultAsync(x => x.EmergencyContactId == emergencyContactId);

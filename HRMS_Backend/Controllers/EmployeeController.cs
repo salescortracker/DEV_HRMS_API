@@ -2107,42 +2107,132 @@ public class UpdateResignationStatusRequest
         /// <summary>
         /// Add a new emergency contact entry
         /// </summary>
+        //[HttpPost("AddempEmerAsync")]
+        //public async Task<IActionResult> AddempEmerAsync([FromBody] EmployeeEmergencyContactDto model)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    // Audit - createdBy
+        //    if (string.IsNullOrEmpty(model.CreatedBy) && model.UserId != 0)
+        //        model.CreatedBy = model.UserId.ToString();
+
+        //    var id = await _employeeService.AddempEmerAsync(model);
+
+        //    return Ok(new { message = "Saved successfully", id });
+        //}
+
+        ///// <summary>
+        ///// Update an existing emergency contact entry
+        ///// </summary>
+        //[HttpPost("UpdateempEmerAsync")]
+        //public async Task<IActionResult> UpdateempEmerAsync([FromBody] EmployeeEmergencyContactDto model)
+        //{
+        //    if (model.EmergencyContactId != model.EmergencyContactId)
+        //        return BadRequest(new { message = "Id mismatch" });
+
+        //    // Audit - modifiedBy
+        //    if (string.IsNullOrEmpty(model.ModifiedBy) && model.UserId != 0)
+        //        model.ModifiedBy = model.UserId.ToString();
+
+        //    var result = await _employeeService.UpdateempEmerAsync(model);
+
+        //    if (!result)
+        //        return NotFound(new { message = "Record not found" });
+
+        //    return Ok(new { message = "Updated successfully" });
+        //}
+
+     
+
         [HttpPost("AddempEmerAsync")]
-        public async Task<IActionResult> AddempEmerAsync([FromBody] EmployeeEmergencyContactDto model)
+        public async Task<IActionResult> AddempEmerAsync(
+    [FromBody] EmployeeEmergencyContactDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            // Audit - createdBy
-            if (string.IsNullOrEmpty(model.CreatedBy) && model.UserId != 0)
-                model.CreatedBy = model.UserId.ToString();
+                // ✅ Audit
+                if (string.IsNullOrEmpty(model.CreatedBy)
+                    && model.UserId != 0)
+                {
+                    model.CreatedBy = model.UserId.ToString();
+                }
 
-            var id = await _employeeService.AddempEmerAsync(model);
+                var id = await _employeeService.AddempEmerAsync(model);
 
-            return Ok(new { message = "Saved successfully", id });
+                return Ok(new
+                {
+                    message = "Saved successfully",
+                    id
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
-        /// <summary>
-        /// Update an existing emergency contact entry
-        /// </summary>
+        #endregion
+
+
+        #region UPDATE EMERGENCY CONTACT
+
         [HttpPost("UpdateempEmerAsync")]
-        public async Task<IActionResult> UpdateempEmerAsync([FromBody] EmployeeEmergencyContactDto model)
+        public async Task<IActionResult> UpdateempEmerAsync(
+            [FromBody] EmployeeEmergencyContactDto model)
         {
-            if (model.EmergencyContactId != model.EmergencyContactId)
-                return BadRequest(new { message = "Id mismatch" });
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            // Audit - modifiedBy
-            if (string.IsNullOrEmpty(model.ModifiedBy) && model.UserId != 0)
-                model.ModifiedBy = model.UserId.ToString();
+                // ✅ Validate Id
+                if (model.EmergencyContactId <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Invalid EmergencyContactId"
+                    });
+                }
 
-            var result = await _employeeService.UpdateempEmerAsync(model);
+                // ✅ Audit
+                if (string.IsNullOrEmpty(model.ModifiedBy)
+                    && model.UserId != 0)
+                {
+                    model.ModifiedBy = model.UserId.ToString();
+                }
 
-            if (!result)
-                return NotFound(new { message = "Record not found" });
+                var result = await _employeeService.UpdateempEmerAsync(model);
 
-            return Ok(new { message = "Updated successfully" });
+                if (!result)
+                {
+                    return NotFound(new
+                    {
+                        message = "Record not found"
+                    });
+                }
+
+                return Ok(new
+                {
+                    message = "Updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
+        #endregion
         /// <summary>
         /// Delete an emergency contact record
         /// </summary>
@@ -2163,7 +2253,7 @@ public class UpdateResignationStatusRequest
 
 
         #endregion
-        #endregion
+        
         #region Employee References
 
 
