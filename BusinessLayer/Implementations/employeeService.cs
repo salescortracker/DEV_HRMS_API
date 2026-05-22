@@ -1604,36 +1604,99 @@ namespace BusinessLayer.Implementations
         /// <param name="dto"></param>
         /// <returns></returns>
 
+        //public async Task<bool> addempBankAsync(EmployeeBankDetailsDto dto)
+        //{
+        //    try
+        //    {
+        //        var entity = new EmployeeBankDetail
+        //        {
+        //            EmployeeId = dto.EmployeeId,
+        //            RegionId = dto.RegionId,
+        //            UserId = dto.UserId,
+        //            CompanyId = dto.CompanyId,
+        //            BankName = dto.BankName,
+        //            BranchName = dto.BranchName,
+        //            AccountHolderName = dto.AccountHolderName,
+        //            AccountNumber = dto.AccountNumber,
+        //            AccountTypeId = dto.AccountTypeId,
+        //            Ifsccode = dto.Ifsccode,
+        //            Micrcode = dto.Micrcode,
+        //            Upiid = dto.Upiid,
+        //            CreatedAt = DateTime.UtcNow
+        //        };
+
+        //        await _unitOfWork.Repository<EmployeeBankDetail>().AddAsync(entity);
+        //        return await _unitOfWork.CompleteAsync() > 0;
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
         public async Task<bool> addempBankAsync(EmployeeBankDetailsDto dto)
         {
             try
             {
-                var entity = new EmployeeBankDetail
-                {
-                    EmployeeId = dto.EmployeeId,
-                    RegionId = dto.RegionId,
-                    UserId = dto.UserId,
-                    CompanyId = dto.CompanyId,
-                    BankName = dto.BankName,
-                    BranchName = dto.BranchName,
-                    AccountHolderName = dto.AccountHolderName,
-                    AccountNumber = dto.AccountNumber,
-                    AccountTypeId = dto.AccountTypeId,
-                    Ifsccode = dto.Ifsccode,
-                    Micrcode = dto.Micrcode,
-                    Upiid = dto.Upiid,
-                    CreatedAt = DateTime.UtcNow
-                };
+                var repo = _unitOfWork.Repository<EmployeeBankDetail>();
 
-                await _unitOfWork.Repository<EmployeeBankDetail>().AddAsync(entity);
+                // ✅ CHECK EXISTING RECORD
+                var allRecords = await repo.GetAllAsync();
+
+                var existing = allRecords.FirstOrDefault(x =>
+                    x.EmployeeId == dto.EmployeeId &&
+                    x.UserId == dto.UserId);
+
+                // IF RECORD EXISTS → UPDATE IT
+                if (existing != null)
+                {
+                    existing.RegionId = dto.RegionId;
+                    existing.CompanyId = dto.CompanyId;
+                    existing.BankName = dto.BankName;
+                    existing.BranchName = dto.BranchName;
+                    existing.AccountHolderName = dto.AccountHolderName;
+                    existing.AccountNumber = dto.AccountNumber;
+                    existing.AccountTypeId = dto.AccountTypeId;
+                    existing.Ifsccode = dto.Ifsccode;
+                    existing.Micrcode = dto.Micrcode;
+                    existing.Upiid = dto.Upiid;
+                    existing.ModifiedAt = DateTime.UtcNow;
+
+                    repo.Update(existing);
+                }
+                else
+                {
+                    // INSERT NEW RECORD
+                    var entity = new EmployeeBankDetail
+                    {
+                        EmployeeId = dto.EmployeeId,
+                        RegionId = dto.RegionId,
+                        UserId = dto.UserId,
+                        CompanyId = dto.CompanyId,
+                        BankName = dto.BankName,
+                        BranchName = dto.BranchName,
+                        AccountHolderName = dto.AccountHolderName,
+                        AccountNumber = dto.AccountNumber,
+                        AccountTypeId = dto.AccountTypeId,
+                        Ifsccode = dto.Ifsccode,
+                        Micrcode = dto.Micrcode,
+                        Upiid = dto.Upiid,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await repo.AddAsync(entity);
+                }
+
                 return await _unitOfWork.CompleteAsync() > 0;
             }
-            catch(Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
-        /// <summary>
+
+
+        ///// <summary>
         /// 
         /// </summary>
         /// <param name="dto"></param>
