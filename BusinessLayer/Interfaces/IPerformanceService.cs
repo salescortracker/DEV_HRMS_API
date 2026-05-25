@@ -15,5 +15,9 @@ namespace BusinessLayer.Interfaces
             RequestAsync(int reviewId);
 
         Task<ApiResponse<List<PerformanceReviewDto>>> GetEmployeeSubmissions(int userId);
+
+
+
+        Task<ApiResponse<List<object>>> GetPerformanceReports(int userId, string roleName);
     }
 }

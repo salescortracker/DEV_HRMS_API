@@ -297,6 +297,20 @@ namespace HRMS_Backend.Controllers
             var result = await _Iperformanceservice.GetEmployeeSubmissions(userId);
             return Ok(result);
         }
+
+
+
+        [HttpGet("Manager/GetPerformanceReports")]
+        public async Task<IActionResult> GetPerformanceReports(
+    int userId,
+    string roleName)
+        {
+            var result = await _Iperformanceservice
+                .GetPerformanceReports(userId, roleName);
+
+            return Ok(result);
+        }
+
         #endregion
 
 
