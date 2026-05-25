@@ -503,6 +503,67 @@ namespace BusinessLayer.Implementations
 
             return new ApiResponse<List<PerformanceReviewDto>>(data);
         }
+        public async Task<ApiResponse<List<object>>> GetPerformanceReports(
+ int userId,
+ string roleName)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+
+            if (user == null)
+            {
+                return new ApiResponse<List<object>>
+                {
+                    Success = false,
+                    Message = "User not found",
+                    Data = new List<object>()
+                };
+            }
+
+            var query =
+                from pr in _context.PerformanceReviews
+                join u in _context.Users
+                on pr.UserId equals u.UserId
+                select new
+                {
+                    pr,
+                    u
+                };
+
+            // HR
+            if (roleName.ToLower() == "hr")
+            {
+                query = query.Where(x =>
+                    x.u.CompanyId == user.CompanyId &&
+                    x.u.RegionId == user.RegionId);
+            }
+
+            // MANAGER
+            else
+            {
+                query = query.Where(x =>
+                    x.pr.ReportingManagerId == userId);
+            }
+
+            var result = await query
+                .Select(x => new
+                {
+                    employeeName = x.u.FullName,
+                    department = x.pr.Department,
+                    departmentProject = x.pr.DepartmentProject,
+                    appraisalYear = x.pr.AppraisalYear,
+                    status = x.pr.Status
+                })
+                .ToListAsync<object>();
+
+            return new ApiResponse<List<object>>
+            {
+                Success = true,
+                Message = "Performance reports fetched successfully",
+                Data = result
+            };
+        }
+
 
 
     }
