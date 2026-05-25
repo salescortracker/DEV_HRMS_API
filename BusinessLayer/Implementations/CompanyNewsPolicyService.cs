@@ -355,6 +355,8 @@ namespace BusinessLayer.Implementations
             if (entity == null)
                 throw new Exception("Policy not found");
 
+            entity.CompanyId = dto.CompanyId;
+            entity.RegionId = dto.RegionId;
             entity.PolicyTitle = dto.PolicyTitle;
             entity.PolicyDescription = dto.PolicyDescription;
             entity.PostedDate = dto.PostedDate;

@@ -71,6 +71,14 @@
               "target": "Package",
               "version": "[5.0.17, )"
             },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "NPOI.HWPF": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"
@@ -199,6 +207,14 @@
               "target": "Package",
               "version": "[9.0.10, )"
             },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "NPOI.HWPF": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "PdfPig": {
               "target": "Package",
               "version": "[0.1.14, )"
@@ -311,6 +327,14 @@
               "target": "Package",
               "version": "[9.0.10, )"
             },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "NPOI.HWPF": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"
@@ -413,6 +437,14 @@
             "ExcelDataReader.DataSet": {
               "target": "Package",
               "version": "[3.8.0, )"
+            },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "NPOI.HWPF": {
+              "target": "Package",
+              "version": "[2.3.0, )"
             },
             "PdfPig": {
               "target": "Package",

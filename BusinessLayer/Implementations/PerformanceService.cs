@@ -2,6 +2,7 @@
 using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
+using DocumentFormat.OpenXml.InkML;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
@@ -304,7 +305,7 @@ namespace BusinessLayer.Implementations
         public async Task<ApiResponse<bool>> ApproveAsync(int reviewId, int managerId, string remarks)
         {
             var review = await _context.PerformanceReviews
-                .FirstOrDefaultAsync(x => x.Id == reviewId && x.ReportingManagerId == managerId);
+        .FirstOrDefaultAsync(x => x.Id == reviewId && x.ReportingManagerId == managerId);
 
             if (review == null)
                 return new ApiResponse<bool>(false, "Record not found");
@@ -316,6 +317,72 @@ namespace BusinessLayer.Implementations
 
             await _context.SaveChangesAsync();
 
+
+
+            // GET EMPLOYEE
+
+            var employee = await _context.Users
+                   .Where(x => x.UserId == review.UserId)
+                   .Select(x => new
+                   {
+                       x.Email,
+                       x.FullName
+                   })
+                   .FirstOrDefaultAsync();
+
+            // GET MANAGER
+
+            var manager = await _context.Users
+                .Where(x => x.UserId == managerId)
+                .Select(x => new
+                {
+                    x.Email,
+                    x.FullName
+                })
+                .FirstOrDefaultAsync();
+
+            // EMAIL TO EMPLOYEE
+
+            if (employee != null && !string.IsNullOrEmpty(employee.Email))
+            {
+                var body = $@"
+                  <div style='font-family:Arial'>
+ 
+                      <h3>KPI Review Approved</h3>
+ 
+                      <p>Dear {employee.FullName},</p>
+ 
+                      <p>Your KPI review has been approved by manager.</p>
+ 
+                      <table border='1' cellpadding='6' cellspacing='0'>
+                          <tr>
+                              <td><b>Status</b></td>
+                              <td>Approved</td>
+                          </tr>
+ 
+                          <tr>
+                              <td><b>Manager Remarks</b></td>
+                              <td>{remarks}</td>
+                          </tr>
+                      </table>
+ 
+                      <br/>
+ 
+                      <p>Regards,<br/><b>HRMS Team</b></p>
+ 
+                  </div>";
+
+                await _emailService.SendEmailAsync(
+                    employee.Email,
+                    "KPI Review Approved",
+                    body,
+                    string.IsNullOrEmpty(review.HrEmail)
+                        ? null
+                        : new List<string> { review.HrEmail }
+                );
+            }
+
+
             return new ApiResponse<bool>(true);
         }
 
@@ -325,7 +392,7 @@ namespace BusinessLayer.Implementations
         public async Task<ApiResponse<bool>> RejectAsync(int reviewId, int managerId, string remarks)
         {
             var review = await _context.PerformanceReviews
-                .FirstOrDefaultAsync(x => x.Id == reviewId && x.ReportingManagerId == managerId);
+          .FirstOrDefaultAsync(x => x.Id == reviewId && x.ReportingManagerId == managerId);
 
             if (review == null)
                 return new ApiResponse<bool>(false, "Record not found");
@@ -336,6 +403,66 @@ namespace BusinessLayer.Implementations
             review.ModifiedBy = managerId;
 
             await _context.SaveChangesAsync();
+
+
+            // GET EMPLOYEE
+
+            var employee = await _context.Users
+                .Where(x => x.UserId == review.UserId)
+                .Select(x => new
+                {
+                    x.Email,
+                    x.FullName
+                })
+                .FirstOrDefaultAsync();
+
+            // EMAIL TO EMPLOYEE
+
+            if (employee != null && !string.IsNullOrEmpty(employee.Email))
+            {
+                var body = $@"
+             <div style='font-family:Arial'>
+ 
+                 <h3>KPI Review Rejected</h3>
+ 
+                 <p>Dear {employee.FullName},</p>
+ 
+                 <p>Your KPI review has been rejected by manager.</p>
+ 
+                 <table border='1' cellpadding='6' cellspacing='0'>
+ 
+                     <tr>
+                         <td><b>Status</b></td>
+                         <td>Rejected</td>
+                     </tr>
+ 
+                     <tr>
+                         <td><b>Manager Remarks</b></td>
+                         <td>{remarks}</td>
+                     </tr>
+ 
+                 </table>
+ 
+                 <br/>
+ 
+                 <p>Please update and resubmit your KPI review.</p>
+ 
+                 <br/>
+ 
+                 <p>Regards,<br/><b>HRMS Team</b></p>
+ 
+             </div>";
+
+                await _emailService.SendEmailAsync(
+
+                    employee.Email,
+                    "KPI Review Rejected",
+                    body,
+                    string.IsNullOrEmpty(review.HrEmail)
+                        ? null
+                        : new List<string> { review.HrEmail }
+                );
+            }
 
             return new ApiResponse<bool>(true);
         }

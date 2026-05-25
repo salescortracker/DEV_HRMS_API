@@ -22,6 +22,8 @@ namespace BusinessLayer.DTOs
         public string? AssetModel { get; set; }
         public string? PurchaseOrder { get; set; }
 
+        public int? DepartmentId { get; set; }
+        public string? DepartmentName { get; set; }
         public DateTime? WarrantyStartDate { get; set; }
         public DateTime? WarrantyEndDate { get; set; }
 

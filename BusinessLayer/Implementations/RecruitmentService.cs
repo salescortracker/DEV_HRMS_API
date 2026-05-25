@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using BusinessLayer.DTOs;
+﻿using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
@@ -836,8 +835,7 @@ int userId)
                         string subject =
                               $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
                         Console.WriteLine("Interviewer email failed: " + ex.Message);
-                        string subject =
-                              $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
+                       
                         string body = $@"
                             <h3>Interview Scheduled</h3>
                             <p>Dear {interviewer.FullName},</p>

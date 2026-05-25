@@ -24,6 +24,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
+    <PackageReference Include="NPOI" Version="2.3.0" />
+    <PackageReference Include="NPOI.HWPF" Version="2.3.0" />
     <PackageReference Include="PdfPig" Version="0.1.14" />
   </ItemGroup>
 

@@ -406,3 +406,9 @@ C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\refint\HRMS_Backend.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\HRMS_Backend.pdb
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\HRMS_Backend.genruntimeconfig.cache
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\ref\HRMS_Backend.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\bin\Release\net8.0\NPOI.OOXML.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\bin\Release\net8.0\NPOI.OpenXml4Net.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\bin\Release\net8.0\NPOI.OpenXmlFormats.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\bin\Release\net8.0\NPOI.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\bin\Release\net8.0\NPOI.ScratchPad.HWPF.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\bin\Release\net8.0\ICSharpCode.SharpZipLib.dll

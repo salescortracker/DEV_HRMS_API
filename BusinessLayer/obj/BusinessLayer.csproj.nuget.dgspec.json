@@ -71,6 +71,14 @@
               "target": "Package",
               "version": "[5.0.17, )"
             },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "NPOI.HWPF": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.4, )"
@@ -198,6 +206,14 @@
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
               "version": "[9.0.10, )"
+            },
+            "NPOI": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "NPOI.HWPF": {
+              "target": "Package",
+              "version": "[2.3.0, )"
             },
             "PdfPig": {
               "target": "Package",

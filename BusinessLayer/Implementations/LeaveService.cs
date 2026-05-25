@@ -248,23 +248,22 @@ namespace BusinessLayer.Implementations
             var startDateOnly = DateOnly.FromDateTime(dto.StartDate);
             var endDateOnly = DateOnly.FromDateTime(dto.EndDate);
 
-            // ✅ CHECK DUPLICATE LEAVE FIRST (ADD HERE)
-            var existing = await _unitOfWork.Repository<LeaveRequest>().FindAsync(
-                x => x.UserId == dto.UserId
-                  && x.CompanyId == dto.CompanyId
-                  && x.RegionId == dto.RegionId
-                  && (
-                       (startDateOnly <= x.EndDate && endDateOnly >= x.StartDate)
-                     )
-            );
+            // =====================================================
+            // VALIDATE DATES
+            // =====================================================
 
-            if (existing.Any(x => x.Status != "Rejected"))
-            {
-                throw new Exception("Duplicate leave request: You have already applied for leave on these dates.");
-            }
-            //   CHECK DUPLICATE / OVERLAP
+            if (dto.StartDate.Date > dto.EndDate.Date)
+                throw new Exception("Start date cannot be greater than end date.");
+
+            // =====================================================
+            // DUPLICATE / OVERLAP CHECK
+            // =====================================================
+
             var existingLeaves = await _unitOfWork.Repository<LeaveRequest>()
-                  .FindAsync(x => x.UserId == dto.UserId);
+                .FindAsync(x =>
+                    x.UserId == dto.UserId &&
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId);
 
             bool isDuplicate = existingLeaves.Any(l =>
             {
@@ -274,21 +273,76 @@ namespace BusinessLayer.Implementations
                 var existingStart = l.StartDate.ToDateTime(TimeOnly.MinValue);
                 var existingEnd = l.EndDate.ToDateTime(TimeOnly.MinValue);
 
-                // 👉 Overlap condition
-                return dto.StartDate <= existingEnd && dto.EndDate >= existingStart;
+                return dto.StartDate.Date <= existingEnd.Date &&
+                       dto.EndDate.Date >= existingStart.Date;
             });
 
             if (isDuplicate)
             {
-                throw new Exception("Leave already exists for selected date range.");
+                throw new Exception("You already applied leave for selected dates.");
             }
 
-            // ✅ Get Weekoffs for company + region
+            // =====================================================
+            // LOAD WEEKOFFS
+            // =====================================================
+
             var weekoffs = await _unitOfWork.Repository<Weekoff>()
-                .FindAsync(x => !x.IsDeleted &&
-                                x.CompanyId == dto.CompanyId &&
-                                x.RegionId == dto.RegionId &&
-                                x.IsActive);
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.IsActive &&
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId);
+
+            // =====================================================
+            // LOAD HOLIDAYS
+            // =====================================================
+
+            var holidays = await _unitOfWork.Repository<HolidayList>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.IsActive &&
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId);
+
+            // =====================================================
+            // CHECK START DATE
+            // =====================================================
+
+            string startDay = dto.StartDate.DayOfWeek.ToString();
+
+            bool isStartWeekoff = weekoffs.Any(x =>
+                x.Weekoff1.Equals(startDay, StringComparison.OrdinalIgnoreCase));
+
+            bool isStartHoliday = holidays.Any(x =>
+                x.Date.HasValue &&
+                x.Date.Value == startDateOnly);
+
+            if (isStartWeekoff || isStartHoliday)
+            {
+                throw new Exception("Cannot apply leave on holiday/weekoff.");
+            }
+
+            // =====================================================
+            // CHECK END DATE
+            // =====================================================
+
+            string endDay = dto.EndDate.DayOfWeek.ToString();
+
+            bool isEndWeekoff = weekoffs.Any(x =>
+                x.Weekoff1.Equals(endDay, StringComparison.OrdinalIgnoreCase));
+
+            bool isEndHoliday = holidays.Any(x =>
+                x.Date.HasValue &&
+                x.Date.Value == endDateOnly);
+
+            if (isEndWeekoff || isEndHoliday)
+            {
+                throw new Exception("Cannot apply leave on holiday/weekoff.");
+            }
+
+            // =====================================================
+            // CALCULATE TOTAL DAYS
+            // =====================================================
 
             decimal totalDays = 0;
 
@@ -298,23 +352,129 @@ namespace BusinessLayer.Implementations
             }
             else
             {
-                DateTime current = dto.StartDate;
+                DateTime current = dto.StartDate.Date;
 
-                while (current <= dto.EndDate)
+                while (current <= dto.EndDate.Date)
                 {
                     string dayName = current.DayOfWeek.ToString();
 
-                    bool isWeekoff = weekoffs.Any(x => x.Weekoff1 == dayName);
+                    bool isWeekoff = weekoffs.Any(x =>
+                        x.Weekoff1.Equals(dayName, StringComparison.OrdinalIgnoreCase));
 
-                    if (!isWeekoff)
+                    bool isHoliday = holidays.Any(x =>
+                        x.Date.HasValue &&
+                        x.Date.Value == DateOnly.FromDateTime(current));
+
+                    if (!isWeekoff && !isHoliday)
+                    {
                         totalDays++;
+                    }
 
                     current = current.AddDays(1);
                 }
             }
 
-            // ✅ Override frontend value
+            // =====================================================
+            // NO VALID DAYS
+            // =====================================================
+
+            if (totalDays <= 0)
+            {
+                throw new Exception("No working days available in selected range.");
+            }
+
+            // =====================================================
+            // GET USER
+            // =====================================================
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
+
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            // =====================================================
+            // GET DESIGNATION
+            // =====================================================
+
+            var designation = await _context.Designations
+                .FirstOrDefaultAsync(x => x.DesignationId == user.DesignationId);
+
+            if (designation == null)
+            {
+                throw new Exception("Designation not mapped.");
+            }
+
+            // =====================================================
+            // GET GRADE
+            // =====================================================
+
+            int? gradeId = designation.GradeId;
+
+            if (gradeId == null)
+            {
+                throw new Exception("Grade not mapped.");
+            }
+
+            // =====================================================
+            // GET LEAVE ALLOCATION
+            // =====================================================
+
+            var leaveAllocation = await _context.LeaveTypeGrades
+                .FirstOrDefaultAsync(x =>
+                    x.LeaveTypeId == dto.LeaveTypeId &&
+                    x.GradeId == gradeId &&
+                    x.IsActive == true);
+
+            if (leaveAllocation == null)
+            {
+                throw new Exception("Leave allocation not configured.");
+            }
+            if (leaveAllocation == null)
+            {
+                throw new Exception("Leave allocation not configured.");
+            }
+
+            decimal allocatedLeaves = leaveAllocation.LeaveDays;
+
+            // =====================================================
+            // GET USED LEAVES
+            // =====================================================
+
+            var usedLeaves = await _unitOfWork.Repository<LeaveRequest>()
+                .FindAsync(x =>
+                    x.UserId == dto.UserId &&
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId &&
+                    x.LeaveTypeId == dto.LeaveTypeId &&
+                    x.Status != "Rejected");
+
+            decimal usedDays = usedLeaves.Sum(x => x.TotalDays);
+
+            // =====================================================
+            // BALANCE CHECK
+            // =====================================================
+
+            decimal remainingBalance = allocatedLeaves - usedDays;
+
+            if (totalDays > remainingBalance)
+            {
+                throw new Exception(
+                    $"Insufficient leave balance. Remaining balance: {remainingBalance}");
+            }
+
+            // =====================================================
+            // OVERRIDE FRONTEND VALUE
+            // =====================================================
+
             dto.TotalDays = totalDays;
+
+            // =====================================================
+            // SAVE LEAVE
+            // =====================================================
+
             var entity = new LeaveRequest
             {
                 UserId = dto.UserId,
@@ -322,21 +482,31 @@ namespace BusinessLayer.Implementations
                 RegionId = dto.RegionId,
                 LeaveTypeId = dto.LeaveTypeId,
                 IsHalfDay = dto.IsHalfDay,
-                StartDate = DateOnly.FromDateTime(dto.StartDate),
-                EndDate = DateOnly.FromDateTime(dto.EndDate),
+
+                StartDate = startDateOnly,
+                EndDate = endDateOnly,
+
                 TotalDays = dto.TotalDays,
+
                 Reason = dto.Reason,
+
                 FileName = dto.FileName,
                 FilePath = dto.FilePath,
+
                 ReportingManagerId = dto.ReportingManagerId,
+
                 Status = "Pending",
+
                 AppliedDate = DateTime.Now,
+
                 CreatedAt = DateTime.Now,
                 CreatedBy = dto.UserId,
-                HrEmail = dto.HrEmail,
+
+                HrEmail = dto.HrEmail
             };
 
             await _unitOfWork.Repository<LeaveRequest>().AddAsync(entity);
+
             await _unitOfWork.CompleteAsync();
 
             return entity.LeaveRequestId;
