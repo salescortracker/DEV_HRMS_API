@@ -172,7 +172,18 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> DeleteAllocation(int id)
         {
             var status = await _shiftAllocationService.DeleteAllocationAsync(id);
-            return status ? Ok("Allocation deleted") : NotFound("Allocation not found");
+
+            return status
+                ? Ok(new
+                {
+                    success = true,
+                    message = "Allocation deleted"
+                })
+                : NotFound(new
+                {
+                    success = false,
+                    message = "Allocation not found"
+                });
         }
 
 
