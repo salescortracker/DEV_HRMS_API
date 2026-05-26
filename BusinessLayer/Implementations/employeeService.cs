@@ -2597,6 +2597,27 @@ namespace BusinessLayer.Implementations
         /// <returns></returns>
         public async Task<int> addempRefAsync(EmployeeReferenceDto model)
         {
+            // ✅ CHECK DUPLICATE NAME + EMAIL
+            var duplicate = await _context.EmployeeReferences
+                .FirstOrDefaultAsync(x =>
+
+                    x.Name == model.Name &&
+
+                    x.EmailId == model.Email &&
+
+                    x.CompanyId == model.CompanyId &&
+
+                    x.RegionId == model.RegionId
+                );
+
+            // ✅ If duplicate exists and not editing same record
+            if (duplicate != null &&
+                duplicate.ReferenceId != model.ReferenceId)
+            {
+                throw new Exception(
+                    "Reference employee already exists"
+                );
+            }
             // map DTO -> EF entity
             var entity = new EmployeeReference
             {
