@@ -517,73 +517,143 @@ public class UpdateResignationStatusRequest
         /// Add a new job history entry
         /// </summary>
         [HttpPost("AddJobHistory")]
-        public async Task<IActionResult> AddJobHistory([FromForm] EmployeeJobHistoryDto model)
+        public async Task<IActionResult> AddJobHistory(
+    [FromForm] EmployeeJobHistoryDto model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            string root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            string path = Path.Combine(root, "Uploads", "EmployeeJobHistoryDocuments");
-
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-
-            // File upload
-            if (model.UploadDocument != null && model.UploadDocument.Length > 0)
+            try
             {
-                string fileName = $"{Guid.NewGuid()}_{model.UploadDocument.FileName}";
-                string fullPath = Path.Combine(path, fileName);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.UploadDocument.CopyToAsync(stream);
+                string root = _env.WebRootPath ??
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot");
 
-                model.UploadDocumentPath = $"Uploads/EmployeeJobHistoryDocuments/{fileName}";
+                string path = Path.Combine(
+                    root,
+                    "Uploads",
+                    "EmployeeJobHistoryDocuments");
+
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                // File upload
+                if (model.UploadDocument != null &&
+                    model.UploadDocument.Length > 0)
+                {
+                    string fileName =
+                        $"{Guid.NewGuid()}_{model.UploadDocument.FileName}";
+
+                    string fullPath =
+                        Path.Combine(path, fileName);
+
+                    using var stream =
+                        new FileStream(fullPath, FileMode.Create);
+
+                    await model.UploadDocument
+                        .CopyToAsync(stream);
+
+                    model.UploadDocumentPath =
+                        $"Uploads/EmployeeJobHistoryDocuments/{fileName}";
+                }
+
+                model.CreatedBy = model.UserId;
+
+                var id = await _employeeService
+                    .addEmpJobAsync(model);
+
+                return Ok(new
+                {
+                    message = "Saved successfully",
+                    id
+                });
             }
-
-            model.CreatedBy = model.UserId;
-
-            var id = await _employeeService.addEmpJobAsync(model);
-
-            return Ok(new { message = "Saved successfully", id });
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
-
         /// <summary>
         /// Update an existing job history entry
         /// </summary>
         [HttpPost("updatejobhistory/{id}")]
-        public async Task<IActionResult> UpdateJobHistory(int id, [FromForm] EmployeeJobHistoryDto model)
+        public async Task<IActionResult> UpdateJobHistory(
+    int id,
+    [FromForm] EmployeeJobHistoryDto model)
         {
-            if (id != model.Id)
-                return BadRequest(new { message = "Id mismatch" });
-
-            string root = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            string path = Path.Combine(root, "Uploads", "EmployeeJobHistoryDocuments");
-
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-
-            // File upload logic
-            if (model.UploadDocument != null && model.UploadDocument.Length > 0)
+            try
             {
-                string fileName = $"{Guid.NewGuid()}_{model.UploadDocument.FileName}";
-                string fullPath = Path.Combine(path, fileName);
+                if (id != model.Id)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Id mismatch"
+                    });
+                }
 
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await model.UploadDocument.CopyToAsync(stream);
+                string root = _env.WebRootPath ??
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot");
 
-                model.UploadDocumentPath = $"Uploads/EmployeeJobHistoryDocuments/{fileName}";
+                string path = Path.Combine(
+                    root,
+                    "Uploads",
+                    "EmployeeJobHistoryDocuments");
+
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                // File upload
+                if (model.UploadDocument != null &&
+                    model.UploadDocument.Length > 0)
+                {
+                    string fileName =
+                        $"{Guid.NewGuid()}_{model.UploadDocument.FileName}";
+
+                    string fullPath =
+                        Path.Combine(path, fileName);
+
+                    using var stream =
+                        new FileStream(fullPath, FileMode.Create);
+
+                    await model.UploadDocument
+                        .CopyToAsync(stream);
+
+                    model.UploadDocumentPath =
+                        $"Uploads/EmployeeJobHistoryDocuments/{fileName}";
+                }
+
+                model.ModifiedBy = model.UserId;
+
+                var result = await _employeeService
+                    .updateEmpJobAsync(model);
+
+                if (!result)
+                {
+                    return NotFound(new
+                    {
+                        message = "Record not found"
+                    });
+                }
+
+                return Ok(new
+                {
+                    message = "Updated successfully"
+                });
             }
-
-            model.ModifiedBy = model.UserId;
-
-            var result = await _employeeService.updateEmpJobAsync(model);
-
-            if (!result)
-                return NotFound(new { message = "Record not found" });
-
-            return Ok(new { message = "Updated successfully" });
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
-
         /// <summary>
         /// Delete a job history record
         /// </summary>

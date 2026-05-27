@@ -493,84 +493,176 @@ namespace BusinessLayer.Implementations
         /// newly added employee job history record.</returns>
         public async Task<int> addEmpJobAsync(EmployeeJobHistoryDto model)
         {
+            // ✅ DUPLICATE CHECK
+
+            var duplicate = await _context.EmployeeJobHistories
+                .FirstOrDefaultAsync(x =>
+
+                    x.UserId == model.UserId &&
+
+                    x.CompanyId == model.CompanyId &&
+
+                    x.RegionId == model.RegionId &&
+
+                    x.Employer.Trim().ToLower() ==
+                        model.Employer.Trim().ToLower() &&
+
+                    x.JobTitle.Trim().ToLower() ==
+                        model.JobTitle.Trim().ToLower() &&
+
+                    x.FromDate ==
+                        DateOnly.FromDateTime(model.FromDate) &&
+
+                    x.ToDate ==
+                        DateOnly.FromDateTime(model.ToDate)
+                );
+
+            if (duplicate != null)
+            {
+                throw new Exception(
+                    "Job history already exists."
+                );
+            }
+
             var entity = new EmployeeJobHistory
             {
                 Employer = model.Employer,
+
                 JobTitle = model.JobTitle,
 
                 // DateTime → DateOnly
-                FromDate = DateOnly.FromDateTime(model.FromDate),
-                ToDate = DateOnly.FromDateTime(model.ToDate),
+                FromDate =
+                    DateOnly.FromDateTime(model.FromDate),
+
+                ToDate =
+                    DateOnly.FromDateTime(model.ToDate),
 
                 LastCtc = model.LastCTC,
+
                 Website = model.Website,
+
                 EmployeeCode = model.EmployeeCode,
+
                 ReasonForLeaving = model.ReasonForLeaving,
 
                 UploadDocument = model.UploadDocumentPath,
 
                 CompanyId = model.CompanyId,
+
                 RegionId = model.RegionId,
+
                 UserId = model.UserId,
 
                 CreatedBy = model.CreatedBy,
+
                 CreatedAt = DateTime.Now
             };
 
-            await _context.EmployeeJobHistories.AddAsync(entity);
+            await _context.EmployeeJobHistories
+                .AddAsync(entity);
+
             await _context.SaveChangesAsync();
 
             return entity.Id;
-        }
-        /// <summary>
-        /// Asynchronously updates the job history of an employee with the provided details.
-        /// </summary>
-        /// <remarks>This method updates the job history record in the database with the details provided
-        /// in the <paramref name="model"/>. If the <paramref name="model"/> includes a non-empty document path, the
-        /// document is also updated.</remarks>
-        /// <param name="model">The <see cref="EmployeeJobHistoryDto"/> containing the updated job history details.</param>
-        /// <returns><see langword="true"/> if the employee job history was successfully updated; otherwise, <see
-        /// langword="false"/> if the specified job history does not exist.</returns>
-        public async Task<bool> updateEmpJobAsync(EmployeeJobHistoryDto model)
+        } /// <summary>
+          /// Asynchronously updates the job history of an employee with the provided details.
+          /// </summary>
+          /// <remarks>This method updates the job history record in the database with the details provided
+          /// in the <paramref name="model"/>. If the <paramref name="model"/> includes a non-empty document path, the
+          /// document is also updated.</remarks>
+          /// <param name="model">The <see cref="EmployeeJobHistoryDto"/> containing the updated job history details.</param>
+          /// <returns><see langword="true"/> if the employee job history was successfully updated; otherwise, <see
+          /// langword="false"/> if the specified job history does not exist.</returns>
+        public async Task<bool> updateEmpJobAsync(
+    EmployeeJobHistoryDto model)
         {
-            var entity = await _context.EmployeeJobHistories.FindAsync(model.Id);
-            if (entity == null) return false;
+            var entity = await _context.EmployeeJobHistories
+                .FindAsync(model.Id);
+
+            if (entity == null)
+                return false;
+
+            // ✅ DUPLICATE CHECK
+
+            var duplicate = await _context.EmployeeJobHistories
+                .FirstOrDefaultAsync(x =>
+
+                    x.Id != model.Id &&
+
+                    x.UserId == model.UserId &&
+
+                    x.CompanyId == model.CompanyId &&
+
+                    x.RegionId == model.RegionId &&
+
+                    x.Employer.Trim().ToLower() ==
+                        model.Employer.Trim().ToLower() &&
+
+                    x.JobTitle.Trim().ToLower() ==
+                        model.JobTitle.Trim().ToLower() &&
+
+                    x.FromDate ==
+                        DateOnly.FromDateTime(model.FromDate) &&
+
+                    x.ToDate ==
+                        DateOnly.FromDateTime(model.ToDate)
+                );
+
+            if (duplicate != null)
+            {
+                throw new Exception(
+                    "Job history already exists."
+                );
+            }
 
             entity.Employer = model.Employer;
+
             entity.JobTitle = model.JobTitle;
 
             // DateTime → DateOnly
-            entity.FromDate = DateOnly.FromDateTime(model.FromDate);
-            entity.ToDate = DateOnly.FromDateTime(model.ToDate);
+            entity.FromDate =
+                DateOnly.FromDateTime(model.FromDate);
+
+            entity.ToDate =
+                DateOnly.FromDateTime(model.ToDate);
 
             entity.LastCtc = model.LastCTC;
-            entity.Website = model.Website;
-            entity.EmployeeCode = model.EmployeeCode;
-            entity.ReasonForLeaving = model.ReasonForLeaving;
 
-            if (!string.IsNullOrEmpty(model.UploadDocumentPath))
+            entity.Website = model.Website;
+
+            entity.EmployeeCode = model.EmployeeCode;
+
+            entity.ReasonForLeaving =
+                model.ReasonForLeaving;
+
+            if (!string.IsNullOrEmpty(
+                model.UploadDocumentPath))
             {
-                entity.UploadDocument = model.UploadDocumentPath;
+                entity.UploadDocument =
+                    model.UploadDocumentPath;
             }
 
             entity.CompanyId = model.CompanyId;
+
             entity.RegionId = model.RegionId;
+
             entity.UserId = model.UserId;
 
             entity.ModifiedBy = model.ModifiedBy;
+
             entity.ModifiedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
+
             return true;
-        }
-        /// <summary>
-        /// Asynchronously deletes an employee's job history record by its identifier.
-        /// </summary>
-        /// <remarks>This method removes the specified employee job history record from the database.
-        /// Ensure that the identifier corresponds to an existing record.</remarks>
-        /// <param name="id">The unique identifier of the employee job history record to delete. Must be a positive integer.</param>
-        /// <returns><see langword="true"/> if the record was successfully deleted; otherwise, <see langword="false"/> if no
-        /// record with the specified identifier was found.</returns>
+        }/// <summary>
+         /// Asynchronously deletes an employee's job history record by its identifier.
+         /// </summary>
+         /// <remarks>This method removes the specified employee job history record from the database.
+         /// Ensure that the identifier corresponds to an existing record.</remarks>
+         /// <param name="id">The unique identifier of the employee job history record to delete. Must be a positive integer.</param>
+         /// <returns><see langword="true"/> if the record was successfully deleted; otherwise, <see langword="false"/> if no
+         /// record with the specified identifier was found.</returns>
         public async Task<bool> deleteEmpJobAsync(int id)
         {
             var entity = await _context.EmployeeJobHistories.FindAsync(id);
