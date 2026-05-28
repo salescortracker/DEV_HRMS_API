@@ -17,7 +17,7 @@ public partial class CandidateInterview
 
     public int LevelNo { get; set; }
 
-    public int InterviewerId { get; set; }
+    public string? InterviewerId { get; set; }
 
     public string InterviewerName { get; set; } = null!;
 

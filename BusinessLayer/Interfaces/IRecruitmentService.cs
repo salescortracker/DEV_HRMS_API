@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -31,9 +32,7 @@ namespace BusinessLayer.Interfaces
         /////////screening
         Task<IEnumerable<object>> GetRecruitersAsync(int companyId, int regionId);
 
-        Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(
-   int userId
-);
+        Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(int userId, string? department, string? designation);
         Task<bool> SaveCandidateScreeningAsync(CandidateScreeningDto dto);
 
         Task<IEnumerable<CandidateScreeningDto>> GetScreeningRecordsAsync(int userId, int companyId, int regionId);
@@ -42,9 +41,7 @@ namespace BusinessLayer.Interfaces
 
         //////////Interview
 
-        Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(
- int userId
-);
+        Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(int userId, string? department, string? designation);
         Task<IEnumerable<InterviewLevelDto>> GetInterviewLevelsAsync(int companyId, int regionId);
         Task<bool> SaveCandidateInterviewAsync(CandidateInterviewDto dto);
 
@@ -58,12 +55,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<CandidateAppointmentDto>> GetAppointmentsForInterviewerAsync(int interviewerId);
         Task<object?> GetAppointmentCandidateDetailsAsync(int candidateId);
         //OfferLetter
-        Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
-            //int companyId,
-            //int regionId,
-            //string department,
-            //string designation
-            int userId);
+        Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(string department, string designation, int userId);
         Task<bool> SaveCandidateOfferAsync(CandidateOfferDto dto);
 
         Task<IEnumerable<CandidateOfferDto>> GetOfferRecordsAsync(
@@ -77,12 +69,7 @@ namespace BusinessLayer.Interfaces
 
         //OnBoarding
 
-        Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(
-             //int companyId,
-             //int regionId,
-             //string department,
-             //string designation
-            int userId);
+        Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(int companyId, int regionId, string department, string designation);
 
         Task<int> SaveCandidateOnboardingAsync(CandidateOnboardingDTO dto);
         Task<IEnumerable<object>> GetDesignationsWithDepartmentAsync(int companyId, int regionId);
@@ -91,6 +78,13 @@ namespace BusinessLayer.Interfaces
         Task<int> SubmitJobApplicationAsync(JobApplicationDto dto, IFormFile? resume);
         Task<List<JobApplicationDto>> GetJobApplicationsAsync();
         Task<bool> UpdateCompanyRegionAsync(string email, string mobile, int companyId, int regionId, int userId);
+        Task<List<string>> GetRecruitmentDepartmentsAsync(int companyId, int regionId);
+
+        Task<List<string>> GetRecruitmentDesignationsAsync(int companyId, int regionId);
+        Task<bool> UploadCandidateDocumentsAsync(UploadCandidateDocumentsDto dto);
+        Task<object> GetOfferByIdAsync(int offerId);
+        Task<List<CandidateDocumentWithCandidateDto>> GetAllCandidateDocuments(int companyId, int regionId);
+        Task<bool> UpdateChecklistStatusAsync(int offerId, int companyId, int regionId, string status);
     }
 
 }

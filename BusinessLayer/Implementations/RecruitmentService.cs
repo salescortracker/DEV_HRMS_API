@@ -11,7 +11,7 @@ using iText.Layout.Properties;
 using iText.IO.Font.Constants;
 using iText.Kernel.Font;
 using Microsoft.AspNetCore.Http;
-
+using Microsoft.EntityFrameworkCore;
 using iText.IO.Image;
 using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Layout.Borders;
@@ -491,25 +491,36 @@ namespace BusinessLayer.Implementations
             });
         }
 
-        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(
- int userId)
+        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(int userId, string? department, string? designation)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
-                .FindAsync(c =>
-                    
-                    c.StageId == 2 &&                 // 🔥 ONLY SCREENING
-                    
-                    c.UserId == userId &&
-                    c.IsActive
-                );
+                .GetAllAsync();
 
-            return candidates.Select(c => new
+            var filtered = candidates
+                .Where(c =>
+                    c.StageId == 2 &&
+                    c.UserId == userId &&
+                    c.IsActive);
+
+            // 🔥 Department filter
+            if (!string.IsNullOrEmpty(department))
+            {
+                filtered = filtered.Where(c => c.Department == department);
+            }
+
+            // 🔥 Designation filter
+            if (!string.IsNullOrEmpty(designation))
+            {
+                filtered = filtered.Where(c => c.Designation == designation);
+            }
+
+            return filtered.Select(c => new
             {
                 c.CandidateId,
                 c.SeqNo,
                 Name = string.IsNullOrEmpty(c.LastName)
-                        ? c.FirstName
-                        : $"{c.FirstName} {c.LastName}",
+                    ? c.FirstName
+                    : $"{c.FirstName} {c.LastName}",
                 c.Mobile,
                 Expected = c.ExpectedSalary
             });
@@ -648,24 +659,32 @@ namespace BusinessLayer.Implementations
 
         /////////////////Interview
 
-        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(
-int userId)
+        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(int userId, string? department, string? designation)
         {
-            var candidates = await _unitOfWork.Repository<Candidate>()
+            var query = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
                     c.UserId == userId &&
-                    c.StageId == 3 &&                 // 🔥 ONLY SCREENING
-                    
+                    c.StageId == 3 &&
                     c.IsActive
                 );
 
-            return candidates.Select(c => new
+            if (!string.IsNullOrEmpty(department))
+            {
+                query = query.Where(x => x.Department == department);
+            }
+
+            if (!string.IsNullOrEmpty(designation))
+            {
+                query = query.Where(x => x.Designation == designation);
+            }
+
+            return query.Select(c => new
             {
                 c.CandidateId,
                 c.SeqNo,
                 Name = string.IsNullOrEmpty(c.LastName)
-                        ? c.FirstName
-                        : $"{c.FirstName} {c.LastName}",
+                    ? c.FirstName
+                    : $"{c.FirstName} {c.LastName}",
                 c.Mobile,
                 Expected = c.ExpectedSalary
             });
@@ -730,7 +749,7 @@ int userId)
                         UserId = dto.UserId,
                         CandidateId = dto.CandidateId,
                         LevelNo = dto.LevelNo,
-                        InterviewerId = interviewerId,
+                        InterviewerId = string.Join(",", dto.InterviewerIds),
                         InterviewerName = interviewer.FullName,
                         InterviewDate = dto.InterviewDate,
                         Location = dto.Location,
@@ -836,8 +855,7 @@ int userId)
                         string subject =
                               $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
                         Console.WriteLine("Interviewer email failed: " + ex.Message);
-                        string subject =
-                              $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
+                        
                         string body = $@"
                             <h3>Interview Scheduled</h3>
                             <p>Dear {interviewer.FullName},</p>
@@ -944,7 +962,11 @@ int userId)
                 .ToList();
 
             var interviewerIds = interviews
-                .Select(x => x.InterviewerId)
+                .SelectMany(x =>
+                    (x.InterviewerId ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                )
                 .Distinct()
                 .ToList();
 
@@ -985,13 +1007,15 @@ int userId)
 
                 // MULTIPLE INTERVIEWER NAMES
                 var interviewerNames = string.Join(", ",
-                    group.Select(g =>
-                    {
-                        var interviewer = interviewers
-                            .FirstOrDefault(i => i.UserId == g.InterviewerId);
-
-                        return interviewer?.FullName;
-                    })
+                    group.SelectMany(g =>
+                        (g.InterviewerId ?? "")
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(id =>
+                        {
+                            var intId = int.Parse(id);
+                            return interviewers.FirstOrDefault(i => i.UserId == intId)?.FullName;
+                        })
+                    )
                     .Where(x => !string.IsNullOrEmpty(x))
                     .Distinct()
                 );
@@ -1057,11 +1081,13 @@ int userId)
                 var interviewRepo = _unitOfWork.Repository<CandidateInterview>();
 
                 var interview = await interviewRepo.GetByIdAsync(dto.InterviewId)
-                       ?? throw new Exception("Interview record not found");
+                 ?? throw new Exception("Interview record not found");
 
                 // ================= UPDATE INTERVIEW =================
 
-                interview.InterviewerId = dto.InterviewerId;
+                interview.InterviewerId = dto.InterviewerIds != null && dto.InterviewerIds.Any()
+                        ? string.Join(",", dto.InterviewerIds)
+                        : null;
                 interview.InterviewerName = dto.InterviewerName;
                 interview.InterviewDate = dto.InterviewDate;
                 interview.Location = dto.Location;
@@ -1251,22 +1277,35 @@ int userId)
         }
         public async Task<IEnumerable<CandidateAppointmentDto>> GetAppointmentsForInterviewerAsync(int interviewerId)
         {
+            // STEP 1: DB query (ONLY simple filter)
             var interviews = await _unitOfWork.Repository<CandidateInterview>()
                 .FindAsync(x =>
-
-                    x.InterviewerId == interviewerId &&
-                    x.Result == "Pending"   // 🔥 hide processed ones
+                    x.InterviewerId != null &&
+                    x.Result == "Pending"
                 );
 
-            if (!interviews.Any())
+            // STEP 2: Memory filter (safe CSV parsing)
+            var filtered = interviews
+                .Where(x =>
+                    x.InterviewerId != null &&
+                    x.InterviewerId
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(id => int.TryParse(id, out var val) ? val : 0)
+                        .Contains(interviewerId)
+                )
+                .ToList();
+
+            if (!filtered.Any())
                 return Enumerable.Empty<CandidateAppointmentDto>();
 
-            var candidateIds = interviews.Select(x => x.CandidateId).Distinct().ToList();
+            // STEP 3: Get candidates
+            var candidateIds = filtered.Select(x => x.CandidateId).Distinct().ToList();
 
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(x => candidateIds.Contains(x.CandidateId));
 
-            return interviews
+            // STEP 4: Map result
+            return filtered
                 .OrderByDescending(x => x.InterviewDate)
                 .Select(iv =>
                 {
@@ -1281,8 +1320,7 @@ int userId)
                         InterviewDate = iv.InterviewDate,
                         Designation = candidate.Designation,
                         Location = iv.Location,
-                        Description = iv.Description,
-
+                        Description = iv.Description
                     };
                 })
                 .Where(x => x != null)!;
@@ -1340,21 +1378,17 @@ int userId)
             return result;
         }
         public async Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
-//int companyId,
-//int regionId,
-//string department,
-//string designation
-int userId)
+    string department,
+    string designation,
+    int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    //c.CompanyId == companyId &&
-                    //c.RegionId == regionId &&
                     c.StageId == 5 &&
                     c.UserId == userId &&
-                    //c.Department == department &&
-                    //c.Designation == designation &&
-                    c.IsActive
+                    c.IsActive &&
+                    (string.IsNullOrEmpty(department) || c.Department == department) &&
+                    (string.IsNullOrEmpty(designation) || c.Designation == designation)
                 );
 
             return candidates.Select(c => new
@@ -2139,50 +2173,86 @@ Date : _____________________________________
     offerRepo.Update(offer);
 
     await _unitOfWork.CompleteAsync();
+            var docRepo = _unitOfWork.Repository<CandidateDocumentChecklist>();
 
-    // ============================================================
-    // ======================== EMAIL =============================
-    // ============================================================
+            var existingDoc = await docRepo.FindAsync(x =>
+                x.OfferId == offer.OfferId &&
+                x.CandidateId == candidate.CandidateId
+            );
 
-    string subject = "Offer Letter – HRMS";
+            if (!existingDoc.Any())
+            {
+                var doc = new CandidateDocumentChecklist
+                {
+                    OfferId = offer.OfferId,
+                    CandidateId = candidate.CandidateId,
+                    CompanyId = offer.CompanyId,
+                    RegionId = offer.RegionId,
 
-    string body = $@"
+                    Status = "LinkSent",
+                    CreatedDate = DateTime.Now
+                };
+
+                await docRepo.AddAsync(doc);
+            }
+            else
+            {
+                var doc = existingDoc.First();
+                doc.Status = "LinkResent";
+                doc.UpdatedDate = DateTime.Now;
+
+                docRepo.Update(doc);
+            }
+
+            await _unitOfWork.CompleteAsync();   
+
+            string uploadLink =
+    $"http://localhost:4200/#/offer-documents" +
+    $"/{offer.OfferId}" +
+    $"/{candidate.CandidateId}" +
+    $"/{offer.CompanyId}" +
+    $"/{offer.RegionId}";
+
+            // ============================================================
+            // ======================== EMAIL =============================
+            // ============================================================
+
+            string subject = "Offer Letter – HRMS";
+
+            string body = $@"
 <html>
-<body style='font-family: Arial, sans-serif; color:#333; line-height:1.8;'>
+<body>
 
-<p>Dear {candidate.FirstName} {candidate.LastName},</p>
+<p>Dear {candidate.FirstName},</p>
 
 <p>Congratulations!</p>
 
-<p>
-We are pleased to offer you employment with 
-<strong>{company.CompanyName}</strong>.
-</p>
-
-<p>
-Please find attached your official Offer Letter.
-</p>
-
-<p>
-We look forward to having you as part of our organization.
-</p>
+<p>Please find your offer letter attached.</p>
 
 <br/>
 
 <p>
-Regards,<br/>
-<strong>HR Department</strong><br/>
-{company.CompanyName}
+👉 Click below to upload your joining documents:
 </p>
+
+<p>
+<a href='{uploadLink}' target='_blank'>
+Upload Documents
+</a>
+</p>
+
+<br/>
+
+<p>Regards,<br/>HR Team</p>
 
 </body>
 </html>";
 
-    // ============================================================
-    // ======================= SEND EMAIL =========================
-    // ============================================================
+            // ============================================================
+            // ======================= SEND EMAIL =========================
+            // ============================================================
 
-    await _emailService.SendEmailAsync(
+            await _emailService.SendEmailAsync(
         candidate.Email,
         subject,
         body,
@@ -2321,489 +2391,6 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
     }
 }
 
-        //        public async Task<bool> SendOfferLetterAsync(int offerId)
-        //        {
-        //            // =====================================================
-        //            // ===== REPOSITORIES =====
-        //            // =====================================================
-
-        //            var offerRepo = _unitOfWork.Repository<CandidateOffer>();
-        //            var candidateRepo = _unitOfWork.Repository<Candidate>();
-
-        //            // =====================================================
-        //            // ===== GET OFFER =====
-        //            // =====================================================
-
-        //            var offer = await offerRepo.GetByIdAsync(offerId);
-
-        //            if (offer == null)
-        //                throw new Exception("Offer not found");
-
-        //            // =====================================================
-        //            // ===== GET CANDIDATE =====
-        //            // =====================================================
-
-        //            var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
-
-        //            if (candidate == null)
-        //                throw new Exception("Candidate not found");
-
-        //            // =====================================================
-        //            // ===== GET COMPANY =====
-        //            // =====================================================
-
-        //            var company = _hRMSContext.Companies
-        //                .Where(c => c.CompanyId == offer.CompanyId)
-        //                .Select(c => new
-        //                {
-        //                    c.CompanyId,
-        //                    c.CompanyName,
-        //                    c.CompanyLogo
-        //                })
-        //                .FirstOrDefault();
-
-        //            if (company == null)
-        //                throw new Exception("Company not found");
-
-        //            // =====================================================
-        //            // ===== OFFER LETTER DIRECTORY =====
-        //            // =====================================================
-
-        //            string offerLetterFolder = Path.Combine(
-        //                Directory.GetCurrentDirectory(),
-        //                "wwwroot",
-        //                "Uploads",
-        //                "OfferLetters"
-        //            );
-
-        //            if (!Directory.Exists(offerLetterFolder))
-        //            {
-        //                Directory.CreateDirectory(offerLetterFolder);
-        //            }
-
-        //            // =====================================================
-        //            // ===== SAFE FILE NAME =====
-        //            // =====================================================
-
-        //            string safeName =
-        //                $"{candidate.FirstName}_{candidate.LastName}"
-        //                .Replace(" ", "_");
-
-        //            string fileName =
-        //                $"Offer_{safeName}_{offerId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
-
-        //            string fullPath = Path.Combine(
-        //                offerLetterFolder,
-        //                fileName
-        //            );
-
-        //            // =====================================================
-        //            // ===== DELETE OLD FILE IF EXISTS =====
-        //            // =====================================================
-
-        //            if (File.Exists(fullPath))
-        //            {
-        //                File.Delete(fullPath);
-        //            }
-
-        //            // =====================================================
-        //            // ===== PDF GENERATION =====
-        //            // =====================================================
-
-        //            using (var writer = new PdfWriter(fullPath))
-        //            using (var pdf = new PdfDocument(writer))
-        //            using (var document = new iText.Layout.Document(pdf))
-        //            {
-        //                document.SetMargins(30, 30, 30, 30);
-
-        //                // =================================================
-        //                // ===== FONTS =====
-        //                // =================================================
-
-        //                PdfFont normalFont =
-        //                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-
-        //                PdfFont boldFont =
-        //                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-
-        //                // =================================================
-        //                // ===== HEADER TABLE =====
-        //                // =================================================
-
-        //                var headerTable = new Table(
-        //                    UnitValue.CreatePercentArray(new float[] { 1, 2 })
-        //                ).UseAllAvailableWidth();
-
-        //                // =================================================
-        //                // ===== LOGO =====
-        //                // =================================================
-
-        //                Cell logoCell = new Cell()
-        //                    .SetBorder(Border.NO_BORDER);
-
-        //                try
-        //                {
-        //                    if (!string.IsNullOrWhiteSpace(company.CompanyLogo))
-        //                    {
-        //                        // Example:
-        //                        // data:image/png;base64,iVBORw0KGgoAAAANS...
-        //                        // OR
-        //                        // /9j/4AAQSkZJRgABAQAAAQABAAD...
-
-        //                        string base64Data = company.CompanyLogo;
-
-        //                        // ===== REMOVE PREFIX =====
-        //                        if (base64Data.Contains(","))
-        //                        {
-        //                            base64Data = base64Data.Substring(
-        //                                base64Data.IndexOf(",") + 1
-        //                            );
-        //                        }
-
-        //                        // ===== CONVERT BASE64 TO BYTE[] =====
-        //                        byte[] imageBytes =
-        //                            Convert.FromBase64String(base64Data);
-
-        //                        // ===== CREATE IMAGE =====
-        //                        var imageData =
-        //                            ImageDataFactory.Create(imageBytes);
-
-        //                        var logo = new Image(imageData)
-        //                            .ScaleToFit(120, 80)
-        //                            .SetAutoScale(true);
-
-        //                        logoCell.Add(logo);
-        //                    }
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine("Logo Error: " + ex.Message);
-        //                }
-
-        //                headerTable.AddCell(logoCell);
-
-        //                // =================================================
-        //                // ===== COMPANY DETAILS =====
-        //                // =================================================
-
-        //                var companyCell = new Cell()
-        //                    .SetBorder(Border.NO_BORDER)
-        //                    .SetTextAlignment(TextAlignment.RIGHT);
-
-        //                companyCell.Add(
-        //                    new Paragraph(company.CompanyName)
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(18)
-        //                );
-
-        //                companyCell.Add(
-        //                    new Paragraph("Hyderabad, Telangana, India")
-        //                        .SetFont(normalFont)
-        //                        .SetFontSize(10)
-        //                        .SetFontColor(ColorConstants.DARK_GRAY)
-        //                );
-
-        //                headerTable.AddCell(companyCell);
-
-        //                document.Add(headerTable);
-
-        //                // =================================================
-        //                // ===== LINE =====
-        //                // =================================================
-
-        //                document.Add(new Paragraph(" "));
-        //                document.Add(new LineSeparator(new SolidLine()));
-
-        //                // =================================================
-        //                // ===== DATE =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph($"Date: {DateTime.Now:dd-MMM-yyyy}")
-        //                        .SetFont(normalFont)
-        //                        .SetTextAlignment(TextAlignment.RIGHT)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== CANDIDATE ADDRESS =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph($@"
-        //{candidate.FirstName} {candidate.LastName}
-
-        //Hyderabad, Telangana
-        //India
-        //")
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== SUBJECT =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph("Subject: Employment Offer Letter")
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(14)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== GREETING =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph(
-        //                        $"Dear {candidate.FirstName} {candidate.LastName},"
-        //                    )
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== CONGRATULATIONS =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph("Congratulations!")
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(12)
-        //                );
-
-        //                document.Add(
-        //                    new Paragraph(
-        //                        $@"With reference to your application and subsequent interview process with us,
-        //we are pleased to offer you the position of {candidate.Designation} at
-        //{company.CompanyName}."
-        //                    )
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== CTC =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph(
-        //                        $"Your total compensation will be ₹ {offer.OfferedCtc:N0} per annum inclusive of all applicable benefits and taxes."
-        //                    )
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== DOJ =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph(
-        //                        $"Your base location will be Hyderabad, India, and you are requested to join on {offer.ExpectedDoj:dd-MMM-yyyy}."
-        //                    )
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== TERMS & CONDITIONS =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph("Terms & Conditions")
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(13)
-        //                );
-
-        //                string[] terms =
-        //                {
-        //            "1. You are required to submit all necessary documents during joining.",
-        //            "2. Your employment will be governed by company policies and procedures.",
-        //            "3. Leave and other benefits will be applicable after successful completion of probation.",
-        //            "4. Either party may terminate employment by providing 30 days notice.",
-        //            "5. This offer is subject to successful background verification."
-        //        };
-
-        //                foreach (var term in terms)
-        //                {
-        //                    document.Add(
-        //                        new Paragraph(term)
-        //                            .SetFont(normalFont)
-        //                            .SetFontSize(11)
-        //                    );
-        //                }
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== DOCUMENTS REQUIRED =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph("Documents Required During Joining")
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(13)
-        //                );
-
-        //                string[] documents =
-        //                {
-        //            "1. Signed copy of this Offer Letter",
-        //            "2. Passport-size photographs",
-        //            "3. Educational certificates",
-        //            "4. Previous employment documents",
-        //            "5. Last 3 months salary slips",
-        //            "6. PAN Card and Aadhaar Card"
-        //        };
-
-        //                foreach (var doc in documents)
-        //                {
-        //                    document.Add(
-        //                        new Paragraph(doc)
-        //                            .SetFont(normalFont)
-        //                            .SetFontSize(11)
-        //                    );
-        //                }
-
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== CLOSING =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph(
-        //                        @"We are delighted to welcome you to the organization and look forward to a successful professional association."
-        //                    )
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-
-        //                document.Add(
-        //                    new Paragraph("Best Regards,")
-        //                        .SetFont(normalFont)
-        //                        .SetFontSize(11)
-        //                );
-
-        //                document.Add(
-        //                    new Paragraph("HR Department")
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(11)
-        //                );
-
-        //                document.Add(new Paragraph(" "));
-        //                document.Add(new LineSeparator(new SolidLine()));
-        //                document.Add(new Paragraph(" "));
-
-        //                // =================================================
-        //                // ===== ACCEPTANCE =====
-        //                // =================================================
-
-        //                document.Add(
-        //                    new Paragraph("Acceptance of Offer")
-        //                        .SetFont(boldFont)
-        //                        .SetFontSize(13)
-        //                );
-
-        //                document.Add(
-        //                    new Paragraph($@"
-        //I, {candidate.FirstName} {candidate.LastName}, acknowledge that I have read and understood the terms and conditions mentioned in this offer letter and hereby accept the offer.
-
-        //Signature: ______________________
-
-        //Date: __________________________
-
-        //Place: Hyderabad
-        //")
-        //                    .SetFont(normalFont)
-        //                    .SetFontSize(11)
-        //                );
-        //            }
-
-        //            // =====================================================
-        //            // ===== SAVE FILE PATH =====
-        //            // =====================================================
-
-        //            offer.OfferLetterPath =
-        //                $"Uploads/OfferLetters/{fileName}";
-
-        //            offerRepo.Update(offer);
-
-        //            await _unitOfWork.CompleteAsync();
-
-        //            // =====================================================
-        //            // ===== EMAIL =====
-        //            // =====================================================
-
-        //            string subject = "Offer Letter – HRMS";
-
-        //            string body = $@"
-        //<html>
-        //<body style='font-family: Arial, sans-serif; color:#333; line-height:1.6;'>
-
-        //    <p>Dear {candidate.FirstName} {candidate.LastName},</p>
-
-        //    <p>
-        //        Congratulations!
-        //    </p>
-
-        //    <p>
-        //        We are delighted to extend an offer of employment with 
-        //        <strong>{company.CompanyName}</strong>.
-        //    </p>
-
-        //    <p>
-        //        Please find your official Offer Letter attached with this email.
-        //        Kindly review the document carefully and confirm your acceptance.
-        //    </p>
-
-        //    <p>
-        //        We are excited about the opportunity to have you join our team and
-        //        look forward to a successful professional journey together.
-        //    </p>
-
-        //    <br/>
-
-        //    <p>
-        //        Regards,<br/>
-        //        <strong>HR Department</strong><br/>
-        //        {company.CompanyName}
-        //    </p>
-
-        //</body>
-        //</html>";
-
-        //            // =====================================================
-        //            // ===== SEND EMAIL =====
-        //            // =====================================================
-
-        //            await _emailService.SendEmailAsync(
-        //                candidate.Email,
-        //                subject,
-        //                body,
-        //                string.IsNullOrWhiteSpace(offer.HrEmail)
-        //                    ? null
-        //                    : new List<string> { offer.HrEmail },
-        //                new List<string> { fullPath }
-        //            );
-
-        //            return true;
-        //        }
 
         public async Task<(byte[] fileBytes, string fileName)> DownloadOfferLetterAsync(int offerId)
         {
@@ -2820,25 +2407,18 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
 
 
 
-        //OnBoarding 
 
 
-        public async Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(
-//int companyId,
-//int regionId,
-//string department,
-//string designation,
-            int userId)
+        public async Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(int companyId, int regionId, string department, string designation)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    //c.CompanyId == companyId &&
-                    //c.RegionId == regionId &&
-                    c.StageId == 6 &&                 // 🔥 ONLY SCREENING
-                    c.UserId == userId &&
-                    //c.Department == department &&
-                    //c.Designation == designation &&
-                    c.IsActive
+                    c.CompanyId == companyId &&
+                    c.RegionId == regionId &&
+                    c.StageId == 6 &&   
+                    c.IsActive &&
+                    c.Department == department &&
+                    c.Designation == designation
                 );
 
             return candidates.Select(c => new
@@ -2846,8 +2426,8 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
                 c.CandidateId,
                 c.SeqNo,
                 Name = string.IsNullOrEmpty(c.LastName)
-                        ? c.FirstName
-                        : $"{c.FirstName} {c.LastName}",
+                    ? c.FirstName
+                    : $"{c.FirstName} {c.LastName}",
                 c.Mobile,
                 Expected = c.ExpectedSalary
             });
@@ -3441,6 +3021,225 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
             .ToList();
         }
 
-       
+        public async Task<List<string>> GetRecruitmentDepartmentsAsync(
+     int companyId,
+     int regionId)
+        {
+            var departments = await (
+                from d in _hRMSContext.Departments
+
+                where d.CompanyId == companyId
+                      && d.RegionId == regionId
+                      && d.IsDeleted == false
+
+                select d.DepartmentName
+            )
+            .Union(
+
+                from c in _hRMSContext.Candidates
+
+                where c.CompanyId == companyId
+                      && c.RegionId == regionId
+                      && !string.IsNullOrEmpty(c.Department)
+
+                select c.Department
+            )
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync();
+
+            return departments;
+        }
+
+        public async Task<List<string>> GetRecruitmentDesignationsAsync(
+            int companyId,
+            int regionId)
+        {
+            var designations = await (
+                from d in _hRMSContext.Designations
+
+                where d.CompanyId == companyId
+                      && d.RegionId == regionId
+                      && d.IsDeleted == false
+
+                select d.DesignationName
+            )
+            .Union(
+
+                from c in _hRMSContext.Candidates
+
+                where c.CompanyId == companyId
+                      && c.RegionId == regionId
+                      && !string.IsNullOrEmpty(c.Designation)
+
+                select c.Designation
+            )
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync();
+
+            return designations;
+        }
+
+        public async Task<bool> UploadCandidateDocumentsAsync(UploadCandidateDocumentsDto dto)
+        {
+            string folderPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "Uploads",
+                "CandidateDocuments"
+            );
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            async Task<string?> SaveFile(IFormFile? file)
+            {
+                if (file == null || file.Length == 0)
+                    return null;
+
+                string fileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+
+                string fullPath = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return fileName;
+            }
+
+            var repo = _unitOfWork.Repository<CandidateDocumentChecklist>();
+
+            // ================= FIND EXISTING ROW =================
+            var existing = (await repo.FindAsync(x =>
+                x.OfferId == dto.OfferId &&
+                x.CandidateId == dto.CandidateId &&
+                x.CompanyId == dto.CompanyId &&
+                x.RegionId == dto.RegionId
+            )).FirstOrDefault();
+
+            // ================= IF NOT FOUND → STOP =================
+            if (existing == null)
+            {
+                throw new Exception("Invalid request: Offer record not found for this candidate.");
+            }
+
+            // ================= UPDATE ONLY =================
+
+            if (dto.AadharCard != null)
+                existing.AadharCard = await SaveFile(dto.AadharCard);
+
+            if (dto.PanCard != null)
+                existing.PanCard = await SaveFile(dto.PanCard);
+
+            if (dto.Passport != null)
+                existing.Passport = await SaveFile(dto.Passport);
+
+            if (dto.IdProof != null)
+                existing.IdProof = await SaveFile(dto.IdProof);
+
+            if (dto.OfferLetter != null)
+                existing.OfferLetter = await SaveFile(dto.OfferLetter);
+
+            if (dto.ExperienceLetter != null)
+                existing.ExperienceLetter = await SaveFile(dto.ExperienceLetter);
+
+            if (dto.RelievingLetter != null)
+                existing.RelievingLetter = await SaveFile(dto.RelievingLetter);
+
+            if (dto.HikeLetter != null)
+                existing.HikeLetter = await SaveFile(dto.HikeLetter);
+
+            existing.Status = "Submitted";
+            existing.UpdatedDate = DateTime.Now;
+
+            repo.Update(existing);
+
+            await _unitOfWork.CompleteAsync();
+
+            return true;
+        }
+        public async Task<object> GetOfferByIdAsync(int offerId)
+        {
+            var offer = await _unitOfWork.Repository<CandidateOffer>()
+                .GetByIdAsync(offerId);
+
+            if (offer == null)
+                return null;
+
+            var candidate = await _unitOfWork.Repository<Candidate>()
+                .GetByIdAsync(offer.CandidateId);
+
+            return new
+            {
+                offer.OfferId,
+                offer.CandidateId,
+                offer.CompanyId,
+                offer.RegionId,
+
+                CandidateName = candidate.FirstName + " " + candidate.LastName,
+                Designation = candidate.Designation
+            };
+        }
+
+        public async Task<List<CandidateDocumentWithCandidateDto>> GetAllCandidateDocuments(int companyId, int regionId)
+        {
+            var result = await (
+                from doc in _hRMSContext.CandidateDocumentChecklists
+                join c in _hRMSContext.Candidates
+                    on doc.CandidateId equals c.CandidateId   // 🔥 FIX HERE
+
+                where doc.CompanyId == companyId
+                      && doc.RegionId == regionId
+
+                select new CandidateDocumentWithCandidateDto
+                {
+                    Id = doc.Id,
+                    CompanyId = doc.CompanyId,
+                    RegionId = doc.RegionId,
+                    CandidateId = doc.CandidateId,
+                    OfferId = doc.OfferId,
+
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Designation = c.Designation,
+                    Department = c.Department,
+
+                    Status = doc.Status,
+
+                    AadharCard = doc.AadharCard,
+                    PanCard = doc.PanCard,
+                    Passport = doc.Passport,
+                    IdProof = doc.IdProof,
+                    OfferLetter = doc.OfferLetter,
+                    ExperienceLetter = doc.ExperienceLetter,
+                    RelievingLetter = doc.RelievingLetter,
+                    HikeLetter = doc.HikeLetter
+                }
+            ).ToListAsync();
+
+            return result;
+        }
+        public async Task<bool> UpdateChecklistStatusAsync(int offerId, int companyId, int regionId, string status)
+        {
+            var record = await _hRMSContext.CandidateDocumentChecklists
+                .FirstOrDefaultAsync(x =>
+                    x.OfferId == offerId &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId);
+
+            if (record == null)
+                return false;
+
+            record.Status = status;
+
+            await _hRMSContext.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
