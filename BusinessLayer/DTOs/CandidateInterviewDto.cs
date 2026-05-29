@@ -9,7 +9,7 @@
         public int CandidateId { get; set; }
 
         public int LevelNo { get; set; }
-        public int InterviewerId { get; set; }
+        public string? InterviewerId { get; set; }
         public List<int> InterviewerIds { get; set; } = new();
         public string? InterviewLevels { get; set; }
         public string InterviewerName { get; set; } = null!;

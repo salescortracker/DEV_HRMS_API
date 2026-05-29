@@ -116,20 +116,14 @@ namespace HRMS_Backend.Controllers
             return Ok(data);
         }
         [HttpGet("GetScreeningCandidatesTopTable")]
-        public async Task<IActionResult> GetScreeningCandidatesTopTable(
-int userId)
+        public async Task<IActionResult> GetScreeningCandidatesTopTable(int userId, string? department, string? designation)
         {
-            //var userIdClaim = User.FindFirst("UserId")?.Value;
-
-            //if (string.IsNullOrEmpty(userIdClaim))
-            //{
-            //    return Unauthorized("UserId claim not found. Please login.");
-            //}
-
-            //int userId = int.Parse(userIdClaim);
 
             var result = await _service
-                .GetScreeningCandidatesTopTableAsync( userId);
+                .GetScreeningCandidatesTopTableAsync(
+                    userId,
+                    department,
+                    designation);
 
             return Ok(result);
         }
@@ -162,11 +156,10 @@ int userId)
 
         ////////////Interview
         [HttpGet("GetScreeningCandidatesTopTableInterview")]
-        public async Task<IActionResult> GetScreeningCandidatesTopTableInterview(
-int userId)
+        public async Task<IActionResult> GetScreeningCandidatesTopTableInterview(int userId, string? department, string? designation)
         {
             var result = await _service
-                .GetScreeningCandidatesTopTableInterviewAsync(userId);
+               .GetScreeningCandidatesTopTableInterviewAsync(userId, department, designation);
 
             return Ok(result);
         }
@@ -197,8 +190,7 @@ int userId)
             return Ok(data);
         }
         [HttpPost("UpdateCandidateInterview")]
-        public async Task<IActionResult> UpdateCandidateInterview(
-    [FromBody] CandidateInterviewDto dto)
+        public async Task<IActionResult> UpdateCandidateInterview([FromBody] CandidateInterviewDto dto)
         {
             var result = await _service.UpdateCandidateInterviewAsync(dto);
 
@@ -233,15 +225,9 @@ int userId)
             return Ok(data);
         }
         [HttpGet("GetOfferCandidatesTopTable")]
-        public async Task<IActionResult> GetOfferCandidatesTopTable(
-//int companyId,
-//int regionId,
-//string department,
-//string designation
- int userId)
+        public async Task<IActionResult> GetOfferCandidatesTopTable(string department, string designation, int userId)
         {
-            var result = await _service
-                .GetOfferCandidatesTopTableAsync(userId);
+            var result = await _service.GetOfferCandidatesTopTableAsync(department, designation, userId);
 
             return Ok(result);
         }
@@ -290,16 +276,10 @@ int userId)
         //OnBoarding
 
 
-        [HttpGet("GetonboardingCandidatesTopTable")]
-        public async Task<IActionResult> getonboardingCandidatesTopTable(
-            // int companyId,
-            //int regionId,
-            //string department,
-            //string designation
-            int userId )
+        [HttpGet("GetOnboardingCandidatesTopTable")]
+        public async Task<IActionResult> GetOnboardingCandidatesTopTable(int companyId, int regionId, string department, string designation)
         {
-            var result = await _service
-                .GetOnboardingCandidatesTopTableAsync(userId);
+            var result = await _service.GetOnboardingCandidatesTopTableAsync(companyId, regionId, department, designation);
 
             return Ok(result);
         }
@@ -371,5 +351,62 @@ int userId)
                 message = "Candidate, Experience, Qualification updated successfully"
             });
         }
+        [HttpGet("recruitment-departments")]
+        public async Task<IActionResult> GetRecruitmentDepartments(int companyId, int regionId)
+        {
+            var result = await _service
+                .GetRecruitmentDepartmentsAsync(companyId, regionId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("recruitment-designations")]
+        public async Task<IActionResult> GetRecruitmentDesignations(
+            int companyId,
+            int regionId)
+        {
+            var result = await _service
+                .GetRecruitmentDesignationsAsync(companyId, regionId);
+
+            return Ok(result);
+        }
+
+        [HttpPost("UploadCandidateDocuments")]
+        public async Task<IActionResult> UploadCandidateDocuments([FromForm] UploadCandidateDocumentsDto dto)
+        {
+            await _service.UploadCandidateDocumentsAsync(dto);
+
+            return Ok(new
+            {
+                message = "Documents uploaded successfully"
+            });
+        }
+        [HttpGet("GetOfferById/{offerId}")]
+        public async Task<IActionResult> GetOfferById(int offerId)
+        {
+            var result = await _service.GetOfferByIdAsync(offerId);
+
+            if (result == null)
+                return BadRequest("Invalid Offer Id");
+
+            return Ok(result);
+        }
+        [HttpGet("GetAllCandidateDocuments")]
+        public async Task<IActionResult> GetAllCandidateDocuments(int companyId, int regionId)
+        {
+            var result = await _service.GetAllCandidateDocuments(companyId, regionId);
+            return Ok(result);
+        }
+        [HttpPost("UpdateChecklistStatus")]
+        public async Task<IActionResult> UpdateChecklistStatus(int offerId, int companyId, int regionId, string status)
+        {
+            var result = await _service.UpdateChecklistStatusAsync(offerId, companyId, regionId, status);
+
+            if (!result)
+                return BadRequest("Update failed");
+
+            return Ok("Updated successfully");
+        }
+
     }
 }
