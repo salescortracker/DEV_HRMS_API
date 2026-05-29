@@ -2,31 +2,29 @@
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+using DocumentFormat.OpenXml.Packaging;
+using iText.IO.Font.Constants;
+using iText.IO.Image;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Canvas.Draw;
+using iText.Kernel.Pdf.Event;
+using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
-using iText.IO.Font.Constants;
-using iText.Kernel.Font;
 using Microsoft.AspNetCore.Http;
-
-using iText.IO.Image;
-using iText.Kernel.Pdf.Canvas.Draw;
-using iText.Layout.Borders;
-
-using iText.Kernel.Colors;
-using iText.Kernel.Pdf.Canvas;
-using iText.Kernel.Pdf.Event;
-
-using iText.Kernel.Geom;
-
-using Path = System.IO.Path;
-using System.Text.RegularExpressions;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using NPOI.HWPF;
-using DocumentFormat.OpenXml.Packaging;
 using NPOI.HWPF.Extractor;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
+using System.Text;
+using System.Text.RegularExpressions;
+using Path = System.IO.Path;
 
 namespace BusinessLayer.Implementations
 {
@@ -115,7 +113,6 @@ namespace BusinessLayer.Implementations
                 UserId = x.UserId ?? 0
             });
         }
-
 
         public async Task<int> SaveCandidateAsync(CandidateDto dto)
         {
@@ -489,30 +486,73 @@ namespace BusinessLayer.Implementations
                 FullName = u.FullName
             });
         }
-
-        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(
- int userId)
+        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableInterviewAsync(int userId, string? department, string? designation)
         {
-            var candidates = await _unitOfWork.Repository<Candidate>()
+            var query = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    
-                    c.StageId == 2 &&                 // 🔥 ONLY SCREENING
-                    
                     c.UserId == userId &&
+                    c.StageId == 3 &&
                     c.IsActive
                 );
 
-            return candidates.Select(c => new
+            if (!string.IsNullOrEmpty(department))
+            {
+                query = query.Where(x => x.Department == department);
+            }
+
+            if (!string.IsNullOrEmpty(designation))
+            {
+                query = query.Where(x => x.Designation == designation);
+            }
+
+            return query.Select(c => new
             {
                 c.CandidateId,
                 c.SeqNo,
                 Name = string.IsNullOrEmpty(c.LastName)
-                        ? c.FirstName
-                        : $"{c.FirstName} {c.LastName}",
+                    ? c.FirstName
+                    : $"{c.FirstName} {c.LastName}",
                 c.Mobile,
                 Expected = c.ExpectedSalary
             });
         }
+
+
+        public async Task<IEnumerable<object>> GetScreeningCandidatesTopTableAsync(int userId, string? department, string? designation)
+        {
+            var candidates = await _unitOfWork.Repository<Candidate>()
+                .GetAllAsync();
+
+            var filtered = candidates
+                .Where(c =>
+                    c.StageId == 2 &&
+                    c.UserId == userId &&
+                    c.IsActive);
+
+            // 🔥 Department filter
+            if (!string.IsNullOrEmpty(department))
+            {
+                filtered = filtered.Where(c => c.Department == department);
+            }
+
+            // 🔥 Designation filter
+            if (!string.IsNullOrEmpty(designation))
+            {
+                filtered = filtered.Where(c => c.Designation == designation);
+            }
+
+            return filtered.Select(c => new
+            {
+                c.CandidateId,
+                c.SeqNo,
+                Name = string.IsNullOrEmpty(c.LastName)
+                    ? c.FirstName
+                    : $"{c.FirstName} {c.LastName}",
+                c.Mobile,
+                Expected = c.ExpectedSalary
+            });
+        }
+
 
         public async Task<bool> SaveCandidateScreeningAsync(CandidateScreeningDto dto)
         {
@@ -729,7 +769,7 @@ int userId)
                         UserId = dto.UserId,
                         CandidateId = dto.CandidateId,
                         LevelNo = dto.LevelNo,
-                        InterviewerId = interviewerId,
+                        InterviewerId = string.Join(",", dto.InterviewerIds),
                         InterviewerName = interviewer.FullName,
                         InterviewDate = dto.InterviewDate,
                         Location = dto.Location,
@@ -942,7 +982,11 @@ int userId)
                 .ToList();
 
             var interviewerIds = interviews
-                .Select(x => x.InterviewerId)
+                .SelectMany(x =>
+                    (x.InterviewerId ?? "")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                )
                 .Distinct()
                 .ToList();
 
@@ -983,13 +1027,15 @@ int userId)
 
                 // MULTIPLE INTERVIEWER NAMES
                 var interviewerNames = string.Join(", ",
-                    group.Select(g =>
-                    {
-                        var interviewer = interviewers
-                            .FirstOrDefault(i => i.UserId == g.InterviewerId);
-
-                        return interviewer?.FullName;
-                    })
+                    group.SelectMany(g =>
+                        (g.InterviewerId ?? "")
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(id =>
+                        {
+                            var intId = int.Parse(id);
+                            return interviewers.FirstOrDefault(i => i.UserId == intId)?.FullName;
+                        })
+                    )
                     .Where(x => !string.IsNullOrEmpty(x))
                     .Distinct()
                 );
@@ -1042,6 +1088,7 @@ int userId)
 
             return result;
         }
+
 
         /// ///appointment
 
@@ -1249,22 +1296,35 @@ int userId)
         }
         public async Task<IEnumerable<CandidateAppointmentDto>> GetAppointmentsForInterviewerAsync(int interviewerId)
         {
+            // STEP 1: DB query (ONLY simple filter)
             var interviews = await _unitOfWork.Repository<CandidateInterview>()
                 .FindAsync(x =>
-
-                    x.InterviewerId == interviewerId &&
-                    x.Result == "Pending"   // 🔥 hide processed ones
+                    x.InterviewerId != null &&
+                    x.Result == "Pending"
                 );
 
-            if (!interviews.Any())
+            // STEP 2: Memory filter (safe CSV parsing)
+            var filtered = interviews
+                .Where(x =>
+                    x.InterviewerId != null &&
+                    x.InterviewerId
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(id => int.TryParse(id, out var val) ? val : 0)
+                        .Contains(interviewerId)
+                )
+                .ToList();
+
+            if (!filtered.Any())
                 return Enumerable.Empty<CandidateAppointmentDto>();
 
-            var candidateIds = interviews.Select(x => x.CandidateId).Distinct().ToList();
+            // STEP 3: Get candidates
+            var candidateIds = filtered.Select(x => x.CandidateId).Distinct().ToList();
 
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(x => candidateIds.Contains(x.CandidateId));
 
-            return interviews
+            // STEP 4: Map result
+            return filtered
                 .OrderByDescending(x => x.InterviewDate)
                 .Select(iv =>
                 {
@@ -1279,12 +1339,12 @@ int userId)
                         InterviewDate = iv.InterviewDate,
                         Designation = candidate.Designation,
                         Location = iv.Location,
-                        Description = iv.Description,
-
+                        Description = iv.Description
                     };
                 })
                 .Where(x => x != null)!;
         }
+
 
 
         public async Task<object?> GetAppointmentCandidateDetailsAsync(int candidateId)
@@ -1338,21 +1398,17 @@ int userId)
             return result;
         }
         public async Task<IEnumerable<object>> GetOfferCandidatesTopTableAsync(
-//int companyId,
-//int regionId,
-//string department,
-//string designation
-int userId)
+    string department,
+    string designation,
+    int userId)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    //c.CompanyId == companyId &&
-                    //c.RegionId == regionId &&
                     c.StageId == 5 &&
                     c.UserId == userId &&
-                    //c.Department == department &&
-                    //c.Designation == designation &&
-                    c.IsActive
+                    c.IsActive &&
+                    (string.IsNullOrEmpty(department) || c.Department == department) &&
+                    (string.IsNullOrEmpty(designation) || c.Designation == designation)
                 );
 
             return candidates.Select(c => new
@@ -1366,6 +1422,7 @@ int userId)
                 Expected = c.ExpectedSalary
             });
         }
+
 
         public async Task<bool> SaveCandidateOfferAsync(CandidateOfferDto dto)
         {
@@ -2821,22 +2878,16 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
         //OnBoarding 
 
 
-        public async Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(
-//int companyId,
-//int regionId,
-//string department,
-//string designation,
-            int userId)
+        public async Task<IEnumerable<object>> GetOnboardingCandidatesTopTableAsync(int companyId, int regionId, string department, string designation)
         {
             var candidates = await _unitOfWork.Repository<Candidate>()
                 .FindAsync(c =>
-                    //c.CompanyId == companyId &&
-                    //c.RegionId == regionId &&
-                    c.StageId == 6 &&                 // 🔥 ONLY SCREENING
-                    c.UserId == userId &&
-                    //c.Department == department &&
-                    //c.Designation == designation &&
-                    c.IsActive
+                    c.CompanyId == companyId &&
+                    c.RegionId == regionId &&
+                    c.StageId == 6 &&
+                    c.IsActive &&
+                    c.Department == department &&
+                    c.Designation == designation
                 );
 
             return candidates.Select(c => new
@@ -2844,12 +2895,13 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
                 c.CandidateId,
                 c.SeqNo,
                 Name = string.IsNullOrEmpty(c.LastName)
-                        ? c.FirstName
-                        : $"{c.FirstName} {c.LastName}",
+                    ? c.FirstName
+                    : $"{c.FirstName} {c.LastName}",
                 c.Mobile,
                 Expected = c.ExpectedSalary
             });
         }
+
         public async Task<int> SaveCandidateOnboardingAsync(CandidateOnboardingDTO dto)
         {
             using var tx = await _unitOfWork.BeginTransactionAsync();
@@ -3438,7 +3490,225 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
             })
             .ToList();
         }
+        public async Task<List<CandidateDocumentWithCandidateDto>> GetAllCandidateDocuments(int companyId, int regionId)
+        {
+            var result = await (
+                from doc in _hRMSContext.CandidateDocumentChecklists
+                join c in _hRMSContext.Candidates
+                    on doc.CandidateId equals c.CandidateId   // 🔥 FIX HERE
 
-       
+                where doc.CompanyId == companyId
+                      && doc.RegionId == regionId
+
+                select new CandidateDocumentWithCandidateDto
+                {
+                    Id = doc.Id,
+                    CompanyId = doc.CompanyId,
+                    RegionId = doc.RegionId,
+                    CandidateId = doc.CandidateId,
+                    OfferId = doc.OfferId,
+
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Designation = c.Designation,
+                    Department = c.Department,
+
+                    Status = doc.Status,
+
+                    AadharCard = doc.AadharCard,
+                    PanCard = doc.PanCard,
+                    Passport = doc.Passport,
+                    IdProof = doc.IdProof,
+                    OfferLetter = doc.OfferLetter,
+                    ExperienceLetter = doc.ExperienceLetter,
+                    RelievingLetter = doc.RelievingLetter,
+                    HikeLetter = doc.HikeLetter
+                }
+            ).ToListAsync();
+
+            return result;
+        }
+        public async Task<object> GetOfferByIdAsync(int offerId)
+        {
+            var offer = await _unitOfWork.Repository<CandidateOffer>()
+                .GetByIdAsync(offerId);
+
+            if (offer == null)
+                return null;
+
+            var candidate = await _unitOfWork.Repository<Candidate>()
+                .GetByIdAsync(offer.CandidateId);
+
+            return new
+            {
+                offer.OfferId,
+                offer.CandidateId,
+                offer.CompanyId,
+                offer.RegionId,
+
+                CandidateName = candidate.FirstName + " " + candidate.LastName,
+                Designation = candidate.Designation
+            };
+        }
+
+        public async Task<List<string>> GetRecruitmentDepartmentsAsync(
+     int companyId,
+     int regionId)
+        {
+            var departments = await (
+                from d in _hRMSContext.Departments
+
+                where d.CompanyId == companyId
+                      && d.RegionId == regionId
+                      && d.IsDeleted == false
+
+                select d.DepartmentName
+            )
+            .Union(
+
+                from c in _hRMSContext.Candidates
+
+                where c.CompanyId == companyId
+                      && c.RegionId == regionId
+                      && !string.IsNullOrEmpty(c.Department)
+
+                select c.Department
+            )
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync();
+
+            return departments;
+        }
+
+        public async Task<List<string>> GetRecruitmentDesignationsAsync(
+            int companyId,
+            int regionId)
+        {
+            var designations = await (
+                from d in _hRMSContext.Designations
+
+                where d.CompanyId == companyId
+                      && d.RegionId == regionId
+                      && d.IsDeleted == false
+
+                select d.DesignationName
+            )
+            .Union(
+
+                from c in _hRMSContext.Candidates
+
+                where c.CompanyId == companyId
+                      && c.RegionId == regionId
+                      && !string.IsNullOrEmpty(c.Designation)
+
+                select c.Designation
+            )
+            .Distinct()
+            .OrderBy(x => x)
+            .ToListAsync();
+
+            return designations;
+        }
+        public async Task<bool> UpdateChecklistStatusAsync(int offerId, int companyId, int regionId, string status)
+        {
+            var record = await _hRMSContext.CandidateDocumentChecklists
+                .FirstOrDefaultAsync(x =>
+                    x.OfferId == offerId &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId);
+
+            if (record == null)
+                return false;
+
+            record.Status = status;
+
+            await _hRMSContext.SaveChangesAsync();
+
+            return true;
+        }
+        public async Task<bool> UploadCandidateDocumentsAsync(UploadCandidateDocumentsDto dto)
+        {
+            string folderPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "Uploads",
+                "CandidateDocuments"
+            );
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            async Task<string?> SaveFile(IFormFile? file)
+            {
+                if (file == null || file.Length == 0)
+                    return null;
+
+                string fileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+
+                string fullPath = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return fileName;
+            }
+
+            var repo = _unitOfWork.Repository<CandidateDocumentChecklist>();
+
+            // ================= FIND EXISTING ROW =================
+            var existing = (await repo.FindAsync(x =>
+                x.OfferId == dto.OfferId &&
+                x.CandidateId == dto.CandidateId &&
+                x.CompanyId == dto.CompanyId &&
+                x.RegionId == dto.RegionId
+            )).FirstOrDefault();
+
+            // ================= IF NOT FOUND → STOP =================
+            if (existing == null)
+            {
+                throw new Exception("Invalid request: Offer record not found for this candidate.");
+            }
+
+            // ================= UPDATE ONLY =================
+
+            if (dto.AadharCard != null)
+                existing.AadharCard = await SaveFile(dto.AadharCard);
+
+            if (dto.PanCard != null)
+                existing.PanCard = await SaveFile(dto.PanCard);
+
+            if (dto.Passport != null)
+                existing.Passport = await SaveFile(dto.Passport);
+
+            if (dto.IdProof != null)
+                existing.IdProof = await SaveFile(dto.IdProof);
+
+            if (dto.OfferLetter != null)
+                existing.OfferLetter = await SaveFile(dto.OfferLetter);
+
+            if (dto.ExperienceLetter != null)
+                existing.ExperienceLetter = await SaveFile(dto.ExperienceLetter);
+
+            if (dto.RelievingLetter != null)
+                existing.RelievingLetter = await SaveFile(dto.RelievingLetter);
+
+            if (dto.HikeLetter != null)
+                existing.HikeLetter = await SaveFile(dto.HikeLetter);
+
+            existing.Status = "Submitted";
+            existing.UpdatedDate = DateTime.Now;
+
+            repo.Update(existing);
+
+            await _unitOfWork.CompleteAsync();
+
+            return true;
+        }
+
     }
 }
