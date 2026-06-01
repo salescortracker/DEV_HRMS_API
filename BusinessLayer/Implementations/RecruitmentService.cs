@@ -812,56 +812,91 @@ int userId)
                         if (!string.IsNullOrEmpty(interviewer.Email))
                         {
                             string subject =
-                                $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
+                                $"Interview Scheduled – {candidate.FirstName} {candidate.LastName} ({levelName})";
 
-                            string body = $@"
-<h3>Interview Scheduled</h3>
+                                 string body = $@"
+                            <!DOCTYPE html>
+                            <html>
+                            <body style='font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; padding:20px;'>
 
-<p>Dear {interviewer.FullName},</p>
+                            <div style='max-width:750px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; border:1px solid #e5e5e5;'>
 
-<p>Interview Details:</p>
+                                <!-- HEADER -->
+                                <div style='background:#198754; color:#ffffff; padding:18px 25px;'>
+                                    <h2 style='margin:0;'>Interview Schedule Notification</h2>
+                                </div>
 
-<table border='1' cellpadding='6' cellspacing='0' style='border-collapse:collapse;'>
+                                <!-- BODY -->
+                                <div style='padding:25px; color:#333;'>
 
-<tr>
-    <td><b>Candidate</b></td>
-    <td>{candidate.FirstName} {candidate.LastName}</td>
-</tr>
+                                    <p>Dear <strong>{interviewer.FullName}</strong>,</p>
 
-<tr>
-    <td><b>Level</b></td>
-    <td>{levelName}</td>
-</tr>
+                                    <p>
+                                        We are pleased to inform you that an interview has been scheduled.
+                                        Please find the details below and make yourself available accordingly.
+                                    </p>
 
-<tr>
-    <td><b>Date & Time</b></td>
-    <td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td>
-</tr>
+                                    <table style='width:100%; border-collapse:collapse; margin-top:15px;' border='1' cellpadding='10'>
 
-<tr>
-    <td><b>Location</b></td>
-    <td>{dto.Location}</td>
-</tr>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td width='35%'><strong>Candidate Name</strong></td>
+                                            <td>{candidate.FirstName} {candidate.LastName}</td>
+                                        </tr>
 
-<tr>
-    <td><b>Meeting Link</b></td>
-    <td>
-        <a href='{dto.MeetingLink}' target='_blank'>
-            Join Meeting
-        </a>
-    </td>
-</tr>
+                                        <tr>
+                                            <td><strong>Interview Level</strong></td>
+                                            <td>{levelName}</td>
+                                        </tr>
 
-<tr>
-    <td><b>Description</b></td>
-    <td>{dto.Description}</td>
-</tr>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td><strong>Date & Time</strong></td>
+                                            <td>{dto.InterviewDate:dd-MMM-yyyy hh:mm tt}</td>
+                                        </tr>
 
-</table>
+                                        <tr>
+                                            <td><strong>Location</strong></td>
+                                            <td>{dto.Location}</td>
+                                        </tr>
 
-<br/>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td><strong>Meeting Link</strong></td>
+                                            <td>
+                                                <a href='{dto.MeetingLink}' style='color:#198754; font-weight:bold;' target='_blank'>
+                                                    Join Interview
+                                                </a>
+                                            </td>
+                                        </tr>
 
-<p>Regards,<br/>HR Team</p>";
+                                        <tr>
+                                            <td><strong>Description</strong></td>
+                                            <td>{dto.Description}</td>
+                                        </tr>
+
+                                    </table>
+
+                                    <br/>
+
+                                    <p>
+                                        Kindly review the candidate profile before the interview and join 5 minutes prior to the scheduled time.
+                                    </p>
+
+                                    <p>
+                                        For any changes or clarifications, please contact the HR team.
+                                    </p>
+
+                                    <br/>
+
+                                    <p>
+                                        Best Regards,<br/>
+                                        <strong>HR Team</strong>
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            </body>
+                            </html>";
 
                             await _emailService.SendEmailAsync(
                                 interviewer.Email,
@@ -898,48 +933,82 @@ int userId)
                     if (!string.IsNullOrEmpty(candidate.Email))
                     {
                         string candidateBody = $@"
-<h3>Interview Scheduled</h3>
+                            <!DOCTYPE html>
+                            <html>
+                            <body style='font-family: Arial, Helvetica, sans-serif; color:#333;'>
 
-<p>Dear {candidate.FirstName} {candidate.LastName},</p>
+                            <div style='max-width:700px; margin:auto; border:1px solid #e5e5e5; border-radius:8px; overflow:hidden;'>
 
-<p>Your interview has been scheduled successfully.</p>
+                                <div style='background:#0d6efd; color:white; padding:15px 20px;'>
+                                    <h2 style='margin:0;'>Interview Invitation</h2>
+                                </div>
 
-<table border='1' cellpadding='6' cellspacing='0' style='border-collapse:collapse;'>
+                                <div style='padding:20px;'>
 
-<tr>
-    <td><b>Level</b></td>
-    <td>{levelName}</td>
-</tr>
+                                    <p>Dear <strong>{candidate.FirstName} {candidate.LastName}</strong>,</p>
 
-<tr>
-    <td><b>Date & Time</b></td>
-    <td>{dto.InterviewDate:yyyy-MM-dd HH:mm}</td>
-</tr>
+                                    <p>
+                                        Thank you for your interest in joining our organization.
+                                        We are pleased to inform you that your profile has been shortlisted
+                                        and your interview has been scheduled as per the details below.
+                                    </p>
 
-<tr>
-    <td><b>Location</b></td>
-    <td>{dto.Location}</td>
-</tr>
+                                    <table style='width:100%; border-collapse:collapse;' border='1' cellpadding='8'>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td width='35%'><strong>Interview Level</strong></td>
+                                            <td>{levelName}</td>
+                                        </tr>
 
-<tr>
-    <td><b>Meeting Link</b></td>
-    <td>
-        <a href='{dto.MeetingLink}' target='_blank'>
-            Join Meeting
-        </a>
-    </td>
-</tr>
+                                        <tr>
+                                            <td><strong>Date & Time</strong></td>
+                                            <td>{dto.InterviewDate:dd-MMM-yyyy hh:mm tt}</td>
+                                        </tr>
 
-<tr>
-    <td><b>Description</b></td>
-    <td>{dto.Description}</td>
-</tr>
+                                        <tr>
+                                            <td><strong>Location</strong></td>
+                                            <td>{dto.Location}</td>
+                                        </tr>
 
-</table>
+                                        <tr>
+                                            <td><strong>Meeting Link</strong></td>
+                                            <td>
+                                                <a href='{dto.MeetingLink}'
+                                                   style='color:#0d6efd; font-weight:bold;'>
+                                                    Join Interview
+                                                </a>
+                                            </td>
+                                        </tr>
 
-<br/>
+                                        <tr>
+                                            <td><strong>Remarks</strong></td>
+                                            <td>{dto.Description}</td>
+                                        </tr>
+                                    </table>
 
-<p>Regards,<br/>HR Team</p>";
+                                    <br/>
+
+                                    <p>
+                                        Please ensure that you join the meeting a few minutes before the scheduled time.
+                                        Kindly keep your resume and relevant documents readily available for discussion.
+                                    </p>
+
+                                    <p>
+                                        If you have any questions or require assistance, please feel free to contact our HR team.
+                                    </p>
+
+                                    <br/>
+
+                                    <p>
+                                        Best Regards,<br/>
+                                        <strong>HR Team</strong>
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            </body>
+                            </html>";
 
                         await _emailService.SendEmailAsync(
                             candidate.Email,
@@ -1106,7 +1175,7 @@ int userId)
 
                 // ================= UPDATE INTERVIEW =================
 
-                interview.InterviewerId = dto.InterviewerId;
+                interview.InterviewerId = string.Join(",", dto.InterviewerIds);
                 interview.InterviewerName = dto.InterviewerName;
                 interview.InterviewDate = dto.InterviewDate;
                 interview.Location = dto.Location;
@@ -1177,44 +1246,68 @@ int userId)
                     // ================= HR EMAIL =================
 
                     string hrSubject =
-                        $"Interview Result Updated – {candidate.FirstName} {candidate.LastName}";
+                                $"Interview Update – {candidate.FirstName} {candidate.LastName} ({levelName})";
 
-                    string hrBody = $@"
-<!DOCTYPE html>
-<html>
-<body style='font-family:Segoe UI'>
+                              string hrBody = $@"
+                            <!DOCTYPE html>
+                            <html>
+                            <body style='font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; padding:20px;'>
 
-    <h2>Interview Status Updated</h2>
+                            <div style='max-width:750px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; border:1px solid #e5e5e5;'>
 
-    <p>Dear HR Team,</p>
+                                <div style='background:#0d6efd; color:#fff; padding:18px 25px;'>
+                                    <h2 style='margin:0;'>Interview Status Updated</h2>
+                                </div>
 
-    <table cellpadding='6' cellspacing='0' border='1' 
-           style='border-collapse:collapse;'>
+                                <div style='padding:25px;'>
 
-        <tr>
-            <td><b>Candidate</b></td>
-            <td>{candidate.FirstName} {candidate.LastName}</td>
-        </tr>
+                                    <p>Dear HR Team,</p>
 
-        <tr>
-            <td><b>Level</b></td>
-            <td>{levelName}</td>
-        </tr>
+                                    <p>The interview status has been updated. Please find the latest details below.</p>
 
-        <tr>
-            <td><b>Status</b></td>
-            <td>{dto.Result}</td>
-        </tr>
+                                    <table style='width:100%; border-collapse:collapse;' border='1' cellpadding='10'>
 
-        <tr>
-            <td><b>Description</b></td>
-            <td>{dto.Description}</td>
-        </tr>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td width='35%'><b>Candidate</b></td>
+                                            <td>{candidate.FirstName} {candidate.LastName}</td>
+                                        </tr>
 
-    </table>
+                                        <tr>
+                                            <td><b>Interview Level</b></td>
+                                            <td>{levelName}</td>
+                                        </tr>
 
-</body>
-</html>";
+                                        <tr style='background:#f8f9fa;'>
+                                            <td><b>Status</b></td>
+                                            <td><span style='color:#0d6efd; font-weight:bold;'>{dto.Result}</span></td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><b>Description</b></td>
+                                            <td>{dto.Description}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Meeting Link</strong></td>
+                                            <td>
+                                                <a href='{dto.MeetingLink}'
+                                                   style='color:#0d6efd; font-weight:bold;'>
+                                                    Join Interview
+                                                </a>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+
+                                    <br/>
+
+                                    <p>Regards,<br/><b>HR System</b></p>
+
+                                </div>
+
+                            </div>
+
+                            </body>
+                            </html>";
 
                     foreach (var hr in hrUsers)
                     {
@@ -1230,48 +1323,70 @@ int userId)
                     if (!string.IsNullOrEmpty(candidate.Email))
                     {
                         string candidateSubject =
-                            $"Interview Result – {candidate.FirstName}";
+                                $"Interview Update – {candidate.FirstName} {candidate.LastName}";
 
-                        string candidateBody = $@"
-<!DOCTYPE html>
-<html>
-<body style='font-family:Segoe UI'>
+                            string candidateBody = $@"
+                            <!DOCTYPE html>
+                            <html>
+                            <body style='font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; padding:20px;'>
 
-    <h2>Interview Update</h2>
+                            <div style='max-width:750px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; border:1px solid #e5e5e5;'>
 
-    <p>Dear {candidate.FirstName},</p>
+                                <div style='background:#198754; color:#fff; padding:18px 25px;'>
+                                    <h2 style='margin:0;'>Interview Update Notification</h2>
+                                </div>
 
-    <p>Your interview result has been updated:</p>
+                                <div style='padding:25px;'>
 
-    <table cellpadding='6' cellspacing='0' border='1' 
-           style='border-collapse:collapse;'>
+                                    <p>Dear <b>{candidate.FirstName} {candidate.LastName}</b>,</p>
 
-        <tr>
-            <td><b>Level</b></td>
-            <td>{levelName}</td>
-        </tr>
+                                    <p>Your interview status has been updated. Please find the details below.</p>
 
-        <tr>
-            <td><b>Status</b></td>
-            <td>{dto.Result}</td>
-        </tr>
+                                    <table style='width:100%; border-collapse:collapse;' border='1' cellpadding='10'>
 
-        <tr>
-            <td><b>Description</b></td>
-            <td>{dto.Description}</td>
-        </tr>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td width='35%'><b>Interview Level</b></td>
+                                            <td>{levelName}</td>
+                                        </tr>
 
-    </table>
+                                        <tr>
+                                            <td><b>Status</b></td>
+                                            <td><span style='color:#198754; font-weight:bold;'>{dto.Result}</span></td>
+                                        </tr>
 
-    <br/>
+                                        <tr style='background:#f8f9fa;'>
+                                            <td><b>Remarks</b></td>
+                                            <td>{dto.Description}</td>
+                                        </tr>
+                                         <tr>
+                                            <td><strong>Meeting Link</strong></td>
+                                            <td>
+                                                <a href='{dto.MeetingLink}'
+                                                   style='color:#0d6efd; font-weight:bold;'>
+                                                    Join Interview
+                                                </a>
+                                            </td>
+                                        </tr>
 
-    <p>
-        Regards,<br/>
-        HR Team
-    </p>
+                                    </table>
 
-</body>
-</html>";
+                                    <br/>
+
+                                    <p>
+                                        Thank you for your participation in the interview process.
+                                    </p>
+
+                                    <p>
+                                        Regards,<br/>
+                                        <b>HR Team</b>
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            </body>
+                            </html>";
 
                         await _emailService.SendEmailAsync(
                             candidate.Email,
@@ -2194,12 +2309,50 @@ Date : _____________________________________
     offerRepo.Update(offer);
 
     await _unitOfWork.CompleteAsync();
+            var docRepo = _unitOfWork.Repository<CandidateDocumentChecklist>();
+            var existingDoc = await docRepo.FindAsync(x =>
+                x.OfferId == offer.OfferId &&
+                x.CandidateId == candidate.CandidateId
+            );
 
-    // ============================================================
-    // ======================== EMAIL =============================
-    // ============================================================
+            if (!existingDoc.Any())
+            {
+                var doc = new CandidateDocumentChecklist
+                {
+                    OfferId = offer.OfferId,
+                    CandidateId = candidate.CandidateId,
+                    CompanyId = offer.CompanyId,
+                    RegionId = offer.RegionId,
 
-    string subject = "Offer Letter – HRMS";
+                    Status = "LinkSent",
+                    CreatedDate = DateTime.Now
+                };
+
+                await docRepo.AddAsync(doc);
+            }
+            else
+            {
+                var doc = existingDoc.First();
+                doc.Status = "LinkResent";
+                doc.UpdatedDate = DateTime.Now;
+
+                docRepo.Update(doc);
+            }
+
+            await _unitOfWork.CompleteAsync();
+
+            string uploadLink =
+    $"http://localhost:4200/#/offer-documents" +
+    $"/{offer.OfferId}" +
+    $"/{candidate.CandidateId}" +
+    $"/{offer.CompanyId}" +
+    $"/{offer.RegionId}";
+
+            // ============================================================
+            // ======================== EMAIL =============================
+            // ============================================================
+
+            string subject = "Offer Letter – HRMS";
 
     string body = $@"
 <html>
@@ -2216,10 +2369,13 @@ We are pleased to offer you employment with
 
 <p>
 Please find attached your official Offer Letter.
+👉 Click below to upload your joining documents:
 </p>
 
 <p>
-We look forward to having you as part of our organization.
+<a href='{uploadLink}' target='_blank'>
+Upload Documents
+</a>
 </p>
 
 <br/>
