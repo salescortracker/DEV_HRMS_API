@@ -8556,6 +8556,29 @@
         }
       }
     },
+    "/api/Employee/GetLeaveBalance/{userId}": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Employee/GetMyLeaves/{userId}": {
       "get": {
         "tags": [
@@ -10347,6 +10370,58 @@
         }
       }
     },
+    "/api/EmployeeKpi/GetEmployeeSubmissions/{userId}": {
+      "get": {
+        "tags": [
+          "EmployeeKpi"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EmployeeKpi/Manager/GetPerformanceReports": {
+      "get": {
+        "tags": [
+          "EmployeeKpi"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "roleName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/EmployeePayRoll/components/{userId}": {
       "get": {
         "tags": [
@@ -11657,6 +11732,61 @@
       }
     },
     "/api/Helpdesk/GetEmployeesByManager/{managerId}": {
+      "get": {
+        "tags": [
+          "Helpdesk"
+        ],
+        "parameters": [
+          {
+            "name": "managerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Helpdesk/GetAllTicketReports/{companyId}/{regionId}": {
+      "get": {
+        "tags": [
+          "Helpdesk"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Helpdesk/GetManagerTicketReports/{managerId}": {
       "get": {
         "tags": [
           "Helpdesk"
@@ -15704,19 +15834,147 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyNewsMasterDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompanyNewsMasterDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompanyNewsMasterDto"
+                "type": "object",
+                "properties": {
+                  "NewsId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "PostedDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "ExpiryDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "UserId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CompanyId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RegionId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CreatedBy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "UpdatedBy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CreatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "UpdatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "Category": {
+                    "type": "string"
+                  },
+                  "FromDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "ToDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "AttachmentName": {
+                    "type": "string"
+                  },
+                  "AttachmentPath": {
+                    "type": "string"
+                  },
+                  "departmentId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Attachment": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "NewsId": {
+                  "style": "form"
+                },
+                "Title": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "PostedDate": {
+                  "style": "form"
+                },
+                "ExpiryDate": {
+                  "style": "form"
+                },
+                "IsActive": {
+                  "style": "form"
+                },
+                "UserId": {
+                  "style": "form"
+                },
+                "CompanyId": {
+                  "style": "form"
+                },
+                "RegionId": {
+                  "style": "form"
+                },
+                "CreatedBy": {
+                  "style": "form"
+                },
+                "UpdatedBy": {
+                  "style": "form"
+                },
+                "CreatedAt": {
+                  "style": "form"
+                },
+                "UpdatedAt": {
+                  "style": "form"
+                },
+                "Category": {
+                  "style": "form"
+                },
+                "FromDate": {
+                  "style": "form"
+                },
+                "ToDate": {
+                  "style": "form"
+                },
+                "AttachmentName": {
+                  "style": "form"
+                },
+                "AttachmentPath": {
+                  "style": "form"
+                },
+                "departmentId": {
+                  "style": "form"
+                },
+                "Attachment": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -15746,19 +16004,147 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyNewsMasterDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompanyNewsMasterDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompanyNewsMasterDto"
+                "type": "object",
+                "properties": {
+                  "NewsId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "PostedDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "ExpiryDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
+                  },
+                  "UserId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CompanyId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RegionId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CreatedBy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "UpdatedBy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CreatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "UpdatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "Category": {
+                    "type": "string"
+                  },
+                  "FromDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "ToDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "AttachmentName": {
+                    "type": "string"
+                  },
+                  "AttachmentPath": {
+                    "type": "string"
+                  },
+                  "departmentId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Attachment": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "NewsId": {
+                  "style": "form"
+                },
+                "Title": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "PostedDate": {
+                  "style": "form"
+                },
+                "ExpiryDate": {
+                  "style": "form"
+                },
+                "IsActive": {
+                  "style": "form"
+                },
+                "UserId": {
+                  "style": "form"
+                },
+                "CompanyId": {
+                  "style": "form"
+                },
+                "RegionId": {
+                  "style": "form"
+                },
+                "CreatedBy": {
+                  "style": "form"
+                },
+                "UpdatedBy": {
+                  "style": "form"
+                },
+                "CreatedAt": {
+                  "style": "form"
+                },
+                "UpdatedAt": {
+                  "style": "form"
+                },
+                "Category": {
+                  "style": "form"
+                },
+                "FromDate": {
+                  "style": "form"
+                },
+                "ToDate": {
+                  "style": "form"
+                },
+                "AttachmentName": {
+                  "style": "form"
+                },
+                "AttachmentPath": {
+                  "style": "form"
+                },
+                "departmentId": {
+                  "style": "form"
+                },
+                "Attachment": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -19092,6 +19478,37 @@
         }
       }
     },
+    "/api/Recruitment/assign-company-region": {
+      "put": {
+        "tags": [
+          "Recruitment"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignCompanyRegionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignCompanyRegionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignCompanyRegionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/SubscriptionPlan/GetPlans": {
       "get": {
         "tags": [
@@ -19403,6 +19820,15 @@
                       "type": "string",
                       "format": "binary"
                     }
+                  },
+                  "TaskFilesList": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TaskFileDto"
+                    }
+                  },
+                  "DeletedFileIds": {
+                    "type": "string"
                   }
                 }
               },
@@ -19445,6 +19871,12 @@
                 },
                 "Files": {
                   "style": "form"
+                },
+                "TaskFilesList": {
+                  "style": "form"
+                },
+                "DeletedFileIds": {
+                  "style": "form"
                 }
               }
             }
@@ -19464,19 +19896,119 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/TaskDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TaskDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/TaskDto"
+                "type": "object",
+                "properties": {
+                  "TaskId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CompanyId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RegionId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "UserId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "TaskName": {
+                    "type": "string"
+                  },
+                  "ProjectId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "AssignedTo": {
+                    "type": "string"
+                  },
+                  "PriorityId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "StatusId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "StartDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "DueDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "Comment": {
+                    "type": "string"
+                  },
+                  "Files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "TaskFilesList": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TaskFileDto"
+                    }
+                  },
+                  "DeletedFileIds": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "TaskId": {
+                  "style": "form"
+                },
+                "CompanyId": {
+                  "style": "form"
+                },
+                "RegionId": {
+                  "style": "form"
+                },
+                "UserId": {
+                  "style": "form"
+                },
+                "TaskName": {
+                  "style": "form"
+                },
+                "ProjectId": {
+                  "style": "form"
+                },
+                "AssignedTo": {
+                  "style": "form"
+                },
+                "PriorityId": {
+                  "style": "form"
+                },
+                "StatusId": {
+                  "style": "form"
+                },
+                "StartDate": {
+                  "style": "form"
+                },
+                "DueDate": {
+                  "style": "form"
+                },
+                "Comment": {
+                  "style": "form"
+                },
+                "Files": {
+                  "style": "form"
+                },
+                "TaskFilesList": {
+                  "style": "form"
+                },
+                "DeletedFileIds": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -19522,6 +20054,76 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Task/report": {
+      "get": {
+        "tags": [
+          "Task"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "employeeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "statusId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "priorityId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
             }
           }
         ],
@@ -22736,6 +23338,15 @@
             "type": "string",
             "nullable": true
           },
+          "departmentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true
+          },
           "warrantyStartDate": {
             "type": "string",
             "format": "date-time",
@@ -22824,6 +23435,10 @@
             "nullable": true
           },
           "department": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentName": {
             "type": "string",
             "nullable": true
           },
@@ -23075,6 +23690,32 @@
             "format": "int32"
           },
           "assetCategoryId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AssignCompanyRegionDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
             "type": "integer",
             "format": "int32"
           }
@@ -25062,99 +25703,6 @@
             "nullable": true
           },
           "userId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CompanyNewsMasterDto": {
-        "type": "object",
-        "properties": {
-          "newsId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "postedDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "expiryDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "companyId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "regionId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "createdBy": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "updatedBy": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "category": {
-            "type": "string",
-            "nullable": true
-          },
-          "fromDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "toDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "attachmentName": {
-            "type": "string",
-            "nullable": true
-          },
-          "attachmentPath": {
-            "type": "string",
-            "nullable": true
-          },
-          "departmentId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
@@ -29105,6 +29653,13 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "gradeAllocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaveTypeGradeDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -29137,6 +29692,24 @@
           },
           "leaveType": {
             "$ref": "#/components/schemas/LeaveType"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LeaveTypeGradeDto": {
+        "type": "object",
+        "properties": {
+          "gradeID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "leaveDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gradename": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -31497,71 +32070,6 @@
         },
         "additionalProperties": false
       },
-      "TaskDto": {
-        "type": "object",
-        "properties": {
-          "taskId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "companyId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "regionId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "taskName": {
-            "type": "string",
-            "nullable": true
-          },
-          "projectId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "assignedTo": {
-            "type": "string",
-            "nullable": true
-          },
-          "priorityId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "statusId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "dueDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "comment": {
-            "type": "string",
-            "nullable": true
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "binary"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "TaskFile": {
         "type": "object",
         "properties": {
@@ -31597,6 +32105,33 @@
           },
           "task": {
             "$ref": "#/components/schemas/TaskAssignment"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaskFileDto": {
+        "type": "object",
+        "properties": {
+          "taskFileId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileName": {
+            "type": "string",
+            "nullable": true
+          },
+          "filePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileType": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         },
         "additionalProperties": false

@@ -57,6 +57,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<Candidate> Candidates { get; set; }
 
+    public virtual DbSet<CandidateDocumentChecklist> CandidateDocumentChecklists { get; set; }
+
     public virtual DbSet<CandidateExperience> CandidateExperiences { get; set; }
 
     public virtual DbSet<CandidateInterview> CandidateInterviews { get; set; }
@@ -339,6 +341,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<VisaTypeMaster> VisaTypeMasters { get; set; }
 
+    public virtual DbSet<VwDemoUsersSubscriptionDetail> VwDemoUsersSubscriptionDetails { get; set; }
+
     public virtual DbSet<Weekoff> Weekoffs { get; set; }
 
     public virtual DbSet<WfhremoteRequest> WfhremoteRequests { get; set; }
@@ -347,7 +351,7 @@ public partial class HRMSContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_Prod_New;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
+        => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_QA_2.0;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -891,11 +895,35 @@ public partial class HRMSContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Skills)
-                .HasMaxLength(500)
+                .HasMaxLength(1000)
                 .IsUnicode(false);
             entity.Property(e => e.Technology)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<CandidateDocumentChecklist>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Candidat__3214EC073FDCE2E3");
+
+            entity.ToTable("CandidateDocumentChecklist", "Recruitment");
+
+            entity.Property(e => e.AadharCard).HasMaxLength(255);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.ExperienceLetter).HasMaxLength(255);
+            entity.Property(e => e.HikeLetter).HasMaxLength(255);
+            entity.Property(e => e.IdProof).HasMaxLength(255);
+            entity.Property(e => e.OfferLetter).HasMaxLength(255);
+            entity.Property(e => e.PanCard).HasMaxLength(255);
+            entity.Property(e => e.Passport).HasMaxLength(255);
+            entity.Property(e => e.RelievingLetter).HasMaxLength(255);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<CandidateExperience>(entity =>
@@ -4293,6 +4321,28 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.VisaTypeName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<VwDemoUsersSubscriptionDetail>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_DemoUsersSubscriptionDetails", "UM");
+
+            entity.Property(e => e.Company).HasMaxLength(50);
+            entity.Property(e => e.DemoExpiry).HasColumnType("datetime");
+            entity.Property(e => e.DemoStart).HasColumnType("datetime");
+            entity.Property(e => e.Email)
+                .HasMaxLength(120)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
         });
 
         modelBuilder.Entity<Weekoff>(entity =>

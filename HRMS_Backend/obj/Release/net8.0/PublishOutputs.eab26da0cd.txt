@@ -59,6 +59,11 @@ C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Microsoft.Op
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Microsoft.SqlServer.Server.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Newtonsoft.Json.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\NPOI.OOXML.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\NPOI.OpenXml4Net.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\NPOI.OpenXmlFormats.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\NPOI.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\NPOI.ScratchPad.HWPF.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.Core.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.DocumentLayoutAnalysis.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.Fonts.dll
@@ -66,6 +71,7 @@ C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.Pdf
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.Tokenization.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.Tokens.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.dll
+C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\ICSharpCode.SharpZipLib.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\SkiaSharp.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
 C:\HRMS\DEV\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
