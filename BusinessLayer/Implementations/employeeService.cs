@@ -2839,9 +2839,51 @@ namespace BusinessLayer.Implementations
             var entity = all.FirstOrDefault(x => x.UserId == userId);
 
             return entity == null ? null : MapToDto(entity);
+
+            var dto = MapToDto(entity);
+            var user = await _context.Users
+       .FirstOrDefaultAsync(x => x.UserId == userId);
+
+            if (user != null)
+            {
+                var designation = await _context.Designations
+                    .FirstOrDefaultAsync(x =>
+                        x.DesignationId == user.DesignationId &&
+                        x.CompanyId == user.CompanyId &&
+                        x.DepartmentId == user.DepartmentId &&
+                        x.UserId == user.UserCompanyId &&
+                        x.RegionId == user.RegionId);
+
+                if (designation != null)
+                {
+                    dto.brandGrade = designation.GradeId.ToString();
+                }
+            }
+
+            return dto;
         }
         public async Task<PersonalDetailsDto> AddPersonalEmailAsync(PersonalDetailsDto dto)
         {
+
+            var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.UserId == dto.userId);
+
+            if (user != null)
+            {
+                var designation = await _context.Designations
+                    .FirstOrDefaultAsync(x =>
+                        x.DesignationId == user.DesignationId &&
+                        x.CompanyId == user.CompanyId &&
+                        x.RegionId == user.RegionId &&
+                        x.UserId == user.UserCompanyId &&
+                        x.DepartmentId == user.DepartmentId);
+
+                if (designation != null)
+                {
+                    dto.brandGrade = designation.GradeId.ToString();
+                }
+            }
+
             var entity = new EmployeePersonalDetail
             {
                 FirstName = dto.FirstName,
@@ -2889,6 +2931,25 @@ namespace BusinessLayer.Implementations
         {
             try
             {
+
+                var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == dto.userId);
+
+                if (user != null)
+                {
+                    var designation = await _context.Designations
+                        .FirstOrDefaultAsync(x =>
+                            x.DesignationId == user.DesignationId &&
+                            x.CompanyId == user.CompanyId &&
+                            x.RegionId == user.RegionId &&
+                            x.UserId == user.UserCompanyId &&
+                            x.DepartmentId == user.DepartmentId);
+
+                    if (designation != null)
+                    {
+                        dto.brandGrade = designation.GradeId.ToString();
+                    }
+                }
                 var entity = await _unitOfWork.Repository<EmployeePersonalDetail>()
                     .GetByIdAsync(dto.Id);
 

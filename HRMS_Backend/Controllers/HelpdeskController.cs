@@ -89,10 +89,10 @@ namespace HRMS_Backend.Controllers
             return Ok(new { message = "Ticket updated successfully" });
         }
 
-        [HttpGet("GetEmployeesByManager/{managerId}")]
-        public async Task<IActionResult> GetEmployeesByManager(int managerId)
+        [HttpGet("GetEmployeesByManager/{userid}")]
+        public async Task<IActionResult> GetEmployeesByManager(int userid)
         {
-            var data = await _helpdeskservice.GetEmployeesByManagerAsync(managerId);
+            var data = await _helpdeskservice.GetEmployeesByManagerAsync(userid);
             return Ok(data);
         }
 

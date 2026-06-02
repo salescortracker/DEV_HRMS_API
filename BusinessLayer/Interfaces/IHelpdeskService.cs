@@ -19,7 +19,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<ManagerTicketDto>> GetManagerTicketsAsync(int managerId);
         Task UpdateTicketStatusAsync(UpdateTicketStatusDto dto);
         Task SendTicketStatusEmailToEmployeeAsync(int ticketId);
-        Task<IEnumerable<UserProfileDto>> GetEmployeesByManagerAsync(int managerId);
+        Task<IEnumerable<UserProfileDto>> GetEmployeesByManagerAsync(int userid);
 
         Task<IEnumerable<object>> GetAllTicketReportsAsync(int companyId, int regionId);
         Task<IEnumerable<object>> GetManagerTicketReportsAsync(int managerId);

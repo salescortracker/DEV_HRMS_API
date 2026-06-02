@@ -266,10 +266,10 @@ namespace BusinessLayer.Implementations
             await _emailService.SendEmailAsync(employee.Email, subject, body);
         }
 
-        public async Task<IEnumerable<UserProfileDto>> GetEmployeesByManagerAsync(int managerId)
+        public async Task<IEnumerable<UserProfileDto>> GetEmployeesByManagerAsync(int userid)
         {
             var users = await _unitOfWork.Repository<User>()
-                .FindAsync(u => u.ReportingTo == managerId);
+                .FindAsync(u => u.ReportingTo == userid);
 
             return users.Select(u => new UserProfileDto
             {
