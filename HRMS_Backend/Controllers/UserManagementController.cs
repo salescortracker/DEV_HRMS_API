@@ -1066,6 +1066,14 @@ namespace HRMS_Backend.Controllers
             return Ok();
         }
 
+        [HttpGet("GetALLSubcriptionUsers")]
+        public async Task<IActionResult> GetALLSubcriptionUsers()
+        {
+            var users = await _userService.GetALLSubcriptionUsers();
+
+            return Ok(users);
+        }
+
         #region Late Login Policy
 
         [HttpGet]

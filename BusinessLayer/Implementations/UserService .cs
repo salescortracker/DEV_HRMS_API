@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 
+
 namespace BusinessLayer.Implementations
 {
     public class UserService : IUserService
@@ -135,6 +136,12 @@ namespace BusinessLayer.Implementations
         {
             return await _context.Users
                 .Where(u => u.Type == "demo")
+                .ToListAsync();
+        }
+
+        public async Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers()
+        {
+            return await _context.DemoUserSubscriptionDtos
                 .ToListAsync();
         }
         public async Task<object?> VerifyLoginAsync(string username, string password)

@@ -2,6 +2,7 @@
 using BusinessLayer.DTOs;
 using DataAccessLayer.DBContext;
 
+
 namespace BusinessLayer.Interfaces
 {
     public interface IUserService
@@ -22,5 +23,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<MaritalStatus>> GetAllMaritalStatusByCmp(int CompanyId, int regionId);
         Task<List<DataAccessLayer.DBContext.User>> GetDemoUsers();
         Task<bool> UpdateDemoExpiry(int userId, DateTime demoExpiryDate);
+
+        Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers();
     }
 }
