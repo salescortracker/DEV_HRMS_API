@@ -6,6 +6,25 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs
 {
+    //public class LeaveTypeDto
+    //{
+    //    public int LeaveTypeID { get; set; }
+    //    public int CompanyID { get; set; }
+    //    public int RegionID { get; set; }
+
+    //    public string LeaveTypeName { get; set; } = string.Empty;
+    //    public string? Description { get; set; }
+
+    //    public int LeaveDays { get; set; }
+    //    public bool IsActive { get; set; }
+
+    //    // ✅ DISPLAY FIELDS (LIKE KPI)
+    //    public string CompanyName { get; set; } = string.Empty;
+    //    public string RegionName { get; set; } = string.Empty;
+    //    public int? userId { get; set; }
+    //    public List<LeaveTypeGradeDto> GradeAllocations { get; set; }
+    //}
+
     public class LeaveTypeDto
     {
         public int LeaveTypeID { get; set; }
@@ -16,15 +35,26 @@ namespace BusinessLayer.DTOs
         public string? Description { get; set; }
 
         public int LeaveDays { get; set; }
+
         public bool IsActive { get; set; }
 
-        // ✅ DISPLAY FIELDS (LIKE KPI)
+        public bool IsCarryForward { get; set; }
+
+        public int? MaxCarryForwardDays { get; set; }
+
+        public decimal? LeavesPerMonth { get; set; }
+
+        public int? MaxLeavesPerMonth { get; set; }
+
+        public bool AllowAdvanceLeave { get; set; }
+
         public string CompanyName { get; set; } = string.Empty;
         public string RegionName { get; set; } = string.Empty;
+
         public int? userId { get; set; }
+
         public List<LeaveTypeGradeDto> GradeAllocations { get; set; }
     }
-
     public class LeaveTypeGradeDto
     {
         public int GradeID { get; set; }

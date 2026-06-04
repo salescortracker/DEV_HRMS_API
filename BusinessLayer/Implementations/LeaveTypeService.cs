@@ -31,7 +31,15 @@ namespace BusinessLayer.Implementations
                     Description = lt.Description,
                     LeaveDays = lt.LeaveDays,
                     IsActive = lt.IsActive,
+                    IsCarryForward = lt.IsCarryForward,
 
+                    MaxCarryForwardDays = lt.MaxCarryForwardDays,
+
+                    LeavesPerMonth = lt.LeavesPerMonth,
+
+                    MaxLeavesPerMonth = lt.MaxLeavesPerMonth,
+
+                    AllowAdvanceLeave = lt.AllowAdvanceLeave,
                     CompanyName = c.CompanyName,
                     RegionName = r.RegionName
                 }
@@ -78,7 +86,15 @@ namespace BusinessLayer.Implementations
                     IsActive = lt.IsActive,
                     CompanyName = c.CompanyName,
                     RegionName = r.RegionName,
+                    IsCarryForward = lt.IsCarryForward,
 
+                    MaxCarryForwardDays = lt.MaxCarryForwardDays,
+
+                    LeavesPerMonth = lt.LeavesPerMonth,
+
+                    MaxLeavesPerMonth = lt.MaxLeavesPerMonth,
+
+                    AllowAdvanceLeave = lt.AllowAdvanceLeave,
                     // ✅ THIS IS THE FIX
                     GradeAllocations = (
                 from g in _context.LeaveTypeGrades
@@ -116,7 +132,15 @@ namespace BusinessLayer.Implementations
                     Description = lt.Description,
                     LeaveDays = lt.LeaveDays,
                     IsActive = lt.IsActive,
+                    IsCarryForward = lt.IsCarryForward,
 
+                    MaxCarryForwardDays = lt.MaxCarryForwardDays,
+
+                    LeavesPerMonth = lt.LeavesPerMonth,
+
+                    MaxLeavesPerMonth = lt.MaxLeavesPerMonth,
+
+                    AllowAdvanceLeave = lt.AllowAdvanceLeave,
                     CompanyName = c.CompanyName,
                     RegionName = r.RegionName
                 }
@@ -206,6 +230,17 @@ namespace BusinessLayer.Implementations
                 throw new Exception("Leave Type already exists.");
             }
 
+            //var entity = new LeaveType
+            //{
+            //    CompanyId = dto.CompanyID,
+            //    RegionId = dto.RegionID,
+            //    LeaveTypeName = dto.LeaveTypeName,
+            //    IsActive = dto.IsActive,
+            //    IsDeleted = false,
+            //    CreatedAt = DateTime.Now,
+            //    UserId = dto.userId,
+            //    LeaveDays = dto.LeaveDays
+            //};
             var entity = new LeaveType
             {
                 CompanyId = dto.CompanyID,
@@ -215,7 +250,13 @@ namespace BusinessLayer.Implementations
                 IsDeleted = false,
                 CreatedAt = DateTime.Now,
                 UserId = dto.userId,
-                LeaveDays = dto.LeaveDays
+                LeaveDays = dto.LeaveDays,
+
+                IsCarryForward = dto.IsCarryForward,
+                MaxCarryForwardDays = dto.MaxCarryForwardDays,
+                LeavesPerMonth = dto.LeavesPerMonth,
+                MaxLeavesPerMonth = dto.MaxLeavesPerMonth,
+                AllowAdvanceLeave = dto.AllowAdvanceLeave
             };
 
             _context.LeaveTypes.Add(entity);
@@ -323,7 +364,15 @@ namespace BusinessLayer.Implementations
             entity.UserId = dto.userId;
             entity.ModifiedAt = DateTime.Now;
             entity.LeaveDays = dto.LeaveDays;
+            entity.IsCarryForward = dto.IsCarryForward;
 
+            entity.MaxCarryForwardDays = dto.MaxCarryForwardDays;
+
+            entity.LeavesPerMonth = dto.LeavesPerMonth;
+
+            entity.MaxLeavesPerMonth = dto.MaxLeavesPerMonth;
+
+            entity.AllowAdvanceLeave = dto.AllowAdvanceLeave;
             // ✅ REMOVE OLD GRADE MAPPINGS
             var oldMappings = _context.LeaveTypeGrades
                 .Where(x => x.LeaveTypeId == dto.LeaveTypeID);
