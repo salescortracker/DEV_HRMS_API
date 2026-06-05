@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace DataAccessLayer.DBContext;
 
@@ -348,6 +349,9 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<WfhremoteRequest> WfhremoteRequests { get; set; }
 
     public virtual DbSet<WorkAuthStatusMaster> WorkAuthStatusMasters { get; set; }
+
+    // VIEW TABLE 
+    public DbSet<DemoUserSubscriptionDto> DemoUserSubscriptionDtos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -4413,6 +4417,37 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.StatusName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<DemoUserSubscriptionDto>(entity =>
+        {
+            entity.HasNoKey();
+
+            entity.ToView("vw_DemoUsersSubscriptionDetails", "UM");
+
+            entity.Property(e => e.UserID)
+                .HasColumnName("UserID");
+
+            entity.Property(e => e.Company)
+                .HasMaxLength(200);
+
+            entity.Property(e => e.Name)
+                .HasMaxLength(200);
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(200);
+
+            entity.Property(e => e.Phone)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.DemoStart)
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.DemoExpiry)
+                .HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);
