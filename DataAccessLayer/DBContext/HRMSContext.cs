@@ -341,8 +341,6 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<VisaTypeMaster> VisaTypeMasters { get; set; }
 
-    public virtual DbSet<VwDemoUsersSubscriptionDetail> VwDemoUsersSubscriptionDetails { get; set; }
-
     public virtual DbSet<Weekoff> Weekoffs { get; set; }
 
     public virtual DbSet<WfhremoteRequest> WfhremoteRequests { get; set; }
@@ -351,13 +349,13 @@ public partial class HRMSContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_QA_2.0;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
+        => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_Prod_New;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AccountType>(entity =>
         {
-            entity.HasKey(e => e.AccountTypeId).HasName("PK__AccountT__8F95854F8543F411");
+            entity.HasKey(e => e.AccountTypeId).HasName("PK__AccountT__8F95854F114C2509");
 
             entity.ToTable("AccountType", "adminmaster");
 
@@ -377,7 +375,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AdminMenuMaster>(entity =>
         {
-            entity.HasKey(e => e.MenuId).HasName("PK__AdminMen__C99ED250768BB746");
+            entity.HasKey(e => e.MenuId).HasName("PK__AdminMen__C99ED250E7A2567D");
 
             entity.ToTable("AdminMenuMaster", "UM");
 
@@ -392,7 +390,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Asset>(entity =>
         {
-            entity.HasKey(e => e.AssetId).HasName("PK__Assets__43492372FE31106E");
+            entity.HasKey(e => e.AssetId).HasName("PK__Assets__434923727A17F508");
 
             entity.ToTable("Assets", "Asset");
 
@@ -436,7 +434,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetAssignment>(entity =>
         {
-            entity.HasKey(e => e.AssignmentId).HasName("PK__AssetAss__32499E77B15C3C4F");
+            entity.HasKey(e => e.AssignmentId).HasName("PK__AssetAss__32499E771A3EF2C4");
 
             entity.ToTable("AssetAssignments", "Asset");
 
@@ -455,7 +453,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetCategory>(entity =>
         {
-            entity.HasKey(e => e.AssetCategoryId).HasName("PK__AssetCat__C381F49DC1A419A7");
+            entity.HasKey(e => e.AssetCategoryId).HasName("PK__AssetCat__C381F49D503086F2");
 
             entity.ToTable("AssetCategory", "adminmaster");
 
@@ -488,7 +486,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetFilterMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AssetFil__3214EC07616B1A58");
+            entity.HasKey(e => e.Id).HasName("PK__AssetFil__3214EC073DEAB740");
 
             entity.ToTable("AssetFilterMaster", "employee");
 
@@ -504,7 +502,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetMaster>(entity =>
         {
-            entity.HasKey(e => e.AssetId).HasName("PK__AssetMas__4349235285EE3A8A");
+            entity.HasKey(e => e.AssetId).HasName("PK__AssetMas__43492352955B5D25");
 
             entity.ToTable("AssetMaster", "employee");
 
@@ -523,7 +521,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetRequest>(entity =>
         {
-            entity.HasKey(e => e.RequestId).HasName("PK__AssetReq__33A8519A7C78666A");
+            entity.HasKey(e => e.RequestId).HasName("PK__AssetReq__33A8519AAC4435DE");
 
             entity.ToTable("AssetRequests", "Asset");
 
@@ -549,7 +547,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetStatus>(entity =>
         {
-            entity.HasKey(e => e.AssetStatusId).HasName("PK__AssetSta__E63EE4F62DC81A96");
+            entity.HasKey(e => e.AssetStatusId).HasName("PK__AssetSta__E63EE4F6768B5A7D");
 
             entity.ToTable("AssetStatus", "adminmaster");
 
@@ -581,7 +579,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AssetType>(entity =>
         {
-            entity.HasKey(e => e.AssetTypeId).HasName("PK__AssetTyp__FD33C22201AB22FB");
+            entity.HasKey(e => e.AssetTypeId).HasName("PK__AssetTyp__FD33C2226B348F9B");
 
             entity.ToTable("AssetType", "adminmaster");
 
@@ -619,7 +617,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AttachmentType>(entity =>
         {
-            entity.HasKey(e => e.AttachmentTypeId).HasName("PK__Attachme__5C63AB44DC100E40");
+            entity.HasKey(e => e.AttachmentTypeId).HasName("PK__Attachme__5C63AB44C849321C");
 
             entity.ToTable("AttachmentType", "adminmaster");
 
@@ -654,7 +652,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AttendanceConfiguration>(entity =>
         {
-            entity.HasKey(e => e.AttendanceConfigurationId).HasName("PK__Attendan__6E2C3488F0B85352");
+            entity.HasKey(e => e.AttendanceConfigurationId).HasName("PK__Attendan__6E2C348877363B31");
 
             entity.ToTable("AttendanceConfiguration", "adminmaster");
 
@@ -669,7 +667,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AttendanceLog>(entity =>
         {
-            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69261C59FB6E16");
+            entity.HasKey(e => e.AttendanceId).HasName("PK__Attendan__8B69261C2B7B9877");
 
             entity.ToTable("AttendanceLogs", "attendance");
 
@@ -683,12 +681,12 @@ public partial class HRMSContext : DbContext
 
             entity.HasOne(d => d.Building).WithMany(p => p.AttendanceLogs)
                 .HasForeignKey(d => d.BuildingId)
-                .HasConstraintName("FK__Attendanc__Build__7ABC33CD");
+                .HasConstraintName("FK__Attendanc__Build__2077C861");
         });
 
         modelBuilder.Entity<AttendanceStatus>(entity =>
         {
-            entity.HasKey(e => e.AttendanceStatusId).HasName("PK__Attendan__7696A7152BFAB9DF");
+            entity.HasKey(e => e.AttendanceStatusId).HasName("PK__Attendan__7696A71512B038C0");
 
             entity.ToTable("AttendanceStatus", "adminmaster");
 
@@ -720,7 +718,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AuditLog>(entity =>
         {
-            entity.HasKey(e => e.AuditId).HasName("PK__AuditLog__A17F239800D90EAA");
+            entity.HasKey(e => e.AuditId).HasName("PK__AuditLog__A17F2398764B110C");
 
             entity.ToTable("AuditLogs", "superadmin");
 
@@ -731,7 +729,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AuditLog1>(entity =>
         {
-            entity.HasKey(e => e.AuditLogId).HasName("PK__AuditLog__EB5F6CDD761D8702");
+            entity.HasKey(e => e.AuditLogId).HasName("PK__AuditLog__EB5F6CDD7A6FBEE4");
 
             entity.ToTable("AuditLog", "Users");
 
@@ -755,7 +753,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<AuditLogDetail>(entity =>
         {
-            entity.HasKey(e => e.AuditLogDetailId).HasName("PK__AuditLog__A5C56C588A6B351C");
+            entity.HasKey(e => e.AuditLogDetailId).HasName("PK__AuditLog__A5C56C5802B63039");
 
             entity.ToTable("AuditLogDetail", "Users");
 
@@ -766,12 +764,12 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.AuditLog).WithMany(p => p.AuditLogDetails)
                 .HasForeignKey(d => d.AuditLogId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__AuditLogD__Audit__1B29035F");
+                .HasConstraintName("FK__AuditLogD__Audit__520F23F5");
         });
 
         modelBuilder.Entity<BirthdayEmployee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Birthday__3214EC0751C37915");
+            entity.HasKey(e => e.Id).HasName("PK__Birthday__3214EC07EA53CF75");
 
             entity.ToTable("BirthdayEmployees", "adminmaster");
 
@@ -785,7 +783,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<BloodGroup>(entity =>
         {
-            entity.HasKey(e => e.BloodGroupId).HasName("PK__BloodGro__4398C6AFAD43A784");
+            entity.HasKey(e => e.BloodGroupId).HasName("PK__BloodGro__4398C6AFEC82E221");
 
             entity.ToTable("BloodGroup", "adminmaster");
 
@@ -818,7 +816,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Building>(entity =>
         {
-            entity.HasKey(e => e.BuildingId).HasName("PK__Building__5463CDC40E7312BF");
+            entity.HasKey(e => e.BuildingId).HasName("PK__Building__5463CDC43030ED2B");
 
             entity.ToTable("Buildings", "attendance");
 
@@ -835,7 +833,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Candidate>(entity =>
         {
-            entity.HasKey(e => e.CandidateId).HasName("PK__Candidat__DF539B9C26ECF714");
+            entity.HasKey(e => e.CandidateId).HasName("PK__Candidat__DF539B9C74E9B01C");
 
             entity.ToTable("Candidates", "Recruitment");
 
@@ -895,7 +893,7 @@ public partial class HRMSContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.Skills)
-                .HasMaxLength(1000)
+                .HasMaxLength(500)
                 .IsUnicode(false);
             entity.Property(e => e.Technology)
                 .HasMaxLength(100)
@@ -904,7 +902,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateDocumentChecklist>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Candidat__3214EC073FDCE2E3");
+            entity.HasKey(e => e.Id).HasName("PK__Candidat__3214EC07D732E95E");
 
             entity.ToTable("CandidateDocumentChecklist", "Recruitment");
 
@@ -928,7 +926,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateExperience>(entity =>
         {
-            entity.HasKey(e => e.ExperienceId).HasName("PK__Candidat__2F4E344945FF61C4");
+            entity.HasKey(e => e.ExperienceId).HasName("PK__Candidat__2F4E34499B471D77");
 
             entity.ToTable("CandidateExperience", "Recruitment");
 
@@ -947,7 +945,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateInterview>(entity =>
         {
-            entity.HasKey(e => e.InterviewId).HasName("PK__Candidat__C97C5852479B4F6B");
+            entity.HasKey(e => e.InterviewId).HasName("PK__Candidat__C97C58529DC1FA33");
 
             entity.ToTable("CandidateInterviews", "Recruitment");
 
@@ -975,7 +973,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateOffer>(entity =>
         {
-            entity.HasKey(e => e.OfferId).HasName("PK__Candidat__8EBCF0915B93C488");
+            entity.HasKey(e => e.OfferId).HasName("PK__Candidat__8EBCF0918D764A4D");
 
             entity.ToTable("CandidateOffers", "Recruitment");
 
@@ -1004,7 +1002,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateOnboarding>(entity =>
         {
-            entity.HasKey(e => e.OnboardingId).HasName("PK__Candidat__43F2373EF6999036");
+            entity.HasKey(e => e.OnboardingId).HasName("PK__Candidat__43F2373E8AECB1BE");
 
             entity.ToTable("CandidateOnboarding", "Recruitment");
 
@@ -1030,7 +1028,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateQualification>(entity =>
         {
-            entity.HasKey(e => e.QualificationId).HasName("PK__Candidat__C95C12AA6D40FE2C");
+            entity.HasKey(e => e.QualificationId).HasName("PK__Candidat__C95C12AA423B4BBD");
 
             entity.ToTable("CandidateQualification", "Recruitment");
 
@@ -1049,7 +1047,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CandidateScreening>(entity =>
         {
-            entity.HasKey(e => e.ScreeningId).HasName("PK__Candidat__7734E40CBE6E32A2");
+            entity.HasKey(e => e.ScreeningId).HasName("PK__Candidat__7734E40C51AE1BC5");
 
             entity.ToTable("CandidateScreening", "Recruitment");
 
@@ -1071,13 +1069,9 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A2BD8F343E1");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A2BA578B045");
 
             entity.ToTable("Category", "adminmaster");
-
-            entity.HasIndex(e => new { e.UserId, e.CompanyId, e.RegionId, e.CategoryName }, "UX_Category_Unique")
-                .IsUnique()
-                .HasFilter("([IsDeleted]=(0))");
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName)
@@ -1094,7 +1088,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CertificationType>(entity =>
         {
-            entity.HasKey(e => e.CertificationTypeId).HasName("PK__Certific__D1A096413ECE3799");
+            entity.HasKey(e => e.CertificationTypeId).HasName("PK__Certific__D1A09641FE2EC857");
 
             entity.ToTable("CertificationTypes", "adminmaster");
 
@@ -1124,7 +1118,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ChatbotKnowledge>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ChatbotK__3214EC07F7448C7C");
+            entity.HasKey(e => e.Id).HasName("PK__ChatbotK__3214EC07C1B2F8C9");
 
             entity.ToTable("ChatbotKnowledge", "chatbot");
 
@@ -1165,11 +1159,11 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Company>(entity =>
         {
-            entity.HasKey(e => e.CompanyId).HasName("PK__Company__2D971C4CF6EEA339");
+            entity.HasKey(e => e.CompanyId).HasName("PK__Company__2D971C4C55EB801F");
 
             entity.ToTable("Company", "UM");
 
-            entity.HasIndex(e => e.CompanyCode, "UQ__Company__11A0134BBB248D7C").IsUnique();
+            entity.HasIndex(e => e.CompanyCode, "UQ__Company__11A0134B4A5DF064").IsUnique();
 
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
             entity.Property(e => e.CompanyAddress)
@@ -1206,7 +1200,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyEvent>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CompanyE__3214EC076358864B");
+            entity.HasKey(e => e.Id).HasName("PK__CompanyE__3214EC074165E74D");
 
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
@@ -1222,7 +1216,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyModule>(entity =>
         {
-            entity.HasKey(e => e.CompanyModuleId).HasName("PK__CompanyM__FCA1DFCF0F791972");
+            entity.HasKey(e => e.CompanyModuleId).HasName("PK__CompanyM__FCA1DFCF9745DAF0");
 
             entity.ToTable("CompanyModule", "superadmin");
 
@@ -1232,7 +1226,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyNews>(entity =>
         {
-            entity.HasKey(e => e.NewsId).HasName("PK__CompanyN__954EBDF3785B6064");
+            entity.HasKey(e => e.NewsId).HasName("PK__CompanyN__954EBDF3D8DF3570");
 
             entity.ToTable("CompanyNews", "adminmaster");
 
@@ -1246,7 +1240,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyNews1>(entity =>
         {
-            entity.HasKey(e => e.NewsId).HasName("PK__CompanyN__954EBDF3C6545201");
+            entity.HasKey(e => e.NewsId).HasName("PK__CompanyN__954EBDF39F10088B");
 
             entity.ToTable("CompanyNews", "news");
 
@@ -1264,7 +1258,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyNewsMaster>(entity =>
         {
-            entity.HasKey(e => e.NewsId).HasName("PK__CompanyN__954EBDF305B961EB");
+            entity.HasKey(e => e.NewsId).HasName("PK__CompanyN__954EBDF3A45B54C7");
 
             entity.ToTable("CompanyNewsMaster", "adminmaster");
 
@@ -1281,7 +1275,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyPoliciesMaster>(entity =>
         {
-            entity.HasKey(e => e.PolicyId).HasName("PK__CompanyP__2E1339A44F84FDF3");
+            entity.HasKey(e => e.PolicyId).HasName("PK__CompanyP__2E1339A4B939DF19");
 
             entity.ToTable("CompanyPoliciesMaster", "adminmaster");
 
@@ -1298,7 +1292,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyPolicy>(entity =>
         {
-            entity.HasKey(e => e.PolicyId).HasName("PK__CompanyP__2E1339A4B8CDD054");
+            entity.HasKey(e => e.PolicyId).HasName("PK__CompanyP__2E1339A46FB83288");
 
             entity.ToTable("CompanyPolicies", "adminmaster");
 
@@ -1317,7 +1311,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyRegion>(entity =>
         {
-            entity.HasKey(e => e.RegionId).HasName("PK__CompanyR__ACD844A3334F23E0");
+            entity.HasKey(e => e.RegionId).HasName("PK__CompanyR__ACD844A3A69DC243");
 
             entity.ToTable("CompanyRegions", "superadmin");
 
@@ -1340,7 +1334,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanySubscription>(entity =>
         {
-            entity.HasKey(e => e.SubscriptionId).HasName("PK__CompanyS__9A2B249D684FB7DB");
+            entity.HasKey(e => e.SubscriptionId).HasName("PK__CompanyS__9A2B249D9B1FDDA5");
 
             entity.ToTable("CompanySubscriptions", "superadmin");
 
@@ -1356,7 +1350,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CompanyUsageLog>(entity =>
         {
-            entity.HasKey(e => e.UsageId).HasName("PK__CompanyU__29B197205C3E6D40");
+            entity.HasKey(e => e.UsageId).HasName("PK__CompanyU__29B1972036C8C3DA");
 
             entity.ToTable("CompanyUsageLogs", "superadmin");
 
@@ -1368,7 +1362,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CountryMaster>(entity =>
         {
-            entity.HasKey(e => e.CountryId).HasName("PK__CountryM__10D160BF80730D7F");
+            entity.HasKey(e => e.CountryId).HasName("PK__CountryM__10D160BF24940B4E");
 
             entity.ToTable("CountryMaster", "adminmaster");
 
@@ -1385,7 +1379,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Currency>(entity =>
         {
-            entity.HasKey(e => e.CurrencyId).HasName("PK__Currency__14470B102D40CCE9");
+            entity.HasKey(e => e.CurrencyId).HasName("PK__Currency__14470B10B0F39A99");
 
             entity.ToTable("Currency", "adminmaster");
 
@@ -1418,7 +1412,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<CurrencyMaster>(entity =>
         {
-            entity.HasKey(e => e.CurrencyId).HasName("PK__Currency__14470B1077B465FB");
+            entity.HasKey(e => e.CurrencyId).HasName("PK__Currency__14470B10718AD089");
 
             entity.ToTable("CurrencyMaster", "adminmaster");
 
@@ -1437,7 +1431,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__B2079BCDDF3B4BDF");
+            entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__B2079BCDAE5BFA0D");
 
             entity.ToTable("Department", "adminmaster");
 
@@ -1465,7 +1459,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Designation>(entity =>
         {
-            entity.HasKey(e => e.DesignationId).HasName("PK__Designat__BABD603E1AD8CF56");
+            entity.HasKey(e => e.DesignationId).HasName("PK__Designat__BABD603EF2E4AF01");
 
             entity.ToTable("Designation", "adminmaster");
 
@@ -1522,7 +1516,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmailLog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__EmailLog__3214EC07B6DF3A49");
+            entity.HasKey(e => e.Id).HasName("PK__EmailLog__3214EC078C2C0838");
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
@@ -1531,11 +1525,11 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmailTemplate>(entity =>
         {
-            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD2749AE460E");
+            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27CA61EC3B");
 
             entity.ToTable("EmailTemplate");
 
-            entity.HasIndex(e => e.TemplateCode, "UQ__EmailTem__0FDB5081CA92602F").IsUnique();
+            entity.HasIndex(e => e.TemplateCode, "UQ__EmailTem__0FDB50818D15F817").IsUnique();
 
             entity.Property(e => e.ChannelType)
                 .HasMaxLength(50)
@@ -1571,7 +1565,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmailTemplate1>(entity =>
         {
-            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27AFB412B9");
+            entity.HasKey(e => e.TemplateId).HasName("PK__EmailTem__F87ADD27F6512702");
 
             entity.ToTable("EmailTemplates");
 
@@ -1583,7 +1577,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmailTemplateVariable>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0745D1222C");
+            entity.HasKey(e => e.Id).HasName("PK__EmailTem__3214EC0753B6FFA6");
 
             entity.Property(e => e.DisplayName)
                 .HasMaxLength(150)
@@ -1598,12 +1592,12 @@ public partial class HRMSContext : DbContext
 
             entity.HasOne(d => d.Template).WithMany(p => p.EmailTemplateVariables)
                 .HasForeignKey(d => d.TemplateId)
-                .HasConstraintName("FK__EmailTemp__Templ__0A537D18");
+                .HasConstraintName("FK__EmailTemp__Templ__216BEC9A");
         });
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04F11ED412872");
+            entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04F1107C3AC76");
 
             entity.ToTable("Employees", "attendance");
 
@@ -1618,7 +1612,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeAssetFilterMaster>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC0726A29A92");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07C6D1EAEE");
 
             entity.ToTable("EmployeeAssetFilterMaster", "employee");
 
@@ -1634,7 +1628,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeAttendance>(entity =>
         {
-            entity.HasKey(e => e.AttendanceId).HasName("PK__Employee__8B69261CF0CBA33D");
+            entity.HasKey(e => e.AttendanceId).HasName("PK__Employee__8B69261C45A0086B");
 
             entity.ToTable("EmployeeAttendance", "attendance");
 
@@ -1661,7 +1655,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeBankDetail>(entity =>
         {
-            entity.HasKey(e => e.BankDetailsId).HasName("PK__Employee__1759C3A7872C2E83");
+            entity.HasKey(e => e.BankDetailsId).HasName("PK__Employee__1759C3A7CC4ECD8D");
 
             entity.ToTable("EmployeeBankDetails", "employee");
 
@@ -1707,7 +1701,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeCertification>(entity =>
         {
-            entity.HasKey(e => e.CertificationId).HasName("PK__Employee__1237E58ADC29C496");
+            entity.HasKey(e => e.CertificationId).HasName("PK__Employee__1237E58A3EFB1227");
 
             entity.ToTable("EmployeeCertifications", "employee");
 
@@ -1734,7 +1728,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeDailyWorkingHourDetail>(entity =>
         {
-            entity.HasKey(e => e.WorkingHourDetailId).HasName("PK__Employee__88759D09FD85BCFC");
+            entity.HasKey(e => e.WorkingHourDetailId).HasName("PK__Employee__88759D0980BDE0A7");
 
             entity.ToTable("EmployeeDailyWorkingHourDetail", "adminmaster");
 
@@ -1758,7 +1752,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeDailyWorkingHourHeader>(entity =>
         {
-            entity.HasKey(e => e.WorkingHourHeaderId).HasName("PK__Employee__069BEB0AFA6C2D8A");
+            entity.HasKey(e => e.WorkingHourHeaderId).HasName("PK__Employee__069BEB0A438E2B24");
 
             entity.ToTable("EmployeeDailyWorkingHourHeader", "adminmaster");
 
@@ -1791,7 +1785,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeDdlist>(entity =>
         {
-            entity.HasKey(e => e.DdlistId).HasName("PK__Employee__B012948FCF6629CA");
+            entity.HasKey(e => e.DdlistId).HasName("PK__Employee__B012948F1F2224CA");
 
             entity.ToTable("EmployeeDDList", "employee");
 
@@ -1831,7 +1825,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeDocument>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07085F736D");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07ACCE4782");
 
             entity.ToTable("EmployeeDocuments", "employee");
 
@@ -1846,7 +1840,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeEducation>(entity =>
         {
-            entity.HasKey(e => e.EducationId).HasName("PK__Employee__4BBE3805A9A6D0ED");
+            entity.HasKey(e => e.EducationId).HasName("PK__Employee__4BBE3805C31A0F6F");
 
             entity.ToTable("EmployeeEducation", "employee");
 
@@ -1882,7 +1876,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeEmergencyContact>(entity =>
         {
-            entity.HasKey(e => e.EmergencyContactId).HasName("PK__Employee__E8A61DAEBC67D84D");
+            entity.HasKey(e => e.EmergencyContactId).HasName("PK__Employee__E8A61DAE9DF0CB78");
 
             entity.ToTable("EmployeeEmergencyContact", "employee");
 
@@ -1907,7 +1901,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeFamilyDetail>(entity =>
         {
-            entity.HasKey(e => e.FamilyId).HasName("PK__Employee__41D82F6BCCBFB4EC");
+            entity.HasKey(e => e.FamilyId).HasName("PK__Employee__41D82F6B95A186AE");
 
             entity.ToTable("EmployeeFamilyDetails", "employee");
 
@@ -1925,7 +1919,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeForm>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC076F776515");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07E2A7B319");
 
             entity.ToTable("EmployeeForms", "employee");
 
@@ -1945,7 +1939,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeFormEmployee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07C192DAA1");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07785F0902");
 
             entity.ToTable("EmployeeFormEmployees", "employee");
 
@@ -1955,12 +1949,12 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Form).WithMany(p => p.EmployeeFormEmployees)
                 .HasForeignKey(d => d.FormId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeF__FormI__5F691F13");
+                .HasConstraintName("FK__EmployeeF__FormI__2630A1B7");
         });
 
         modelBuilder.Entity<EmployeeFormEmployeeFile>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07C60CCABE");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC070093B227");
 
             entity.ToTable("EmployeeFormEmployeeFiles", "employee");
 
@@ -1973,7 +1967,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeFormFile>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC073CCE6FC3");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07FA12F27F");
 
             entity.ToTable("EmployeeFormFiles", "employee");
 
@@ -1983,7 +1977,7 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Form).WithMany(p => p.EmployeeFormFiles)
                 .HasForeignKey(d => d.FormId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeF__FormI__62458BBE");
+                .HasConstraintName("FK__EmployeeF__FormI__2724C5F0");
         });
 
         modelBuilder.Entity<EmployeeImage>(entity =>
@@ -1998,7 +1992,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeImmigration>(entity =>
         {
-            entity.HasKey(e => e.ImmigrationId).HasName("PK__Employee__A69E9F837DC98F97");
+            entity.HasKey(e => e.ImmigrationId).HasName("PK__Employee__A69E9F83C96C42CD");
 
             entity.ToTable("EmployeeImmigration", "employee");
 
@@ -2028,7 +2022,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeJobHistory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07EA2D6DD1");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC077A7D826B");
 
             entity.ToTable("EmployeeJobHistory", "employee");
 
@@ -2061,7 +2055,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeKpi>(entity =>
         {
-            entity.HasKey(e => e.Kpiid).HasName("PK__Employee__72E692A15A823F74");
+            entity.HasKey(e => e.Kpiid).HasName("PK__Employee__72E692A15CDF2E63");
 
             entity.ToTable("EmployeeKPI", "Performance");
 
@@ -2100,7 +2094,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeKpiitem>(entity =>
         {
-            entity.HasKey(e => e.KpiitemId).HasName("PK__Employee__428820F10EC5749C");
+            entity.HasKey(e => e.KpiitemId).HasName("PK__Employee__428820F1FCFEE9D8");
 
             entity.ToTable("EmployeeKPIItems", "Performance");
 
@@ -2125,12 +2119,12 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Kpi).WithMany(p => p.EmployeeKpiitems)
                 .HasForeignKey(d => d.Kpiid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeK__KPIId__0AF29B96");
+                .HasConstraintName("FK__EmployeeK__KPIId__3C1FE2D6");
         });
 
         modelBuilder.Entity<EmployeeLetter>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC076F948071");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC071B697CD9");
 
             entity.ToTable("EmployeeLetters", "employee");
 
@@ -2147,7 +2141,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeLetterEmployee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC0724735E82");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC0781089790");
 
             entity.ToTable("EmployeeLetterEmployees", "employee");
 
@@ -2157,12 +2151,12 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterEmployees)
                 .HasForeignKey(d => d.LetterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeL__Lette__511AFFBC");
+                .HasConstraintName("FK__EmployeeL__Lette__290D0E62");
         });
 
         modelBuilder.Entity<EmployeeLetterFile>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC072A592F3E");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07E37442C8");
 
             entity.ToTable("EmployeeLetterFiles", "employee");
 
@@ -2172,12 +2166,12 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Letter).WithMany(p => p.EmployeeLetterFiles)
                 .HasForeignKey(d => d.LetterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__EmployeeL__Lette__53F76C67");
+                .HasConstraintName("FK__EmployeeL__Lette__2A01329B");
         });
 
         modelBuilder.Entity<EmployeeMaster>(entity =>
         {
-            entity.HasKey(e => e.EmployeeMasterId).HasName("PK__Employee__EE32E159B76F198F");
+            entity.HasKey(e => e.EmployeeMasterId).HasName("PK__Employee__EE32E15930A8E216");
 
             entity.ToTable("EmployeeMaster", "adminmaster");
 
@@ -2218,7 +2212,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeNotification>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07FB6FF98D");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC07D0D09C75");
 
             entity.ToTable("EmployeeNotifications", "employee");
 
@@ -2232,7 +2226,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeePersonalDetail>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC070980B5F3");
+            entity.HasKey(e => e.Id).HasName("PK__Employee__3214EC0794BDC778");
 
             entity.ToTable("EmployeePersonalDetails", "employee");
 
@@ -2286,7 +2280,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeReference>(entity =>
         {
-            entity.HasKey(e => e.ReferenceId).HasName("PK__Employee__E1A99A79CBA7E480");
+            entity.HasKey(e => e.ReferenceId).HasName("PK__Employee__E1A99A790BE1BA95");
 
             entity.ToTable("EmployeeReferences", "employee");
 
@@ -2309,7 +2303,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeResignation>(entity =>
         {
-            entity.HasKey(e => e.ResignationId).HasName("PK__Employee__CD4E6DB586BF345D");
+            entity.HasKey(e => e.ResignationId).HasName("PK__Employee__CD4E6DB5E8524D6B");
 
             entity.ToTable("EmployeeResignation", "employee");
 
@@ -2350,7 +2344,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeSalary>(entity =>
         {
-            entity.HasKey(e => e.EmployeeSalaryId).HasName("PK__Employee__09720DBF02877FBF");
+            entity.HasKey(e => e.EmployeeSalaryId).HasName("PK__Employee__09720DBF9F1DEC71");
 
             entity.ToTable("EmployeeSalary", "payroll");
 
@@ -2375,11 +2369,11 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EmployeeW4>(entity =>
         {
-            entity.HasKey(e => e.W4Id).HasName("PK__employee__6B594179A7F0BA66");
+            entity.HasKey(e => e.W4Id).HasName("PK__employee__6B5941790F39BD8B");
 
             entity.ToTable("employee_w4s", "employee");
 
-            entity.HasIndex(e => e.Ssn, "UQ__employee__DDDF0AE6B20B5980").IsUnique();
+            entity.HasIndex(e => e.Ssn, "UQ__employee__DDDF0AE6E553B3C2").IsUnique();
 
             entity.Property(e => e.W4Id).HasColumnName("w4_id");
             entity.Property(e => e.Address)
@@ -2462,7 +2456,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Employmenttype>(entity =>
         {
-            entity.HasKey(e => e.EmploymenttypeId).HasName("PK__Employme__C384D40C51976C04");
+            entity.HasKey(e => e.EmploymenttypeId).HasName("PK__Employme__C384D40C3490B18A");
 
             entity.ToTable("Employmenttype", "adminmaster");
 
@@ -2495,7 +2489,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Event>(entity =>
         {
-            entity.HasKey(e => e.EventId).HasName("PK__Events__7944C8101CBB9778");
+            entity.HasKey(e => e.EventId).HasName("PK__Events__7944C810B7C214A2");
 
             entity.ToTable("Events", "Events");
 
@@ -2519,7 +2513,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EventType>(entity =>
         {
-            entity.HasKey(e => e.EventTypeId).HasName("PK__EventTyp__A9216B1FE951D0FF");
+            entity.HasKey(e => e.EventTypeId).HasName("PK__EventTyp__A9216B1F163D306A");
 
             entity.ToTable("EventType", "adminmaster");
 
@@ -2551,7 +2545,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<EventType1>(entity =>
         {
-            entity.HasKey(e => e.EventTypeId).HasName("PK__EventTyp__A9216B3F008AA383");
+            entity.HasKey(e => e.EventTypeId).HasName("PK__EventTyp__A9216B3FF378729E");
 
             entity.ToTable("EventTypes", "adminmaster");
 
@@ -2568,7 +2562,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ExceptionLog>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Exceptio__3214EC0774DA020D");
+            entity.HasKey(e => e.Id).HasName("PK__Exceptio__3214EC076267DEA6");
 
             entity.ToTable("Exception_Log", "logger");
 
@@ -2590,7 +2584,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Expense>(entity =>
         {
-            entity.HasKey(e => e.ExpenseId).HasName("PK__Expense__1445CFF3B4865C68");
+            entity.HasKey(e => e.ExpenseId).HasName("PK__Expense__1445CFF37C3B716D");
 
             entity.ToTable("Expense", "expense");
 
@@ -2628,7 +2622,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ExpenseCategory>(entity =>
         {
-            entity.HasKey(e => e.ExpenseCategoryId).HasName("PK__ExpenseC__9C2C63D8BC2495C5");
+            entity.HasKey(e => e.ExpenseCategoryId).HasName("PK__ExpenseC__9C2C63D8C5451944");
 
             entity.ToTable("ExpenseCategory", "adminmaster");
 
@@ -2641,7 +2635,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ExpenseCategoryType>(entity =>
         {
-            entity.HasKey(e => e.ExpenseCategoryTypeId).HasName("PK__ExpenseC__CB9B6F4B0A9D8ED5");
+            entity.HasKey(e => e.ExpenseCategoryTypeId).HasName("PK__ExpenseC__CB9B6F4BEA774168");
 
             entity.ToTable("ExpenseCategoryType", "adminmaster");
 
@@ -2673,7 +2667,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ExpenseLimitConfig>(entity =>
         {
-            entity.HasKey(e => e.ExpenseLimitConfigId).HasName("PK__ExpenseL__29D57023246D9EF5");
+            entity.HasKey(e => e.ExpenseLimitConfigId).HasName("PK__ExpenseL__29D57023F52783FE");
 
             entity.ToTable("ExpenseLimitConfig", "adminmaster");
 
@@ -2707,7 +2701,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ExpenseStatus>(entity =>
         {
-            entity.HasKey(e => e.ExpenseStatusId).HasName("PK__ExpenseS__A8E82F4060F2A6F9");
+            entity.HasKey(e => e.ExpenseStatusId).HasName("PK__ExpenseS__A8E82F40EB1C31FA");
 
             entity.ToTable("ExpenseStatus", "adminmaster");
 
@@ -2739,7 +2733,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<FilingStatus>(entity =>
         {
-            entity.HasKey(e => e.FilingStatusId).HasName("PK__FilingSt__93F42EE7A9BD75F9");
+            entity.HasKey(e => e.FilingStatusId).HasName("PK__FilingSt__93F42EE790AD58FD");
 
             entity.ToTable("FilingStatus", "adminmaster");
 
@@ -2757,7 +2751,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Gender>(entity =>
         {
-            entity.HasKey(e => e.GenderId).HasName("PK__Gender__4E24E817E16D39DE");
+            entity.HasKey(e => e.GenderId).HasName("PK__Gender__4E24E817CD6A7C33");
 
             entity.ToTable("Gender", "adminmaster");
 
@@ -2790,7 +2784,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<GeoLocation>(entity =>
         {
-            entity.HasKey(e => e.GeoLocationId).HasName("PK__GeoLocat__81B966A322ACAAE9");
+            entity.HasKey(e => e.GeoLocationId).HasName("PK__GeoLocat__81B966A36FF92290");
 
             entity.ToTable("GeoLocations", "adminmaster");
 
@@ -2809,7 +2803,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Grade>(entity =>
         {
-            entity.HasKey(e => e.GradeId).HasName("PK__Grade__54F87A3798940761");
+            entity.HasKey(e => e.GradeId).HasName("PK__Grade__54F87A37980F6579");
 
             entity.ToTable("Grade", "adminmaster");
 
@@ -2826,7 +2820,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<HelpDeskCategory>(entity =>
         {
-            entity.HasKey(e => e.HelpDeskCategoryId).HasName("PK__HelpDesk__9F0105406C9776E4");
+            entity.HasKey(e => e.HelpDeskCategoryId).HasName("PK__HelpDesk__9F010540E4760B6A");
 
             entity.ToTable("HelpDeskCategory", "adminmaster");
 
@@ -2858,7 +2852,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<HolidayList>(entity =>
         {
-            entity.HasKey(e => e.HolidayListId).HasName("PK__HolidayL__1173F0DA2DA8B38E");
+            entity.HasKey(e => e.HolidayListId).HasName("PK__HolidayL__1173F0DA06B2103F");
 
             entity.ToTable("HolidayList", "adminmaster");
 
@@ -2887,13 +2881,9 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<InterviewLevel>(entity =>
         {
-            entity.HasKey(e => e.InterviewLevelsId).HasName("PK__Intervie__20193CF8D94873C5");
+            entity.HasKey(e => e.InterviewLevelsId).HasName("PK__Intervie__20193CF8D16BF20E");
 
             entity.ToTable("InterviewLevels", "adminmaster");
-
-            entity.HasIndex(e => new { e.UserId, e.CompanyId, e.RegionId, e.InterviewLevels }, "UX_InterviewLevel_Unique")
-                .IsUnique()
-                .HasFilter("([IsDeleted]=(0))");
 
             entity.Property(e => e.InterviewLevelsId).HasColumnName("InterviewLevelsID");
             entity.Property(e => e.CompanyId).HasColumnName("CompanyID");
@@ -2918,7 +2908,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<JobApplication>(entity =>
         {
-            entity.HasKey(e => e.ApplicationId).HasName("PK__JobAppli__C93A4C993E26A98F");
+            entity.HasKey(e => e.ApplicationId).HasName("PK__JobAppli__C93A4C990C323E90");
 
             entity.ToTable("JobApplications", "adminmaster");
 
@@ -2940,7 +2930,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<KpiCategory>(entity =>
         {
-            entity.HasKey(e => e.KpiCategoryId).HasName("PK__KpiCateg__B31BD9B8DE04E60E");
+            entity.HasKey(e => e.KpiCategoryId).HasName("PK__KpiCateg__B31BD9B8A90774D5");
 
             entity.ToTable("KpiCategory", "adminmaster");
 
@@ -2969,7 +2959,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LateLogin>(entity =>
         {
-            entity.HasKey(e => e.LateLoginId).HasName("PK__LateLogi__585431B1464C69B2");
+            entity.HasKey(e => e.LateLoginId).HasName("PK__LateLogi__585431B1596CDC50");
 
             entity.ToTable("LateLogin", "adminmaster");
 
@@ -3002,7 +2992,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LateLoginPolicy>(entity =>
         {
-            entity.HasKey(e => e.PolicyId).HasName("PK__LateLogi__2E1339A41B695FF7");
+            entity.HasKey(e => e.PolicyId).HasName("PK__LateLogi__2E1339A4CC92F01D");
 
             entity.ToTable("LateLoginPolicy", "adminmaster");
 
@@ -3022,7 +3012,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LeaveRequest>(entity =>
         {
-            entity.HasKey(e => e.LeaveRequestId).HasName("PK__LeaveReq__609421EEFFD64C96");
+            entity.HasKey(e => e.LeaveRequestId).HasName("PK__LeaveReq__609421EEFBB026AB");
 
             entity.ToTable("LeaveRequests", "Leaves");
 
@@ -3039,6 +3029,9 @@ public partial class HRMSContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.HrEmail).HasMaxLength(200);
             entity.Property(e => e.IsHalfDay).HasDefaultValue(false);
+            entity.Property(e => e.Lopdays)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("LOPDays");
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.Reason)
                 .HasMaxLength(500)
@@ -3066,7 +3059,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LeaveStatus>(entity =>
         {
-            entity.HasKey(e => e.LeaveStatusId).HasName("PK__LeaveSta__75EE81DA9E54EC2D");
+            entity.HasKey(e => e.LeaveStatusId).HasName("PK__LeaveSta__75EE81DAEFAA5B65");
 
             entity.ToTable("LeaveStatus", "adminmaster");
 
@@ -3098,7 +3091,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LeaveType>(entity =>
         {
-            entity.HasKey(e => e.LeaveTypeId).HasName("PK__LeaveTyp__43BE8FF4998B4BBF");
+            entity.HasKey(e => e.LeaveTypeId).HasName("PK__LeaveTyp__43BE8FF408B84103");
 
             entity.ToTable("LeaveType", "adminmaster");
 
@@ -3132,7 +3125,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LeaveTypeDesignation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LeaveTyp__3214EC076394B43B");
+            entity.HasKey(e => e.Id).HasName("PK__LeaveTyp__3214EC077AB13A2A");
 
             entity.ToTable("LeaveTypeDesignation", "adminmaster");
 
@@ -3144,7 +3137,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<LeaveTypeGrade>(entity =>
         {
-            entity.HasKey(e => e.LeaveTypeGradeId).HasName("PK__LeaveTyp__862168A49495D8A3");
+            entity.HasKey(e => e.LeaveTypeGradeId).HasName("PK__LeaveTyp__862168A449F4E357");
 
             entity.ToTable("LeaveTypeGrade", "adminmaster");
 
@@ -3156,17 +3149,17 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Grade).WithMany(p => p.LeaveTypeGrades)
                 .HasForeignKey(d => d.GradeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__LeaveType__Grade__17E28260");
+                .HasConstraintName("FK__LeaveType__Grade__07AC1A97");
 
             entity.HasOne(d => d.LeaveType).WithMany(p => p.LeaveTypeGrades)
                 .HasForeignKey(d => d.LeaveTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__LeaveType__Leave__16EE5E27");
+                .HasConstraintName("FK__LeaveType__Leave__08A03ED0");
         });
 
         modelBuilder.Entity<ManagerKpireview>(entity =>
         {
-            entity.HasKey(e => e.ReviewId).HasName("PK__ManagerK__74BC79CE575B7BE3");
+            entity.HasKey(e => e.ReviewId).HasName("PK__ManagerK__74BC79CE0F124676");
 
             entity.ToTable("ManagerKPIReview", "Performance");
 
@@ -3184,7 +3177,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<MaritalStatus>(entity =>
         {
-            entity.HasKey(e => e.MaritalStatusId).HasName("PK__MaritalS__C8B1BA527BF94F36");
+            entity.HasKey(e => e.MaritalStatusId).HasName("PK__MaritalS__C8B1BA52ACB460F0");
 
             entity.ToTable("MaritalStatus", "adminmaster");
 
@@ -3217,7 +3210,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<MenuMaster>(entity =>
         {
-            entity.HasKey(e => e.MenuId).HasName("PK__MenuMast__C99ED25089B61845");
+            entity.HasKey(e => e.MenuId).HasName("PK__MenuMast__C99ED250BF9328B1");
 
             entity.ToTable("MenuMaster", "UM");
 
@@ -3235,7 +3228,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<MenuRoleMaster>(entity =>
         {
-            entity.HasKey(e => e.MenuRoleId).HasName("PK__MenuRole__880F2CC1031AB5E1");
+            entity.HasKey(e => e.MenuRoleId).HasName("PK__MenuRole__880F2CC11A60BA0C");
 
             entity.ToTable("MenuRoleMaster", "UM");
 
@@ -3286,7 +3279,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<MissedType>(entity =>
         {
-            entity.HasKey(e => e.MissedTypeId).HasName("PK__MissedTy__284C499F5FC18FB1");
+            entity.HasKey(e => e.MissedTypeId).HasName("PK__MissedTy__284C499F08DB8C62");
 
             entity.ToTable("MissedType", "adminmaster");
 
@@ -3324,7 +3317,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Module>(entity =>
         {
-            entity.HasKey(e => e.ModuleId).HasName("PK__Module__2B7477A79B976D98");
+            entity.HasKey(e => e.ModuleId).HasName("PK__Module__2B7477A7E774C512");
 
             entity.ToTable("Module", "superadmin");
 
@@ -3338,7 +3331,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<NewsCategory>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__NewsCate__19093A0BB637B614");
+            entity.HasKey(e => e.CategoryId).HasName("PK__NewsCate__19093A0B647A735C");
 
             entity.ToTable("NewsCategory", "adminmaster");
 
@@ -3351,7 +3344,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<OnboardingLink>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Onboardi__3214EC074FF1E09B");
+            entity.HasKey(e => e.Id).HasName("PK__Onboardi__3214EC07CFCD7EF2");
 
             entity.ToTable("OnboardingLink");
 
@@ -3361,7 +3354,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PayrollDetail>(entity =>
         {
-            entity.HasKey(e => e.PayrollDetailId).HasName("PK__PayrollD__010127C914C583A2");
+            entity.HasKey(e => e.PayrollDetailId).HasName("PK__PayrollD__010127C962E7EA42");
 
             entity.ToTable("PayrollDetails", "payroll");
 
@@ -3388,7 +3381,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PayrollTransaction>(entity =>
         {
-            entity.HasKey(e => e.PayrollId).HasName("PK__PayrollT__99DFC6728A5C4A8E");
+            entity.HasKey(e => e.PayrollId).HasName("PK__PayrollT__99DFC67245893592");
 
             entity.ToTable("PayrollTransactions", "payroll");
 
@@ -3419,7 +3412,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PerformanceKpi>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Performa__3214EC070EC89C3C");
+            entity.HasKey(e => e.Id).HasName("PK__Performa__3214EC07BA29342B");
 
             entity.ToTable("PerformanceKPI");
 
@@ -3434,7 +3427,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PerformanceReview>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Performa__3214EC077AF3C410");
+            entity.HasKey(e => e.Id).HasName("PK__Performa__3214EC07801F9C7D");
 
             entity.ToTable("PerformanceReview");
 
@@ -3455,7 +3448,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Plan>(entity =>
         {
-            entity.HasKey(e => e.PlanId).HasName("PK__Plan__755C22B7CE517A40");
+            entity.HasKey(e => e.PlanId).HasName("PK__Plan__755C22B746C94E40");
 
             entity.ToTable("Plan", "superadmin");
 
@@ -3467,7 +3460,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PlanModule>(entity =>
         {
-            entity.HasKey(e => e.PlanModuleId).HasName("PK__PlanModu__21AC114A42BDAD8B");
+            entity.HasKey(e => e.PlanModuleId).HasName("PK__PlanModu__21AC114A5062B765");
 
             entity.ToTable("PlanModule", "superadmin");
 
@@ -3477,7 +3470,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PlanRoleMenuMapping>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PlanRole__3214EC07865F00F9");
+            entity.HasKey(e => e.Id).HasName("PK__PlanRole__3214EC07F7841CAA");
 
             entity.ToTable("PlanRoleMenuMapping", "UM");
 
@@ -3487,7 +3480,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<PolicyCategory>(entity =>
         {
-            entity.HasKey(e => e.PolicyCategoryId).HasName("PK__PolicyCa__C0F36D7D9C8A5431");
+            entity.HasKey(e => e.PolicyCategoryId).HasName("PK__PolicyCa__C0F36D7D9ECC7967");
 
             entity.ToTable("PolicyCategory", "adminmaster");
 
@@ -3519,7 +3512,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Priority>(entity =>
         {
-            entity.HasKey(e => e.PriorityId).HasName("PK__Priority__D0A3D0DE5221A78C");
+            entity.HasKey(e => e.PriorityId).HasName("PK__Priority__D0A3D0DEE4ACBB64");
 
             entity.ToTable("Priority", "adminmaster");
 
@@ -3552,7 +3545,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ProjectMaster>(entity =>
         {
-            entity.HasKey(e => e.ProjectMasterId).HasName("PK__ProjectM__D51A037626790B13");
+            entity.HasKey(e => e.ProjectMasterId).HasName("PK__ProjectM__D51A037693DA21D5");
 
             entity.ToTable("ProjectMaster", "adminmaster");
 
@@ -3582,7 +3575,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ProjectStatus>(entity =>
         {
-            entity.HasKey(e => e.ProjectStatusId).HasName("PK__ProjectS__F3B67D2DB86744AE");
+            entity.HasKey(e => e.ProjectStatusId).HasName("PK__ProjectS__F3B67D2DD336CCE8");
 
             entity.ToTable("ProjectStatus", "adminmaster");
 
@@ -3614,7 +3607,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<RecruitmentNoticePeriod>(entity =>
         {
-            entity.HasKey(e => e.RecruitmentNoticePeriodId).HasName("PK__Recruitm__979FFDEFAADEE3A3");
+            entity.HasKey(e => e.RecruitmentNoticePeriodId).HasName("PK__Recruitm__979FFDEFCBD950E6");
 
             entity.ToTable("RecruitmentNoticePeriod", "adminmaster");
 
@@ -3641,7 +3634,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Region>(entity =>
         {
-            entity.HasKey(e => e.RegionId).HasName("PK__Region__ACD8444339D13482");
+            entity.HasKey(e => e.RegionId).HasName("PK__Region__ACD8444314C945F5");
 
             entity.ToTable("Region", "UM");
 
@@ -3663,12 +3656,12 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Company).WithMany(p => p.Regions)
                 .HasForeignKey(d => d.CompanyId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Region__CompanyI__184C96B4");
+                .HasConstraintName("FK__Region__CompanyI__4C564A9F");
         });
 
         modelBuilder.Entity<Relationship>(entity =>
         {
-            entity.HasKey(e => e.RelationshipId).HasName("PK__Relation__31FEB8610829240A");
+            entity.HasKey(e => e.RelationshipId).HasName("PK__Relation__31FEB861D8EBF60C");
 
             entity.ToTable("Relationship", "adminmaster");
 
@@ -3701,7 +3694,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Resignation>(entity =>
         {
-            entity.HasKey(e => e.ResignationId).HasName("PK__Resignat__CD4E6DD5AAC75DEF");
+            entity.HasKey(e => e.ResignationId).HasName("PK__Resignat__CD4E6DD5EE601C2C");
 
             entity.ToTable("Resignations", "adminmaster");
 
@@ -3718,7 +3711,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ResignationTypeMaster>(entity =>
         {
-            entity.HasKey(e => e.ResignationTypeId).HasName("PK__Resignat__4FEF0EA72BDF76D3");
+            entity.HasKey(e => e.ResignationTypeId).HasName("PK__Resignat__4FEF0EA75832A0D7");
 
             entity.ToTable("ResignationTypeMaster", "adminmaster");
 
@@ -3727,7 +3720,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<RoleMaster>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__RoleMast__8AFACE3A57AD9169");
+            entity.HasKey(e => e.RoleId).HasName("PK__RoleMast__8AFACE3A5FA1E932");
 
             entity.ToTable("RoleMaster", "UM");
 
@@ -3755,7 +3748,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<SalaryComponent>(entity =>
         {
-            entity.HasKey(e => e.ComponentId).HasName("PK__SalaryCo__D79CF04EECB87881");
+            entity.HasKey(e => e.ComponentId).HasName("PK__SalaryCo__D79CF04EA102FAE3");
 
             entity.ToTable("SalaryComponents", "payroll");
 
@@ -3776,7 +3769,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<SalaryStructure>(entity =>
         {
-            entity.HasKey(e => e.StructureId).HasName("PK__SalarySt__4A1C07ABB1B739A0");
+            entity.HasKey(e => e.StructureId).HasName("PK__SalarySt__4A1C07ABE21CB859");
 
             entity.ToTable("SalaryStructures", "payroll");
 
@@ -3794,7 +3787,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<SalaryStructureComponent>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SalarySt__3214EC073007B699");
+            entity.HasKey(e => e.Id).HasName("PK__SalarySt__3214EC079FC7E071");
 
             entity.ToTable("SalaryStructureComponents", "payroll");
 
@@ -3822,7 +3815,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ScreeningResult>(entity =>
         {
-            entity.HasKey(e => e.ScreeningResultId).HasName("PK__Screenin__4EBB591249E6F8A2");
+            entity.HasKey(e => e.ScreeningResultId).HasName("PK__Screenin__4EBB59125B5AE574");
 
             entity.ToTable("ScreeningResult", "adminmaster");
 
@@ -3849,7 +3842,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<ShiftAllocation>(entity =>
         {
-            entity.HasKey(e => e.ShiftAllocationId).HasName("PK__ShiftAll__3A3EFDAA9D15B59A");
+            entity.HasKey(e => e.ShiftAllocationId).HasName("PK__ShiftAll__3A3EFDAAC6CD046A");
 
             entity.ToTable("ShiftAllocation", "attendance");
 
@@ -3891,7 +3884,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<StageMaster>(entity =>
         {
-            entity.HasKey(e => e.StageId).HasName("PK__StageMas__03EB7AD877073C39");
+            entity.HasKey(e => e.StageId).HasName("PK__StageMas__03EB7AD8C4A64016");
 
             entity.ToTable("StageMaster", "Recruitment");
 
@@ -3906,7 +3899,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<State>(entity =>
         {
-            entity.HasKey(e => e.StateId).HasName("PK__States__C3BA3B5ABBEC97D7");
+            entity.HasKey(e => e.StateId).HasName("PK__States__C3BA3B5A9C204C4B");
 
             entity.ToTable("States", "adminmaster");
 
@@ -3938,7 +3931,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<SubscriptionPlan>(entity =>
         {
-            entity.HasKey(e => e.PlanId).HasName("PK__Subscrip__755C22B764638192");
+            entity.HasKey(e => e.PlanId).HasName("PK__Subscrip__755C22B736C45BD2");
 
             entity.ToTable("SubscriptionPlans", "superadmin");
 
@@ -3949,7 +3942,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<SubscriptionPlan1>(entity =>
         {
-            entity.HasKey(e => e.PlanId).HasName("PK__Subscrip__755C22B74B30DA77");
+            entity.HasKey(e => e.PlanId).HasName("PK__Subscrip__755C22B77D666942");
 
             entity.ToTable("SubscriptionPlans", "UM");
 
@@ -3966,11 +3959,11 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<SuperadminCompany>(entity =>
         {
-            entity.HasKey(e => e.CompanyId).HasName("PK__superadm__2D971CAC70C6323C");
+            entity.HasKey(e => e.CompanyId).HasName("PK__superadm__2D971CAC794925B5");
 
             entity.ToTable("superadminCompanies", "superadmin");
 
-            entity.HasIndex(e => e.CompanyCode, "UQ__superadm__11A0134B80485D11").IsUnique();
+            entity.HasIndex(e => e.CompanyCode, "UQ__superadm__11A0134BD808F728").IsUnique();
 
             entity.Property(e => e.CompanyCode).HasMaxLength(50);
             entity.Property(e => e.CompanyName).HasMaxLength(200);
@@ -3985,7 +3978,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TaskAssignment>(entity =>
         {
-            entity.HasKey(e => e.TaskId).HasName("PK__TaskAssi__7C6949B196A18A4B");
+            entity.HasKey(e => e.TaskId).HasName("PK__TaskAssi__7C6949B1A54C299D");
 
             entity.ToTable("TaskAssignments", "mytask");
 
@@ -4005,16 +3998,16 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TaskFile>(entity =>
         {
-            entity.HasKey(e => e.TaskFileId).HasName("PK__TaskFile__BA7A8A5343655EF4");
+            entity.HasKey(e => e.TaskFileId).HasName("PK__TaskFile__BA7A8A5326EE85F8");
 
             entity.ToTable("TaskFile", "mytask");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.FileName).HasMaxLength(500);
-            entity.Property(e => e.FilePath).HasMaxLength(1000);
-            entity.Property(e => e.FileType).HasMaxLength(200);
+            entity.Property(e => e.FileName).HasMaxLength(255);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.FileType).HasMaxLength(50);
 
             entity.HasOne(d => d.Task).WithMany(p => p.TaskFiles)
                 .HasForeignKey(d => d.TaskId)
@@ -4023,7 +4016,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TaskStatus>(entity =>
         {
-            entity.HasKey(e => e.TaskStatusId).HasName("PK__TaskStat__C023DD0CD72EB105");
+            entity.HasKey(e => e.TaskStatusId).HasName("PK__TaskStat__C023DD0C2B3AE715");
 
             entity.ToTable("TaskStatus", "adminmaster");
 
@@ -4056,7 +4049,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TaxSetting>(entity =>
         {
-            entity.HasKey(e => e.TaxId).HasName("PK__TaxSetti__711BE0ACB3F2F6B8");
+            entity.HasKey(e => e.TaxId).HasName("PK__TaxSetti__711BE0AC779B74C2");
 
             entity.ToTable("TaxSettings", "adminmaster");
 
@@ -4076,7 +4069,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TaxType>(entity =>
         {
-            entity.HasKey(e => e.TaxTypeId).HasName("PK__TaxType__B5343F4392A2ABC2");
+            entity.HasKey(e => e.TaxTypeId).HasName("PK__TaxType__B5343F43C55B5432");
 
             entity.ToTable("TaxType", "adminmaster");
 
@@ -4089,7 +4082,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Ticket>(entity =>
         {
-            entity.HasKey(e => e.TicketId).HasName("PK__Tickets__712CC6078DD5E155");
+            entity.HasKey(e => e.TicketId).HasName("PK__Tickets__712CC607E0A8CE78");
 
             entity.ToTable("Tickets", "HelpDesk");
 
@@ -4115,7 +4108,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<Timesheet>(entity =>
         {
-            entity.HasKey(e => e.TimesheetId).HasName("PK__Timeshee__848CBE2D6F05072A");
+            entity.HasKey(e => e.TimesheetId).HasName("PK__Timeshee__848CBE2D070FCEC5");
 
             entity.ToTable("Timesheets", "TS");
 
@@ -4148,7 +4141,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TimesheetApproval>(entity =>
         {
-            entity.HasKey(e => e.ApprovalId).HasName("PK__Timeshee__328477F4D2080481");
+            entity.HasKey(e => e.ApprovalId).HasName("PK__Timeshee__328477F4125D50F0");
 
             entity.ToTable("TimesheetApprovals", "TS");
 
@@ -4173,7 +4166,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<TimesheetProject>(entity =>
         {
-            entity.HasKey(e => e.ProjectId).HasName("PK__Timeshee__761ABEF015F04F2D");
+            entity.HasKey(e => e.ProjectId).HasName("PK__Timeshee__761ABEF097E4A471");
 
             entity.ToTable("TimesheetProjects", "TS");
 
@@ -4246,6 +4239,7 @@ public partial class HRMSContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.RefreshTokenExpiry).HasColumnType("datetime");
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
+            entity.Property(e => e.ReportingHr).HasColumnName("ReportingHR");
             entity.Property(e => e.ReportingTo).HasColumnName("reportingTo");
             entity.Property(e => e.RoleId).HasDefaultValueSql("('Employee')");
             entity.Property(e => e.Status)
@@ -4257,21 +4251,11 @@ public partial class HRMSContext : DbContext
                 .HasColumnName("type");
             entity.Property(e => e.UserCompanyId).HasColumnName("userCompanyId");
             entity.Property(e => e.Userloginstatus).HasColumnName("userloginstatus");
-
-            entity.HasOne(d => d.Company).WithMany(p => p.Users)
-                .HasForeignKey(d => d.CompanyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Users__CompanyID__571DF1D5");
-
-            entity.HasOne(d => d.Region).WithMany(p => p.Users)
-                .HasForeignKey(d => d.RegionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Users__RegionID__5812160E");
         });
 
         modelBuilder.Entity<UserSubscription>(entity =>
         {
-            entity.HasKey(e => e.SubscriptionId).HasName("PK__UserSubs__9A2B249D90758918");
+            entity.HasKey(e => e.SubscriptionId).HasName("PK__UserSubs__9A2B249DED332A97");
 
             entity.ToTable("UserSubscriptions", "UM");
 
@@ -4287,7 +4271,7 @@ public partial class HRMSContext : DbContext
             entity.HasOne(d => d.Plan).WithMany(p => p.UserSubscriptions)
                 .HasForeignKey(d => d.PlanId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserSubsc__PlanI__7B4643B2");
+                .HasConstraintName("FK__UserSubsc__PlanI__511AFFBC");
         });
 
         modelBuilder.Entity<VisaType>(entity =>
@@ -4311,7 +4295,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<VisaTypeMaster>(entity =>
         {
-            entity.HasKey(e => e.VisaTypeId).HasName("PK__VisaType__9522E6799A3F4015");
+            entity.HasKey(e => e.VisaTypeId).HasName("PK__VisaType__9522E6791B527D40");
 
             entity.ToTable("VisaTypeMaster", "adminmaster");
 
@@ -4323,31 +4307,9 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.VisaTypeName).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<VwDemoUsersSubscriptionDetail>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("vw_DemoUsersSubscriptionDetails", "UM");
-
-            entity.Property(e => e.Company).HasMaxLength(50);
-            entity.Property(e => e.DemoExpiry).HasColumnType("datetime");
-            entity.Property(e => e.DemoStart).HasColumnType("datetime");
-            entity.Property(e => e.Email)
-                .HasMaxLength(120)
-                .IsUnicode(false);
-            entity.Property(e => e.Name)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.Phone)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-        });
-
         modelBuilder.Entity<Weekoff>(entity =>
         {
-            entity.HasKey(e => e.WeekoffId).HasName("PK__Weekoff__382FA061DE48FA52");
+            entity.HasKey(e => e.WeekoffId).HasName("PK__Weekoff__382FA061E3A119CC");
 
             entity.ToTable("Weekoff", "adminmaster");
 
@@ -4376,7 +4338,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<WfhremoteRequest>(entity =>
         {
-            entity.HasKey(e => e.WfhrequestId).HasName("PK__WFHRemot__EC572C95D50C16D1");
+            entity.HasKey(e => e.WfhrequestId).HasName("PK__WFHRemot__EC572C951339964F");
 
             entity.ToTable("WFHRemoteRequests", "employee");
 
@@ -4403,7 +4365,7 @@ public partial class HRMSContext : DbContext
 
         modelBuilder.Entity<WorkAuthStatusMaster>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__WorkAuth__C8EE2043987FBC79");
+            entity.HasKey(e => e.StatusId).HasName("PK__WorkAuth__C8EE204333A84C3A");
 
             entity.ToTable("WorkAuthStatusMaster", "adminmaster");
 
