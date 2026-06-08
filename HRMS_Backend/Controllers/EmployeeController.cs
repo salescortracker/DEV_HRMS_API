@@ -2226,6 +2226,26 @@ public class UpdateResignationStatusRequest
 
             return Ok(new { message = "Deleted successfully" });
         }
+        [HttpGet("hr-designation-names")]
+        public async Task<IActionResult> GetUsersWithDesignation(int companyId, int regionId)
+        {
+            if (companyId == 0 || regionId == 0)
+                return BadRequest("CompanyId and RegionId are required");
+
+            var data = await _employeeService.GetUsersWithDesignation(companyId, regionId);
+
+            return Ok(data);
+        }
+        [HttpGet("users-by-company-region")]
+        public async Task<IActionResult> GetUsersByCompanyRegion(
+    int companyId,
+    int regionId)
+        {
+            var result = await _employeeService
+                .GetUsersByCompanyRegion(companyId, regionId);
+
+            return Ok(result);
+        }
 
         /// <summary>
         /// Get relationship list for emergency contact dropdowns
