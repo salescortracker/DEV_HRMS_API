@@ -2221,6 +2221,51 @@ namespace BusinessLayer.Implementations
                 .OrderBy(r => r.RelationshipName)
                 .ToListAsync();
         }
+        public async Task<List<UserDesignationDto>> GetUsersWithDesignation(int companyId, int regionId)
+        {
+            if (companyId == 0 || regionId == 0)
+            {
+                return new List<UserDesignationDto>(); // ✅ FIX
+            }
+
+            var result = await (from u in _context.Users
+                                join d in _context.Designations
+                                on u.DesignationId equals d.DesignationId
+                                where u.CompanyId == companyId
+                                   && u.RegionId == regionId
+                                select new UserDesignationDto
+                                {
+                                    UserId = u.UserId,
+                                    FullName = u.FullName,
+                                    EmployeeCode = u.EmployeeCode,
+                                    CompanyId = u.CompanyId,
+                                    RegionId = u.RegionId,
+                                    DesignationId = (int)u.DesignationId,
+                                    DesignationName = d.DesignationName
+                                }).ToListAsync();
+
+            return result;
+        }
+        public async Task<List<UserDesignationDto>> GetUsersByCompanyRegion(int companyId, int regionId)
+        {
+            return await _context.Users
+                .Where(u =>
+                    u.CompanyId == companyId &&
+                    u.RegionId == regionId &&
+                    u.Status == "Active")
+                .Select(u => new UserDesignationDto
+                {
+                    UserId = u.UserId,
+                    FullName = u.FullName,
+                    EmployeeCode = u.EmployeeCode,
+                    CompanyId = u.CompanyId,
+                    RegionId = u.RegionId,
+                    DesignationId = u.DesignationId ?? 0,
+                    DesignationName = ""
+                })
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+        }
         #endregion
         #region employee Family details
         // NOTE: EmployeeFamilyDetail.DateOfBirth is DateOnly in your EF model,
