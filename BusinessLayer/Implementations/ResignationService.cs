@@ -18,6 +18,23 @@ namespace BusinessLayer.Implementations
             _db = db;
         }
 
+        public List<ResignationDto> GetAllResignations(int userId)
+        {
+            return _db.Resignations
+                .Where(x => x.UserId == userId &&
+                            x.IsDeleted == false)
+                .Select(x => new ResignationDto
+                {
+                    ResignationId = x.ResignationId,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId,
+                    ResignationType = x.ResignationType,
+                    NoticePeriodDays = x.NoticePeriodDays,
+                    IsActive = x.IsActive
+                })
+                .ToList();
+        }
+
         public List<ResignationDto> GetAll(int companyId, int regionId)
         {
             return _db.Resignations
@@ -35,6 +52,7 @@ namespace BusinessLayer.Implementations
                 })
                 .ToList();
         }
+
 
         public ResignationDto? GetById(int id)
         {
