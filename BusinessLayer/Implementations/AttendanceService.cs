@@ -629,23 +629,39 @@ namespace BusinessLayer.Implementations
                         }
 
                         // =========================
+                        // EXACT SHIFT TIME
+                        // =========================
+                        else if (clockIn.Value == shiftStart.Value)
+                        {
+                            arrivalStatus = "On Time";
+
+                            lateMinutes = 0;
+                        }
+
+                        // =========================
+                        // WITHIN GRACE TIME
+                        // =========================
+                        else if (clockIn.Value <= allowedTime)
+                        {
+                            int graceUsed =
+                                (int)(clockIn.Value - shiftStart.Value).TotalMinutes;
+
+                            arrivalStatus =
+                                $"Within Grace Time ({graceUsed} mins)";
+
+                            lateMinutes = 0;
+                        }
+
+                        // =========================
                         // LATE LOGIN
                         // =========================
-                        else if (clockIn.Value > allowedTime)
+                        else
                         {
                             lateMinutes =
                                 (int)(clockIn.Value - allowedTime).TotalMinutes;
 
-                            arrivalStatus = $"Late by {lateMinutes} mins";
-                        }
-
-                        // =========================
-                        // ON TIME
-                        // =========================
-                        else
-                        {
-                            lateMinutes = 0;
-                            arrivalStatus = "On Time";
+                            arrivalStatus =
+                                $"Late by {lateMinutes} mins";
                         }
                     }
                 }
