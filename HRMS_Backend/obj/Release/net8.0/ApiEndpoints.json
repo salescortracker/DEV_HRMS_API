@@ -4187,6 +4187,16 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetLogs",
+    "RelativePath": "api/Employee/GetLogs",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetManagerLeaves",
     "RelativePath": "api/Employee/GetManagerLeaves/{managerId}",
     "HttpMethod": "GET",
@@ -4819,6 +4829,11 @@
       {
         "Name": "HrEmail",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Lopdays",
+        "Type": "System.Decimal",
         "IsRequired": false
       }
     ],
@@ -11724,6 +11739,27 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "GetAllCandidateDocuments",
+    "RelativePath": "api/Recruitment/GetAllCandidateDocuments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
     "Method": "GetAppointmentCandidateDetails",
     "RelativePath": "api/Recruitment/GetAppointmentCandidateDetails/{candidateId}",
     "HttpMethod": "GET",
@@ -11929,12 +11965,38 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "GetOfferById",
+    "RelativePath": "api/Recruitment/GetOfferById/{offerId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "offerId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
     "Method": "GetOfferCandidatesTopTable",
     "RelativePath": "api/Recruitment/GetOfferCandidatesTopTable",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "department",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "designation",
+        "Type": "System.String",
+        "IsRequired": false
+      },
       {
         "Name": "userId",
         "Type": "System.Int32",
@@ -11992,15 +12054,30 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
-    "Method": "getonboardingCandidatesTopTable",
-    "RelativePath": "api/Recruitment/GetonboardingCandidatesTopTable",
+    "Method": "GetOnboardingCandidatesTopTable",
+    "RelativePath": "api/Recruitment/GetOnboardingCandidatesTopTable",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "userId",
+        "Name": "companyId",
         "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "department",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "designation",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -12060,6 +12137,16 @@
         "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
+      },
+      {
+        "Name": "department",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "designation",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -12075,6 +12162,16 @@
       {
         "Name": "userId",
         "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "department",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "designation",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
@@ -12148,6 +12245,48 @@
       {
         "Name": "ResumeFile",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "GetRecruitmentDepartments",
+    "RelativePath": "api/Recruitment/recruitment-departments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "GetRecruitmentDesignations",
+    "RelativePath": "api/Recruitment/recruitment-designations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
         "IsRequired": false
       }
     ],
@@ -12644,6 +12783,37 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "UpdateChecklistStatus",
+    "RelativePath": "api/Recruitment/UpdateChecklistStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "offerId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
     "Method": "UpdateScreening",
     "RelativePath": "api/Recruitment/UpdateScreening",
     "HttpMethod": "PUT",
@@ -12654,6 +12824,77 @@
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.CandidateScreeningDto",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "UploadCandidateDocuments",
+    "RelativePath": "api/Recruitment/UploadCandidateDocuments",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "OfferId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CandidateId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CompanyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "RegionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "AadharCard",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "PanCard",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "Passport",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "IdProof",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "OfferLetter",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "ExperienceLetter",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "RelievingLetter",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "HikeLetter",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -13849,6 +14090,16 @@
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "GetALLSubcriptionUsers",
+    "RelativePath": "api/UserManagement/GetALLSubcriptionUsers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

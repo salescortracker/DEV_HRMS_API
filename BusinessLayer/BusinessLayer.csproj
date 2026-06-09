@@ -18,6 +18,7 @@
     <PackageReference Include="NPOI.HWPF" Version="2.3.0" />
     <PackageReference Include="PdfPig" Version="0.1.14" />
     <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="ZKemkeeper" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>

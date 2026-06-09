@@ -25,7 +25,8 @@ namespace HRMS_Backend.Controllers
         private readonly HRMSContext _context;
         private readonly IDashboardService _dashboardService;
         private readonly IMenuRoleService _menuRoleService;
-        public EmployeeController(IMenuRoleService menuRoleService,IDashboardService dashboardService,IEmployeeResignationService resignationService,IShiftAllocationService shiftAllocationService,  IemployeeService employeeService, ILeaveService leaveService, IWebHostEnvironment env, IEmployeeKpiService kpiService, IManagerKpiReviewService managerReviewService, IEmailService emailService, HRMSContext context)
+        private readonly IBiometricService _service;
+        public EmployeeController(IBiometricService service,IMenuRoleService menuRoleService,IDashboardService dashboardService,IEmployeeResignationService resignationService,IShiftAllocationService shiftAllocationService,  IemployeeService employeeService, ILeaveService leaveService, IWebHostEnvironment env, IEmployeeKpiService kpiService, IManagerKpiReviewService managerReviewService, IEmailService emailService, HRMSContext context)
         {
             _resignationService = resignationService;
             _employeeService = employeeService;
@@ -38,6 +39,7 @@ namespace HRMS_Backend.Controllers
             _managerReviewService = managerReviewService;
             _dashboardService = dashboardService;
             _menuRoleService = menuRoleService;
+            _service = service;
         }
 
         #region Employee Resignation Details
@@ -2982,6 +2984,12 @@ public class UpdateResignationStatusRequest
                     Message = "Internal server error"
                 });
             }
+        }
+        [HttpGet("GetLogs")]
+        public async Task<IActionResult> GetLogs()
+        {
+            var logs = await _service.GetAttendanceLogs();
+            return Ok(logs);
         }
 
     }

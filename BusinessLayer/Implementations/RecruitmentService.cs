@@ -578,7 +578,7 @@ namespace BusinessLayer.Implementations
                     .AddAsync(screening);
 
                 // 🔥 Move Candidate to INTERVIEW stage
-                var candidateRepo = _unitOfWork.Repository<Candidate>(); 
+                var candidateRepo = _unitOfWork.Repository<Candidate>();
                 var candidate = await candidateRepo.GetByIdAsync(dto.CandidateId)
                     ?? throw new Exception("Candidate not found");
 
@@ -694,7 +694,7 @@ int userId)
                 .FindAsync(c =>
                     c.UserId == userId &&
                     c.StageId == 3 &&                 // 🔥 ONLY SCREENING
-                    
+
                     c.IsActive
                 );
 
@@ -814,7 +814,7 @@ int userId)
                             string subject =
                                 $"Interview Scheduled – {candidate.FirstName} {candidate.LastName} ({levelName})";
 
-                                 string body = $@"
+                            string body = $@"
                             <!DOCTYPE html>
                             <html>
                             <body style='font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; padding:20px;'>
@@ -910,7 +910,7 @@ int userId)
                         string subject =
                               $"Interview Scheduled – {candidate.FirstName} {candidate.LastName}";
                         Console.WriteLine("Interviewer email failed: " + ex.Message);
-                       
+
                         string body = $@"
                             <h3>Interview Scheduled</h3>
                             <p>Dear {interviewer.FullName},</p>
@@ -1248,7 +1248,7 @@ int userId)
                     string hrSubject =
                                 $"Interview Update – {candidate.FirstName} {candidate.LastName} ({levelName})";
 
-                              string hrBody = $@"
+                    string hrBody = $@"
                             <!DOCTYPE html>
                             <html>
                             <body style='font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; padding:20px;'>
@@ -1325,7 +1325,7 @@ int userId)
                         string candidateSubject =
                                 $"Interview Update – {candidate.FirstName} {candidate.LastName}";
 
-                            string candidateBody = $@"
+                        string candidateBody = $@"
                             <!DOCTYPE html>
                             <html>
                             <body style='font-family: Arial, Helvetica, sans-serif; background:#f4f6f9; padding:20px;'>
@@ -1397,7 +1397,7 @@ int userId)
                 }
                 catch (Exception ex)
                 {
-                    
+
                     Console.WriteLine("Email Error: " + ex.Message);
                 }
 
@@ -1803,374 +1803,374 @@ int userId)
         // ================= SEND OFFER LETTER ============================
         // ================================================================
 
-      public async Task<bool> SendOfferLetterAsync(int offerId)
-{
-    // ============================================================
-    // ====================== REPOSITORIES =========================
-    // ============================================================
-
-    var offerRepo = _unitOfWork.Repository<CandidateOffer>();
-    var candidateRepo = _unitOfWork.Repository<Candidate>();
-
-    // ============================================================
-    // ======================== OFFER =============================
-    // ============================================================
-
-    var offer = await offerRepo.GetByIdAsync(offerId);
-
-    if (offer == null)
-        throw new Exception("Offer not found");
-
-    // ============================================================
-    // ====================== CANDIDATE ===========================
-    // ============================================================
-
-    var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
-
-    if (candidate == null)
-        throw new Exception("Candidate not found");
-
-    // ============================================================
-    // ======================== COMPANY ===========================
-    // ============================================================
-
-    var company = _hRMSContext.Companies
-        .Where(c => c.CompanyId == offer.CompanyId)
-        .Select(c => new
+        public async Task<bool> SendOfferLetterAsync(int offerId)
         {
-            c.CompanyId,
-            c.CompanyName,
-            c.CompanyLogo
-        })
-        .FirstOrDefault();
+            // ============================================================
+            // ====================== REPOSITORIES =========================
+            // ============================================================
 
-    if (company == null)
-        throw new Exception("Company not found");
+            var offerRepo = _unitOfWork.Repository<CandidateOffer>();
+            var candidateRepo = _unitOfWork.Repository<Candidate>();
 
-    // ============================================================
-    // ================= OFFER LETTER FOLDER ======================
-    // ============================================================
+            // ============================================================
+            // ======================== OFFER =============================
+            // ============================================================
 
-    string offerLetterFolder = Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "wwwroot",
-        "Uploads",
-        "OfferLetters"
-    );
+            var offer = await offerRepo.GetByIdAsync(offerId);
 
-    if (!Directory.Exists(offerLetterFolder))
-    {
-        Directory.CreateDirectory(offerLetterFolder);
-    }
+            if (offer == null)
+                throw new Exception("Offer not found");
 
-    // ============================================================
-    // ======================= FILE NAME ==========================
-    // ============================================================
+            // ============================================================
+            // ====================== CANDIDATE ===========================
+            // ============================================================
 
-    string safeName =
-        $"{candidate.FirstName}_{candidate.LastName}"
-        .Replace(" ", "_");
+            var candidate = await candidateRepo.GetByIdAsync(offer.CandidateId);
 
-    string fileName =
-        $"Offer_{safeName}_{offerId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+            if (candidate == null)
+                throw new Exception("Candidate not found");
 
-    string fullPath = Path.Combine(
-        offerLetterFolder,
-        fileName
-    );
+            // ============================================================
+            // ======================== COMPANY ===========================
+            // ============================================================
 
-    // ============================================================
-    // ======================= DELETE OLD =========================
-    // ============================================================
-
-    if (File.Exists(fullPath))
-    {
-        File.Delete(fullPath);
-    }
-
-    // ============================================================
-    // ===================== PDF GENERATION =======================
-    // ============================================================
-
-    using (var writer = new PdfWriter(fullPath))
-    using (var pdf = new PdfDocument(writer))
-    using (var document = new iText.Layout.Document(pdf))
-    {
-        // ========================================================
-        // ===================== WATERMARK =========================
-        // ========================================================
-
-        pdf.AddEventHandler(
-            PdfDocumentEvent.END_PAGE,
-            new WatermarkHandler(company.CompanyLogo)
-        );
-
-        document.SetMargins(40, 40, 40, 40);
-
-        // ========================================================
-        // ======================= FONTS ===========================
-        // ========================================================
-
-        PdfFont normalFont =
-            PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-
-        PdfFont boldFont =
-            PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
-
-        PdfFont italicFont =
-            PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE);
-
-        // ========================================================
-        // ===================== HEADER TABLE ======================
-        // ========================================================
-
-        var headerTable = new Table(
-            UnitValue.CreatePercentArray(new float[] { 1, 2 })
-        ).UseAllAvailableWidth();
-
-        // ========================================================
-        // ======================== LOGO ===========================
-        // ========================================================
-
-        Cell logoCell = new Cell()
-            .SetBorder(Border.NO_BORDER);
-
-        try
-        {
-            if (!string.IsNullOrWhiteSpace(company.CompanyLogo))
-            {
-                string base64Data = company.CompanyLogo;
-
-                if (base64Data.Contains(","))
+            var company = _hRMSContext.Companies
+                .Where(c => c.CompanyId == offer.CompanyId)
+                .Select(c => new
                 {
-                    base64Data = base64Data.Substring(
-                        base64Data.IndexOf(",") + 1
-                    );
+                    c.CompanyId,
+                    c.CompanyName,
+                    c.CompanyLogo
+                })
+                .FirstOrDefault();
+
+            if (company == null)
+                throw new Exception("Company not found");
+
+            // ============================================================
+            // ================= OFFER LETTER FOLDER ======================
+            // ============================================================
+
+            string offerLetterFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "Uploads",
+                "OfferLetters"
+            );
+
+            if (!Directory.Exists(offerLetterFolder))
+            {
+                Directory.CreateDirectory(offerLetterFolder);
+            }
+
+            // ============================================================
+            // ======================= FILE NAME ==========================
+            // ============================================================
+
+            string safeName =
+                $"{candidate.FirstName}_{candidate.LastName}"
+                .Replace(" ", "_");
+
+            string fileName =
+                $"Offer_{safeName}_{offerId}_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+
+            string fullPath = Path.Combine(
+                offerLetterFolder,
+                fileName
+            );
+
+            // ============================================================
+            // ======================= DELETE OLD =========================
+            // ============================================================
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+
+            // ============================================================
+            // ===================== PDF GENERATION =======================
+            // ============================================================
+
+            using (var writer = new PdfWriter(fullPath))
+            using (var pdf = new PdfDocument(writer))
+            using (var document = new iText.Layout.Document(pdf))
+            {
+                // ========================================================
+                // ===================== WATERMARK =========================
+                // ========================================================
+
+                pdf.AddEventHandler(
+                    PdfDocumentEvent.END_PAGE,
+                    new WatermarkHandler(company.CompanyLogo)
+                );
+
+                document.SetMargins(40, 40, 40, 40);
+
+                // ========================================================
+                // ======================= FONTS ===========================
+                // ========================================================
+
+                PdfFont normalFont =
+                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
+
+                PdfFont boldFont =
+                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA_BOLD);
+
+                PdfFont italicFont =
+                    PdfFontFactory.CreateFont(StandardFonts.HELVETICA_OBLIQUE);
+
+                // ========================================================
+                // ===================== HEADER TABLE ======================
+                // ========================================================
+
+                var headerTable = new Table(
+                    UnitValue.CreatePercentArray(new float[] { 1, 2 })
+                ).UseAllAvailableWidth();
+
+                // ========================================================
+                // ======================== LOGO ===========================
+                // ========================================================
+
+                Cell logoCell = new Cell()
+                    .SetBorder(Border.NO_BORDER);
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(company.CompanyLogo))
+                    {
+                        string base64Data = company.CompanyLogo;
+
+                        if (base64Data.Contains(","))
+                        {
+                            base64Data = base64Data.Substring(
+                                base64Data.IndexOf(",") + 1
+                            );
+                        }
+
+                        byte[] imageBytes =
+                            Convert.FromBase64String(base64Data);
+
+                        var imageData =
+                            ImageDataFactory.Create(imageBytes);
+
+                        var logo = new Image(imageData)
+                            .ScaleToFit(120, 80)
+                            .SetAutoScale(true);
+
+                        logoCell.Add(logo);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Logo Error: " + ex.Message);
                 }
 
-                byte[] imageBytes =
-                    Convert.FromBase64String(base64Data);
+                headerTable.AddCell(logoCell);
 
-                var imageData =
-                    ImageDataFactory.Create(imageBytes);
+                // ========================================================
+                // ================= COMPANY DETAILS =======================
+                // ========================================================
 
-                var logo = new Image(imageData)
-                    .ScaleToFit(120, 80)
-                    .SetAutoScale(true);
+                var companyCell = new Cell()
+                    .SetBorder(Border.NO_BORDER)
+                    .SetTextAlignment(TextAlignment.RIGHT);
 
-                logoCell.Add(logo);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Logo Error: " + ex.Message);
-        }
+                companyCell.Add(
+                    new Paragraph(company.CompanyName)
+                        .SetFont(boldFont)
+                        .SetFontSize(24)
+                        .SetFontColor(new DeviceRgb(25, 45, 80))
+                );
 
-        headerTable.AddCell(logoCell);
+                companyCell.Add(
+                    new Paragraph("Hyderabad, Telangana, India")
+                        .SetFont(normalFont)
+                        .SetFontSize(10)
+                        .SetFontColor(ColorConstants.DARK_GRAY)
+                );
 
-        // ========================================================
-        // ================= COMPANY DETAILS =======================
-        // ========================================================
+                companyCell.Add(
+                    new Paragraph("www.companywebsite.com")
+                        .SetFont(italicFont)
+                        .SetFontSize(9)
+                        .SetFontColor(ColorConstants.GRAY)
+                );
 
-        var companyCell = new Cell()
-            .SetBorder(Border.NO_BORDER)
-            .SetTextAlignment(TextAlignment.RIGHT);
+                headerTable.AddCell(companyCell);
 
-        companyCell.Add(
-            new Paragraph(company.CompanyName)
-                .SetFont(boldFont)
-                .SetFontSize(24)
-                .SetFontColor(new DeviceRgb(25, 45, 80))
-        );
+                document.Add(headerTable);
 
-        companyCell.Add(
-            new Paragraph("Hyderabad, Telangana, India")
-                .SetFont(normalFont)
-                .SetFontSize(10)
-                .SetFontColor(ColorConstants.DARK_GRAY)
-        );
+                document.Add(new Paragraph(" "));
 
-        companyCell.Add(
-            new Paragraph("www.companywebsite.com")
-                .SetFont(italicFont)
-                .SetFontSize(9)
-                .SetFontColor(ColorConstants.GRAY)
-        );
+                document.Add(
+                    new LineSeparator(
+                        new SolidLine(1f)
+                    )
+                );
 
-        headerTable.AddCell(companyCell);
+                document.Add(new Paragraph(" "));
 
-        document.Add(headerTable);
+                // ========================================================
+                // ======================= TITLE ===========================
+                // ========================================================
 
-        document.Add(new Paragraph(" "));
+                document.Add(
+                    new Paragraph("OFFER LETTER")
+                        .SetFont(boldFont)
+                        .SetFontSize(28)
 
-        document.Add(
-            new LineSeparator(
-                new SolidLine(1f)
-            )
-        );
+                        .SetFontColor(new DeviceRgb(25, 45, 80))
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMarginBottom(5)
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(
+                    new Paragraph("CONFIDENTIAL EMPLOYMENT DOCUMENT")
+                        .SetFont(normalFont)
+                        .SetFontSize(10)
+                        .SetFontColor(ColorConstants.GRAY)
+                        .SetTextAlignment(TextAlignment.CENTER)
+                        .SetMarginBottom(20)
+                );
 
-        // ========================================================
-        // ======================= TITLE ===========================
-        // ========================================================
+                // ========================================================
+                // ========================= DATE ==========================
+                // ========================================================
 
-        document.Add(
-            new Paragraph("OFFER LETTER")
-                .SetFont(boldFont)
-                .SetFontSize(28)
-                
-                .SetFontColor(new DeviceRgb(25, 45, 80))
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetMarginBottom(5)
-        );
+                document.Add(
+                    new Paragraph($"Date : {DateTime.Now:dd MMMM yyyy}")
+                        .SetFont(normalFont)
+                        .SetTextAlignment(TextAlignment.RIGHT)
+                        .SetFontSize(11)
+                );
 
-        document.Add(
-            new Paragraph("CONFIDENTIAL EMPLOYMENT DOCUMENT")
-                .SetFont(normalFont)
-                .SetFontSize(10)
-                .SetFontColor(ColorConstants.GRAY)
-                .SetTextAlignment(TextAlignment.CENTER)
-                .SetMarginBottom(20)
-        );
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ========================= DATE ==========================
-        // ========================================================
+                // ========================================================
+                // ====================== CANDIDATE ========================
+                // ========================================================
 
-        document.Add(
-            new Paragraph($"Date : {DateTime.Now:dd MMMM yyyy}")
-                .SetFont(normalFont)
-                .SetTextAlignment(TextAlignment.RIGHT)
-                .SetFontSize(11)
-        );
-
-        document.Add(new Paragraph(" "));
-
-        // ========================================================
-        // ====================== CANDIDATE ========================
-        // ========================================================
-
-        document.Add(
-            new Paragraph($@"
+                document.Add(
+                    new Paragraph($@"
 To,
 
 {candidate.FirstName} {candidate.LastName}
 
 Hyderabad, Telangana
 India")
-            .SetFont(normalFont)
-            .SetFontSize(11)
-        );
+                    .SetFont(normalFont)
+                    .SetFontSize(11)
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ======================== SUBJECT ========================
-        // ========================================================
+                // ========================================================
+                // ======================== SUBJECT ========================
+                // ========================================================
 
-        document.Add(
-            new Paragraph("Subject : Offer of Employment")
-                .SetFont(boldFont)
-                .SetFontSize(14)
-                .SetFontColor(new DeviceRgb(25, 45, 80))
-        );
+                document.Add(
+                    new Paragraph("Subject : Offer of Employment")
+                        .SetFont(boldFont)
+                        .SetFontSize(14)
+                        .SetFontColor(new DeviceRgb(25, 45, 80))
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ======================== GREETING =======================
-        // ========================================================
+                // ========================================================
+                // ======================== GREETING =======================
+                // ========================================================
 
-        document.Add(
-            new Paragraph(
-                $"Dear {candidate.FirstName} {candidate.LastName},"
-            )
-            .SetFont(normalFont)
-            .SetFontSize(11)
-        );
+                document.Add(
+                    new Paragraph(
+                        $"Dear {candidate.FirstName} {candidate.LastName},"
+                    )
+                    .SetFont(normalFont)
+                    .SetFontSize(11)
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ========================== BODY =========================
-        // ========================================================
+                // ========================================================
+                // ========================== BODY =========================
+                // ========================================================
 
-        document.Add(
-            new Paragraph(
-                $@"We are pleased to offer you employment with {company.CompanyName} for the position of {candidate.Designation}.
+                document.Add(
+                    new Paragraph(
+                        $@"We are pleased to offer you employment with {company.CompanyName} for the position of {candidate.Designation}.
 
 Your experience, professional expertise, and capabilities impressed us during the interview process, and we are confident that you will make a significant contribution to our organization.
 
 The details of your employment offer are as follows:"
-            )
-            .SetFont(normalFont)
-            .SetFontSize(11)
-            .SetTextAlignment(TextAlignment.JUSTIFIED)
-            .SetMinHeight(1.5f)
-        );
+                    )
+                    .SetFont(normalFont)
+                    .SetFontSize(11)
+                    .SetTextAlignment(TextAlignment.JUSTIFIED)
+                    .SetMinHeight(1.5f)
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ===================== OFFER DETAILS =====================
-        // ========================================================
+                // ========================================================
+                // ===================== OFFER DETAILS =====================
+                // ========================================================
 
-        Table detailsTable = new Table(
-            UnitValue.CreatePercentArray(new float[] { 1, 2 })
-        )
-        .UseAllAvailableWidth()
-        .SetBorder(
-            new SolidBorder(
-                new DeviceRgb(220, 220, 220),
-                1
-            )
-        )
-        .SetMarginTop(10)
-        .SetMarginBottom(20);
+                Table detailsTable = new Table(
+                    UnitValue.CreatePercentArray(new float[] { 1, 2 })
+                )
+                .UseAllAvailableWidth()
+                .SetBorder(
+                    new SolidBorder(
+                        new DeviceRgb(220, 220, 220),
+                        1
+                    )
+                )
+                .SetMarginTop(10)
+                .SetMarginBottom(20);
 
-        detailsTable.AddCell(GetLabelCell("Designation", boldFont));
-        detailsTable.AddCell(GetValueCell(candidate.Designation, normalFont));
+                detailsTable.AddCell(GetLabelCell("Designation", boldFont));
+                detailsTable.AddCell(GetValueCell(candidate.Designation, normalFont));
 
-        detailsTable.AddCell(GetLabelCell("Department", boldFont));
-        detailsTable.AddCell(GetValueCell("Information Technology", normalFont));
+                detailsTable.AddCell(GetLabelCell("Department", boldFont));
+                detailsTable.AddCell(GetValueCell("Information Technology", normalFont));
 
-        detailsTable.AddCell(GetLabelCell("Joining Date", boldFont));
-        detailsTable.AddCell(
-            GetValueCell(
-                offer.ExpectedDoj.ToString("dd MMM yyyy"),
-                normalFont
-            )
-        );
+                detailsTable.AddCell(GetLabelCell("Joining Date", boldFont));
+                detailsTable.AddCell(
+                    GetValueCell(
+                        offer.ExpectedDoj.ToString("dd MMM yyyy"),
+                        normalFont
+                    )
+                );
 
-        detailsTable.AddCell(GetLabelCell("Annual CTC", boldFont));
-        detailsTable.AddCell(
-            GetValueCell(
-                $"₹ {offer.OfferedCtc:N0} Per Annum",
-                normalFont
-            )
-        );
+                detailsTable.AddCell(GetLabelCell("Annual CTC", boldFont));
+                detailsTable.AddCell(
+                    GetValueCell(
+                        $"₹ {offer.OfferedCtc:N0} Per Annum",
+                        normalFont
+                    )
+                );
 
-        detailsTable.AddCell(GetLabelCell("Work Location", boldFont));
-        detailsTable.AddCell(GetValueCell("Hyderabad", normalFont));
+                detailsTable.AddCell(GetLabelCell("Work Location", boldFont));
+                detailsTable.AddCell(GetValueCell("Hyderabad", normalFont));
 
-        document.Add(detailsTable);
+                document.Add(detailsTable);
 
-        // ========================================================
-        // ================= TERMS & CONDITIONS ====================
-        // ========================================================
+                // ========================================================
+                // ================= TERMS & CONDITIONS ====================
+                // ========================================================
 
-        document.Add(
-            new Paragraph("Terms & Conditions")
-                .SetFont(boldFont)
-                .SetFontSize(15)
-                .SetFontColor(new DeviceRgb(25, 45, 80))
-        );
+                document.Add(
+                    new Paragraph("Terms & Conditions")
+                        .SetFont(boldFont)
+                        .SetFontSize(15)
+                        .SetFontColor(new DeviceRgb(25, 45, 80))
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        string[] terms =
-        {
+                string[] terms =
+                {
             "• You are required to submit all educational and employment documents during onboarding.",
             "• Your employment will be governed by the company’s policies and code of conduct.",
             "• The first six months of employment shall be considered as probation period.",
@@ -2178,137 +2178,137 @@ The details of your employment offer are as follows:"
             "• This offer is subject to successful background verification."
         };
 
-        foreach (var term in terms)
-        {
-            document.Add(
-                new Paragraph(term)
-                    .SetFont(normalFont)
-                    .SetFontSize(11)
-                    .SetMarginLeft(10)
-                    .SetMinHeight(1.4f)
-            );
-        }
+                foreach (var term in terms)
+                {
+                    document.Add(
+                        new Paragraph(term)
+                            .SetFont(normalFont)
+                            .SetFontSize(11)
+                            .SetMarginLeft(10)
+                            .SetMinHeight(1.4f)
+                    );
+                }
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ======================== CLOSING ========================
-        // ========================================================
+                // ========================================================
+                // ======================== CLOSING ========================
+                // ========================================================
 
-        document.Add(
-            new Paragraph(
-                @"We welcome you to our organization and look forward to a successful and rewarding association with you.
+                document.Add(
+                    new Paragraph(
+                        @"We welcome you to our organization and look forward to a successful and rewarding association with you.
 
 Please sign and return a copy of this letter as confirmation of your acceptance."
-            )
-            .SetFont(normalFont)
-            .SetFontSize(11)
-            .SetTextAlignment(TextAlignment.JUSTIFIED)
-            .SetMinHeight(1.5f)
-        );
+                    )
+                    .SetFont(normalFont)
+                    .SetFontSize(11)
+                    .SetTextAlignment(TextAlignment.JUSTIFIED)
+                    .SetMinHeight(1.5f)
+                );
 
-        document.Add(new Paragraph(" "));
-        document.Add(new Paragraph(" "));
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ======================= SIGNATURE =======================
-        // ========================================================
+                // ========================================================
+                // ======================= SIGNATURE =======================
+                // ========================================================
 
-        document.Add(
-            new Paragraph($"For {company.CompanyName}")
-                .SetFont(boldFont)
-                .SetFontSize(12)
-        );
+                document.Add(
+                    new Paragraph($"For {company.CompanyName}")
+                        .SetFont(boldFont)
+                        .SetFontSize(12)
+                );
 
-        document.Add(new Paragraph(" "));
-        document.Add(new Paragraph(" "));
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        document.Add(
-            new Paragraph("Authorized Signatory")
-                .SetFont(normalFont)
-                .SetFontSize(11)
-        );
+                document.Add(
+                    new Paragraph("Authorized Signatory")
+                        .SetFont(normalFont)
+                        .SetFontSize(11)
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        document.Add(
-            new LineSeparator(
-                new SolidLine(1f)
-            )
-        );
+                document.Add(
+                    new LineSeparator(
+                        new SolidLine(1f)
+                    )
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        // ========================================================
-        // ======================= ACCEPTANCE ======================
-        // ========================================================
+                // ========================================================
+                // ======================= ACCEPTANCE ======================
+                // ========================================================
 
-        document.Add(
-            new Paragraph("Employee Acceptance")
-                .SetFont(boldFont)
-                .SetFontSize(15)
-                .SetFontColor(new DeviceRgb(25, 45, 80))
-        );
+                document.Add(
+                    new Paragraph("Employee Acceptance")
+                        .SetFont(boldFont)
+                        .SetFontSize(15)
+                        .SetFontColor(new DeviceRgb(25, 45, 80))
+                );
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        document.Add(
-            new Paragraph($@"
+                document.Add(
+                    new Paragraph($@"
 I, {candidate.FirstName} {candidate.LastName}, hereby accept the employment offer and agree to the terms and conditions mentioned in this letter.
 
 Employee Signature : ________________________
 
 Date : _____________________________________
 ")
-            .SetFont(normalFont)
-            .SetFontSize(11)
-            .SetMinHeight(1.5f)
-        );
+                    .SetFont(normalFont)
+                    .SetFontSize(11)
+                    .SetMinHeight(1.5f)
+                );
 
-        // ========================================================
-        // ========================= FOOTER ========================
-        // ========================================================
+                // ========================================================
+                // ========================= FOOTER ========================
+                // ========================================================
 
-        document.Add(new Paragraph(" "));
+                document.Add(new Paragraph(" "));
 
-        document.Add(
-            new LineSeparator(
-                new SolidLine(1f)
-            )
-            .SetMarginTop(15)
-        );
+                document.Add(
+                    new LineSeparator(
+                        new SolidLine(1f)
+                    )
+                    .SetMarginTop(15)
+                );
 
-        document.Add(
-            new Paragraph(
-                $"{company.CompanyName} | Human Resources Department"
-            )
-            .SetTextAlignment(TextAlignment.CENTER)
-            .SetFontSize(9)
-            .SetFontColor(ColorConstants.GRAY)
-        );
+                document.Add(
+                    new Paragraph(
+                        $"{company.CompanyName} | Human Resources Department"
+                    )
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(9)
+                    .SetFontColor(ColorConstants.GRAY)
+                );
 
-        document.Add(
-            new Paragraph(
-                "This document is system generated and confidential."
-            )
-            .SetTextAlignment(TextAlignment.CENTER)
-            .SetFontSize(8)
-            .SetFontColor(ColorConstants.LIGHT_GRAY)
-        );
-    }
+                document.Add(
+                    new Paragraph(
+                        "This document is system generated and confidential."
+                    )
+                    .SetTextAlignment(TextAlignment.CENTER)
+                    .SetFontSize(8)
+                    .SetFontColor(ColorConstants.LIGHT_GRAY)
+                );
+            }
 
-    // ============================================================
-    // ================= SAVE FILE PATH ===========================
-    // ============================================================
+            // ============================================================
+            // ================= SAVE FILE PATH ===========================
+            // ============================================================
 
-    offer.OfferLetterPath =
-        $"Uploads/OfferLetters/{fileName}";
+            offer.OfferLetterPath =
+                $"Uploads/OfferLetters/{fileName}";
 
-    offerRepo.Update(offer);
+            offerRepo.Update(offer);
 
-    await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync();
             var docRepo = _unitOfWork.Repository<CandidateDocumentChecklist>();
             var existingDoc = await docRepo.FindAsync(x =>
                 x.OfferId == offer.OfferId &&
@@ -2354,7 +2354,7 @@ Date : _____________________________________
 
             string subject = "Offer Letter – HRMS";
 
-    string body = $@"
+            string body = $@"
 <html>
 <body style='font-family: Arial, sans-serif; color:#333; line-height:1.8;'>
 
@@ -2389,148 +2389,148 @@ Regards,<br/>
 </body>
 </html>";
 
-    // ============================================================
-    // ======================= SEND EMAIL =========================
-    // ============================================================
+            // ============================================================
+            // ======================= SEND EMAIL =========================
+            // ============================================================
 
-    await _emailService.SendEmailAsync(
-        candidate.Email,
-        subject,
-        body,
-        string.IsNullOrWhiteSpace(offer.HrEmail)
-            ? null
-            : new List<string> { offer.HrEmail },
-        new List<string> { fullPath }
-    );
+            await _emailService.SendEmailAsync(
+                candidate.Email,
+                subject,
+                body,
+                string.IsNullOrWhiteSpace(offer.HrEmail)
+                    ? null
+                    : new List<string> { offer.HrEmail },
+                new List<string> { fullPath }
+            );
 
-    return true;
-}
+            return true;
+        }
 
-// ================================================================
-// ===================== HELPER METHODS ============================
-// ================================================================
+        // ================================================================
+        // ===================== HELPER METHODS ============================
+        // ================================================================
 
-private Cell GetLabelCell(string text, PdfFont font)
-{
-    return new Cell()
-        .Add(
-            new Paragraph(text)
-                .SetFont(font)
-                .SetFontSize(10)
-                .SetFontColor(ColorConstants.WHITE)
-        )
-        .SetBackgroundColor(
-            new DeviceRgb(25, 45, 80)
-        )
-        .SetPadding(10)
-        .SetBorder(Border.NO_BORDER);
-}
-
-private Cell GetValueCell(string text, PdfFont font)
-{
-    return new Cell()
-        .Add(
-            new Paragraph(text)
-                .SetFont(font)
-                .SetFontSize(10)
-        )
-        .SetPadding(10)
-        .SetBorderBottom(
-            new SolidBorder(
-                new DeviceRgb(230, 230, 230),
-                1
-            )
-        )
-        .SetBorderTop(Border.NO_BORDER)
-        .SetBorderLeft(Border.NO_BORDER)
-        .SetBorderRight(Border.NO_BORDER);
-}
-
-// ================================================================
-// ==================== WATERMARK HANDLER =========================
-// ================================================================
-
-public class WatermarkHandler : AbstractPdfDocumentEventHandler
-{
-    private readonly string _base64Logo;
-
-    public WatermarkHandler(string base64Logo)
-    {
-        _base64Logo = base64Logo;
-    }
-
-    protected override void OnAcceptedEvent(
-        AbstractPdfDocumentEvent currentEvent
-    )
-    {
-        try
+        private Cell GetLabelCell(string text, PdfFont font)
         {
-            PdfDocumentEvent docEvent =
-                (PdfDocumentEvent)currentEvent;
+            return new Cell()
+                .Add(
+                    new Paragraph(text)
+                        .SetFont(font)
+                        .SetFontSize(10)
+                        .SetFontColor(ColorConstants.WHITE)
+                )
+                .SetBackgroundColor(
+                    new DeviceRgb(25, 45, 80)
+                )
+                .SetPadding(10)
+                .SetBorder(Border.NO_BORDER);
+        }
 
-            PdfDocument pdf =
-                docEvent.GetDocument();
+        private Cell GetValueCell(string text, PdfFont font)
+        {
+            return new Cell()
+                .Add(
+                    new Paragraph(text)
+                        .SetFont(font)
+                        .SetFontSize(10)
+                )
+                .SetPadding(10)
+                .SetBorderBottom(
+                    new SolidBorder(
+                        new DeviceRgb(230, 230, 230),
+                        1
+                    )
+                )
+                .SetBorderTop(Border.NO_BORDER)
+                .SetBorderLeft(Border.NO_BORDER)
+                .SetBorderRight(Border.NO_BORDER);
+        }
 
-            PdfPage page =
-                docEvent.GetPage();
+        // ================================================================
+        // ==================== WATERMARK HANDLER =========================
+        // ================================================================
 
-            Rectangle pageSize =
-                page.GetPageSize();
+        public class WatermarkHandler : AbstractPdfDocumentEventHandler
+        {
+            private readonly string _base64Logo;
 
-            string cleanBase64 = _base64Logo;
-
-            if (cleanBase64.Contains(","))
+            public WatermarkHandler(string base64Logo)
             {
-                cleanBase64 =
-                    cleanBase64.Substring(
-                        cleanBase64.IndexOf(",") + 1
-                    );
+                _base64Logo = base64Logo;
             }
 
-            byte[] imageBytes =
-                Convert.FromBase64String(cleanBase64);
+            protected override void OnAcceptedEvent(
+                AbstractPdfDocumentEvent currentEvent
+            )
+            {
+                try
+                {
+                    PdfDocumentEvent docEvent =
+                        (PdfDocumentEvent)currentEvent;
 
-            ImageData imageData =
-                ImageDataFactory.Create(imageBytes);
+                    PdfDocument pdf =
+                        docEvent.GetDocument();
 
-            Image watermark =
-                new Image(imageData);
+                    PdfPage page =
+                        docEvent.GetPage();
 
-            watermark
-                .ScaleToFit(300, 300)
-                .SetOpacity(0.08f);
+                    Rectangle pageSize =
+                        page.GetPageSize();
 
-            float x =
-                (pageSize.GetWidth() - 300) / 2;
+                    string cleanBase64 = _base64Logo;
 
-            float y =
-                (pageSize.GetHeight() - 300) / 2;
+                    if (cleanBase64.Contains(","))
+                    {
+                        cleanBase64 =
+                            cleanBase64.Substring(
+                                cleanBase64.IndexOf(",") + 1
+                            );
+                    }
 
-            PdfCanvas pdfCanvas =
-                new PdfCanvas(
-                    page.NewContentStreamBefore(),
-                    page.GetResources(),
-                    pdf
-                );
+                    byte[] imageBytes =
+                        Convert.FromBase64String(cleanBase64);
 
-            iText.Layout.Canvas canvas =
-                new iText.Layout.Canvas(
-                    pdfCanvas,
-                    pageSize
-                );
+                    ImageData imageData =
+                        ImageDataFactory.Create(imageBytes);
 
-            watermark.SetFixedPosition(x, y);
+                    Image watermark =
+                        new Image(imageData);
 
-            canvas.Add(watermark);
+                    watermark
+                        .ScaleToFit(300, 300)
+                        .SetOpacity(0.08f);
 
-            canvas.Close();
+                    float x =
+                        (pageSize.GetWidth() - 300) / 2;
+
+                    float y =
+                        (pageSize.GetHeight() - 300) / 2;
+
+                    PdfCanvas pdfCanvas =
+                        new PdfCanvas(
+                            page.NewContentStreamBefore(),
+                            page.GetResources(),
+                            pdf
+                        );
+
+                    iText.Layout.Canvas canvas =
+                        new iText.Layout.Canvas(
+                            pdfCanvas,
+                            pageSize
+                        );
+
+                    watermark.SetFixedPosition(x, y);
+
+                    canvas.Add(watermark);
+
+                    canvas.Close();
+                }
+                catch
+                {
+                    // Ignore watermark errors
+                }
+            }
         }
-        catch
-        {
-            // Ignore watermark errors
-        }
-    }
-}
 
         //        public async Task<bool> SendOfferLetterAsync(int offerId)
         //        {
@@ -3354,7 +3354,7 @@ public class WatermarkHandler : AbstractPdfDocumentEventHandler
                     RegexOptions.IgnoreCase
                 );
 
-                var qualification = qualMatch.Success ? qualMatch.Value : "Not Found"; 
+                var qualification = qualMatch.Success ? qualMatch.Value : "Not Found";
 
                 // UNIVERSITY / COLLEGE
                 var universityMatch = Regex.Match(

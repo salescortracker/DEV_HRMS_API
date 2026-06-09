@@ -65,7 +65,9 @@ public partial class User
 
     public int? DesignationId { get; set; }
 
-    public virtual Company Company { get; set; } = null!;
+    public int? ReportingHr { get; set; }
+
+    public int? JoiningDate { get; set; }
 
     public virtual ICollection<EmployeeMaster> EmployeeMasterCreatedByNavigations { get; set; } = new List<EmployeeMaster>();
 
@@ -76,8 +78,6 @@ public partial class User
     public virtual ICollection<LeaveRequest> LeaveRequestReportingManagers { get; set; } = new List<LeaveRequest>();
 
     public virtual ICollection<LeaveRequest> LeaveRequestUsers { get; set; } = new List<LeaveRequest>();
-
-    public virtual Region Region { get; set; } = null!;
 
     public virtual ICollection<TimesheetApproval> TimesheetApprovals { get; set; } = new List<TimesheetApproval>();
 

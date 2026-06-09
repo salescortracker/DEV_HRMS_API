@@ -27,5 +27,6 @@ namespace BusinessLayer.DTOs
         public string? Status { get; set; }
         public DateTime? AppliedDate { get; set; }
         public string? HrEmail { get; set; }
+        public decimal Lopdays { get; set; }
     }
 }

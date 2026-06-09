@@ -8484,6 +8484,10 @@
                   },
                   "HrEmail": {
                     "type": "string"
+                  },
+                  "Lopdays": {
+                    "type": "number",
+                    "format": "double"
                   }
                 }
               },
@@ -8543,6 +8547,9 @@
                   "style": "form"
                 },
                 "HrEmail": {
+                  "style": "form"
+                },
+                "Lopdays": {
                   "style": "form"
                 }
               }
@@ -9689,6 +9696,18 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Employee/GetLogs": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -18744,6 +18763,20 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "designation",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -18868,6 +18901,20 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "designation",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -19098,6 +19145,20 @@
         ],
         "parameters": [
           {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "designation",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "userId",
             "in": "query",
             "schema": {
@@ -19263,18 +19324,40 @@
         }
       }
     },
-    "/api/Recruitment/GetonboardingCandidatesTopTable": {
+    "/api/Recruitment/GetOnboardingCandidatesTopTable": {
       "get": {
         "tags": [
           "Recruitment"
         ],
         "parameters": [
           {
-            "name": "userId",
+            "name": "companyId",
             "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "designation",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -19502,6 +19585,273 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/recruitment-departments": {
+      "get": {
+        "tags": [
+          "Recruitment"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/recruitment-designations": {
+      "get": {
+        "tags": [
+          "Recruitment"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/UploadCandidateDocuments": {
+      "post": {
+        "tags": [
+          "Recruitment"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "OfferId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CandidateId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CompanyId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RegionId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "AadharCard": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "PanCard": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "Passport": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "IdProof": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "OfferLetter": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "ExperienceLetter": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "RelievingLetter": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "HikeLetter": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "OfferId": {
+                  "style": "form"
+                },
+                "CandidateId": {
+                  "style": "form"
+                },
+                "CompanyId": {
+                  "style": "form"
+                },
+                "RegionId": {
+                  "style": "form"
+                },
+                "AadharCard": {
+                  "style": "form"
+                },
+                "PanCard": {
+                  "style": "form"
+                },
+                "Passport": {
+                  "style": "form"
+                },
+                "IdProof": {
+                  "style": "form"
+                },
+                "OfferLetter": {
+                  "style": "form"
+                },
+                "ExperienceLetter": {
+                  "style": "form"
+                },
+                "RelievingLetter": {
+                  "style": "form"
+                },
+                "HikeLetter": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/GetOfferById/{offerId}": {
+      "get": {
+        "tags": [
+          "Recruitment"
+        ],
+        "parameters": [
+          {
+            "name": "offerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/GetAllCandidateDocuments": {
+      "get": {
+        "tags": [
+          "Recruitment"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/UpdateChecklistStatus": {
+      "post": {
+        "tags": [
+          "Recruitment"
+        ],
+        "parameters": [
+          {
+            "name": "offerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -22421,6 +22771,18 @@
         }
       }
     },
+    "/api/UserManagement/GetALLSubcriptionUsers": {
+      "get": {
+        "tags": [
+          "UserManagement"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/UserManagement/GetLateLoginPolicy": {
       "get": {
         "tags": [
@@ -24433,8 +24795,8 @@
             "format": "int32"
           },
           "interviewerId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "nullable": true
           },
           "interviewerName": {
             "type": "string",
@@ -24520,8 +24882,8 @@
             "format": "int32"
           },
           "interviewerId": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "nullable": true
           },
           "interviewerIds": {
             "type": "array",
@@ -25556,13 +25918,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TaskStatus"
-            },
-            "nullable": true
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
             },
             "nullable": true
           },
@@ -29418,6 +29773,11 @@
             "type": "string",
             "nullable": true
           },
+          "lopdays": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
           "leaveType": {
             "$ref": "#/components/schemas/LeaveType"
           },
@@ -31127,13 +31487,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TaskStatus"
-            },
-            "nullable": true
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
             },
             "nullable": true
           },
@@ -32939,8 +33292,15 @@
             "format": "int32",
             "nullable": true
           },
-          "company": {
-            "$ref": "#/components/schemas/Company"
+          "reportingHr": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "joiningDate": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           },
           "employeeMasterCreatedByNavigations": {
             "type": "array",
@@ -32976,9 +33336,6 @@
               "$ref": "#/components/schemas/LeaveRequest"
             },
             "nullable": true
-          },
-          "region": {
-            "$ref": "#/components/schemas/Region"
           },
           "timesheetApprovals": {
             "type": "array",

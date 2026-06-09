@@ -109,7 +109,5 @@ public partial class Company
 
     public virtual ICollection<TaskStatus> TaskStatuses { get; set; } = new List<TaskStatus>();
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
-
     public virtual ICollection<Weekoff> Weekoffs { get; set; } = new List<Weekoff>();
 }

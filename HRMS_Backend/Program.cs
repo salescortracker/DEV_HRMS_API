@@ -117,6 +117,7 @@ builder.Services.AddScoped<IGeoLocationService, GeoLocationService>();
 builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IBiometricService, BiometricService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

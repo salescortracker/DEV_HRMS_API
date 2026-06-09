@@ -91,6 +91,10 @@
               "target": "Package",
               "version": "[3.119.1, )"
             },
+            "ZKemkeeper": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
             "itext7": {
               "target": "Package",
               "version": "[9.6.0, )"

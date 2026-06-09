@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "v43lmy20xts=",
+  "dgSpecHash": "zATGdt+Fh7g=",
   "success": true,
   "projectFilePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
   "expectedPackageFiles": [
@@ -169,7 +169,8 @@
     "C:\\Users\\HR\\.nuget\\packages\\system.threading.threadpool\\4.3.0\\system.threading.threadpool.4.3.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
-    "C:\\Users\\HR\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512"
+    "C:\\Users\\HR\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\zkemkeeper\\1.0.2\\zkemkeeper.1.0.2.nupkg.sha512"
   ],
   "logs": [
     {
@@ -204,6 +205,18 @@
       "warningLevel": 1,
       "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "libraryId": "SharpZipLib",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'ZKemkeeper 1.0.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
+      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "libraryId": "ZKemkeeper",
       "targetGraphs": [
         "net8.0"
       ]

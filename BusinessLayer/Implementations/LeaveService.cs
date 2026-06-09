@@ -459,17 +459,17 @@ namespace BusinessLayer.Implementations
 
             decimal remainingBalance = allocatedLeaves - usedDays;
 
-            if (totalDays > remainingBalance)
+            // Prevent negative balance issues
+            if (remainingBalance < 0)
             {
-                throw new Exception(
-                    $"Insufficient leave balance. Remaining balance: {remainingBalance}");
+                remainingBalance = 0;
             }
 
             // =====================================================
             // OVERRIDE FRONTEND VALUE
             // =====================================================
 
-            dto.TotalDays = totalDays;
+            totalDays = dto.TotalDays;
 
             // =====================================================
             // SAVE LEAVE
@@ -487,6 +487,7 @@ namespace BusinessLayer.Implementations
                 EndDate = endDateOnly,
 
                 TotalDays = dto.TotalDays,
+                Lopdays = dto.Lopdays,
 
                 Reason = dto.Reason,
 
@@ -511,7 +512,6 @@ namespace BusinessLayer.Implementations
 
             return entity.LeaveRequestId;
         }
-
         public async Task<IEnumerable<LeaveRequestDto>> GetMyLeavesAsync(int userId)
         {
             var leaves = await _unitOfWork.Repository<LeaveRequest>()

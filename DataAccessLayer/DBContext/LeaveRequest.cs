@@ -49,6 +49,8 @@ public partial class LeaveRequest
 
     public string? HrEmail { get; set; }
 
+    public decimal? Lopdays { get; set; }
+
     public virtual LeaveType LeaveType { get; set; } = null!;
 
     public virtual User? ReportingManager { get; set; }

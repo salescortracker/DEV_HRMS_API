@@ -130,7 +130,7 @@ namespace BusinessLayer.Implementations
 
                 Category = dto.Category,
 
-                IsActive = dto.IsActive,
+                IsActive = true,
 
                 UserId = dto.UserId,
 
