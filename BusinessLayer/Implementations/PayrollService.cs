@@ -27,7 +27,13 @@ namespace BusinessLayer.Implementations
              ATTENDANCE SUMMARY (UPDATED WITH LATE LOGIC)
         ============================================================ */
 
-        private async Task<(int workingDays, int presentDays, int leaveDays, int halfDays, int lateCount, decimal lateDeductionDays)>
+        private async Task<(int workingDays,
+                            int presentDays,
+                            int leaveDays,
+                            int lopDays,
+                            int halfDays,
+                            int lateCount,
+                            decimal lateDeductionDays)>
         GetEmployeeAttendanceSummary(int employeeId, int userId, int month, int year)
         {
             var employee = await _context.Users
@@ -42,7 +48,7 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync();
 
             if (employee == null)
-                return (0, 0, 0, 0, 0, 0m); // ✅ FIX
+                return (0, 0, 0, 0, 0, 0, 0m); // ✅ FIX
 
             DateOnly startDate = new DateOnly(year, month, 1);
             DateOnly endDate = new DateOnly(year, month, DateTime.DaysInMonth(year, month));
@@ -62,6 +68,8 @@ namespace BusinessLayer.Implementations
                 a.Status == "SickLeave" ||
                 a.Status == "CasualLeave" ||
                 a.Status == "PaidLeave");
+            int lopDays = attendance.Count(a =>
+    a.Status == "LOP");
 
             int manualHalfDays = attendance.Count(a => a.Status == "HalfDay");
 
@@ -103,7 +111,15 @@ namespace BusinessLayer.Implementations
 
             int workingDays = totalDays - weekendDays;
 
-            return (workingDays, present, leave, half, lateArrivals, lateDeductionDays);
+            return (
+    workingDays,
+    present,
+    leave,
+    lopDays,
+    half,
+    lateArrivals,
+    lateDeductionDays
+);
         }
 
         /* ============================================================
@@ -282,6 +298,7 @@ namespace BusinessLayer.Implementations
             decimal payableDays =
                 attendance.presentDays
                 - attendance.leaveDays
+                - attendance.lopDays
                 - halfDayDeduction
                 - lateDeductionDays;
 
@@ -297,6 +314,7 @@ namespace BusinessLayer.Implementations
 
             decimal attendanceDeductionAmount =
                 (attendance.leaveDays * perDaySalary)
+                + (attendance.lopDays * perDaySalary)
                 + (halfDayDeduction * perDaySalary)
                 + (lateDeductionDays * perDaySalary);
 
