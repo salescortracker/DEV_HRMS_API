@@ -68,6 +68,7 @@ namespace BusinessLayer.Implementations
                 string clockOutTime = null;
                 string grossTime = null;
                 int? lateMinutes = null;
+                string arrivalStatus = "";
 
                 // ===== GET SHIFT =====
                 var shiftAlloc = shiftAllocations
@@ -467,7 +468,7 @@ namespace BusinessLayer.Implementations
 
                 ShiftEndTime = entity.ShiftEndTime?.ToString("HH:mm"),
 
-                LateMinutes = entity.LateMinutes
+                LateMinutes = entity.LateMinutes,
             };
         }
 
@@ -509,7 +510,8 @@ namespace BusinessLayer.Implementations
                         ShiftName = "",
                         ShiftStartTime = "",
                         ShiftEndTime = "",
-                        LateMinutes = 0
+                        LateMinutes = 0,
+
                     });
 
                     continue;
@@ -519,6 +521,7 @@ namespace BusinessLayer.Implementations
                 string clockOutTime = null;
                 string grossTime = null;
                 int? lateMinutes = null;
+                string arrivalStatus = "";
 
                 // ✅ GET SHIFT
                 var shiftMaster = shiftMasters
@@ -568,6 +571,26 @@ namespace BusinessLayer.Implementations
                         clockOutTime = clockOut.Value.ToString("HH:mm");
                     }
 
+                    if (
+                          clockIn != null &&
+                         clockOut == null
+                        )
+                    {
+                        if (
+                            selectedDate < DateOnly.FromDateTime(DateTime.Today)
+                        )
+                        {
+                            status = "Incomplete Attendance";
+                        }
+                        else if (
+                            shiftEnd.HasValue &&
+                            TimeOnly.FromDateTime(DateTime.Now) > shiftEnd.Value
+                        )
+                        {
+                            status = "Incomplete Attendance";
+                        }
+                    }
+
                     // ✅ GROSS TIME
                     if (clockIn != null && clockOut != null)
                     {
@@ -578,25 +601,51 @@ namespace BusinessLayer.Implementations
                     }
 
                     // ✅ ✅ FIXED LATE LOGIC (IMPORTANT)
+
                     if (clockIn != null && shiftStart.HasValue)
                     {
                         int graceMinutes = 0;
 
                         if (graceTimeValue.HasValue)
                         {
-                            graceMinutes = (graceTimeValue.Value.Hour * 60)
-                                         + graceTimeValue.Value.Minute;
+                            graceMinutes =
+                                (graceTimeValue.Value.Hour * 60)
+                                + graceTimeValue.Value.Minute;
                         }
 
                         var allowedTime = shiftStart.Value.AddMinutes(graceMinutes);
 
-                        if (clockIn.Value > allowedTime)
+                        // =========================
+                        // EARLY LOGIN
+                        // =========================
+                        if (clockIn.Value < shiftStart.Value)
                         {
-                            lateMinutes = (int)(clockIn.Value - allowedTime).TotalMinutes;
+                            var earlyMinutes =
+                                (int)(shiftStart.Value - clockIn.Value).TotalMinutes;
+
+                            arrivalStatus = $"Early by {earlyMinutes} mins";
+
+                            lateMinutes = 0;
                         }
+
+                        // =========================
+                        // LATE LOGIN
+                        // =========================
+                        else if (clockIn.Value > allowedTime)
+                        {
+                            lateMinutes =
+                                (int)(clockIn.Value - allowedTime).TotalMinutes;
+
+                            arrivalStatus = $"Late by {lateMinutes} mins";
+                        }
+
+                        // =========================
+                        // ON TIME
+                        // =========================
                         else
                         {
                             lateMinutes = 0;
+                            arrivalStatus = "On Time";
                         }
                     }
                 }
@@ -623,7 +672,8 @@ namespace BusinessLayer.Implementations
                     ShiftName = shiftName,
                     ShiftStartTime = shiftStart?.ToString("HH:mm"),
                     ShiftEndTime = shiftEnd?.ToString("HH:mm"),
-                    LateMinutes = lateMinutes
+                    LateMinutes = lateMinutes,
+                    ArrivalStatus = arrivalStatus
                 });
             }
 
