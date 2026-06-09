@@ -12,6 +12,14 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<ClockInOutDto>> GetAllAsync();
         Task<ClockInOutDto?> GetByIdAsync(int id);
         Task<IEnumerable<ClockInOutDto>> GetTodayByEmployeeAsync(string employeeCode, int companyId, int regionId);
+
+        Task<IEnumerable<ClockInOutDto>>
+GetAttendanceByDateRangeAsync(
+    string employeeCode,
+    int companyId,
+    int regionId,
+    DateOnly fromDate,
+    DateOnly toDate);
         Task<ClockInOutDto> AddAsync(
     ClockInOutCreateDto dto,
     int userId

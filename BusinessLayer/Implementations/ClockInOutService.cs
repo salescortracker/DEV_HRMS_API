@@ -55,6 +55,31 @@ namespace BusinessLayer.Implementations
                 .ToList();
         }
 
+        public async Task<IEnumerable<ClockInOutDto>>
+GetAttendanceByDateRangeAsync(
+    string employeeCode,
+    int companyId,
+    int regionId,
+    DateOnly fromDate,
+    DateOnly toDate)
+        {
+            var data =
+                await _unitOfWork.Repository<ClockInOut>()
+                .GetAllAsync();
+
+            return data
+                .Where(x =>
+                    x.EmployeeCode == employeeCode &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.AttendanceDate >= fromDate &&
+                    x.AttendanceDate <= toDate)
+                .OrderByDescending(x => x.AttendanceDate)
+                .ThenBy(x => x.ActionTime)
+                .Select(MapToDto)
+                .ToList();
+        }
+
         //public async Task<ClockInOutDto> AddAsync(ClockInOutCreateDto dto, int userId)
         //{
         //    try

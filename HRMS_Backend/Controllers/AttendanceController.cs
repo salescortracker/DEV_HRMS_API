@@ -229,6 +229,25 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetAttendanceByDateRange")]
+        public async Task<IActionResult> GetAttendanceByDateRange(
+    [FromQuery] string employeeCode,
+    [FromQuery] int companyId,
+    [FromQuery] int regionId,
+    [FromQuery] DateOnly fromDate,
+    [FromQuery] DateOnly toDate)
+        {
+            var result =
+                await _clockInOutService.GetAttendanceByDateRangeAsync(
+                    employeeCode,
+                    companyId,
+                    regionId,
+                    fromDate,
+                    toDate);
+
+            return Ok(result);
+        }
+
         // 🔹 POST: api/ClockInOut
         //[HttpPost("AddclockinOut")]
         //public async Task<IActionResult> AddclockinOut(

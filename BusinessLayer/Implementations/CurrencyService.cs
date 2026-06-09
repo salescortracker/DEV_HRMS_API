@@ -18,7 +18,9 @@ namespace BusinessLayer.Implementations
         public async Task<ApiResponse<IEnumerable<CurrencyDto>>> GetAll(int userId)
         {
             var list = (await _unitOfWork.Repository<CurrencyMaster>()
-                .FindAsync(x => !x.IsDeleted.Value))
+                .FindAsync(x =>
+                    !x.IsDeleted.GetValueOrDefault() &&
+                    x.CreatedBy == userId))
                 .Select(x => new CurrencyDto
                 {
                     CurrencyId = x.CurrencyId,
@@ -27,7 +29,8 @@ namespace BusinessLayer.Implementations
                     CurrencyCode = x.CurrencyCode,
                     CurrencyName = x.CurrencyName,
                     IsActive = x.IsActive
-                });
+                })
+                .ToList();
 
             return new ApiResponse<IEnumerable<CurrencyDto>>(list);
         }

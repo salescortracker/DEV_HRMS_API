@@ -24,6 +24,6 @@ namespace BusinessLayer.Interfaces
         Task<List<DataAccessLayer.DBContext.User>> GetDemoUsers();
         Task<bool> UpdateDemoExpiry(int userId, DateTime demoExpiryDate);
 
-        Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers();
+        //Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers();
     }
 }

@@ -78,7 +78,9 @@ namespace BusinessLayer.Implementations
                         CreatedDate = DateTime.Now,
                         UserCompanyId = userDto.UserCompanyId,
                         LoginType = userDto.loginType,
-                        DesignationId = userDto.DesignationId
+                        DesignationId = userDto.DesignationId,
+                        ReportingHr = userDto.ReportingHR,
+                        JoiningDate = userDto.JoiningDate
 
                     };
                     _context.Users.Add(user);
@@ -111,7 +113,9 @@ namespace BusinessLayer.Implementations
                         DemoStartDate = DateTime.UtcNow,
                         DemoExpiryDate = userdemo != null ? userdemo.DemoExpiryDate : null,
                         LoginType = userDto.loginType,
-                        DesignationId = userDto.DesignationId
+                        DesignationId = userDto.DesignationId,
+                        ReportingHr = userDto.ReportingHR,
+                        JoiningDate = userDto.JoiningDate
                     };
 
 
@@ -139,11 +143,11 @@ namespace BusinessLayer.Implementations
                 .ToListAsync();
         }
 
-        public async Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers()
-        {
-            return await _context.DemoUserSubscriptionDtos
-                .ToListAsync();
-        }
+        //public async Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers()
+        //{
+        //    return await _context.DemoUserSubscriptionDtos
+        //        .ToListAsync();
+        //}
         public async Task<object?> VerifyLoginAsync(string username, string password)
         {
             try
@@ -420,6 +424,8 @@ namespace BusinessLayer.Implementations
             existingUser.Status = updatedUser.Status;
             existingUser.LoginType = updatedUser.loginType;
             existingUser.DesignationId = updatedUser.DesignationId;
+            existingUser.ReportingHr = updatedUser.ReportingHR;
+            existingUser.JoiningDate = updatedUser.JoiningDate;
 
             await _context.SaveChangesAsync();
             return existingUser;
