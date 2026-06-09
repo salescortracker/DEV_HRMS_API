@@ -3230,7 +3230,12 @@ namespace HRMS_Backend.Controllers
         //-------------------------------RESIGNATIONMASTER-------------------------------//
 
         #region Resignations
-
+        [HttpGet("GetAllResignations/{userId:int}")]
+        public IActionResult GetAllResignations(int userId)
+        {
+            var data = _resignationService.GetAllResignations(userId);
+            return Ok(data);
+        }
         [HttpGet("GetResignations")]
         public IActionResult GetResignations(int companyId, int regionId)
         {
