@@ -3197,6 +3197,16 @@ namespace HRMS_Backend.Controllers
             var result = await _policyCategoryService.GetAll(userId);
             return Ok(result);
         }
+        [HttpGet("policy-category/company-region")]
+        public async Task<IActionResult> GetByCompanyAndRegion(
+            [FromQuery] int companyId,
+            [FromQuery] int regionId)
+        {
+            var result = await _policyCategoryService
+                .GetByCompanyAndRegion(companyId, regionId);
+
+            return Ok(result);
+        }
 
         [HttpGet("policy-category/{id:int}")]
         public async Task<IActionResult> GetPolicyCategoryById(int id)
@@ -3494,10 +3504,20 @@ int regionId)
         /// Get only today's posted policies based on UserId
         /// (Business Logic: PostedDate == Today AND IsActive == true)
         /// </summary>
+        //[HttpGet("GetTodayPolicies")]
+        //public async Task<IActionResult> GetTodayPolicies(int userId)
+        //{
+        //    var result = await _companyNewsPolicyService.GetTodayPoliciesAsync(userId);
+        //    return Ok(result);
+        //}
+
+
         [HttpGet("GetTodayPolicies")]
-        public async Task<IActionResult> GetTodayPolicies(int userId)
+        public async Task<IActionResult> GetTodayPolicies(int companyId, int regionId)
         {
-            var result = await _companyNewsPolicyService.GetTodayPoliciesAsync(userId);
+            var result = await _companyNewsPolicyService
+                .GetTodayPoliciesAsync(companyId, regionId);
+
             return Ok(result);
         }
 

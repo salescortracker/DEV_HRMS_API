@@ -56,6 +56,56 @@ namespace BusinessLayer.Implementations
             return new ApiResponse<IEnumerable<CreateUpdatePolicyCategoryDto>>(dto, "Policy categories retrieved successfully.");
         }
 
+
+        public async Task<ApiResponse<IEnumerable<CreateUpdatePolicyCategoryDto>>> GetByCompanyAndRegion(
+         int companyId,
+         int regionId)
+        {
+            var list = (await _unitOfWork.Repository<PolicyCategory>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId))
+                .OrderByDescending(x => x.PolicyCategoryId)
+                .ToList();
+
+            var companyIds = list.Select(x => x.CompanyId).Distinct().ToList();
+            var regionIds = list.Select(x => x.RegionId).Distinct().ToList();
+
+            var companies = (await _unitOfWork.Repository<Company>()
+                .FindAsync(c => companyIds.Contains(c.CompanyId)))
+                .ToList();
+
+            var regions = (await _unitOfWork.Repository<Region>()
+                .FindAsync(r => regionIds.Contains(r.RegionId)))
+                .ToList();
+
+            var dto = list.Select(x => new CreateUpdatePolicyCategoryDto
+            {
+                PolicyCategoryId = x.PolicyCategoryId,
+                CompanyId = x.CompanyId,
+                RegionId = x.RegionId,
+
+                CompanyName = companies
+                    .FirstOrDefault(c => c.CompanyId == x.CompanyId)
+                    ?.CompanyName,
+
+                RegionName = regions
+                    .FirstOrDefault(r =>
+                        r.RegionId == x.RegionId &&
+                        r.CompanyId == x.CompanyId)
+                    ?.RegionName,
+
+                PolicyCategoryName = x.PolicyCategoryName,
+                Description = x.Description,
+                IsActive = x.IsActive
+            });
+
+            return new ApiResponse<IEnumerable<CreateUpdatePolicyCategoryDto>>(
+                dto,
+                "Policy categories retrieved successfully.");
+        }
+
         public async Task<ApiResponse<CreateUpdatePolicyCategoryDto?>> GetByIdAsync(int id)
         {
             var entity = await _unitOfWork.Repository<PolicyCategory>().GetByIdAsync(id);
