@@ -39,5 +39,6 @@ namespace BusinessLayer.DTOs
         public string? AttachmentPath { get; set; }
 
         public int? DepartmentId { get; set; }
+        public List<int> DepartmentIds { get; set; } = new();
     }
 }

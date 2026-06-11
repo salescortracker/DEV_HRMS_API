@@ -2,6 +2,7 @@
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using DocumentFormat.OpenXml.InkML;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -275,18 +276,93 @@ namespace BusinessLayer.Implementations
         {
             var policies = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetAllAsync();
 
+            //return policies
+            //    .Where(x => x.UserId == userId)
+            //    .OrderByDescending(x => x.PolicyId)
+            //    .Select(MapPolicyToDto);
+
+
+            var mappings = await _unitOfWork
+    .Repository<CompanyPolicyDepartment>()
+    .GetAllAsync();
+
             return policies
-                .Where(x => x.UserId == userId)
-                .OrderByDescending(x => x.PolicyId)
-                .Select(MapPolicyToDto);
+            .Select(x => new CompanyPolicyMasterDto
+            {
+                PolicyId = x.PolicyId,
+                PolicyTitle = x.PolicyTitle,
+
+                DepartmentIds = mappings
+                    .Where(m => m.PolicyId == x.PolicyId)
+                    .Select(m => m.DepartmentId)
+                    .ToList(),
+
+                Category = x.Category,
+                EffectiveDate = x.EffectiveDate,
+                PolicyDescription = x.PolicyDescription
+            })
+            .ToList();
         }
 
-        public async Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int userId)
+        //    public async Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int userId)
+        //    {
+        //        // Get all users
+        //        var users = await _unitOfWork.Repository<User>().GetAllAsync();
+
+        //        var user = users.FirstOrDefault(x => x.UserId == userId);
+
+        //        if (user == null)
+        //            return new List<CompanyPolicyMasterDto>();
+
+        //        // Get DepartmentId from user
+        //        var departmentId = user.DepartmentId;
+
+        //        // Get today's date
+        //        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        //        // Get all policies
+        //        var policies = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetAllAsync();
+
+        //        // Filter policies
+        //        //return policies
+        //        //    .Where(x =>
+        //        //        x.DepartmentId == departmentId &&
+        //        //        x.IsActive == true &&
+        //        //        x.PostedDate.HasValue &&
+        //        //        x.PostedDate.Value == today)
+        //        //    .Select(MapPolicyToDto)
+        //        //    .ToList();
+
+
+        //        var mappings = await _unitOfWork
+        //.Repository<CompanyPolicyDepartment>()
+        //.GetAllAsync();
+
+        //        var policyIds = mappings
+        //            .Where(x => x.DepartmentId == departmentId)
+        //            .Select(x => x.PolicyId)
+        //            .Distinct()
+        //            .ToList();
+
+        //        return policies
+        //            .Where(x =>
+        //                policyIds.Contains(x.PolicyId) &&
+        //                x.IsActive == true &&
+        //                x.PostedDate.HasValue &&
+        //                x.PostedDate.Value == today)
+        //            .Select(MapPolicyToDto)
+        //            .ToList();
+        //    }
+
+
+        public async Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int companyId, int regionId)
         {
             // Get all users
             var users = await _unitOfWork.Repository<User>().GetAllAsync();
 
-            var user = users.FirstOrDefault(x => x.UserId == userId);
+            var user = users.FirstOrDefault(x =>
+                x.CompanyId == companyId &&
+                x.RegionId == regionId);
 
             if (user == null)
                 return new List<CompanyPolicyMasterDto>();
@@ -300,13 +376,23 @@ namespace BusinessLayer.Implementations
             // Get all policies
             var policies = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetAllAsync();
 
-            // Filter policies
+            var mappings = await _unitOfWork
+                .Repository<CompanyPolicyDepartment>()
+                .GetAllAsync();
+
+            var policyIds = mappings
+                .Where(x => x.DepartmentId == departmentId)
+                .Select(x => x.PolicyId)
+                .Distinct()
+                .ToList();
+
             return policies
                 .Where(x =>
-                    x.DepartmentId == departmentId &&
-                    x.IsActive == true &&
-                    x.PostedDate.HasValue &&
-                    x.PostedDate.Value == today)
+                    policyIds.Contains(x.PolicyId) &&
+                    x.IsActive == true 
+                    //x.PostedDate.HasValue &&
+                    //x.PostedDate.Value == today
+                    )
                 .Select(MapPolicyToDto)
                 .ToList();
         }
@@ -323,6 +409,10 @@ namespace BusinessLayer.Implementations
 
         public async Task<CompanyPolicyMasterDto> AddPolicyAsync(CompanyPolicyMasterDto dto)
         {
+
+            var deptIds = dto.DepartmentIds;
+
+
             var entity = new CompanyPoliciesMaster
             {
                 PolicyTitle = dto.PolicyTitle,
@@ -330,7 +420,7 @@ namespace BusinessLayer.Implementations
                 PostedDate = dto.PostedDate,
                 EffectiveDate = dto.EffectiveDate,
                 ExpiryDate = dto.ExpiryDate,
-                DepartmentId = dto.DepartmentId,
+                DepartmentId = null,
                 AttachmentName = dto.AttachmentName,
                 AttachmentPath = dto.AttachmentPath,
                 Category = dto.Category,
@@ -343,6 +433,24 @@ namespace BusinessLayer.Implementations
             };
 
             await _unitOfWork.Repository<CompanyPoliciesMaster>().AddAsync(entity);
+            await _unitOfWork.CompleteAsync();
+            var policyId = entity.PolicyId;
+            if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+            {
+                foreach (var deptId in dto.DepartmentIds)
+                {
+                    await _unitOfWork.Repository<CompanyPolicyDepartment>()
+                        .AddAsync(new CompanyPolicyDepartment
+                        {
+                            PolicyId = entity.PolicyId,
+                            DepartmentId = deptId,
+                            CreatedDate = DateTime.Now
+                        });
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
+
             await _unitOfWork.CompleteAsync();
 
             return MapPolicyToDto(entity);
@@ -364,7 +472,7 @@ namespace BusinessLayer.Implementations
             entity.AttachmentPath = dto.AttachmentPath;
             entity.Category = dto.Category;
             entity.AttachmentName = dto.AttachmentName;
-            entity.DepartmentId = dto.DepartmentId;
+            entity.DepartmentId = null;
             entity.ExpiryDate = dto.ExpiryDate;
             entity.IsActive = dto.IsActive;
             entity.UpdatedBy = dto.UpdatedBy;
@@ -373,17 +481,89 @@ namespace BusinessLayer.Implementations
             _unitOfWork.Repository<CompanyPoliciesMaster>().Update(entity);
             await _unitOfWork.CompleteAsync();
 
+            var existingMappings =
+       (await _unitOfWork.Repository<CompanyPolicyDepartment>().GetAllAsync())
+       .Where(x => x.PolicyId == id)
+       .ToList();
+
+            foreach (var item in existingMappings)
+            {
+                _unitOfWork.Repository<CompanyPolicyDepartment>().Remove(item);
+            }
+
+            await _unitOfWork.CompleteAsync();
+
+            // Add new mappings
+            if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+            {
+                foreach (var deptId in dto.DepartmentIds)
+                {
+                    await _unitOfWork.Repository<CompanyPolicyDepartment>()
+                        .AddAsync(new CompanyPolicyDepartment
+                        {
+                            PolicyId = id,
+                            DepartmentId = deptId,
+                            CreatedDate = DateTime.Now
+                        });
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
+
+
             return MapPolicyToDto(entity);
         }
 
+        //public async Task<bool> DeletePolicyAsync(int id, int userId)
+        //{
+        //    var entity = await _unitOfWork.Repository<CompanyPoliciesMaster>()
+        //        .GetByIdAsync(id);
+
+        //    if (entity == null || entity.UserId != userId)
+        //        return false;
+
+        //    // Delete Mapping Records
+        //    var mappings = (await _unitOfWork.Repository<CompanyPolicyDepartment>()
+        //        .GetAllAsync())
+        //        .Where(x => x.PolicyId == id)
+        //        .ToList();
+
+        //    foreach (var item in mappings)
+        //    {
+        //        _unitOfWork.Repository<CompanyPolicyDepartment>().Remove(item);
+        //    }
+
+        //    // Delete Main Policy Record
+        //    _unitOfWork.Repository<CompanyPoliciesMaster>().Remove(entity);
+
+        //    await _unitOfWork.CompleteAsync();
+
+        //    return true;
+        //}
+
+
         public async Task<bool> DeletePolicyAsync(int id, int userId)
         {
-            var entity = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetByIdAsync(id);
+            var entity = await _unitOfWork.Repository<CompanyPoliciesMaster>()
+                .GetByIdAsync(id);
 
-            if (entity == null || entity.UserId != userId)
+            if (entity == null)
                 return false;
 
+            // Delete Mapping Records
+            var mappings = (await _unitOfWork.Repository<CompanyPolicyDepartment>()
+                .GetAllAsync())
+                .Where(x => x.PolicyId == id)
+                .ToList();
+
+            foreach (var item in mappings)
+            {
+                _unitOfWork.Repository<CompanyPolicyDepartment>().Remove(item);
+            }
+
+            // Delete Main Policy Record
             _unitOfWork.Repository<CompanyPoliciesMaster>().Remove(entity);
+
             await _unitOfWork.CompleteAsync();
 
             return true;
@@ -455,6 +635,9 @@ namespace BusinessLayer.Implementations
                 UpdatedAt = x.UpdatedAt,
                 AttachmentName = x.AttachmentName,
                 AttachmentPath = x.AttachmentPath,
+                DepartmentIds = x.CompanyPolicyDepartments
+                .Select(d => d.DepartmentId)
+                .ToList()
             };
         }
     }

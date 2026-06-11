@@ -28,7 +28,7 @@ namespace BusinessLayer.Interfaces
 
         Task<IEnumerable<CompanyPolicyMasterDto>> GetAllPoliciesAsync(int userId);
 
-        Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int userId);
+        Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int companyId,int regionId);
 
         Task<CompanyPolicyMasterDto?> GetPolicyByIdAsync(int id, int userId);
 
