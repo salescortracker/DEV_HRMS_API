@@ -153,18 +153,30 @@ namespace BusinessLayer.Implementations
 
             if (!dto.UserId.HasValue || !dto.CompanyId.HasValue || !dto.RegionId.HasValue)
                 throw new Exception("UserId, CompanyId and RegionId are required.");
+
             var existing = await _unitOfWork.Repository<EmployeeResignation>()
-    .FindAsync(x =>
-        x.UserId == dto.UserId &&
-        x.CompanyId == dto.CompanyId &&
-        x.RegionId == dto.RegionId &&
-        x.Status != "Rejected" && // optional rule
-        x.LastWorkingDay == dto.LastWorkingDay
-    );
+                .FindAsync(x =>
+                    x.UserId == dto.UserId &&
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId &&
+                    x.Status != "Rejected" &&
+                    x.LastWorkingDay == dto.LastWorkingDay
+                );
 
             if (existing.Any())
-            {
                 throw new Exception("Resignation already exists for selected Last Working Day");
+            var employeeUser = await _unitOfWork.Repository<User>()
+    .GetByIdAsync(dto.UserId.Value);
+
+            int? reportingHrId = employeeUser?.ReportingHr;
+            string? reportingHrEmail = null;
+
+            if (reportingHrId.HasValue)
+            {
+                var reportingHrUser = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(reportingHrId.Value);
+
+                reportingHrEmail = reportingHrUser?.Email;
             }
 
             var entity = new EmployeeResignation
@@ -181,7 +193,9 @@ namespace BusinessLayer.Implementations
                 RegionId = dto.RegionId.Value,
                 UserId = dto.UserId.Value,
                 RoleId = dto.RoleId,
-                HrEmail = dto.HrEmail
+
+                ReportingHr = reportingHrId,
+                HrEmail = reportingHrEmail
             };
 
             await _unitOfWork.Repository<EmployeeResignation>().AddAsync(entity);
@@ -190,79 +204,27 @@ namespace BusinessLayer.Implementations
             // ================= EMAIL SECTION =================
 
             var manager = await GetManagerAsync(dto.UserId.Value);
-
-            // ❌ No manager OR no manager email → no mail
             if (manager == null || string.IsNullOrWhiteSpace(manager.Email))
                 return MapToDto(entity);
 
-            // HR users for CC
-            var hrUsers = await GetHrUsersAsync(dto.CompanyId.Value, dto.RegionId.Value);
 
-            var hrCcEmails = hrUsers
-                .Where(x => !string.IsNullOrWhiteSpace(x.Email))
-                .Select(x => x.Email)
-                .Distinct()
-                .ToList();
 
-            var subject = $"Resignation Submitted - {dto.EmployeeId}";
+            // UI CC emails
 
-            var managerName = string.IsNullOrWhiteSpace(manager.FullName)
-                ? "Manager"
-                : manager.FullName;
 
-            var body = $@"
-        <p>Dear {managerName},</p>
+            List<string> finalCcList = new();
 
-        <p>Your team member has submitted a resignation request.</p>
-
-        <table cellpadding='6' cellspacing='0'>
-            <tr><td><b>Employee Code</b></td><td>: {dto.EmployeeId}</td></tr>
-            <tr><td><b>Resignation Type</b></td><td>: {dto.ResignationType}</td></tr>
-            <tr><td><b>Notice Period</b></td><td>: {dto.NoticePeriod} days</td></tr>
-            <tr><td><b>Last Working Day</b></td><td>: {dto.LastWorkingDay:dd-MMM-yyyy}</td></tr>
-            <tr><td><b>Reason</b></td><td>: {dto.ResignationReason}</td></tr>
-        </table>
-
-        <br/>
-        <p>Please login to <b>HRMS</b> to review and take action.</p>
-
-        <br/>
-        <p>Thanks & Regards,<br/>
-        <b>Cortracker HRMS</b></p>
-    ";
-
-            // ✅ ONE EMAIL ONLY
-            // TO  → Reporting Manager
-            // CC  → HR
-            //await _emailService.SendEmailAsync(
-            //    manager.Email,
-            //    subject,
-            //    body,
-            //    hrCcEmails
-            //);
-
-            // ✅ Combine HR emails + UI CC emails
-            List<string> finalCcList = new List<string>();
-
-            // HR emails
-            if (hrCcEmails != null && hrCcEmails.Any())
-                finalCcList.AddRange(hrCcEmails);
-
-            // UI entered CC email
-            if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+            if (!string.IsNullOrWhiteSpace(reportingHrEmail))
             {
-                var uiCc = dto.HrEmail
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .ToList();
-
-                finalCcList.AddRange(uiCc);
+                finalCcList.Add(reportingHrEmail);
             }
 
-            // Remove duplicates
-            finalCcList = finalCcList.Distinct().ToList();
+            // ================= SUBJECT =================
+            var subject = GetEmailSubject(dto.ResignationType, dto.EmployeeId);
 
-            // ✅ Send main email
+            // ================= BODY =================
+            var body = BuildEmailBody(dto, manager.FullName);
+
             await _emailService.SendEmailAsync(
                 manager.Email,
                 subject,
@@ -270,13 +232,74 @@ namespace BusinessLayer.Implementations
                 finalCcList
             );
 
-            //// 🔥 IMPORTANT (guarantee delivery)
-            //foreach (var cc in finalCcList)
-            //{
-            //    await _emailService.SendEmailAsync(cc, subject, body);
-            //}
-
             return MapToDto(entity);
+        }
+        private string GetEmailSubject(string type, string employeeId)
+        {
+            return type?.ToLower() switch
+            {
+                "resignation" => $"Resignation Request - {employeeId}",
+                "termination" => $"Termination Notice - {employeeId}",
+                "retirement" => $"Retirement Request - {employeeId}",
+                "voluntary retirement" => $"Voluntary Retirement - {employeeId}",
+                _ => $"Employee Exit Request - {employeeId}"
+            };
+        }
+        private string BuildEmailBody(EmployeeResignationDto dto, string managerName)
+        {
+            var type = dto.ResignationType?.ToLower();
+
+            string title = type switch
+            {
+                "resignation" => "Resignation Request Submitted",
+                "termination" => "Employee Termination Notice",
+                "retirement" => "Retirement Request Submitted",
+                "voluntary retirement" => "Voluntary Retirement Request",
+                _ => "Employee Exit Request"
+            };
+
+            string intro = type switch
+            {
+                "termination" =>
+                    "An employee termination action has been initiated by HR.",
+
+                "retirement" or "voluntary retirement" =>
+                    "An employee retirement request has been submitted for processing.",
+
+                _ =>
+                    "A resignation request has been submitted by an employee."
+            };
+
+            return $@"
+    <div style='font-family:Arial; font-size:14px; color:#333;'>
+
+        <h2 style='color:#2E86C1;'>{title}</h2>
+
+        <p>Dear <b>{managerName}</b>,</p>
+
+        <p>{intro}</p>
+
+        <div style='background:#f4f6f7; padding:12px; border-radius:6px;'>
+            <p><b>Employee Code:</b> {dto.EmployeeId}</p>
+            <p><b>Resignation Type:</b> {dto.ResignationType}</p>
+            <p><b>Notice Period:</b> {dto.NoticePeriod} days</p>
+            <p><b>Last Working Day:</b> {dto.LastWorkingDay:dd-MMM-yyyy}</p>
+            <p><b>Reason:</b> {dto.ResignationReason}</p>
+        </div>
+
+        <p style='margin-top:15px;'>
+            Please review this request in the HRMS system and take appropriate action.
+        </p>
+
+        <br/>
+
+        <p>
+            Regards,<br/>
+            <b>Cortracker HRMS System</b>
+        </p>
+
+    </div>
+    ";
         }
 
 
@@ -337,17 +360,26 @@ namespace BusinessLayer.Implementations
                 CompanyId = e.CompanyId,
                 RegionId = e.RegionId,
                 UserId = e.UserId,
+                RoleId = e.RoleId,
 
-                // ✅ ADD THESE
+                // Manager
                 ManagerReason = e.ManagerReason,
                 ManagerApprovedDate = e.ManagerApprovedDate,
                 ManagerRejectedDate = e.ManagerRejectedDate,
 
-                // ✅ ADD THESE
+                // HR
                 HRReason = e.HrReason,
                 HRApprovedDate = e.HrApprovedDate,
-                HRRejectedDate = e.HrRejectedDate
+                HRRejectedDate = e.HrRejectedDate,
 
+                // NEW
+                HrEmail = e.HrEmail,
+                ReportingHr = e.ReportingHr,
+
+                CreatedBy = e.CreatedBy,
+                CreatedAt = e.CreatedAt,
+                ModifiedBy = e.ModifiedBy,
+                ModifiedAt = e.ModifiedAt
             };
         }
 
@@ -429,17 +461,87 @@ namespace BusinessLayer.Implementations
                     // ✅ Remove duplicates
                     finalCcList = finalCcList.Distinct().ToList();
 
-                    var subject = isManagerApprove
-                        ? $"Resignation Approved - {entity.EmployeeId}"
-                        : $"Resignation Rejected - {entity.EmployeeId}";
+                    string actionBy = "";
+                    string comments = "";
 
-                    var body = $@"
-<p>Dear {employee.FullName},</p>
-<p>Your resignation has been <b>{(isManagerApprove ? "APPROVED" : "REJECTED")}</b> by your manager.</p>
-<p><b>Manager Comments:</b><br/>{managerReason}</p>
-<p>Status: <b>{entity.Status}</b></p>
-<br/>
-<p>Regards,<br/><b>HRMS</b></p>";
+                    if (isManagerApprove)
+                    {
+                        actionBy = "Manager";
+                        comments = managerReason ?? "";
+                    }
+                    else if (isManagerReject)
+                    {
+                        actionBy = "Manager";
+                        comments = managerReason ?? "";
+                    }
+                    else if (isHRApprove)
+                    {
+                        actionBy = "HR";
+                        comments = hrReason ?? "";
+                    }
+                    else if (isHRReject)
+                    {
+                        actionBy = "HR";
+                        comments = hrReason ?? "";
+                    }
+
+                    string actionStatus =
+                        (isManagerApprove || isHRApprove)
+                            ? "Approved"
+                            : "Rejected";
+
+                    var subject = $"Resignation {actionStatus} - {entity.EmployeeId}";
+
+                          var body = $@"
+                            <p>Dear {employee.FullName},</p>
+
+                            <p>
+                            This is to inform you that your resignation request has been
+                            <b>{actionStatus}</b> by the <b>{actionBy}</b>.
+                            </p>
+
+                            <br/>
+
+                            <p><b>Resignation Details</b></p>
+
+                            <p>
+                            <b>Employee Code:</b> {entity.EmployeeId}<br/>
+                            <b>Resignation Type:</b> {entity.ResignationType}<br/>
+                            <b>Notice Period:</b> {entity.NoticePeriod} Days<br/>
+                            <b>Last Working Day:</b> {entity.LastWorkingDay:dd-MMM-yyyy}<br/>
+                            <b>Current Status:</b> {entity.Status}
+                            </p>
+
+                            {(!string.IsNullOrWhiteSpace(comments)
+                                                ? $@"<br/>
+                            <p><b>{actionBy} Comments:</b></p>
+                            <p>{comments}</p>"
+                                                : "")}
+
+                            <br/>
+
+                            <p>
+                            Please login to <b>HRMS</b> for further details and any required actions.
+                            </p>
+
+                            <br/>
+
+                            <p>
+                            Thank you for your contributions and cooperation throughout the process.
+                            </p>
+
+                            <br/>
+
+                            <p>
+                            Regards,<br/>
+                            <b>Cortracker HRMS Team</b>
+                            </p>
+
+                            <hr/>
+
+                            <p style='font-size:12px;color:#777;'>
+                            This is an automated email from HRMS. Please do not reply to this email.
+                            </p>";
 
                     await _emailService.SendEmailAsync(employee.Email, subject, body, finalCcList);
                 }
@@ -451,34 +553,34 @@ namespace BusinessLayer.Implementations
 
         public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForReportingManagerAsync(int managerUserId)
         {
-            // 🔥 GET ALL USERS + RESIGNATIONS (LIKE EXPENSE FLOW)
             var users = await _unitOfWork.Repository<User>().GetAllAsync();
             var resignations = await _unitOfWork.Repository<EmployeeResignation>().GetAllAsync();
 
-            // 🔥 JOIN + FILTER (IMPORTANT)
-            var result = (
-                from r in resignations
-                join u in users on r.UserId equals u.UserId
-                where u.ReportingTo == managerUserId 
-                orderby r.Status == "Pending" ? 0 : 1, r.CreatedAt descending
-                select new EmployeeResignationDto
-                {
-                    ResignationId = r.ResignationId,
-                    EmployeeId = u.EmployeeCode, // ✅ Correct mapping
-                    ResignationType = r.ResignationType,
-                    NoticePeriod = r.NoticePeriod,
-                    LastWorkingDay = r.LastWorkingDay,
-                    ResignationReason = r.ResignationReason,
-                    Status = r.Status,
-                    ManagerReason = r.ManagerReason
-                }
-            ).ToList();
+            var result =
+                (from r in resignations
+                 join u in users on r.UserId equals u.UserId
+
+                 where
+                    u.ReportingTo == managerUserId
+                    || u.ReportingHr == managerUserId
+
+                 orderby r.Status == "Pending" ? 0 : 1, r.CreatedAt descending
+
+                 select new EmployeeResignationDto
+                 {
+                     ResignationId = r.ResignationId,
+                     EmployeeId = u.EmployeeCode,
+                     ResignationType = r.ResignationType,
+                     NoticePeriod = r.NoticePeriod,
+                     LastWorkingDay = r.LastWorkingDay,
+                     ResignationReason = r.ResignationReason,
+                     Status = r.Status,
+                     ManagerReason = r.ManagerReason
+                 }).ToList();
 
             return result;
         }
-        public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForHRAsync(
-    int companyId,
-    int regionId)
+        public async Task<IEnumerable<EmployeeResignationDto>> GetResignationsForHRAsync(int companyId, int regionId)
         {
             var resignations = await _unitOfWork.Repository<EmployeeResignation>()
                 .FindAsync(r =>
@@ -488,7 +590,7 @@ namespace BusinessLayer.Implementations
                         r.Status == "Approved" ||          // Manager approved
                         r.Status == "Rejected" ||          // (optional)
                         r.Status == "HR Approved" ||
-                        r.Status == "HR Rejected"
+                        r.Status == "HR Rejected" 
                     )
                 );
 
