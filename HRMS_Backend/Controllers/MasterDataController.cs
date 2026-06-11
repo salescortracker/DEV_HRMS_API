@@ -3225,7 +3225,16 @@ namespace HRMS_Backend.Controllers
             var result = await _policyCategoryService.DeleteAsync(id);
             return Ok(result);
         }
+        [HttpGet("policy-category/company-region")]
+        public async Task<IActionResult> GetByCompanyRegionPolicyCategory(
+    [FromQuery] int companyId,
+    [FromQuery] int regionId)
+        {
+            var result = await _policyCategoryService
+                .GetByCompanyRegion(companyId, regionId);
 
+            return Ok(result);
+        }
         #endregion
         //-------------------------------RESIGNATIONMASTER-------------------------------//
 
