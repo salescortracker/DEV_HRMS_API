@@ -23,21 +23,32 @@ namespace BusinessLayer.Implementations
         public async Task<List<AccountTypeDto>> GetAccountTypeList(int userId)
         {
             return await _context.AccountTypes
-                .Where(x => x.IsDeleted == false)
+                .Where(x => x.IsDeleted == false &&
+                            x.CreatedBy == userId)
                 .Select(x => new AccountTypeDto
                 {
                     AccountTypeId = x.AccountTypeId,
                     CompanyId = x.CompanyId,
+                    CompanyName = _context.Companies
+                                    .Where(c => c.CompanyId == x.CompanyId)
+                                    .Select(c => c.CompanyName)
+                                    .FirstOrDefault(),
+                    RegionName = _context.Regions
+                                    .Where(r => r.RegionId == x.RegionId)
+                                    .Select(r => r.RegionName)
+                                    .FirstOrDefault(),
                     RegionId = x.RegionId,
                     AccountType1 = x.AccountType1,
                     Description = x.Description,
                     IsActive = x.IsActive,
                     IsDeleted = x.IsDeleted,
+                    UserId = x.CreatedBy,
                     CreatedBy = x.CreatedBy,
                     CreatedAt = x.CreatedAt,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedAt = x.ModifiedAt
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
 
         // 🔹 CREATE
