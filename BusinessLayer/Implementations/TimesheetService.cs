@@ -92,6 +92,74 @@ namespace BusinessLayer.Implementations
             return timesheet.TimesheetId;
         }
 
+        public async Task<int> UpdateTimesheetAsync(TimesheetRequestDto dto)
+        {
+            var timesheet = await _unitOfWork.Repository<Timesheet>()
+                .GetByIdAsync(dto.TimesheetId);
+
+            if (timesheet == null)
+                throw new Exception("Timesheet not found");
+
+            if (timesheet.Status != "Pending")
+                throw new Exception("Only pending timesheets can be edited");
+
+            // Update header
+            timesheet.TimesheetDate = DateOnly.FromDateTime(dto.TimesheetDate);
+            timesheet.Comments = dto.Comments;
+            timesheet.HrEmail = dto.HrEmail;
+
+            if (!string.IsNullOrWhiteSpace(dto.FileName))
+            {
+                timesheet.FileName = dto.FileName;
+                timesheet.FilePath = dto.FilePath;
+            }
+
+            timesheet.ModifiedBy = dto.UserId;
+            timesheet.ModifiedAt = DateTime.Now;
+
+            _unitOfWork.Repository<Timesheet>().Update(timesheet);
+
+            // Delete existing projects
+            var oldProjects = _hRMSContext.TimesheetProjects
+    .Where(x => x.TimesheetId == dto.TimesheetId)
+    .ToList();
+
+            _hRMSContext.TimesheetProjects.RemoveRange(oldProjects);
+
+            await _hRMSContext.SaveChangesAsync();
+
+
+            // Insert latest projects
+            foreach (var p in dto.Projects)
+            {
+                var project = new TimesheetProject
+                {
+                    TimesheetId = dto.TimesheetId,
+
+                    ProjectName = p.ProjectName,
+                    Description = p.Description ?? "",
+
+                    StartTime = TimeOnly.Parse(p.StartTime),
+                    EndTime = TimeOnly.Parse(p.EndTime),
+
+                    TotalMinutes = p.TotalMinutes,
+                    TotalHoursText = p.TotalHoursText ?? "0 Hours",
+
+                    Otminutes = p.OTMinutes ?? 0,
+                    OthoursText = p.OTHoursText ?? "0 Hours",
+
+                    CreatedAt = DateTime.Now
+                };
+
+                await _unitOfWork.Repository<TimesheetProject>()
+                    .AddAsync(project);
+            }
+
+            await _unitOfWork.CompleteAsync();
+
+            return dto.TimesheetId;
+        }
+
         public async Task<IEnumerable<TimesheetListDto>> GetMyTimesheetsAsync(int userId)
         {
             var timesheets = await _unitOfWork.Repository<Timesheet>()
@@ -108,6 +176,13 @@ namespace BusinessLayer.Implementations
                 EmployeeName = t.EmployeeName,
                 EmployeeCode = t.EmployeeCode,
                 TimesheetDate = t.TimesheetDate.ToDateTime(TimeOnly.MinValue),
+
+                Comments = t.Comments,
+                HrEmail = t.HrEmail,
+
+                FileName = t.FileName,
+                FilePath = t.FilePath,
+
                 Status = t.Status,
 
                 Projects = projects
@@ -116,8 +191,10 @@ namespace BusinessLayer.Implementations
                     {
                         ProjectName = p.ProjectName,
                         Description = p.Description,
-                        StartTime = p.StartTime.ToString(),
-                        EndTime = p.EndTime.ToString(),
+                        //StartTime = p.StartTime.ToString(),
+                        //EndTime = p.EndTime.ToString(),
+                        StartTime = p.StartTime.ToString("HH:mm"),
+                        EndTime = p.EndTime.ToString("HH:mm"),
                         TotalMinutes = p.TotalMinutes,
                         TotalHoursText = p.TotalHoursText,
                         OTMinutes = p.Otminutes,
@@ -270,8 +347,10 @@ namespace BusinessLayer.Implementations
                 {
                     ProjectName = p.ProjectName,
                     Description = p.Description,
-                    StartTime = p.StartTime.ToString(),
-                    EndTime = p.EndTime.ToString(),
+                    //StartTime = p.StartTime.ToString(),
+                    //EndTime = p.EndTime.ToString(),
+                    StartTime = p.StartTime.ToString("HH:mm"),
+                    EndTime = p.EndTime.ToString("HH:mm"),
                     TotalMinutes = p.TotalMinutes,
                     TotalHoursText = p.TotalHoursText,
                     OTMinutes = p.Otminutes,
