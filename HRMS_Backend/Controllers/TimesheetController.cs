@@ -46,6 +46,28 @@ namespace HRMS_Backend.Controllers
             return Ok(new { message = "Timesheet saved successfully", timesheetId = id });
         }
 
+        [HttpPut("UpdateTimesheet")]
+        public async Task<IActionResult> UpdateTimesheet(
+    [FromForm] TimesheetRequestDto dto)
+        {
+            try
+            {
+                var result =
+                    await _timesheetService.UpdateTimesheetAsync(dto);
+
+                return Ok(new
+                {
+                    success = true,
+                    timesheetId = result,
+                    message = "Timesheet updated successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         // ✅ USER LISTING
         [HttpGet("GetMyTimesheets/{userId}")]
         public async Task<IActionResult> GetMyTimesheets(int userId)

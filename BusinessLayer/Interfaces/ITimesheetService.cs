@@ -15,8 +15,9 @@ namespace BusinessLayer.Interfaces
         Task<bool> SendSelectedTimesheetsAsync(List<int> timesheetIds);
         Task<IEnumerable<ManagerTimesheetDto>> GetTimesheetsForManagerAsync(int managerUserId);
         Task<ManagerTimesheetDto> GetTimesheetDetailAsync(int timesheetId);
-
+        Task<int> UpdateTimesheetAsync(TimesheetRequestDto dto);
         Task<bool> ApproveTimesheetsAsync(List<int> ids, string comments);
+
         Task<bool> RejectTimesheetsAsync(List<int> ids, string comments);
     }
 }

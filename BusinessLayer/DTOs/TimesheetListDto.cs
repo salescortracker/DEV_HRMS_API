@@ -14,5 +14,10 @@ namespace BusinessLayer.DTOs
         public DateTime TimesheetDate { get; set; }
         public string Status { get; set; } = null!;
         public List<TimesheetProjectDto> Projects { get; set; } = new();
+        public string? Comments { get; set; }
+        public string? HrEmail { get; set; }
+
+        public string? FileName { get; set; }
+        public string? FilePath { get; set; }
     }
 }
