@@ -38,15 +38,27 @@ namespace HRMS_Backend.Controllers
 
         // Create Event
 
-        [HttpPost("CreateEvent")]
-        public async Task<IActionResult> CreateEvent([FromBody] CompanyEvent model)
-        {
-            if (model == null)
-            {
-                return BadRequest("Invalid event data.");
-            }
+        //[HttpPost("CreateEvent")]
+        //public async Task<IActionResult> CreateEvent([FromBody] CompanyEventsDto dto)
+        //{
+        //    //if (model == null)
+        //    //{
+        //    //    return BadRequest("Invalid event data.");
+        //    //}
 
-            var result = await _service.CreateEvent(model);
+        //    //var result = await _service.CreateEvent(model);
+        //    var result = await _service.CreateEvent(dto);
+
+        //    return Ok(new
+        //    {
+        //        Message = "Event created successfully",
+        //        EventId = result
+        //    });
+        //}
+        [HttpPost("CreateEvent")]
+        public async Task<IActionResult> CreateEvent([FromBody] CompanyEventsDto dto)
+        {
+            var result = await _service.CreateEvent(dto);
 
             return Ok(new
             {
@@ -55,18 +67,29 @@ namespace HRMS_Backend.Controllers
             });
         }
 
-
         // Update Event
 
-        [HttpPost("UpdateEvent")]
-        public async Task<IActionResult> UpdateEvent([FromBody] CompanyEvent model)
-        {
-            if (model == null)
-            {
-                return BadRequest("Invalid event data.");
-            }
+        //[HttpPost("UpdateEvent")]
+        //public async Task<IActionResult> UpdateEvent([FromBody] CompanyEventsDto model)
+        //{
+        //    if (model == null)
+        //    {
+        //        return BadRequest("Invalid event data.");
+        //    }
 
-            var result = await _service.UpdateEvent(model);
+        //    var result = await _service.UpdateEvent(model);
+
+        //    return Ok(new
+        //    {
+        //        Message = "Event updated successfully",
+        //        EventId = result
+        //    });
+        //}
+
+        [HttpPost("UpdateEvent")]
+        public async Task<IActionResult> UpdateEvent([FromBody] CompanyEventsDto dto)
+        {
+            var result = await _service.UpdateEvent(dto);
 
             return Ok(new
             {
@@ -74,7 +97,6 @@ namespace HRMS_Backend.Controllers
                 EventId = result
             });
         }
-
 
         // Delete Event (Soft Delete)
 

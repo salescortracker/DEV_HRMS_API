@@ -14,9 +14,9 @@ namespace BusinessLayer.Interfaces
 
         Task<IEnumerable<CompanyEventsDto>> GetDepartmentEvents(int departmentId);
 
-        Task<int> CreateEvent(CompanyEvent model);
+        Task<int> CreateEvent(CompanyEventsDto dto);
 
-        Task<int> UpdateEvent(CompanyEvent model);
+        Task<int> UpdateEvent(CompanyEventsDto dto);
 
         Task<int> DeleteEvent(int id);
     }
