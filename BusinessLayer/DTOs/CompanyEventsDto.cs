@@ -15,6 +15,8 @@ namespace BusinessLayer.DTOs
         public int? RegionId { get; set; }
 
         public int? DepartmentId { get; set; }
+        public List<int> DepartmentIds { get; set; } = new();
+
 
         public string EventTitle { get; set; }
 
@@ -37,6 +39,7 @@ namespace BusinessLayer.DTOs
         public bool IsActive { get; set; }
 
         public int CreatedBy { get; set; }
+        public int? UserId { get; set; }
 
         public DateTime CreatedDate { get; set; }
 
