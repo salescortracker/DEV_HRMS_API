@@ -195,5 +195,30 @@ namespace BusinessLayer.Implementations
             return new ApiResponse<string>("Deleted successfully.");
         }
 
+        public async Task<ApiResponse<IEnumerable<CreateUpdatePolicyCategoryDto>>>
+GetByCompanyRegion(int companyId, int regionId)
+        {
+            var data = await _unitOfWork.Repository<PolicyCategory>()
+                .FindAsync(x =>
+                    !x.IsDeleted &&
+                    x.IsActive &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId);
+
+            var result = data.Select(x => new CreateUpdatePolicyCategoryDto
+            {
+                PolicyCategoryId = x.PolicyCategoryId,
+                CompanyId = x.CompanyId,
+                RegionId = x.RegionId,
+                PolicyCategoryName = x.PolicyCategoryName
+            });
+
+            return new ApiResponse<IEnumerable<CreateUpdatePolicyCategoryDto>>
+            (
+                result,
+                "Categories fetched successfully"
+            );
+        }
+
     }
 }
