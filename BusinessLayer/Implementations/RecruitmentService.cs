@@ -901,7 +901,10 @@ int userId)
                             await _emailService.SendEmailAsync(
                                 interviewer.Email,
                                 subject,
-                                body
+                                body,
+                                !string.IsNullOrWhiteSpace(dto.HrEmail)
+                                    ? new List<string> { dto.HrEmail }
+                                    : null
                             );
                         }
                     }
@@ -1231,13 +1234,15 @@ int userId)
 
                 // ================= HR USERS =================
 
-                var hrUsers = await _unitOfWork.Repository<User>()
-                    .FindAsync(u =>
-                        u.RoleId == 4 &&
-                        u.CompanyId == interview.CompanyId &&
-                        u.RegionId == interview.RegionId &&
-                        !string.IsNullOrEmpty(u.Email)
-                    );
+                var ccEmails = !string.IsNullOrWhiteSpace(dto.HrEmail)
+                    ? dto.HrEmail
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(e => e.Trim())
+                        .Where(e => !string.IsNullOrWhiteSpace(e))
+                        .Distinct()
+                        .ToList()
+                    : new List<string>();
+                var toEmail = candidate.Email;
 
                 // ================= EMAILS =================
 
@@ -1309,12 +1314,13 @@ int userId)
                             </body>
                             </html>";
 
-                    foreach (var hr in hrUsers)
+                    if (!string.IsNullOrWhiteSpace(toEmail))
                     {
                         await _emailService.SendEmailAsync(
-                            hr.Email!,
+                            toEmail,
                             hrSubject,
-                            hrBody
+                            hrBody,
+                            ccEmails.Any() ? ccEmails : null
                         );
                     }
 
