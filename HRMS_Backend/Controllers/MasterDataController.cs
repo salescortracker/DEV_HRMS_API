@@ -3197,7 +3197,7 @@ namespace HRMS_Backend.Controllers
             var result = await _policyCategoryService.GetAll(userId);
             return Ok(result);
         }
-        [HttpGet("policy-category/company-region")]
+        [HttpGet("policy/company-region")]
         public async Task<IActionResult> GetByCompanyAndRegion(
             [FromQuery] int companyId,
             [FromQuery] int regionId)
