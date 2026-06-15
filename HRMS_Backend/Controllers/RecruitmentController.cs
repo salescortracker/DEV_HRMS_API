@@ -328,7 +328,7 @@ namespace HRMS_Backend.Controllers
             return Ok(data);
         }
 
-        [HttpPut("assign-company-region")]
+        [HttpPost("assign-company-region")]
         public async Task<IActionResult> AssignCompanyRegion([FromBody] AssignCompanyRegionDto dto)
         {
             if (dto == null)

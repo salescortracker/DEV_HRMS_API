@@ -2,6 +2,7 @@
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
@@ -2246,22 +2247,32 @@ namespace BusinessLayer.Implementations
 
             return result;
         }
-        public async Task<List<UserDesignationDto>> GetUsersByCompanyRegion(int companyId, int regionId)
+        public async Task<List<UserCreateDto>> GetUsersByCompanyRegion(int companyId, int regionId)
         {
             return await _context.Users
                 .Where(u =>
                     u.CompanyId == companyId &&
                     u.RegionId == regionId &&
                     u.Status == "Active")
-                .Select(u => new UserDesignationDto
+                .Select(u => new UserCreateDto
                 {
-                    UserId = u.UserId,
-                    FullName = u.FullName,
+                    userId = u.UserId,
+                    CompanyID = u.CompanyId,
+                    RegionID = u.RegionId,
                     EmployeeCode = u.EmployeeCode,
-                    CompanyId = u.CompanyId,
-                    RegionId = u.RegionId,
-                    DesignationId = u.DesignationId ?? 0,
-                    DesignationName = ""
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    Status = u.Status,
+                    RoleId = u.RoleId,
+
+                    ReportingHR = u.ReportingHr ?? 0,
+                    reportingTo = u.ReportingTo ?? 0,
+
+                    JoiningDate = u.JoiningDate,
+                    departmentId = (int)u.DepartmentId,
+                    DesignationId = u.DesignationId,
+                    loginType = u.LoginType,
+                    Password = u.PasswordHash
                 })
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
