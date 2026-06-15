@@ -2252,8 +2252,7 @@ namespace BusinessLayer.Implementations
             return await _context.Users
                 .Where(u =>
                     u.CompanyId == companyId &&
-                    u.RegionId == regionId &&
-                    u.Status == "Active")
+                    u.RegionId == regionId)
                 .Select(u => new UserCreateDto
                 {
                     userId = u.UserId,

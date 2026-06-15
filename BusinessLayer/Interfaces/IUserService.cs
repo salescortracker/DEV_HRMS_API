@@ -14,7 +14,7 @@ namespace BusinessLayer.Interfaces
         Task<User?> UpdateUserAsync(UserCreateDto updatedUser);
         Task<bool> DeleteUserAsync(int id);
         Task<object?> VerifyLoginAsync(string username, string password);
-        Task SendWelcomeEmailAsync(User user, string password);
+        Task SendWelcomeEmailAsync(User user, string password, List<string>? ccEmails = null);
         Task<ApiResponse<bool>> ChangePasswordAsync(PasswordChangeDto dto);
 
         Task<ApiResponse<bool>> SendOtpAsync(string email);
