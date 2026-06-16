@@ -29,12 +29,39 @@ namespace BusinessLayer.Implementations
         /// </summary>
         public async Task<IEnumerable<CompanyNewsMasterDto>> GetAllNewsAsync(int userId)
         {
-            var news = await _unitOfWork.Repository<CompanyNewsMaster>().GetAllAsync();
+            var news = await _unitOfWork
+                .Repository<CompanyNewsMaster>()
+                .GetAllAsync();
+
+            var mappings = await _unitOfWork
+                .Repository<CompanyNewsDepartment>()
+                .GetAllAsync();
 
             return news
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.NewsId)
-                .Select(MapNewsToDto)
+                .Select(x => new CompanyNewsMasterDto
+                {
+                    NewsId = x.NewsId,
+                    Title = x.Title,
+                    Description = x.Description,
+                    PostedDate = x.PostedDate,
+                    ExpiryDate = x.ExpiryDate,
+                    IsActive = x.IsActive,
+                    UserId = x.UserId,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId,
+                    Category = x.Category,
+                    AttachmentName = x.AttachmentName,
+                    AttachmentPath = x.AttachmentPath,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+
+                    DepartmentIds = mappings
+                        .Where(m => m.NewsId == x.NewsId)
+                        .Select(m => m.DepartmentId)
+                        .ToList()
+                })
                 .ToList();
         }
 
@@ -87,7 +114,6 @@ namespace BusinessLayer.Implementations
             string? fileName = null;
             string? filePath = null;
 
-            // ✅ File Upload
             if (dto.Attachment != null)
             {
                 var uploadsFolder = Path.Combine(
@@ -96,55 +122,38 @@ namespace BusinessLayer.Implementations
                     "news"
                 );
 
-                // Create folder if not exists
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // Generate unique file name
                 fileName = Guid.NewGuid().ToString()
                            + Path.GetExtension(dto.Attachment.FileName);
 
                 var fullPath = Path.Combine(uploadsFolder, fileName);
 
-                // Save file
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     await dto.Attachment.CopyToAsync(stream);
                 }
 
-                // Save relative path
                 filePath = "/news/" + fileName;
             }
 
-            // ✅ Save Entity
             var entity = new CompanyNewsMaster
             {
                 Title = dto.Title,
                 Description = dto.Description,
-
                 PostedDate = dto.PostedDate,
                 ExpiryDate = dto.ExpiryDate,
-
-                DepartmentId = dto.departmentId,
-
                 Category = dto.Category,
-
                 IsActive = true,
-
                 UserId = dto.UserId,
-
                 CompanyId = dto.CompanyId,
-
                 RegionId = dto.RegionId,
-
-                // ✅ Attachment
                 AttachmentName = fileName,
                 AttachmentPath = filePath,
-
                 CreatedBy = dto.CreatedBy,
-
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -153,6 +162,23 @@ namespace BusinessLayer.Implementations
                 .AddAsync(entity);
 
             await _unitOfWork.CompleteAsync();
+
+            if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+            {
+                foreach (var deptId in dto.DepartmentIds)
+                {
+                    await _unitOfWork
+                        .Repository<CompanyNewsDepartment>()
+                        .AddAsync(new CompanyNewsDepartment
+                        {
+                            NewsId = entity.NewsId,
+                            DepartmentId = deptId,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
 
             return MapNewsToDto(entity);
         }
@@ -180,7 +206,6 @@ namespace BusinessLayer.Implementations
 
             entity.Category = dto.Category;
 
-            entity.DepartmentId = dto.departmentId;
 
             entity.CompanyId = dto.CompanyId;
 
@@ -243,10 +268,47 @@ namespace BusinessLayer.Implementations
             }
 
             _unitOfWork
-                .Repository<CompanyNewsMaster>()
-                .Update(entity);
+    .Repository<CompanyNewsMaster>()
+    .Update(entity);
 
             await _unitOfWork.CompleteAsync();
+
+
+            // Existing mappings delete
+            var existingMappings =
+                (await _unitOfWork
+                    .Repository<CompanyNewsDepartment>()
+                    .GetAllAsync())
+                .Where(x => x.NewsId == entity.NewsId)
+                .ToList();
+
+            foreach (var item in existingMappings)
+            {
+                _unitOfWork
+                    .Repository<CompanyNewsDepartment>()
+                    .Remove(item);
+            }
+
+            await _unitOfWork.CompleteAsync();
+
+
+            // Add new mappings
+            if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+            {
+                foreach (var deptId in dto.DepartmentIds)
+                {
+                    await _unitOfWork
+                        .Repository<CompanyNewsDepartment>()
+                        .AddAsync(new CompanyNewsDepartment
+                        {
+                            NewsId = entity.NewsId,
+                            DepartmentId = deptId,
+                            CreatedAt = DateTime.UtcNow
+                        });
+                }
+
+                await _unitOfWork.CompleteAsync();
+            }
 
             return MapNewsToDto(entity);
         }
@@ -274,34 +336,40 @@ namespace BusinessLayer.Implementations
 
         public async Task<IEnumerable<CompanyPolicyMasterDto>> GetAllPoliciesAsync(int userId)
         {
-            var policies = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetAllAsync();
-
-            //return policies
-            //    .Where(x => x.UserId == userId)
-            //    .OrderByDescending(x => x.PolicyId)
-            //    .Select(MapPolicyToDto);
-
+            var policies = await _unitOfWork
+                .Repository<CompanyPoliciesMaster>()
+                .GetAllAsync();
 
             var mappings = await _unitOfWork
-    .Repository<CompanyPolicyDepartment>()
-    .GetAllAsync();
+                .Repository<CompanyPolicyDepartment>()
+                .GetAllAsync();
 
             return policies
-            .Select(x => new CompanyPolicyMasterDto
-            {
-                PolicyId = x.PolicyId,
-                PolicyTitle = x.PolicyTitle,
+                .Where(x => x.UserId == userId)   // ✅ User filter
+                .OrderByDescending(x => x.PolicyId)
+                .Select(x => new CompanyPolicyMasterDto
+                {
+                    PolicyId = x.PolicyId,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId,
+                    UserId = x.UserId,
 
-                DepartmentIds = mappings
-                    .Where(m => m.PolicyId == x.PolicyId)
-                    .Select(m => m.DepartmentId)
-                    .ToList(),
+                    PolicyTitle = x.PolicyTitle,
 
-                Category = x.Category,
-                EffectiveDate = x.EffectiveDate,
-                PolicyDescription = x.PolicyDescription
-            })
-            .ToList();
+                    DepartmentIds = mappings
+                        .Where(m => m.PolicyId == x.PolicyId)
+                        .Select(m => m.DepartmentId)
+                        .ToList(),
+
+                    Category = x.Category,
+                    EffectiveDate = x.EffectiveDate,
+                    PolicyDescription = x.PolicyDescription,
+                    DepartmentId = x.DepartmentId,
+
+                    AttachmentName = x.AttachmentName,
+                    AttachmentPath = x.AttachmentPath
+                })
+                .ToList();
         }
 
         //    public async Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int userId)
@@ -603,7 +671,6 @@ namespace BusinessLayer.Implementations
 
                 Category = entity.Category,
 
-                departmentId = entity.DepartmentId,
 
                 // ✅ IMPORTANT
                 AttachmentName = entity.AttachmentName,
