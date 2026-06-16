@@ -68,27 +68,42 @@ namespace BusinessLayer.Implementations
         /// <summary>
         /// Get only today's news based on PostedDate and UserId
         /// </summary>
-        public async Task<IEnumerable<CompanyNewsMasterDto>> GetTodayNewsAsync(int userId)
+        //public async Task<IEnumerable<CompanyNewsMasterDto>> GetTodayNewsAsync(int userId)
+        //{
+        //    var users = await _unitOfWork.Repository<User>().GetAllAsync();
+
+        //    var user = users.FirstOrDefault(x => x.UserId == userId);
+
+        //    if (user == null)
+        //        return new List<CompanyNewsMasterDto>();
+
+        //    var departmentId = user.DepartmentId;
+
+        //    var today = DateOnly.FromDateTime(DateTime.Now);
+
+        //    var news = await _unitOfWork.Repository<CompanyNewsMaster>().GetAllAsync();
+
+        //    return news
+        //        .Where(x =>
+        //            x.DepartmentId == departmentId &&
+        //            x.IsActive == true &&
+        //            x.PostedDate.HasValue &&
+        //            x.PostedDate.Value == today)
+        //        .Select(MapNewsToDto)
+        //        .ToList();
+        //}
+
+        public async Task<IEnumerable<CompanyNewsMasterDto>> GetTodayNewsAsync(
+      int companyId,
+      int regionId)
         {
-            var users = await _unitOfWork.Repository<User>().GetAllAsync();
-
-            var user = users.FirstOrDefault(x => x.UserId == userId);
-
-            if (user == null)
-                return new List<CompanyNewsMasterDto>();
-
-            var departmentId = user.DepartmentId;
-
-            var today = DateOnly.FromDateTime(DateTime.Now);
-
             var news = await _unitOfWork.Repository<CompanyNewsMaster>().GetAllAsync();
 
             return news
                 .Where(x =>
-                    x.DepartmentId == departmentId &&
-                    x.IsActive == true &&
-                    x.PostedDate.HasValue &&
-                    x.PostedDate.Value == today)
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive)
                 .Select(MapNewsToDto)
                 .ToList();
         }
