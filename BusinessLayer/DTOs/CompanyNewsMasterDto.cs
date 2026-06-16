@@ -36,7 +36,7 @@ namespace BusinessLayer.DTOs
 
         public string? AttachmentName { get; set; }
         public string? AttachmentPath { get; set; }
-        public int? departmentId { get; set; }
+        public List<int> DepartmentIds { get; set; } = new();
         public IFormFile? Attachment { get; set; }
     }
 }
