@@ -89,6 +89,28 @@ namespace BusinessLayer.Implementations
             return MapToDto(entity);
         }
 
+        //public async Task<IEnumerable<Company>> AddCompaniesAsync(List<CompanyDto> dtos)
+        //{
+        //    var companies = dtos.Select(dto => new Company
+        //    {
+        //        CompanyName = dto.companyName,
+        //        CompanyCode = dto.companyCode,
+        //        IndustryType = dto.industryType,
+        //        Headquarters = dto.headquarters,
+        //        IsActive = dto.isActive,
+        //        UserId = dto.userId,
+        //        CreatedDate = DateTime.UtcNow,
+        //        CompanyContact = dto.CompanyContact,
+        //        CompanyEmail = dto.CompanyEmail,
+        //        CompanyAddress = dto.CompanyAddress,
+        //        CompanyLogo = dto.CompanyLogo
+        //    }).ToList();
+
+        //    await _unitOfWork.Repository<Company>().AddRangeAsync(companies);
+        //    await _unitOfWork.CompleteAsync();
+
+        //    return companies;
+        //}
         public async Task<IEnumerable<Company>> AddCompaniesAsync(List<CompanyDto> dtos)
         {
             var companies = dtos.Select(dto => new Company
@@ -104,14 +126,32 @@ namespace BusinessLayer.Implementations
                 CompanyEmail = dto.CompanyEmail,
                 CompanyAddress = dto.CompanyAddress,
                 CompanyLogo = dto.CompanyLogo
-            }).ToList();
+            })
+            .Where(x => !string.IsNullOrWhiteSpace(x.CompanyCode))
+            .ToList();
+
+            // Duplicate CompanyCode check in uploaded file
+            var duplicateCodes = companies
+                .Where(x => !string.IsNullOrWhiteSpace(x.CompanyCode))
+                .GroupBy(x => x.CompanyCode.Trim().ToLower())
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateCodes.Any())
+            {
+                throw new Exception($"Duplicate CompanyCode found: {string.Join(", ", duplicateCodes)}");
+            }
+            foreach (var company in companies)
+            {
+                Console.WriteLine($"Name={company.CompanyName}, Code={company.CompanyCode},UserId={company.UserId}, Contact={company.CompanyContact}, Email={company.CompanyEmail}");
+            }
 
             await _unitOfWork.Repository<Company>().AddRangeAsync(companies);
             await _unitOfWork.CompleteAsync();
 
             return companies;
         }
-
         public async Task<CompanyDto> UpdateCompanyAsync(int id, CompanyDto dto)
         {
             var entity = await _unitOfWork.Repository<Company>().GetByIdAsync(id);
