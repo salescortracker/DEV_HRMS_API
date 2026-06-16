@@ -286,11 +286,11 @@ namespace BusinessLayer.Implementations
         join r in _context.RoleMasters on u.RoleId equals r.RoleId
        // join reg in _context.Regions on u.RegionId equals reg.RegionId
         //join c in _context.Companies on u.CompanyId equals c.CompanyId
-        join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
-        from d in deptJoin.DefaultIfEmpty()
-        join des in _context.Designations
-            on u.DesignationId equals des.DesignationId into desJoin
-        from des in desJoin.DefaultIfEmpty()
+        //join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
+        //from d in deptJoin.DefaultIfEmpty()
+        //join des in _context.Designations
+        //    on u.DesignationId equals des.DesignationId into desJoin
+        //from des in desJoin.DefaultIfEmpty()
 
 
         join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
@@ -314,13 +314,13 @@ namespace BusinessLayer.Implementations
             employeeCode = u.EmployeeCode,
 
             DepartmentId = u.DepartmentId,
-            DepartmentName = d.DepartmentName, // 🔥 STRING
+          //  DepartmentName = d.DepartmentName, // 🔥 STRING
 
             ReportingManagerId = u.ReportingTo,
             ReportingManagerName = rm.FullName, // 🔥 STRING
 
             DesignationId = u.DesignationId,
-            DesignationName = des.DesignationName,
+           // DesignationName = des.DesignationName,
 
 
             personalEmail = u.Email,

@@ -1582,6 +1582,14 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
+      "ZKemkeeper/1.0.2": {
+        "runtime": {
+          "lib/Interop.zkemkeeper.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "BusinessLayer/1.0.0": {
         "dependencies": {
           "DataAccessLayer": "1.0.0",
@@ -1594,6 +1602,7 @@
           "Newtonsoft.Json": "13.0.4",
           "PdfPig": "0.1.14",
           "SkiaSharp": "3.119.1",
+          "ZKemkeeper": "1.0.2",
           "itext7": "9.6.0",
           "itext7.bouncy-castle-adapter": "9.6.0"
         },
@@ -2813,6 +2822,13 @@
       "sha512": "sha512-lJ8AxvkX7GQxpC6GFCeBj8ThYVyQczx2+f/cWHJU8tjS7YfI6Cv6bon70jVEgs2CiFbmmM8b9j1oZVx0dSI2Ww==",
       "path": "system.xml.xmldocument/4.3.0",
       "hashPath": "system.xml.xmldocument.4.3.0.nupkg.sha512"
+    },
+    "ZKemkeeper/1.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-x+ROu82v+uQMHfrlRiGA4RpxV4FyzYASBv9Gp/hVVYJlzONsvDhsD67Xx0cyTJcd5In7EhJz6AkdVEsirH0djA==",
+      "path": "zkemkeeper/1.0.2",
+      "hashPath": "zkemkeeper.1.0.2.nupkg.sha512"
     },
     "BusinessLayer/1.0.0": {
       "type": "project",

@@ -1145,6 +1145,59 @@
         }
       }
     },
+    "/api/Attendance/GetAttendanceByDateRange": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "name": "employeeCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Attendance/AddclockinOut": {
       "post": {
         "tags": [
@@ -1294,6 +1347,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "TimesheetId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
                   "UserId": {
                     "type": "integer",
                     "format": "int32"
@@ -1347,6 +1404,9 @@
                 }
               },
               "encoding": {
+                "TimesheetId": {
+                  "style": "form"
+                },
                 "UserId": {
                   "style": "form"
                 },
@@ -8229,6 +8289,66 @@
         }
       }
     },
+    "/api/Employee/hr-designation-names": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Employee/users-by-company-region": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Employee/getAllempRefAsync": {
       "get": {
         "tags": [
@@ -9696,18 +9816,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Employee/GetLogs": {
-      "get": {
-        "tags": [
-          "Employee"
-        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -15061,6 +15169,36 @@
         }
       }
     },
+    "/api/MasterData/policy-category/company-region": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/MasterData/policy-category/{id}": {
       "get": {
         "tags": [
@@ -15155,6 +15293,29 @@
           {
             "name": "id",
             "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/GetAllResignations/{userId}": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -16235,7 +16396,15 @@
         ],
         "parameters": [
           {
-            "name": "userId",
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -20518,6 +20687,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "TimesheetId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
                   "UserId": {
                     "type": "integer",
                     "format": "int32"
@@ -20571,6 +20744,130 @@
                 }
               },
               "encoding": {
+                "TimesheetId": {
+                  "style": "form"
+                },
+                "UserId": {
+                  "style": "form"
+                },
+                "CompanyId": {
+                  "style": "form"
+                },
+                "RegionId": {
+                  "style": "form"
+                },
+                "EmployeeCode": {
+                  "style": "form"
+                },
+                "EmployeeName": {
+                  "style": "form"
+                },
+                "TimesheetDate": {
+                  "style": "form"
+                },
+                "Comments": {
+                  "style": "form"
+                },
+                "Attachment": {
+                  "style": "form"
+                },
+                "FileName": {
+                  "style": "form"
+                },
+                "FilePath": {
+                  "style": "form"
+                },
+                "HrEmail": {
+                  "style": "form"
+                },
+                "Projects": {
+                  "style": "form"
+                },
+                "Requests": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Timesheet/UpdateTimesheet": {
+      "put": {
+        "tags": [
+          "Timesheet"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "TimesheetId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "UserId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "CompanyId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RegionId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "EmployeeCode": {
+                    "type": "string"
+                  },
+                  "EmployeeName": {
+                    "type": "string"
+                  },
+                  "TimesheetDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "Comments": {
+                    "type": "string"
+                  },
+                  "Attachment": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "FileName": {
+                    "type": "string"
+                  },
+                  "FilePath": {
+                    "type": "string"
+                  },
+                  "HrEmail": {
+                    "type": "string"
+                  },
+                  "Projects": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TimesheetProjectDto"
+                    }
+                  },
+                  "Requests": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TimesheetRequestDto"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "TimesheetId": {
+                  "style": "form"
+                },
                 "UserId": {
                   "style": "form"
                 },
@@ -22764,18 +23061,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/UserManagement/GetALLSubcriptionUsers": {
-      "get": {
-        "tags": [
-          "UserManagement"
-        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -26065,6 +26350,112 @@
         },
         "additionalProperties": false
       },
+      "CompanyPoliciesMaster": {
+        "type": "object",
+        "properties": {
+          "policyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "policyTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "policyDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "postedDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "updatedBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "attachmentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "attachmentPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyPolicyDepartments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyPolicyDepartment"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CompanyPolicy": {
         "type": "object",
         "properties": {
@@ -26125,6 +26516,34 @@
           },
           "category": {
             "$ref": "#/components/schemas/PolicyCategory"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyPolicyDepartment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "policyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "department": {
+            "$ref": "#/components/schemas/Department"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/CompanyPoliciesMaster"
           }
         },
         "additionalProperties": false
@@ -26223,6 +26642,14 @@
           "departmentId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "departmentIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
             "nullable": true
           }
         },
@@ -26767,6 +27194,13 @@
           },
           "company": {
             "$ref": "#/components/schemas/Company"
+          },
+          "companyPolicyDepartments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyPolicyDepartment"
+            },
+            "nullable": true
           },
           "designations": {
             "type": "array",
@@ -28133,6 +28567,11 @@
           },
           "hrEmail": {
             "type": "string",
+            "nullable": true
+          },
+          "reportingHr": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         },
@@ -32923,6 +33362,10 @@
       "TimesheetRequestDto": {
         "type": "object",
         "properties": {
+          "timesheetId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "userId": {
             "type": "integer",
             "format": "int32"
@@ -33298,8 +33741,8 @@
             "nullable": true
           },
           "joiningDate": {
-            "type": "integer",
-            "format": "int32",
+            "type": "string",
+            "format": "date",
             "nullable": true
           },
           "employeeMasterCreatedByNavigations": {
@@ -33424,6 +33867,16 @@
           "designationId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "reportingHR": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "joiningDate": {
+            "type": "string",
+            "format": "date",
             "nullable": true
           }
         },

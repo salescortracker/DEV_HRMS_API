@@ -48,4 +48,6 @@ public partial class EmployeeResignation
     public string? HrReason { get; set; }
 
     public string? HrEmail { get; set; }
+
+    public int? ReportingHr { get; set; }
 }

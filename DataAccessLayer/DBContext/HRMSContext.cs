@@ -1,7 +1,6 @@
-﻿using DataAccessLayer.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.DBContext;
 
@@ -86,6 +85,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<CompanyEvent> CompanyEvents { get; set; }
 
+    public virtual DbSet<CompanyEventDepartment> CompanyEventDepartments { get; set; }
+
     public virtual DbSet<CompanyModule> CompanyModules { get; set; }
 
     public virtual DbSet<CompanyNews> CompanyNews { get; set; }
@@ -97,6 +98,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<CompanyPoliciesMaster> CompanyPoliciesMasters { get; set; }
 
     public virtual DbSet<CompanyPolicy> CompanyPolicies { get; set; }
+
+    public virtual DbSet<CompanyPolicyDepartment> CompanyPolicyDepartments { get; set; }
 
     public virtual DbSet<CompanyRegion> CompanyRegions { get; set; }
 
@@ -244,6 +247,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<MenuMaster> MenuMasters { get; set; }
 
+    public virtual DbSet<MenuMasterBackup20260610> MenuMasterBackup20260610s { get; set; }
+
     public virtual DbSet<MenuRoleMaster> MenuRoleMasters { get; set; }
 
     public virtual DbSet<MissedPunchRequest> MissedPunchRequests { get; set; }
@@ -342,14 +347,13 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<VisaTypeMaster> VisaTypeMasters { get; set; }
 
+    public virtual DbSet<VwDemoUsersSubscriptionDetail> VwDemoUsersSubscriptionDetails { get; set; }
+
     public virtual DbSet<Weekoff> Weekoffs { get; set; }
 
     public virtual DbSet<WfhremoteRequest> WfhremoteRequests { get; set; }
 
     public virtual DbSet<WorkAuthStatusMaster> WorkAuthStatusMasters { get; set; }
-
-    // VIEW TABLE 
-    public DbSet<DemoUserSubscriptionDto> DemoUserSubscriptionDtos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -1218,6 +1222,11 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("userId");
         });
 
+        modelBuilder.Entity<CompanyEventDepartment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CompanyE__3214EC07F90835E6");
+        });
+
         modelBuilder.Entity<CompanyModule>(entity =>
         {
             entity.HasKey(e => e.CompanyModuleId).HasName("PK__CompanyM__FCA1DFCF9745DAF0");
@@ -1311,6 +1320,25 @@ public partial class HRMSContext : DbContext
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_CompanyPolicies_PolicyCategory");
+        });
+
+        modelBuilder.Entity<CompanyPolicyDepartment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CompanyP__3214EC073A42AA84");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.CompanyPolicyDepartments)
+                .HasForeignKey(d => d.DepartmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CompanyPolicyDepartments_Department");
+
+            entity.HasOne(d => d.Policy).WithMany(p => p.CompanyPolicyDepartments)
+                .HasForeignKey(d => d.PolicyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CompanyPolicyDepartments_Policy");
         });
 
         modelBuilder.Entity<CompanyRegion>(entity =>
@@ -3230,6 +3258,23 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.Url).HasMaxLength(255);
         });
 
+        modelBuilder.Entity<MenuMasterBackup20260610>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("MenuMaster_Backup_20260610", "UM");
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.Icon).HasMaxLength(100);
+            entity.Property(e => e.MenuId)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("MenuID");
+            entity.Property(e => e.MenuName).HasMaxLength(100);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.ParentMenuId).HasColumnName("ParentMenuID");
+            entity.Property(e => e.Url).HasMaxLength(255);
+        });
+
         modelBuilder.Entity<MenuRoleMaster>(entity =>
         {
             entity.HasKey(e => e.MenuRoleId).HasName("PK__MenuRole__880F2CC11A60BA0C");
@@ -4311,6 +4356,28 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.VisaTypeName).HasMaxLength(100);
         });
 
+        modelBuilder.Entity<VwDemoUsersSubscriptionDetail>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vw_DemoUsersSubscriptionDetails", "UM");
+
+            entity.Property(e => e.Company).HasMaxLength(50);
+            entity.Property(e => e.DemoExpiry).HasColumnType("datetime");
+            entity.Property(e => e.DemoStart).HasColumnType("datetime");
+            entity.Property(e => e.Email)
+                .HasMaxLength(120)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+        });
+
         modelBuilder.Entity<Weekoff>(entity =>
         {
             entity.HasKey(e => e.WeekoffId).HasName("PK__Weekoff__382FA061E3A119CC");
@@ -4379,37 +4446,6 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.StatusName).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<DemoUserSubscriptionDto>(entity =>
-        {
-            entity.HasNoKey();
-
-            entity.ToView("vw_DemoUsersSubscriptionDetails", "UM");
-
-            entity.Property(e => e.UserID)
-                .HasColumnName("UserID");
-
-            entity.Property(e => e.Company)
-                .HasMaxLength(200);
-
-            entity.Property(e => e.Name)
-                .HasMaxLength(200);
-
-            entity.Property(e => e.Email)
-                .HasMaxLength(200);
-
-            entity.Property(e => e.Phone)
-                .HasMaxLength(50);
-
-            entity.Property(e => e.Status)
-                .HasMaxLength(50);
-
-            entity.Property(e => e.DemoStart)
-                .HasColumnType("datetime");
-
-            entity.Property(e => e.DemoExpiry)
-                .HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);

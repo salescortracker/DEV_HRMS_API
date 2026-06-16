@@ -26,5 +26,6 @@
         public string? HrEmail { get; set; } // ✅ ADD
 
         public List<PerformanceKPIDto>? KPIs { get; set; }
+
     }
 }

@@ -67,7 +67,7 @@ public partial class User
 
     public int? ReportingHr { get; set; }
 
-    public int? JoiningDate { get; set; }
+    public DateOnly? JoiningDate { get; set; }
 
     public virtual ICollection<EmployeeMaster> EmployeeMasterCreatedByNavigations { get; set; } = new List<EmployeeMaster>();
 

@@ -949,6 +949,42 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetAttendanceByDateRange",
+    "RelativePath": "api/Attendance/GetAttendanceByDateRange",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "employeeCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "fromDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "GetclockinoutAll",
     "RelativePath": "api/Attendance/GetclockinoutAll",
     "HttpMethod": "GET",
@@ -1365,6 +1401,11 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "TimesheetId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
       {
         "Name": "UserId",
         "Type": "System.Int32",
@@ -4187,16 +4228,6 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
-    "Method": "GetLogs",
-    "RelativePath": "api/Employee/GetLogs",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetManagerLeaves",
     "RelativePath": "api/Employee/GetManagerLeaves/{managerId}",
     "HttpMethod": "GET",
@@ -4549,6 +4580,27 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetUsersWithDesignation",
+    "RelativePath": "api/Employee/hr-designation-names",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -6441,6 +6493,27 @@
         "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetUsersByCompanyRegion",
+    "RelativePath": "api/Employee/users-by-company-region",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -9627,6 +9700,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetAllResignations",
+    "RelativePath": "api/MasterData/GetAllResignations/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "GetAlluserIdAsync",
     "RelativePath": "api/MasterData/GetAlluserIdAsync",
     "HttpMethod": "GET",
@@ -10283,7 +10372,12 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "userId",
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
         "Type": "System.Int32",
         "IsRequired": false
       }
@@ -10504,6 +10598,27 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetByCompanyAndRegion",
+    "RelativePath": "api/MasterData/policy-category/company-region",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -13407,6 +13522,11 @@
     "Order": 0,
     "Parameters": [
       {
+        "Name": "TimesheetId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
         "Name": "UserId",
         "Type": "System.Int32",
         "IsRequired": false
@@ -13486,6 +13606,87 @@
         "Name": "ids",
         "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.TimesheetController",
+    "Method": "UpdateTimesheet",
+    "RelativePath": "api/Timesheet/UpdateTimesheet",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "TimesheetId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "CompanyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "RegionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "EmployeeCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "EmployeeName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "TimesheetDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Comments",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Attachment",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "FileName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "FilePath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "HrEmail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Projects",
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.TimesheetProjectDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Requests",
+        "Type": "System.Collections.Generic.List\u00601[[BusinessLayer.DTOs.TimesheetRequestDto, BusinessLayer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -14090,16 +14291,6 @@
         "IsRequired": false
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
-    "Method": "GetALLSubcriptionUsers",
-    "RelativePath": "api/UserManagement/GetALLSubcriptionUsers",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
     "ReturnTypes": []
   },
   {

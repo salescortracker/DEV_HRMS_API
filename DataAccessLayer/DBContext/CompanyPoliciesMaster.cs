@@ -44,4 +44,6 @@ public partial class CompanyPoliciesMaster
     public string? AttachmentPath { get; set; }
 
     public int? DepartmentId { get; set; }
+
+    public virtual ICollection<CompanyPolicyDepartment> CompanyPolicyDepartments { get; set; } = new List<CompanyPolicyDepartment>();
 }
