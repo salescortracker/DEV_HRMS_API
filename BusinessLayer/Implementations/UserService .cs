@@ -47,10 +47,21 @@ namespace BusinessLayer.Implementations
         {
             try
             {
-                
+               
                 
                 if (userDto == null)
                     throw new ArgumentNullException(nameof(userDto));
+                var existingUser = await _context.Users
+                    .AnyAsync(u =>
+                        u.Email == userDto.Email &&
+                        u.CompanyId == userDto.CompanyID &&
+                        u.RegionId == userDto.RegionID
+                    );
+
+                if (existingUser)
+                {
+                    throw new Exception("This email already exists in the selected Company and Region.");
+                }
 
                 // ✅ Auto-generate Employee Code if not provided
                 string newEmployeeCode = userDto.EmployeeCode ?? await GenerateNextEmployeeCodeAsync();
@@ -122,10 +133,21 @@ namespace BusinessLayer.Implementations
 
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
+                    var ccEmails = await _context.Users
+                        .Where(u =>
+                            u.UserId == userDto.ReportingHR ||
+                            u.UserId == userDto.reportingTo
+                        )
+                        .Select(u => u.Email)
+                        .Where(e => !string.IsNullOrWhiteSpace(e))
+                        .Distinct()
+                        .ToListAsync();
 
                     // ✅ Send Welcome Email
                     await SendWelcomeEmailAsync(
-                       user, userDto.Password
+                       user, 
+                       userDto.Password,
+                       ccEmails
                     );
 
                 }
@@ -414,6 +436,18 @@ namespace BusinessLayer.Implementations
         {
             var existingUser = await _context.Users.FindAsync(updatedUser.userId);
             if (existingUser == null) return null;
+            var emailExists = await _context.Users
+            .AnyAsync(u =>
+                u.Email == updatedUser.Email &&
+                u.CompanyId == updatedUser.CompanyID &&
+                u.RegionId == updatedUser.RegionID &&
+                u.UserId != updatedUser.userId
+            );
+
+            if (emailExists)
+            {
+                throw new Exception("This email is already assigned to another user.");
+            }
 
             existingUser.FullName = updatedUser.FullName;
             existingUser.Email = updatedUser.Email;
@@ -442,7 +476,7 @@ namespace BusinessLayer.Implementations
             return true;
         }
 
-        public async Task SendWelcomeEmailAsync(DataAccessLayer.DBContext.User user,string password)
+        public async Task SendWelcomeEmailAsync(DataAccessLayer.DBContext.User user,string password, List<string>? ccEmails = null)
         {
             try
             {
@@ -539,6 +573,16 @@ namespace BusinessLayer.Implementations
                         IsBodyHtml = true
                     };
                     mailMessage.To.Add(user.Email);
+                    if (ccEmails != null && ccEmails.Any())
+                    {
+                        foreach (var cc in ccEmails)
+                        {
+                            if (!string.IsNullOrWhiteSpace(cc))
+                            {
+                                mailMessage.CC.Add(cc);
+                            }
+                        }
+                    }
 
                     await smtpClient.SendMailAsync(mailMessage);
                 }
