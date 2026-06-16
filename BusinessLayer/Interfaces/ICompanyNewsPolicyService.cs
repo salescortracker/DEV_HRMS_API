@@ -13,7 +13,7 @@ namespace BusinessLayer.Interfaces
 
         Task<IEnumerable<CompanyNewsMasterDto>> GetAllNewsAsync(int userId);
 
-        Task<IEnumerable<CompanyNewsMasterDto>> GetTodayNewsAsync(int userId);
+        Task<IEnumerable<CompanyNewsMasterDto>> GetTodayNewsAsync(int companyId, int regionId);
 
         Task<CompanyNewsMasterDto?> GetNewsByIdAsync(int id, int userId);
 

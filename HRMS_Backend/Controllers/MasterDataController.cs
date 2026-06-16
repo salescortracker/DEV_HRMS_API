@@ -3462,10 +3462,17 @@ int regionId)
             return Ok(result);
         }
 
+        //[HttpGet("GetTodayNews")]
+        //public async Task<IActionResult> GetTodayNews(int userId)
+        //{
+        //    var result = await _companyNewsPolicyService.GetTodayNewsAsync(userId);
+        //    return Ok(result);
+        //}
+
         [HttpGet("GetTodayNews")]
-        public async Task<IActionResult> GetTodayNews(int userId)
+        public async Task<IActionResult> GetTodayNews(int companyId, int regionId)
         {
-            var result = await _companyNewsPolicyService.GetTodayNewsAsync(userId);
+            var result = await _companyNewsPolicyService.GetTodayNewsAsync(companyId, regionId);
             return Ok(result);
         }
 
