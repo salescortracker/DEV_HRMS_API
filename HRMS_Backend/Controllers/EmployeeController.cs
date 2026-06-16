@@ -2248,6 +2248,12 @@ public class UpdateResignationStatusRequest
 
             return Ok(result);
         }
+        [HttpGet("manager-employees")]
+        public async Task<IActionResult> GetManagerEmployees(int loginUserId)
+        {
+            var result = await _employeeService.GetManagerEmployees(loginUserId);
+            return Ok(result);
+        }
 
         /// <summary>
         /// Get relationship list for emergency contact dropdowns
