@@ -4,6 +4,7 @@ using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
@@ -217,11 +218,227 @@ namespace HRMS_Backend.Controllers
                             Summary = result
                         });
 
-                    // Add more entity cases as needed
-                    
+                    case "user":
+
+                        var users = new List<UserCreateDto>();
+
+                        foreach (var item in request.Data)
+                        {
+                            UserCreateDto? user = null;
+
+                            switch (item)
+                            {
+                                case JObject jobj:
+                                    user = jobj.ToObject<UserCreateDto>();
+                                    break;
+
+                                case JsonElement jsonElement:
+                                    var json = jsonElement.GetRawText();
+                                    user = JsonConvert.DeserializeObject<UserCreateDto>(json);
+                                    break;
+                            }
+
+                            if (user != null)
+                                users.Add(user);
+                        }
+
+                        if (!users.Any())
+                        {
+                            return BadRequest(new
+                            {
+                                Success = false,
+                                Message = "Failed to parse user data."
+                            });
+                        }
+
+                        foreach (var user in users)
+                        {
+
+                            // Company Name → Company ID
+                            user.CompanyID = await _hRMSContext.Companies
+                                .Where(x => x.CompanyName == user.CompanyName)
+                                .Select(x => x.CompanyId)
+                                .FirstOrDefaultAsync();
+
+                            if (user.CompanyID == 0)
+                            {
+                                return BadRequest(new
+                                {
+                                    Success = false,
+                                    Message = $"Company '{user.CompanyName}' not found."
+                                });
+                            }
+
+                            // Region Name → Region ID
+                            user.RegionID = await _hRMSContext.Regions
+                            .Where(x =>
+                                x.RegionName == user.RegionName &&
+                                x.CompanyId == user.CompanyID)
+                            .Select(x => x.RegionId)
+                            .FirstOrDefaultAsync();
+                            if (user.RegionID == 0)
+                            {
+                                return BadRequest(new
+                                {
+                                    Success = false,
+                                    Message = $"Region '{user.RegionName}' not found."
+                                });
+                            }
+
+                            // Role Name → Role ID
+                            user.RoleId = await _hRMSContext.RoleMasters
+                            .Where(x =>
+                                x.RoleName == user.RoleName &&
+                                x.CompanyId == user.CompanyID &&
+                                x.RegionId == user.RegionID)
+                            .Select(x => x.RoleId)
+                            .FirstOrDefaultAsync();
+
+                            if (user.RoleId == 0)
+                            {
+                                return BadRequest(new
+                                {
+                                    Success = false,
+                                    Message = $"Role '{user.RoleName}' not found."
+                                });
+                            }
+
+                            // Department Name → Department ID
+                            user.departmentId = await _hRMSContext.Departments
+                             .Where(x =>
+                                 x.DepartmentName == user.DepartmentName &&
+                                 x.CompanyId == user.CompanyID &&
+                                 x.RegionId == user.RegionID)
+                             .Select(x => x.DepartmentId)
+                             .FirstOrDefaultAsync();
+
+                            if (user.departmentId == 0)
+                            {
+                                return BadRequest(new
+                                {
+                                    Success = false,
+                                    Message = $"Department '{user.DepartmentName}' not found."
+                                });
+                            }
+
+
+                            // Designation Name → Designation ID
+                            user.DesignationId = await _hRMSContext.Designations
+                            .Where(x =>
+                                x.DesignationName == user.DesignationName &&
+                                x.CompanyId == user.CompanyID &&
+                                x.RegionId == user.RegionID)
+                            .Select(x => x.DesignationId)
+                            .FirstOrDefaultAsync();
+
+
+                            if (user.DesignationId == 0)
+                            {
+                                return BadRequest(new
+                                {
+                                    Success = false,
+                                    Message = $"Designation '{user.DesignationName}' not found."
+                                });
+                            }
+
+                            // Reporting Manager Name -> UserId
+                            if (!string.IsNullOrWhiteSpace(user.ReportingToName))
+                            {
+                                user.reportingTo = await _hRMSContext.Users
+                                    .Where(x =>
+                                        x.FullName == user.ReportingToName &&
+                                        x.CompanyId == user.CompanyID &&
+                                        x.RegionId == user.RegionID)
+                                    .Select(x => x.UserId)
+                                    .FirstOrDefaultAsync();
+
+                                if (user.reportingTo == 0)
+                                {
+                                    return BadRequest(new
+                                    {
+                                        Success = false,
+                                        Message = $"Reporting Manager '{user.ReportingToName}' not found."
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                user.reportingTo = 0;
+                            }
+
+                            // Reporting HR Name -> UserId
+                            if (!string.IsNullOrWhiteSpace(user.ReportingHRName))
+                            {
+                                user.ReportingHR = await _hRMSContext.Users
+                                    .Where(x =>
+                                        x.FullName == user.ReportingHRName &&
+                                        x.CompanyId == user.CompanyID &&
+                                        x.RegionId == user.RegionID)
+                                    .Select(x => x.UserId)
+                                    .FirstOrDefaultAsync();
+
+                                if (user.ReportingHR == 0)
+                                {
+                                    return BadRequest(new
+                                    {
+                                        Success = false,
+                                        Message = $"Reporting HR '{user.ReportingHRName}' not found."
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                user.ReportingHR = 0;
+                            }
+
+                            //if (string.IsNullOrWhiteSpace(user.EmployeeCode))
+                            //{
+                            //    var lastCode = await _hRMSContext.Users
+                            //        .Where(x =>
+                            //            x.CompanyId == user.CompanyID &&
+                            //            x.RegionId == user.RegionID)
+                            //        .OrderByDescending(x => x.EmployeeCode)
+                            //        .Select(x => x.EmployeeCode)
+                            //        .FirstOrDefaultAsync();
+
+                            //    int nextNumber = 1;
+
+                            //    if (!string.IsNullOrEmpty(lastCode))
+                            //    {
+                            //        var numericPart = new string(lastCode.Where(char.IsDigit).ToArray());
+
+                            //        if (int.TryParse(numericPart, out int current))
+                            //            nextNumber = current + 1;
+                            //    }
+
+                            //    user.EmployeeCode = $"EMP{nextNumber:D4}";
+                            //}
+
+
+                            await _userService.CreateUserAsync(user);
+                            //if (user.DesignationId == 0)
+                            //{
+                            //    return BadRequest(new
+                            //    {
+                            //        Success = false,
+                            //        Message = $"Designation '{user.DesignationName}' not found."
+                            //    });
+                            //}
+                        }
+
+                        return Ok(new
+                        {
+                            Success = true,
+                            Message = $"{users.Count} users inserted successfully."
+                        });
+
 
                     default:
-                        return BadRequest(new { Success = false, Message = "Unsupported entity type." });
+                        return BadRequest(new
+                        {
+                            Success = false,
+                            Message = "Unsupported entity type."
+                        });
                 }
             }
             catch (Exception ex)
