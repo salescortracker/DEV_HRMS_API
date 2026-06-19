@@ -3277,10 +3277,17 @@ namespace HRMS_Backend.Controllers
         public IActionResult CreateResignation([FromForm] ResignationDto dto, [FromQuery] int userId)
         {
             var success = _resignationService.Create(dto, userId);
+            //if (!success)
+            //    return BadRequest(new { message = "Resignation type already exists!" });
+
             if (!success)
-                return BadRequest(new { message = "Resignation type already exists!" });
+                return BadRequest(new
+                {
+                    message = "Resignation Type already exists for the selected Company and Region."
+                });
 
             return Ok(new { message = "Created successfully" });
+
         }
 
         [HttpPost("UpdateResignation/{id:int}")]
@@ -3980,10 +3987,10 @@ int regionId)
         {
             var result = await _accountTypeService.UpdateAccountType(dto);
 
-            if (result)
-                return Ok(new { message = "Account Type updated successfully" });
+            if (!result)
+                return BadRequest(new { message = "Account Type already exists" });
 
-            return BadRequest("Failed to update Account Type");
+            return Ok(new { message = "Account Type updated successfully" });
         }
         [HttpPost("DeleteAccountType/{id}")]
         public async Task<IActionResult> DeleteAccountType(int id)

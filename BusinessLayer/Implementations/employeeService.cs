@@ -3123,6 +3123,10 @@ namespace BusinessLayer.Implementations
                     on u.UserId equals ep.UserId into epJoin
                 from ep in epJoin.DefaultIfEmpty()
 
+                join c in _context.Companies
+    on u.CompanyId equals c.CompanyId into cJoin
+                from c in cJoin.DefaultIfEmpty()
+
                 join rm in _context.Users
                     on u.ReportingTo equals rm.UserId into rmJoin
                 from rm in rmJoin.DefaultIfEmpty()
@@ -3147,6 +3151,8 @@ namespace BusinessLayer.Implementations
                 {
                     EmployeeCode = u.EmployeeCode,
                     FullName = u.FullName,
+                    CompanyName = c.CompanyName,
+                    RegionName = reg.RegionName,
                     Email = u.Email,
 
                     Phone = ep.MobileNumber,

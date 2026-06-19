@@ -72,6 +72,17 @@ namespace BusinessLayer.Implementations
 
         public bool Create(ResignationDto dto, int userId)
         {
+
+
+            var exists = _db.Resignations.Any(x =>
+            !x.IsDeleted &&
+            x.CompanyId == dto.CompanyId &&
+            x.RegionId == dto.RegionId &&
+            x.ResignationType.Trim().ToLower() == dto.ResignationType.Trim().ToLower());
+
+                if (exists)
+                    return false;
+
             var entity = new Resignation
             {
                 CompanyId = dto.CompanyId,
@@ -95,6 +106,18 @@ namespace BusinessLayer.Implementations
             var entity = _db.Resignations.FirstOrDefault(x => x.ResignationId == id);
             if (entity == null) return false;
 
+            var exists = _db.Resignations.Any(x =>
+            !x.IsDeleted &&
+            x.ResignationId != id &&
+            x.CompanyId == dto.CompanyId &&
+            x.RegionId == dto.RegionId &&
+            x.ResignationType.Trim().ToLower() == dto.ResignationType.Trim().ToLower());
+
+                    if (exists)
+                        return false;
+
+            entity.CompanyId = dto.CompanyId;
+            entity.RegionId = dto.RegionId;
             entity.ResignationType = dto.ResignationType;
             entity.NoticePeriodDays = dto.NoticePeriodDays;
             entity.IsActive = dto.IsActive;
