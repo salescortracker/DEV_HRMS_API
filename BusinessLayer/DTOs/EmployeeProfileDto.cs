@@ -10,6 +10,9 @@ namespace BusinessLayer.DTOs
     {
         public string EmployeeCode { get; set; }
         public string FullName { get; set; }
+
+        public string CompanyName { get; set; }
+        public string RegionName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
 
