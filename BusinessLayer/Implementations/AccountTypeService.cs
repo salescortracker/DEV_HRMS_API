@@ -43,6 +43,19 @@ namespace BusinessLayer.Implementations
         // 🔹 CREATE
         public async Task<bool> CreateAccountType(AccountTypeDto dto)
         {
+
+
+
+            var exists = await _context.AccountTypes
+             .AnyAsync(x =>
+            !x.IsDeleted &&
+            x.CompanyId == dto.CompanyId &&
+            x.RegionId == dto.RegionId &&
+            x.AccountType1.Trim().ToLower() == dto.AccountType1.Trim().ToLower());
+
+                if (exists)
+                    return false;
+
             var entity = new AccountType
             {
                 CompanyId = dto.CompanyId,
@@ -67,6 +80,17 @@ namespace BusinessLayer.Implementations
                 .FirstOrDefaultAsync(x => x.AccountTypeId == dto.AccountTypeId);
 
             if (entity == null)
+                return false;
+
+            var exists = await _context.AccountTypes
+              .AnyAsync(x =>
+            !x.IsDeleted &&
+            x.AccountTypeId != dto.AccountTypeId &&
+            x.CompanyId == dto.CompanyId &&
+            x.RegionId == dto.RegionId &&
+            x.AccountType1.Trim().ToLower() == dto.AccountType1.Trim().ToLower());
+
+            if (exists)
                 return false;
 
             entity.CompanyId = dto.CompanyId;
