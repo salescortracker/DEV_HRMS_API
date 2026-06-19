@@ -11,27 +11,27 @@ namespace BusinessLayer.DTOs
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
         public DateOnly DateOfBirth { get; set; }
-        public int genderId { get; set; }
-        public string MobileNumber { get; set; }
-        public string PersonalEmail { get; set; }
-        public string PermanentAddress { get; set; }
-        public string PresentAddress { get; set; }
+        public int? genderId { get; set; }
+        public string? MobileNumber { get; set; }
+        public string? PersonalEmail { get; set; }
+        public string? PermanentAddress { get; set; }
+        public string? PresentAddress { get; set; }
         public string PanNumber { get; set; }
         public string AadhaarNumber { get; set; }
-        public string PassportNumber { get; set; }
-        public string PlaceOfBirth { get; set; }
-        public string Uan { get; set; }
-        public string BloodGroup { get; set; }
-        public string Citizenship { get; set; }
-        public string Religion { get; set; }
-        public string DrivingLicence { get; set; }
-        public int maritalStatusId { get; set; }
+        public string? PassportNumber { get; set; }
+        public string? PlaceOfBirth { get; set; }
+        public string? Uan { get; set; }
+        public string? BloodGroup { get; set; }
+        public string? Citizenship { get; set; }
+        public string? Religion { get; set; }
+        public string? DrivingLicence { get; set; }
+        public int? maritalStatusId { get; set; }
         public DateOnly? MarriageDate { get; set; }
-        public string WorkPhone { get; set; }
-        public string LinkedInProfile { get; set; }
-        public string PreviousExperience { get; set; }
+        public string? WorkPhone { get; set; }
+        public string? LinkedInProfile { get; set; }
+        public string? PreviousExperience { get; set; }
         public IFormFile? profilePicture { get; set; }
         public string? profilePicturePath { get; set; }
         public string brandGrade { get; set; }
