@@ -63,8 +63,29 @@ namespace BusinessLayer.Implementations
                     throw new Exception("This email already exists in the selected Company and Region.");
                 }
 
-                // ✅ Auto-generate Employee Code if not provided
-                string newEmployeeCode = userDto.EmployeeCode ?? await GenerateNextEmployeeCodeAsync();
+              
+                if (string.IsNullOrWhiteSpace(userDto.EmployeeCode))
+                {
+                    var employeeCodes = await _context.Users
+                        .Where(x =>
+                            x.CompanyId == userDto.CompanyID &&
+                            x.RegionId == userDto.RegionID)
+                        .Select(x => x.EmployeeCode)
+                        .ToListAsync();
+
+                    int maxNumber = employeeCodes
+                        .Select(c =>
+                        {
+                            var num = new string((c ?? "").Where(char.IsDigit).ToArray());
+                            return int.TryParse(num, out int n) ? n : 0;
+                        })
+                        .DefaultIfEmpty(0)
+                        .Max();
+
+                    userDto.EmployeeCode = $"EMP{(maxNumber + 1):D4}";
+                }
+                string newEmployeeCode = userDto.EmployeeCode;
+
 
                 // ✅ Hash Password
                 string hashedPassword = HashPassword(userDto.Password);
@@ -82,6 +103,7 @@ namespace BusinessLayer.Implementations
                         Type = "Demo",
                         CompanyId = 1,
                         RegionId = 2,
+                        EmployeeCode = newEmployeeCode,
                         RoleId = 1,
                         PasswordHash = "Demo@123", // In real scenarios, hash the password properly
                         DemoStartDate = DateTime.UtcNow,
