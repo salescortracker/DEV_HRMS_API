@@ -93,6 +93,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<CompanyNews1> CompanyNews1 { get; set; }
 
+    public virtual DbSet<CompanyNewsDepartment> CompanyNewsDepartments { get; set; }
+
     public virtual DbSet<CompanyNewsMaster> CompanyNewsMasters { get; set; }
 
     public virtual DbSet<CompanyPoliciesMaster> CompanyPoliciesMasters { get; set; }
@@ -1156,12 +1158,20 @@ public partial class HRMSContext : DbContext
             entity.ToTable("ClockInOut", "attendance");
 
             entity.Property(e => e.ActionType).HasMaxLength(20);
+            entity.Property(e => e.ApprovedAt).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.EmployeeCode).HasMaxLength(50);
             entity.Property(e => e.EmployeeName).HasMaxLength(100);
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.RegulationComment)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.RegulationRequested).HasDefaultValue(false);
+            entity.Property(e => e.RegulationStatus)
+                .HasMaxLength(20)
+                .IsUnicode(false);
             entity.Property(e => e.Status).HasMaxLength(20);
         });
 
@@ -1267,6 +1277,27 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UserId).HasColumnName("userId");
+        });
+
+        modelBuilder.Entity<CompanyNewsDepartment>(entity =>
+        {
+            entity.HasKey(e => e.NewsDepartmentId).HasName("PK__CompanyN__70D1547EC2A0B62F");
+
+            entity.ToTable("CompanyNewsDepartment", "adminmaster");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.CompanyNewsDepartments)
+                .HasForeignKey(d => d.DepartmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CompanyNe__Depar__6CC31A31");
+
+            entity.HasOne(d => d.News).WithMany(p => p.CompanyNewsDepartments)
+                .HasForeignKey(d => d.NewsId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CompanyNe__NewsI__6DB73E6A");
         });
 
         modelBuilder.Entity<CompanyNewsMaster>(entity =>
@@ -2301,12 +2332,10 @@ public partial class HRMSContext : DbContext
 
             entity.HasOne(d => d.Gender).WithMany(p => p.EmployeePersonalDetails)
                 .HasForeignKey(d => d.GenderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EmployeePersonalDetails_Gender");
 
             entity.HasOne(d => d.MaritalStatus).WithMany(p => p.EmployeePersonalDetails)
                 .HasForeignKey(d => d.MaritalStatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EmployeePersonalDetails_MaritalStatus");
         });
 

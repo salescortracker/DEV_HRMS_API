@@ -15,19 +15,19 @@ public partial class EmployeePersonalDetail
 
     public string FirstName { get; set; } = null!;
 
-    public string LastName { get; set; } = null!;
+    public string? LastName { get; set; }
 
     public DateOnly DateOfBirth { get; set; }
 
-    public int GenderId { get; set; }
+    public int? GenderId { get; set; }
 
-    public string MobileNumber { get; set; } = null!;
+    public string? MobileNumber { get; set; }
 
-    public string PersonalEmail { get; set; } = null!;
+    public string? PersonalEmail { get; set; }
 
-    public string PermanentAddress { get; set; } = null!;
+    public string? PermanentAddress { get; set; }
 
-    public string PresentAddress { get; set; } = null!;
+    public string? PresentAddress { get; set; }
 
     public string Pannumber { get; set; } = null!;
 
@@ -45,7 +45,7 @@ public partial class EmployeePersonalDetail
 
     public string? Uan { get; set; }
 
-    public string BloodGroup { get; set; } = null!;
+    public string? BloodGroup { get; set; }
 
     public string? Citizenship { get; set; }
 
@@ -53,7 +53,7 @@ public partial class EmployeePersonalDetail
 
     public string? DrivingLicence { get; set; }
 
-    public int MaritalStatusId { get; set; }
+    public int? MaritalStatusId { get; set; }
 
     public DateOnly? MarriageDate { get; set; }
 
@@ -85,7 +85,7 @@ public partial class EmployeePersonalDetail
 
     public string? ProfilePicture { get; set; }
 
-    public virtual Gender Gender { get; set; } = null!;
+    public virtual Gender? Gender { get; set; }
 
-    public virtual MaritalStatus MaritalStatus { get; set; } = null!;
+    public virtual MaritalStatus? MaritalStatus { get; set; }
 }

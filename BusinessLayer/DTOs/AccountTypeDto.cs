@@ -11,8 +11,10 @@ namespace BusinessLayer.DTOs
         public int AccountTypeId { get; set; }
 
         public int CompanyId { get; set; }
+        public string? CompanyName { get; set; }
 
         public int RegionId { get; set; }
+        public string? RegionName { get; set; }
 
         public string AccountType1 { get; set; } = null!;
 

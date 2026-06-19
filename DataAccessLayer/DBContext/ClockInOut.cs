@@ -42,4 +42,14 @@ public partial class ClockInOut
     public bool ShiftEndReminderSent { get; set; }
 
     public bool LessThan8HrMailSent { get; set; }
+
+    public bool? RegulationRequested { get; set; }
+
+    public string? RegulationStatus { get; set; }
+
+    public string? RegulationComment { get; set; }
+
+    public int? ApprovedBy { get; set; }
+
+    public DateTime? ApprovedAt { get; set; }
 }

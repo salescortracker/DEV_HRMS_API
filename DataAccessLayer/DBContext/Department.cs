@@ -29,6 +29,8 @@ public partial class Department
 
     public virtual Company Company { get; set; } = null!;
 
+    public virtual ICollection<CompanyNewsDepartment> CompanyNewsDepartments { get; set; } = new List<CompanyNewsDepartment>();
+
     public virtual ICollection<CompanyPolicyDepartment> CompanyPolicyDepartments { get; set; } = new List<CompanyPolicyDepartment>();
 
     public virtual ICollection<Designation> Designations { get; set; } = new List<Designation>();
