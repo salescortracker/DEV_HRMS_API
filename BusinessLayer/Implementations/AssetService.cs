@@ -285,6 +285,18 @@ namespace BusinessLayer.Implementations
 
             if (manager != null && !string.IsNullOrEmpty(manager.Email))
             {
+                string? reportingHrEmail = null;
+
+                var employee = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == dto.UserID);
+
+                if (employee?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
                 // ✅ STEP 2: Build Email Body
                 var body = $@"
             <h3>New Asset Request</h3>
@@ -306,12 +318,26 @@ namespace BusinessLayer.Implementations
                 //    "New Asset Request Approval",
                 //    body
                 //);
-                List<string> ccEmails = new List<string>();
+                var ccEmails = new List<string>();
 
+                // Reporting HR
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                {
+                    ccEmails.Add(reportingHrEmail);
+                }
+
+                // UI CC Emails
                 if (!string.IsNullOrWhiteSpace(dto.HrEmail))
                 {
-                    ccEmails.Add(dto.HrEmail);
+                    ccEmails.AddRange(
+                        dto.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                    );
                 }
+
+                ccEmails = ccEmails.Distinct().ToList();
 
                 await _emailService.SendEmailAsync(
                     manager.Email,
