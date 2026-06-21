@@ -236,10 +236,30 @@ namespace BusinessLayer.Implementations
             if (dto.Status == "Submitted")
             {
                 // 🔹 Get Employee
+                //var employee = await _context.Users
+                //    .Where(x => x.UserId == dto.UserId)
+                //    .Select(x => new { x.Email, x.FullName })
+                //    .FirstOrDefaultAsync();
+
                 var employee = await _context.Users
-                    .Where(x => x.UserId == dto.UserId)
-                    .Select(x => new { x.Email, x.FullName })
-                    .FirstOrDefaultAsync();
+    .Where(x => x.UserId == dto.UserId)
+    .Select(x => new
+    {
+        x.Email,
+        x.FullName,
+        x.ReportingHr
+    })
+    .FirstOrDefaultAsync();
+
+                string? reportingHrEmail = null;
+
+                if (employee?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
 
                 // 🔹 Get Manager
                 var manager = await _context.Users
@@ -271,13 +291,41 @@ namespace BusinessLayer.Implementations
             <p>Regards,<br/><b>HRMS Team</b></p>
         </div>";
 
+                    //await _emailService.SendEmailAsync(
+                    //    manager.Email,
+                    //    "KPI Submitted for Review",
+                    //    body,
+                    //    string.IsNullOrEmpty(dto.HrEmail)
+                    //        ? null
+                    //        : new List<string> { dto.HrEmail }
+                    //);
+
+                    var ccList = new List<string>();
+
+                    // Reporting HR
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // UI CC Emails
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList.AddRange(
+                            dto.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
+                    }
+
+                    ccList = ccList.Distinct().ToList();
+
                     await _emailService.SendEmailAsync(
                         manager.Email,
                         "KPI Submitted for Review",
                         body,
-                        string.IsNullOrEmpty(dto.HrEmail)
-                            ? null
-                            : new List<string> { dto.HrEmail }
+                        ccList
                     );
                 }
 
@@ -404,14 +452,34 @@ namespace BusinessLayer.Implementations
 
             // GET EMPLOYEE
 
+            //var employee = await _context.Users
+            //       .Where(x => x.UserId == review.UserId)
+            //       .Select(x => new
+            //       {
+            //           x.Email,
+            //           x.FullName
+            //       })
+            //       .FirstOrDefaultAsync();
+
             var employee = await _context.Users
-                   .Where(x => x.UserId == review.UserId)
-                   .Select(x => new
-                   {
-                       x.Email,
-                       x.FullName
-                   })
-                   .FirstOrDefaultAsync();
+    .Where(x => x.UserId == review.UserId)
+    .Select(x => new
+    {
+        x.Email,
+        x.FullName,
+        x.ReportingHr
+    })
+    .FirstOrDefaultAsync();
+
+            string? reportingHrEmail = null;
+
+            if (employee?.ReportingHr != null)
+            {
+                var reportingHrUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
 
             // GET MANAGER
 
@@ -455,13 +523,30 @@ namespace BusinessLayer.Implementations
  
                   </div>";
 
+                var ccList = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                {
+                    ccList.Add(reportingHrEmail);
+                }
+
+                if (!string.IsNullOrWhiteSpace(review.HrEmail))
+                {
+                    ccList.AddRange(
+                        review.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                    );
+                }
+
+                ccList = ccList.Distinct().ToList();
+
                 await _emailService.SendEmailAsync(
                     employee.Email,
                     "KPI Review Approved",
                     body,
-                    string.IsNullOrEmpty(review.HrEmail)
-                        ? null
-                        : new List<string> { review.HrEmail }
+                    ccList
                 );
             }
 
@@ -490,14 +575,34 @@ namespace BusinessLayer.Implementations
 
             // GET EMPLOYEE
 
+            //var employee = await _context.Users
+            //    .Where(x => x.UserId == review.UserId)
+            //    .Select(x => new
+            //    {
+            //        x.Email,
+            //        x.FullName
+            //    })
+            //    .FirstOrDefaultAsync();
+
             var employee = await _context.Users
-                .Where(x => x.UserId == review.UserId)
-                .Select(x => new
-                {
-                    x.Email,
-                    x.FullName
-                })
-                .FirstOrDefaultAsync();
+    .Where(x => x.UserId == review.UserId)
+    .Select(x => new
+    {
+        x.Email,
+        x.FullName,
+        x.ReportingHr
+    })
+    .FirstOrDefaultAsync();
+
+            string? reportingHrEmail = null;
+
+            if (employee?.ReportingHr != null)
+            {
+                var reportingHrUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
 
             // EMAIL TO EMPLOYEE
 
@@ -536,14 +641,40 @@ namespace BusinessLayer.Implementations
  
              </div>";
 
-                await _emailService.SendEmailAsync(
+                //await _emailService.SendEmailAsync(
 
+                //    employee.Email,
+                //    "KPI Review Rejected",
+                //    body,
+                //    string.IsNullOrEmpty(review.HrEmail)
+                //        ? null
+                //        : new List<string> { review.HrEmail }
+                //);
+
+                var ccList = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                {
+                    ccList.Add(reportingHrEmail);
+                }
+
+                if (!string.IsNullOrWhiteSpace(review.HrEmail))
+                {
+                    ccList.AddRange(
+                        review.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                    );
+                }
+
+                ccList = ccList.Distinct().ToList();
+
+                await _emailService.SendEmailAsync(
                     employee.Email,
                     "KPI Review Rejected",
                     body,
-                    string.IsNullOrEmpty(review.HrEmail)
-                        ? null
-                        : new List<string> { review.HrEmail }
+                    ccList
                 );
             }
 
