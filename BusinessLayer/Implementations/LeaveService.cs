@@ -634,6 +634,15 @@ namespace BusinessLayer.Implementations
 
                 var employee = await _unitOfWork.Repository<User>()
                     .GetByIdAsync(leave.UserId);
+                string? reportingHrEmail = null;
+
+                if (employee.ReportingHr.HasValue)
+                {
+                    var reportingHrUser = await _unitOfWork.Repository<User>()
+                        .GetByIdAsync(employee.ReportingHr.Value);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
 
                 var leaveType = await _unitOfWork.Repository<LeaveType>()
                     .GetByIdAsync(leave.LeaveTypeId);
@@ -668,12 +677,26 @@ namespace BusinessLayer.Implementations
         </html>";
 
                 // await _emailService.SendEmailAsync(manager.Email, subject, body);
-                List<string> ccEmails = new List<string>();
+                var ccEmails = new List<string>();
 
-                if (!string.IsNullOrEmpty(leave.HrEmail))
+                // Reporting HR
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
                 {
-                    ccEmails.Add(leave.HrEmail);
+                    ccEmails.Add(reportingHrEmail);
                 }
+
+                // UI CC Emails
+                if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+                {
+                    ccEmails.AddRange(
+                        leave.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                    );
+                }
+
+                ccEmails = ccEmails.Distinct().ToList();
 
                 await _emailService.SendEmailAsync(
                     manager.Email,
@@ -704,10 +727,40 @@ namespace BusinessLayer.Implementations
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(leave.UserId);
             if (user != null)
             {
+                string? reportingHrEmail = null;
+
+                if (user.ReportingHr.HasValue)
+                {
+                    var reportingHrUser = await _unitOfWork.Repository<User>()
+                        .GetByIdAsync(user.ReportingHr.Value);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
+
+                var ccList = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                {
+                    ccList.Add(reportingHrEmail);
+                }
+
+                if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+                {
+                    ccList.AddRange(
+                        leave.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                    );
+                }
+
+                ccList = ccList.Distinct().ToList();
+
                 await _emailService.SendEmailAsync(
                     user.Email,
                     "Leave Approved",
-                    $"Hello {user.FullName},<br>Your leave has been <b>approved</b>.");
+                    $"Hello {user.FullName},<br>Your leave has been <b>approved</b>.",
+                    ccList
+                );
             }
 
 
@@ -742,10 +795,40 @@ namespace BusinessLayer.Implementations
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(leave.UserId);
             if (user != null)
             {
+                string? reportingHrEmail = null;
+
+                if (user.ReportingHr.HasValue)
+                {
+                    var reportingHrUser = await _unitOfWork.Repository<User>()
+                        .GetByIdAsync(user.ReportingHr.Value);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
+
+                var ccList = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                {
+                    ccList.Add(reportingHrEmail);
+                }
+
+                if (!string.IsNullOrWhiteSpace(leave.HrEmail))
+                {
+                    ccList.AddRange(
+                        leave.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                    );
+                }
+
+                ccList = ccList.Distinct().ToList();
+
                 await _emailService.SendEmailAsync(
                     user.Email,
                     "Leave Rejected",
-                    $"Hello {user.FullName},<br>Your leave has been <b>rejected</b>.");
+                    $"Hello {user.FullName},<br>Your leave has been <b>rejected</b>.",
+                    ccList
+                );
             }
 
             // ✅ HR Email
