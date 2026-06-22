@@ -219,7 +219,7 @@ namespace HRMS_Backend.Controllers
                         });
 
                     case "user":
-
+                        var validationErrors = new List<string>();
                         var users = new List<UserCreateDto>();
 
                         foreach (var item in request.Data)
@@ -260,14 +260,23 @@ namespace HRMS_Backend.Controllers
                                 .Select(x => x.CompanyId)
                                 .FirstOrDefaultAsync();
 
+                            //if (user.CompanyID == 0)
+                            //{
+                            //    return BadRequest(new
+                            //    {
+                            //        Success = false,
+                            //        Message = $"Company '{user.CompanyName}' not found."
+                            //    });
+                            //}
+
                             if (user.CompanyID == 0)
                             {
-                                return BadRequest(new
-                                {
-                                    Success = false,
-                                    Message = $"Company '{user.CompanyName}' not found."
-                                });
+                                validationErrors.Add(
+                                    $"{user.FullName} - Company '{user.CompanyName}' not found."
+                                );
+                                continue;
                             }
+
 
                             // Region Name → Region ID
                             user.RegionID = await _hRMSContext.Regions
@@ -276,14 +285,36 @@ namespace HRMS_Backend.Controllers
                                 x.CompanyId == user.CompanyID)
                             .Select(x => x.RegionId)
                             .FirstOrDefaultAsync();
+                            //if (user.RegionID == 0)
+                            //{
+                            //    return BadRequest(new
+                            //    {
+                            //        Success = false,
+                            //        Message = $"Region '{user.RegionName}' not found."
+                            //    });
+                            //}
                             if (user.RegionID == 0)
                             {
-                                return BadRequest(new
-                                {
-                                    Success = false,
-                                    Message = $"Region '{user.RegionName}' not found."
-                                });
+                                validationErrors.Add(
+                                    $"{user.FullName} - Region '{user.RegionName}' not found."
+                                );
+                                continue;
                             }
+
+                            // Duplicate Email Validation
+                            var emailExists = await _hRMSContext.Users.AnyAsync(x =>
+                            x.Email == user.Email &&
+                            x.CompanyId == user.CompanyID &&
+                            x.RegionId == user.RegionID);
+
+                            if (emailExists)
+                            {
+                                validationErrors.Add(
+                                    $"{user.FullName} - This email already exists in the selected Company and Region."
+                                );
+                                continue;
+                            }
+
 
                             // Role Name → Role ID
                             user.RoleId = await _hRMSContext.RoleMasters
@@ -294,13 +325,21 @@ namespace HRMS_Backend.Controllers
                             .Select(x => x.RoleId)
                             .FirstOrDefaultAsync();
 
+                            //if (user.RoleId == 0)
+                            //{
+                            //    return BadRequest(new
+                            //    {
+                            //        Success = false,
+                            //        Message = $"Role '{user.RoleName}' not found."
+                            //    });
+                            //}
+
                             if (user.RoleId == 0)
                             {
-                                return BadRequest(new
-                                {
-                                    Success = false,
-                                    Message = $"Role '{user.RoleName}' not found."
-                                });
+                                validationErrors.Add(
+                                    $"{user.FullName} - Role '{user.RoleName}' not found."
+                                );
+                                continue;
                             }
 
                             // Department Name → Department ID
@@ -312,15 +351,23 @@ namespace HRMS_Backend.Controllers
                              .Select(x => x.DepartmentId)
                              .FirstOrDefaultAsync();
 
+                            //if (user.departmentId == 0)
+                            //{
+                            //    return BadRequest(new
+                            //    {
+                            //        Success = false,
+                            //        Message = $"Department '{user.DepartmentName}' not found."
+                            //    });
+                            //}
+
+
                             if (user.departmentId == 0)
                             {
-                                return BadRequest(new
-                                {
-                                    Success = false,
-                                    Message = $"Department '{user.DepartmentName}' not found."
-                                });
+                                validationErrors.Add(
+                                    $"{user.FullName} - Department '{user.DepartmentName}' not found."
+                                );
+                                continue;
                             }
-
 
                             // Designation Name → Designation ID
                             user.DesignationId = await _hRMSContext.Designations
@@ -332,13 +379,21 @@ namespace HRMS_Backend.Controllers
                             .FirstOrDefaultAsync();
 
 
+                            //if (user.DesignationId == 0)
+                            //{
+                            //    return BadRequest(new
+                            //    {
+                            //        Success = false,
+                            //        Message = $"Designation '{user.DesignationName}' not found."
+                            //    });
+                            //}
+
                             if (user.DesignationId == 0)
                             {
-                                return BadRequest(new
-                                {
-                                    Success = false,
-                                    Message = $"Designation '{user.DesignationName}' not found."
-                                });
+                                validationErrors.Add(
+                                    $"{user.FullName} - Designation '{user.DesignationName}' not found."
+                                );
+                                continue;
                             }
 
                             // Reporting Manager Name -> UserId
@@ -354,11 +409,11 @@ namespace HRMS_Backend.Controllers
 
                                 if (user.reportingTo == 0)
                                 {
-                                    return BadRequest(new
-                                    {
-                                        Success = false,
-                                        Message = $"Reporting Manager '{user.ReportingToName}' not found."
-                                    });
+                                    validationErrors.Add(
+                                       $"{user.FullName} - Reporting Manager '{user.ReportingToName}' not found."
+                                    );
+                                    continue;
+
                                 }
                             }
                             else
@@ -379,11 +434,10 @@ namespace HRMS_Backend.Controllers
 
                                 if (user.ReportingHR == 0)
                                 {
-                                    return BadRequest(new
-                                    {
-                                        Success = false,
-                                        Message = $"Reporting HR '{user.ReportingHRName}' not found."
-                                    });
+                                    validationErrors.Add(
+                                        $"{user.FullName} - Reporting HR '{user.ReportingHRName}' not found."
+                                    );
+                                    continue;
                                 }
                             }
                             else
@@ -415,7 +469,7 @@ namespace HRMS_Backend.Controllers
                             //}
 
 
-                            await _userService.CreateUserAsync(user);
+                            //await _userService.CreateUserAsync(user);
                             //if (user.DesignationId == 0)
                             //{
                             //    return BadRequest(new
@@ -424,6 +478,18 @@ namespace HRMS_Backend.Controllers
                             //        Message = $"Designation '{user.DesignationName}' not found."
                             //    });
                             //}
+                        }
+                        if (validationErrors.Any())
+                        {
+                            return BadRequest(new
+                            {
+                                Success = false,
+                                FailedRows = validationErrors
+                            });
+                        }
+                        foreach (var user in users)
+                        {
+                            await _userService.CreateUserAsync(user);
                         }
 
                         return Ok(new
