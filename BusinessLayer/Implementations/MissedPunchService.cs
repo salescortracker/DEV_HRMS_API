@@ -49,10 +49,29 @@ namespace BusinessLayer.Implementations
                     .FirstOrDefaultAsync();
 
                 // ✅ GET EMPLOYEE DETAILS
+                //var employee = await _context.Users
+                //    .Where(x => x.UserId == dto.UserId)
+                //    .Select(x => new { x.FullName, x.Email })
+                //    .FirstOrDefaultAsync();
                 var employee = await _context.Users
-                    .Where(x => x.UserId == dto.UserId)
-                    .Select(x => new { x.FullName, x.Email })
-                    .FirstOrDefaultAsync();
+    .Where(x => x.UserId == dto.UserId)
+    .Select(x => new
+    {
+        x.FullName,
+        x.Email,
+        x.ReportingHr
+    })
+    .FirstOrDefaultAsync();
+
+                string? reportingHrEmail = null;
+
+                if (employee?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
 
                 // ✅ SEND EMAIL TO MANAGER
                 if (manager != null && !string.IsNullOrEmpty(manager.Email))
@@ -79,14 +98,42 @@ namespace BusinessLayer.Implementations
     </div>
     ";
 
+                    //await _emailService.SendEmailAsync(
+                    //    manager.Email,
+                    //    "New Missed Punch Request",
+                    //    body,
+                    //    string.IsNullOrEmpty(dto.HrEmail)
+                    //        ? null
+                    //        : new List<string> { dto.HrEmail } // ✅ convert string → list
+
+                    //);
+
+                    var ccList = new List<string>();
+
+                    // Reporting HR
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // UI CC Emails
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList.AddRange(
+                            dto.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
+                    }
+
+                    ccList = ccList.Distinct().ToList();
+
                     await _emailService.SendEmailAsync(
                         manager.Email,
                         "New Missed Punch Request",
                         body,
-                        string.IsNullOrEmpty(dto.HrEmail)
-                            ? null
-                            : new List<string> { dto.HrEmail } // ✅ convert string → list
-               
+                        ccList
                     );
                 }
                 return entity;
@@ -173,10 +220,29 @@ namespace BusinessLayer.Implementations
             // ===============================
 
             // 🔹 GET EMPLOYEE DETAILS
+            //var employee = await _context.Users
+            //    .Where(x => x.UserId == entity.UserId)
+            //    .Select(x => new { x.Email, x.FullName })
+            //    .FirstOrDefaultAsync();
             var employee = await _context.Users
-                .Where(x => x.UserId == entity.UserId)
-                .Select(x => new { x.Email, x.FullName })
-                .FirstOrDefaultAsync();
+    .Where(x => x.UserId == entity.UserId)
+    .Select(x => new
+    {
+        x.Email,
+        x.FullName,
+        x.ReportingHr
+    })
+    .FirstOrDefaultAsync();
+
+            string? reportingHrEmail = null;
+
+            if (employee?.ReportingHr != null)
+            {
+                var reportingHrUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
 
             // 🔹 GET MANAGER DETAILS (optional if needed)
             var manager = await _context.Users
@@ -208,14 +274,41 @@ namespace BusinessLayer.Implementations
         </div>
         ";
 
+                //await _emailService.SendEmailAsync(
+                //    employee.Email,
+                //    $"Missed Punch Request {dto.Status}",
+                //    body,
+                //    string.IsNullOrEmpty(entity.HrEmail)
+                //        ? null
+                //        : new List<string> { entity.HrEmail }
+
+                //);
+                var ccList = new List<string>();
+
+                // Reporting HR
+                if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                {
+                    ccList.Add(reportingHrEmail);
+                }
+
+                // UI CC Emails
+                if (!string.IsNullOrWhiteSpace(entity.HrEmail))
+                {
+                    ccList.AddRange(
+                        entity.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrEmpty(x))
+                    );
+                }
+
+                ccList = ccList.Distinct().ToList();
+
                 await _emailService.SendEmailAsync(
                     employee.Email,
                     $"Missed Punch Request {dto.Status}",
                     body,
-                    string.IsNullOrEmpty(entity.HrEmail)
-                        ? null
-                        : new List<string> { entity.HrEmail }
-            
+                    ccList
                 );
             }
 
@@ -250,10 +343,29 @@ namespace BusinessLayer.Implementations
                 await UpdateClockInOutIfChanged(item);
 
                 // ✅ GET EMPLOYEE DETAILS
+                //var employee = await _context.Users
+                //    .Where(x => x.UserId == item.UserId)
+                //    .Select(x => new { x.Email, x.FullName })
+                //    .FirstOrDefaultAsync();
                 var employee = await _context.Users
-                    .Where(x => x.UserId == item.UserId)
-                    .Select(x => new { x.Email, x.FullName })
-                    .FirstOrDefaultAsync();
+    .Where(x => x.UserId == item.UserId)
+    .Select(x => new
+    {
+        x.Email,
+        x.FullName,
+        x.ReportingHr
+    })
+    .FirstOrDefaultAsync();
+
+                string? reportingHrEmail = null;
+
+                if (employee?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
 
                 if (employee != null && !string.IsNullOrEmpty(employee.Email))
                 {
@@ -278,14 +390,42 @@ namespace BusinessLayer.Implementations
         </div>
         ";
 
+                    //await _emailService.SendEmailAsync(
+                    //    employee.Email,
+                    //    $"Missed Punch Request {dto.Status}",
+                    //    body,
+                    //    string.IsNullOrEmpty(item.HrEmail)
+                    //        ? null
+                    //        : new List<string> { item.HrEmail }
+
+                    //);
+
+                    var ccList = new List<string>();
+
+                    // Reporting HR
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // UI CC Emails
+                    if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                    {
+                        ccList.AddRange(
+                            item.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
+                    }
+
+                    ccList = ccList.Distinct().ToList();
+
                     await _emailService.SendEmailAsync(
                         employee.Email,
                         $"Missed Punch Request {dto.Status}",
                         body,
-                        string.IsNullOrEmpty(item.HrEmail)
-                            ? null
-                            : new List<string> { item.HrEmail }
-                
+                        ccList
                     );
                 }
             }

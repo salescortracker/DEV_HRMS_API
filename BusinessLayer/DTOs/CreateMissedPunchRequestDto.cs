@@ -19,6 +19,6 @@ namespace BusinessLayer.DTOs
         public int? RegionID { get; set; }
         public int UserId { get; set; }
         public int? reportingTo { get; set; }
-        public string HrEmail { get; set; }
+        public string? HrEmail { get; set; }
     }
 }
