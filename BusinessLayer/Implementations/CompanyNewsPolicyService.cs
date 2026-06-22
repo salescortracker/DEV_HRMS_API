@@ -333,12 +333,27 @@ namespace BusinessLayer.Implementations
         /// </summary>
         public async Task<bool> DeleteNewsAsync(int id, int userId)
         {
-            var entity = await _unitOfWork.Repository<CompanyNewsMaster>().GetByIdAsync(id);
+            var entity = await _unitOfWork
+                .Repository<CompanyNewsMaster>()
+                .GetByIdAsync(id);
 
             if (entity == null || entity.UserId != userId)
                 return false;
 
+            // 🔥 STEP 1: delete child table records first
+            var deptRepo = _unitOfWork.Repository<CompanyNewsDepartment>();
+
+            var childRecords = await deptRepo
+                .FindAsync(x => x.NewsId == id);
+
+            if (childRecords != null && childRecords.Any())
+            {
+                deptRepo.RemoveRange(childRecords);
+            }
+
+            // 🔥 STEP 2: delete parent
             _unitOfWork.Repository<CompanyNewsMaster>().Remove(entity);
+
             await _unitOfWork.CompleteAsync();
 
             return true;

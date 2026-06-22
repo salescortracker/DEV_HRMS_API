@@ -2,6 +2,7 @@
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly HRMSContext _hrmsContext;
+        private readonly IEmailService _emailService;
 
-        public AttendanceService(IUnitOfWork unitOfWork,HRMSContext hRMSContext)
+        public AttendanceService(IUnitOfWork unitOfWork,HRMSContext hRMSContext, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _hrmsContext = hRMSContext;
+            _emailService = emailService;
         }
 
         // ================================
@@ -727,6 +730,173 @@ namespace BusinessLayer.Implementations
         {
             return date.DayOfWeek == DayOfWeek.Saturday ||
                    date.DayOfWeek == DayOfWeek.Sunday;
+        }
+        public async Task ProcessClockOutReminders()
+        {
+            var now = DateTime.Now;
+
+            // STEP 1: Latest active clockin per user
+            var pendingEmployees = await _hrmsContext.ClockInOuts
+                .Where(x =>
+                    x.ClockInTime != null &&
+                    x.ClockOutTime == null &&
+                    x.ShiftEndReminderSent < 2)
+                .GroupBy(x => x.CreatedBy)
+                .Select(g => g
+                    .OrderByDescending(x => x.ClockInTime)
+                    .First())
+                .ToListAsync();
+
+            foreach (var emp in pendingEmployees)
+            {
+                // ✅ FIX NULL ISSUE
+                if (!emp.CreatedBy.HasValue)
+                    continue;
+
+                int userId = emp.CreatedBy.Value;
+
+                // STEP 2: Shift Allocation
+                var shiftAlloc = await _hrmsContext.ShiftAllocations
+                    .FirstOrDefaultAsync(x =>
+                        x.UserId == userId &&
+                        x.IsActive);
+
+                if (shiftAlloc == null)
+                    continue;
+
+                // STEP 3: Shift Master
+                var shift = await _hrmsContext.ShiftMasters
+                    .FirstOrDefaultAsync(x =>
+                        x.ShiftId == shiftAlloc.ShiftId);
+
+                if (shift == null)
+                    continue;
+
+                // STEP 4: Shift End Time
+                var shiftEnd = emp.AttendanceDate.ToDateTime(shift.ShiftEndTime);
+
+                if (shift.ShiftEndTime < shift.ShiftStartTime)
+                    shiftEnd = shiftEnd.AddDays(1);
+
+                var firstReminder = shiftEnd.AddMinutes(5);
+                var secondReminder = shiftEnd.AddMinutes(10);
+
+                // STEP 5: User
+                var user = await _hrmsContext.Users
+                    .FirstOrDefaultAsync(x => x.UserId == userId);
+
+                if (user == null || string.IsNullOrWhiteSpace(user.Email))
+                    continue;
+                var dbRow = await _hrmsContext.ClockInOuts
+                    .FirstOrDefaultAsync(x =>
+                        x.ClockInOutId == emp.ClockInOutId);
+
+                if (dbRow == null || dbRow.ShiftEndReminderSent >= 2)
+                    continue;
+
+                // FIRST REMINDER
+                if (emp.ShiftEndReminderSent == 0 && now >= firstReminder && now < firstReminder.AddMinutes(2))
+                {
+                    await SendMail(userId, emp.EmployeeCode, 1);
+
+                    emp.ShiftEndReminderSent = 1;
+                }
+
+                // SECOND REMINDER + MISS PUNCH
+                else if (emp.ShiftEndReminderSent == 1 && now >= secondReminder && now < secondReminder.AddMinutes(2))
+                {
+                    await SendMail(userId, emp.EmployeeCode, 2);
+
+                    emp.ShiftEndReminderSent = 2;
+
+                    var exists = await _hrmsContext.MissedPunchRequests
+                        .AnyAsync(x =>
+                            x.UserId == userId &&
+                            x.MissedDate == emp.AttendanceDate);
+
+                    if (!exists)
+                    {
+                        await _hrmsContext.MissedPunchRequests.AddAsync(new MissedPunchRequest
+                        {
+                            EmployeeId = userId,
+                            UserId = userId,
+                            CompanyId = emp.CompanyId,
+                            RegionId = emp.RegionId,
+                            MissedDate = emp.AttendanceDate,
+                            MissedType = "Missed Clock Out",
+                            Reason = "",
+                            Status = "Draft",
+                            CreatedAt = DateTime.Now,
+                            CreatedBy = userId
+                        });
+                    }
+                }
+            }
+
+            await _hrmsContext.SaveChangesAsync();
+        }
+
+        private async Task SendMail(int? userId, string employeeCode, int reminderType)
+        {
+            if (!userId.HasValue)
+                return;
+
+            var user = await _hrmsContext.Users
+                .FirstOrDefaultAsync(x => x.UserId == userId.Value);
+
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+                return;
+
+            string employeeName = user.FullName ?? "Employee";
+
+            string subject = "Clock Out Reminder";
+
+            string message = reminderType == 1
+                ? $@"
+                    <html>
+                    <body>
+                    <p>Dear {employeeName},</p>
+
+                    <p>This is a reminder that your shift has ended but your clock-out entry is still pending.</p>
+
+                    <p>
+                    <b>Employee Code:</b> {employeeCode}<br/>
+                    <b>Shift Status:</b> First Reminder
+                    </p>
+
+                    <p>Please complete your clock-out in the HRMS portal.</p>
+
+                    <p>Regards,<br/>HRMS Team</p>
+                    </body>
+                    </html>"
+                                    : $@"
+                    <html>
+                    <body>
+                    <p>Dear {employeeName},</p>
+
+                    <p>This is a <b>FINAL</b> reminder that your shift has ended and clock-out is still pending.</p>
+
+                    <p>
+                    <b>Employee Code:</b> {employeeCode}<br/>
+                    <b>Shift Status:</b> Final Reminder
+                    </p>
+
+                    <p style='color:#d9534f;font-weight:bold;margin-top:15px;'>
+                    👉 Please go to <b>Missed Punch Request</b> and submit your details immediately.
+                    </p>
+
+                    <p>Regards,<br/>HRMS Team</p>
+                    </body>
+                    </html>";
+
+            try
+            {
+                await _emailService.SendEmailAsync(user.Email, subject, message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
         }
     }
 }

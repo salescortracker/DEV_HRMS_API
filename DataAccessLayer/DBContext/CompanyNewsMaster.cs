@@ -42,4 +42,6 @@ public partial class CompanyNewsMaster
     public string? AttachmentPath { get; set; }
 
     public int? DepartmentId { get; set; }
+
+    public virtual ICollection<CompanyNewsDepartment> CompanyNewsDepartments { get; set; } = new List<CompanyNewsDepartment>();
 }

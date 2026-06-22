@@ -271,35 +271,35 @@ namespace BusinessLayer.Implementations
             };
 
             return $@"
-    <div style='font-family:Arial; font-size:14px; color:#333;'>
+                <div style='font-family:Arial; font-size:14px; color:#333;'>
 
-        <h2 style='color:#2E86C1;'>{title}</h2>
+                    <h2 style='color:#2E86C1;'>{title}</h2>
 
-        <p>Dear <b>{managerName}</b>,</p>
+                    <p>Dear <b>{managerName}</b>,</p>
 
-        <p>{intro}</p>
+                    <p>{intro}</p>
 
-        <div style='background:#f4f6f7; padding:12px; border-radius:6px;'>
-            <p><b>Employee Code:</b> {dto.EmployeeId}</p>
-            <p><b>Resignation Type:</b> {dto.ResignationType}</p>
-            <p><b>Notice Period:</b> {dto.NoticePeriod} days</p>
-            <p><b>Last Working Day:</b> {dto.LastWorkingDay:dd-MMM-yyyy}</p>
-            <p><b>Reason:</b> {dto.ResignationReason}</p>
-        </div>
+                    <div style='background:#f4f6f7; padding:12px; border-radius:6px;'>
+                        <p><b>Employee Code:</b> {dto.EmployeeId}</p>
+                        <p><b>Employee Separation Type:</b> {dto.ResignationType}</p>
+                        <p><b>Notice Period:</b> {dto.NoticePeriod} days</p>
+                        <p><b>Last Working Day:</b> {dto.LastWorkingDay:dd-MMM-yyyy}</p>
+                        <p><b>Reason:</b> {dto.ResignationReason}</p>
+                    </div>
 
-        <p style='margin-top:15px;'>
-            Please review this request in the HRMS system and take appropriate action.
-        </p>
+                    <p style='margin-top:15px;'>
+                        Please review this request in the HRMS system and take appropriate action.
+                    </p>
 
-        <br/>
+                    <br/>
 
-        <p>
-            Regards,<br/>
-            <b>Cortracker HRMS System</b>
-        </p>
+                    <p>
+                        Regards,<br/>
+                        <b>Cortracker HRMS System</b>
+                    </p>
 
-    </div>
-    ";
+                </div>
+                ";
         }
 
 

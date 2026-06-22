@@ -118,9 +118,7 @@ GetAttendanceByDateRangeAsync(
         //    }
         //}
 
-        public async Task<ClockInOutDto> AddAsync(
-    ClockInOutCreateDto dto,
-    int userId)
+        public async Task<ClockInOutDto> AddAsync(ClockInOutCreateDto dto, int userId)
         {
             try
             {
@@ -166,10 +164,7 @@ GetAttendanceByDateRangeAsync(
 
                     ActionType = dto.ActionType,
 
-                    Status =
-                        dto.ActionType == "ClockIn"
-                        ? "Present"
-                        : "Completed",
+                    Status = "Present",
 
                     CreatedBy = userId,
 
@@ -177,11 +172,78 @@ GetAttendanceByDateRangeAsync(
                 };
 
                 // ✅ SAVE RECORD
-                await _unitOfWork
-                    .Repository<ClockInOut>()
-                    .AddAsync(entity);
+                //await _unitOfWork
+                //    .Repository<ClockInOut>()
+                //    .AddAsync(entity);
 
-                await _unitOfWork.CompleteAsync();
+                //await _unitOfWork.CompleteAsync();
+                
+
+                var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
+
+                var dayLogs = await _context.ClockInOuts
+                    .Where(x =>
+                        x.EmployeeCode == dto.EmployeeCode &&
+                        x.AttendanceDate == attendanceDate)
+                    .OrderBy(x => x.ActionTime)
+                    .ToListAsync();
+
+                var lastRecord = dayLogs.LastOrDefault();
+
+                if (lastRecord != null)
+                {
+                    // Last action ClockIn ante employee clockout cheyyaledu
+                    if (lastRecord.ActionType == "ClockIn")
+                    {
+                        lastRecord.Status = "Pending Regulation";
+
+                        lastRecord.RegulationRequested = false;
+                        lastRecord.RegulationStatus = null;
+
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                var logs = await _context.ClockInOuts
+                .Where(x =>
+                    x.EmployeeCode == dto.EmployeeCode &&
+                    x.AttendanceDate == DateOnly.FromDateTime(dto.AttendanceDate))
+                .OrderBy(x => x.ActionTime)
+                .ToListAsync();
+                var firstClockIn = logs
+                .Where(x => x.ActionType == "ClockIn")
+                .FirstOrDefault();
+
+                var lastClockOut = logs
+                    .Where(x => x.ActionType == "ClockOut")
+                    .LastOrDefault();
+
+                TimeSpan totalWorked = TimeSpan.Zero;
+
+                TimeOnly? lastIn = null;
+
+                foreach (var log in logs)
+                {
+                    if (log.ActionType == "ClockIn")
+                    {
+                        lastIn = log.ActionTime;
+                    }
+                    else if (log.ActionType == "ClockOut" && lastIn != null)
+                    {
+                        totalWorked += (log.ActionTime - lastIn.Value);
+                        lastIn = null;
+                    }
+                }
+
+                // ✅ FIX HERE
+                string worked = totalWorked.ToString(@"hh\:mm\:ss");
+                string firstIn = firstClockIn != null
+                    ? firstClockIn.ActionTime.ToString("HH:mm")
+                    : "-";
+
+                string lastOut = lastClockOut != null
+                    ? lastClockOut.ActionTime.ToString("HH:mm")
+                    : "-";
 
                 // =====================================================
                 // ✅ EARLY CLOCK OUT EMAIL
@@ -191,41 +253,17 @@ GetAttendanceByDateRangeAsync(
                 Console.WriteLine("TotalWorkedHours: " + dto.TotalWorkedHours);
                 Console.WriteLine("UserId: " + userId);
 
-                if (
-                    dto.ActionType == "ClockOut"
-                    &&
-                    !string.IsNullOrWhiteSpace(
-                        dto.TotalWorkedHours
-                    )
-                )
+                if (dto.ActionType == "ClockOut" && totalWorked.TotalHours > 0)
                 {
-                    Console.WriteLine("ClockOut Block Entered");
+                    TimeSpan workedHours = totalWorked;
 
-                    TimeSpan workedHours;
+                    TimeSpan requiredHours = TimeSpan.FromHours(8);
 
-                    bool parsed =
-                        TimeSpan.TryParseExact(
-                            dto.TotalWorkedHours,
-                            @"hh\:mm\:ss",
-                            CultureInfo.InvariantCulture,
-                            out workedHours
-                        );
-
-                    Console.WriteLine("Parsed: " + parsed);
-
-                    if (
-                        parsed
-                        &&
-                        workedHours.TotalHours < 8
-                    )
+                    if (workedHours < requiredHours)
                     {
-                        Console.WriteLine(
-                            "Worked Less Than 8 Hours"
-                        );
+                        Console.WriteLine("Worked Less Than 8 Hours");
 
-                        // ✅ GET USER DETAILS
-                        var employee =
-                            await _context.Users
+                        var employee = await _context.Users
                             .Where(x => x.UserId == userId)
                             .Select(x => new
                             {
@@ -234,31 +272,12 @@ GetAttendanceByDateRangeAsync(
                             })
                             .FirstOrDefaultAsync();
 
-                        if (employee == null)
+                        if (employee != null && !string.IsNullOrWhiteSpace(employee.Email))
                         {
-                            Console.WriteLine(
-                                "Employee Not Found"
-                            );
-                        }
-                        else
-                        {
-                            Console.WriteLine(
-                                "Employee Email: "
-                                + employee.Email
-                            );
-                        }
+                            TimeSpan remaining = requiredHours - workedHours;
 
-                        // ✅ EMAIL EXISTS
-                        if (
-                            employee != null
-                            &&
-                            !string.IsNullOrWhiteSpace(
-                                employee.Email
-                            )
-                        )
-                        {
-                            double remainingHours =
-                                8 - workedHours.TotalHours;
+                            if (remaining < TimeSpan.Zero)
+                                remaining = TimeSpan.Zero;
 
                             // ✅ EMAIL BODY
                             string body = $@"
@@ -312,7 +331,7 @@ Total Worked Hours
 
 <td style='padding:10px;
 border:1px solid #ddd;'>
-{dto.TotalWorkedHours}
+{worked}
 </td>
 </tr>
 
@@ -342,7 +361,7 @@ Remaining Hours
 border:1px solid #ddd;
 color:#dc3545;
 font-weight:bold;'>
-{remainingHours:F2} Hours
+{remaining.Hours.ToString("00")}:{remaining.Minutes.ToString("00")}:{remaining.Seconds.ToString("00")} Hours
 </td>
 </tr>
 
@@ -416,7 +435,7 @@ Cortracker360 HRMS System
                     + ex.Message
                 );
             }
-        }
+        }  
         public async Task<bool> DeleteAsync(int id, int userId)
         {
             var entity = await _unitOfWork.Repository<ClockInOut>().GetByIdAsync(id);

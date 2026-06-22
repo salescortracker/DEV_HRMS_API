@@ -3162,7 +3162,10 @@ Regards,<br/>
         public async Task<IEnumerable<object>> GetOnboardedCandidatesAsync(int companyId, int regionId)
         {
             var result = await _unitOfWork.Repository<CandidateOnboarding>()
-                .FindAsync(x => x.CompanyId == companyId && x.RegionId == regionId);
+            .FindAsync(x =>
+                x.CompanyId == companyId &&
+                x.RegionId == regionId &&
+                (x.OnboardingStatus == null || x.OnboardingStatus != "Completed"));
 
             var candidateRepo = _unitOfWork.Repository<Candidate>();
 
@@ -3187,7 +3190,8 @@ Regards,<br/>
                     BgCheck = o.BackgroundCheckStatus,
                     Laptop = o.LaptopIssued,
                     Buddy = o.BuddyAssigned,
-                    Stage = cand?.StageId ?? 0   // ✅ REAL stage (7)
+                    Stage = cand?.StageId ?? 0,  // ✅ REAL stage (7)
+                    Status = o.OnboardingStatus
                 };
             });
         }

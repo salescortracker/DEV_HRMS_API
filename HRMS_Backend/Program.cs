@@ -6,6 +6,8 @@ using DataAccessLayer.Repositories.GeneralRepository;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Hangfire;
+using Hangfire.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HRMSContext>(options =>
@@ -28,6 +30,16 @@ builder.Services.AddCors(options =>
             .AllowCredentials(); // 👈 REQUIRED for withCredentials
     });
 });
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+          .UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings()
+          .UseSqlServerStorage(
+              builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddHangfireServer();
 // Add services to the container.
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGeneralRepository<>), typeof(GenericRepository<>));
@@ -141,10 +153,16 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Uploads"
 });
 app.UseRouting();
+app.UseHangfireDashboard("/hangfire");
 
 app.UseAuthorization();
 
 app.MapControllers();
+RecurringJob.AddOrUpdate<IAttendanceService>(
+    "clockout-reminder-job",
+    x => x.ProcessClockOutReminders(),
+    Cron.Minutely
+);
 
 app.Run();
 

@@ -25,5 +25,6 @@ namespace BusinessLayer.Interfaces
         Task<List<EmployeeAttendanceDto>> GetEmployeesByDate(int companyId, int regionId, DateTime date);
 
         Task<List<DateTime>> GetUnsavedDates(int companyId, int regionId);
+        Task ProcessClockOutReminders();
     }
 }

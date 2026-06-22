@@ -22,5 +22,14 @@ namespace BusinessLayer.DTOs
         public string? ActionType { get; set; }
         public TimeOnly? ActionTime { get; set; }
         public string? TotalWorkedHours { get; set; }
+        public bool RegulationRequested { get; set; }
+
+        public string? RegulationStatus { get; set; }
+
+        public string? RegulationComment { get; set; }
+
+        public int? ApprovedBy { get; set; }
+
+        public DateTime? ApprovedAt { get; set; }
     }
 }
