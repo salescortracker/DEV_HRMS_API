@@ -58,7 +58,19 @@ namespace BusinessLayer.Implementations
                 {
                     throw new Exception("WFH request already exists for selected dates");
                 }
+                // Get Employee Details
+                var employeeUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
 
+                string? reportingHrEmail = null;
+
+                if (employeeUser?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employeeUser.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
                 // GET MANAGER EMAIL
                 var manager = await _context.Users
                     .FirstOrDefaultAsync(u => u.UserId == dto.ManagerID);
@@ -83,9 +95,13 @@ namespace BusinessLayer.Implementations
                     // ✅ CC LIST
                     var ccList = new List<string>();
 
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
                     if (!string.IsNullOrWhiteSpace(dto.HrEmail))
                     {
-                        ccList.Add(dto.HrEmail); // ✅ USER ENTERED EMAIL
+                        ccList.Add(dto.HrEmail);
                     }
 
                     await _emailService.SendEmailAsync(
@@ -227,8 +243,21 @@ namespace BusinessLayer.Implementations
                 var employee = await _context.Users
                     .FirstOrDefaultAsync(u => u.UserId == item.EmployeeId);
 
+
+
                 if (employee != null && !string.IsNullOrEmpty(employee.Email))
                 {
+                    string? reportingHrEmail = null;
+
+                    if (employee.ReportingHr.HasValue)
+                    {
+                        var reportingHrUser = await _context.Users
+                            .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr.Value);
+
+                        reportingHrEmail = reportingHrUser?.Email;
+                    }
+
+
                     var subject = $"WFH Request {item.Status}";
 
                     var body = $@"
@@ -245,10 +274,25 @@ namespace BusinessLayer.Implementations
 
                     var ccList = new List<string>();
 
+                    // Reporting HR
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // UI CC Emails
                     if (!string.IsNullOrWhiteSpace(item.HrEmail))
                     {
-                        ccList.Add(item.HrEmail); // ✅ RETAIN CC
+                        ccList.AddRange(
+                            item.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
                     }
+
+                    // Remove duplicates
+                    ccList = ccList.Distinct().ToList();
 
                     await _emailService.SendEmailAsync(
                         employee.Email,

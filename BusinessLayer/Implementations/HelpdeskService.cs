@@ -129,6 +129,16 @@ namespace BusinessLayer.Implementations
             if (employee == null || employee.ReportingTo == null)
                 return;
 
+            string? reportingHrEmail = null;
+
+            if (employee.ReportingHr.HasValue)
+            {
+                var reportingHrUser = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(employee.ReportingHr.Value);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
+
             var manager = await _unitOfWork.Repository<User>()
                 .GetByIdAsync(employee.ReportingTo.Value);
 
@@ -148,26 +158,34 @@ namespace BusinessLayer.Implementations
             </body>
             </html>";
 
-            List<string>? ccList = null;
+            var ccList = new List<string>();
 
-            if (!string.IsNullOrWhiteSpace(ticket.HrEmail))
+            // Reporting HR Email
+            if (!string.IsNullOrWhiteSpace(reportingHrEmail))
             {
-                ccList = ticket.HrEmail
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .ToList();
+                ccList.Add(reportingHrEmail);
             }
 
+            // CC Emails entered in UI
+            if (!string.IsNullOrWhiteSpace(ticket.HrEmail))
+            {
+                ccList.AddRange(
+                    ticket.HrEmail
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => !string.IsNullOrEmpty(x))
+                );
+            }
 
             // ✅ Send with CC
             await _emailService.SendEmailAsync(manager.Email, subject, body, ccList);
-            if (ccList != null && ccList.Any())
-            {
-                foreach (var cc in ccList)
-                {
-                    await _emailService.SendEmailAsync(cc, subject, body);
-                }
-            }
+            //if (ccList != null && ccList.Any())
+            //{
+            //    foreach (var cc in ccList)
+            //    {
+            //        await _emailService.SendEmailAsync(cc, subject, body);
+            //    }
+            //}
         }
 
         public async Task<IEnumerable<object>> GetMyTicketsAsync(int userId)
@@ -251,6 +269,16 @@ namespace BusinessLayer.Implementations
 
             if (employee == null) return;
 
+            string? reportingHrEmail = null;
+
+            if (employee.ReportingHr.HasValue)
+            {
+                var reportingHrUser = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(employee.ReportingHr.Value);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
+
             string subject = $"Helpdesk Ticket {ticket.Status}";
             string body = $@"
     <html>
@@ -263,7 +291,28 @@ namespace BusinessLayer.Implementations
     </body>
     </html>";
 
-            await _emailService.SendEmailAsync(employee.Email, subject, body);
+            var ccList = new List<string>();
+
+            // Reporting HR
+            if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+            {
+                ccList.Add(reportingHrEmail);
+            }
+
+            // UI CC Emails
+            if (!string.IsNullOrWhiteSpace(ticket.HrEmail))
+            {
+                ccList.AddRange(
+                    ticket.HrEmail
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => !string.IsNullOrEmpty(x))
+                );
+            }
+
+            ccList = ccList.Distinct().ToList();
+
+            await _emailService.SendEmailAsync(employee.Email, subject, body, ccList);
         }
 
         public async Task<IEnumerable<UserProfileDto>> GetEmployeesByManagerAsync(int managerId)

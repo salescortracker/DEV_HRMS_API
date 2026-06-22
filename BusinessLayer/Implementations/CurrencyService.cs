@@ -19,7 +19,7 @@ namespace BusinessLayer.Implementations
         {
             var list = (await _unitOfWork.Repository<CurrencyMaster>()
                 .FindAsync(x =>
-                    !x.IsDeleted.GetValueOrDefault() &&
+                    x.IsDeleted != true &&
                     x.CreatedBy == userId))
                 .Select(x => new CurrencyDto
                 {

@@ -234,6 +234,22 @@ namespace BusinessLayer.Implementations
             if (manager == null || string.IsNullOrEmpty(manager.Email))
                 return;
 
+            var employee = await _unitOfWork.Repository<User>()
+    .GetByIdAsync(ts.UserId);
+
+            if (employee == null)
+                return;
+
+            string? reportingHrEmail = null;
+
+            if (employee.ReportingHr.HasValue)
+            {
+                var reportingHrUser = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(employee.ReportingHr.Value);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
+
             string subject = $"Timesheet Submitted - {ts.EmployeeName}";
 
             string body = $@"
@@ -252,9 +268,21 @@ namespace BusinessLayer.Implementations
             // ✅ CC LIST
             var ccList = new List<string>();
 
-            if (!string.IsNullOrEmpty(ts.HrEmail))
+            // Reporting HR Email
+            if (!string.IsNullOrWhiteSpace(reportingHrEmail))
             {
-                ccList.Add(ts.HrEmail);
+                ccList.Add(reportingHrEmail);
+            }
+
+            // CC Email entered in UI
+            if (!string.IsNullOrWhiteSpace(ts.HrEmail))
+            {
+                ccList.AddRange(
+                    ts.HrEmail
+                      .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(x => x.Trim())
+                      .Where(x => !string.IsNullOrEmpty(x))
+                );
             }
 
             try
@@ -408,6 +436,16 @@ namespace BusinessLayer.Implementations
             if (employee == null || string.IsNullOrEmpty(employee.Email))
                 return;
 
+            string? reportingHrEmail = null;
+
+            if (employee.ReportingHr.HasValue)
+            {
+                var reportingHrUser = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(employee.ReportingHr.Value);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
+
             string subject = $"Timesheet {status} - {ts.TimesheetDate:dd-MMM-yyyy}";
 
             string body = $@"
@@ -424,15 +462,25 @@ namespace BusinessLayer.Implementations
     </html>";
             var ccList = new List<string>();
 
+            // Reporting HR
+            if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+            {
+                ccList.Add(reportingHrEmail);
+            }
+
+            // UI CC Emails
             if (!string.IsNullOrWhiteSpace(ts.HrEmail))
             {
-                ccList = ts.HrEmail
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .Where(x => !string.IsNullOrEmpty(x))
-                    .Distinct()
-                    .ToList();
+                ccList.AddRange(
+                    ts.HrEmail
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Where(x => !string.IsNullOrEmpty(x))
+                );
             }
+
+            // Remove duplicates
+            ccList = ccList.Distinct().ToList();
 
 
             await _emailService.SendEmailAsync(employee.Email, subject, body,ccList);

@@ -75,6 +75,15 @@ namespace BusinessLayer.Implementations
 
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
+            string? reportingHrEmail = null;
+
+            if (user.ReportingHr.HasValue)
+            {
+                var reportingHrUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == user.ReportingHr.Value);
+
+                reportingHrEmail = reportingHrUser?.Email;
+            }
 
             // -----------------------------------------------------
             // 4️⃣ SEND EMAIL TO REPORTING MANAGER
@@ -95,15 +104,23 @@ namespace BusinessLayer.Implementations
                     //);
 
                     // ✅ Prepare CC list
-                    List<string>? ccList = null;
+                    var ccList = new List<string>();
 
+                    // Reporting HR Email
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // UI CC Emails
                     if (!string.IsNullOrWhiteSpace(dto.HrEmail))
                     {
-                        ccList = dto.HrEmail
-                            .Split(',')
-                            .Select(x => x.Trim())
-                            .Where(x => !string.IsNullOrEmpty(x))
-                            .ToList();
+                        ccList.AddRange(
+                            dto.HrEmail
+                                .Split(',')
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
                     }
 
                     // ✅ Send email with CC
@@ -208,7 +225,8 @@ namespace BusinessLayer.Implementations
                     Expense = e,
                     EmployeeName = u.FullName,
                     EmployeeEmail = u.Email,
-                    HrEmail = e.HrEmail   // ✅ IMPORTANT
+                    HrEmail = e.HrEmail,   // ✅ IMPORTANT
+                    ReportingHr = u.ReportingHr
                 }
             ).ToListAsync();
 
@@ -250,15 +268,31 @@ namespace BusinessLayer.Implementations
                     //);
                     var ccList = new List<string>();
 
+                    // Reporting HR Email
+                    if (item.ReportingHr.HasValue)
+                    {
+                        var reportingHrUser = await _context.Users
+                            .FirstOrDefaultAsync(x => x.UserId == item.ReportingHr.Value);
+
+                        if (!string.IsNullOrWhiteSpace(reportingHrUser?.Email))
+                        {
+                            ccList.Add(reportingHrUser.Email);
+                        }
+                    }
+
+                    // UI CC Emails
                     if (!string.IsNullOrWhiteSpace(item.HrEmail))
                     {
-                        ccList = item.HrEmail
-                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(x => x.Trim())
-                            .Where(x => !string.IsNullOrEmpty(x))
-                            .Distinct()
-                            .ToList();
+                        ccList.AddRange(
+                            item.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
                     }
+
+                    // Remove duplicates
+                    ccList = ccList.Distinct().ToList();
 
                     // ✅ SEND EMAIL WITH CC
                     await _emailService.SendEmailAsync(

@@ -99,7 +99,8 @@ namespace BusinessLayer.Implementations
             Request = r,
             EmployeeName = u.FullName,
             EmployeeEmail = u.Email,
-            HrEmail = r.HrEmail
+            HrEmail = r.HrEmail,
+            ReportingHr = u.ReportingHr
         }
     ).ToListAsync();
 
@@ -156,15 +157,30 @@ namespace BusinessLayer.Implementations
 
                     var ccList = new List<string>();
 
+                    // Reporting HR
+                    if (item.ReportingHr.HasValue)
+                    {
+                        var reportingHrUser = await _context.Users
+                            .FirstOrDefaultAsync(x => x.UserId == item.ReportingHr.Value);
+
+                        if (!string.IsNullOrWhiteSpace(reportingHrUser?.Email))
+                        {
+                            ccList.Add(reportingHrUser.Email);
+                        }
+                    }
+
+                    // UI CC Emails
                     if (!string.IsNullOrWhiteSpace(item.HrEmail))
                     {
-                        ccList = item.HrEmail
-                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(x => x.Trim())
-                            .Where(x => !string.IsNullOrEmpty(x))
-                            .Distinct()
-                            .ToList();
+                        ccList.AddRange(
+                            item.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrEmpty(x))
+                        );
                     }
+
+                    ccList = ccList.Distinct().ToList();
 
 
                     await _emailService.SendEmailAsync(
