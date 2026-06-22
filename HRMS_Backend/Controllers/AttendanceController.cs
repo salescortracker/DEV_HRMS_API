@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,8 @@ namespace HRMS_Backend.Controllers
         private readonly ICompanyNewsService _companyNewsService;
         private readonly ICompanyPolicyService _companyPolicyService;
         private readonly IAttendanceService _attendanceService;
-        public AttendanceController( IAttendanceService attendanceService,ICompanyPolicyService companyPolicyService,IShiftAllocationService shiftAllocationService, IClockInOutService clockInOutService, ITimesheetService timesheetService, IMissedPunchService service,IWorkFromHomeRequestService workfromhomeservice, ICompanyNewsService companyNewsService)
+        private readonly IEarlyLogoutService _earlyLogoutService;
+        public AttendanceController( IAttendanceService attendanceService,IEarlyLogoutService earlyLogoutService,ICompanyPolicyService companyPolicyService,IShiftAllocationService shiftAllocationService, IClockInOutService clockInOutService, ITimesheetService timesheetService, IMissedPunchService service,IWorkFromHomeRequestService workfromhomeservice, ICompanyNewsService companyNewsService)
         {
 
             _attendanceService = attendanceService;
@@ -27,6 +29,7 @@ namespace HRMS_Backend.Controllers
             _workfromhomeservice = workfromhomeservice;
             _companyNewsService = companyNewsService;
             _companyPolicyService = companyPolicyService;
+            _earlyLogoutService = earlyLogoutService;
         }
         #region ShiftAllocation
 
@@ -720,6 +723,86 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
+        #endregion
+
+
+        #region EarlyLogOut
+
+        [HttpPost("createearlylogoutrequest")]
+        public async Task<IActionResult> CreateEarlyLogoutRequest(
+          [FromBody] CreateEarlyLogoutRequestDto dto)
+        {
+            var result = await _earlyLogoutService.CreateEarlyLogoutRequest(dto);
+
+            return Ok(result);
+        }
+
+        [HttpGet("getearlylogoutrequest")]
+        public async Task<IActionResult> GetEarlyLogoutRequest(
+            int companyId,
+            int? regionId,
+            int userId)
+        {
+            var result = await _earlyLogoutService.GetEarlyLogoutRequest(
+                companyId,
+                regionId,
+                userId);
+
+            return Ok(result);
+        }
+
+        [HttpGet("getapprovalearlylogoutrequest")]
+        public async Task<IActionResult> GetApprovalEarlyLogoutRequest(
+            int companyId,
+            int? regionId,
+            int managerId)
+        {
+            var result = await _earlyLogoutService.GetApprovalEarlyLogoutRequest(
+                companyId,
+                regionId,
+                managerId);
+
+            return Ok(result);
+        }
+
+        //[HttpPut("updateearlylogout")]
+        //public async Task<IActionResult> UpdateEarlyLogout(
+        //    [FromBody] UpdateEarlyLogoutDto dto)
+        //{
+        //    var result = await _earlyLogoutService.UpdateEarlyLogout(dto);
+
+        //    if (!result)
+        //        return NotFound("Request not found.");
+
+        //    return Ok(new
+        //    {
+        //        Success = true,
+        //        Message = "Early Logout Request Updated Successfully"
+        //    });
+        //}
+
+        [HttpPut("updateearlylogout")]
+        public async Task<IActionResult> UpdateEarlyLogout(UpdateEarlyLogoutDto dto)
+        {
+            var success = await _earlyLogoutService.UpdateEarlyLogout (dto);
+            if (!success)
+                return BadRequest("Record not found or already processed.");
+            return Ok(new { message = "Early logout request updated successfully" });
+        }
+
+        [HttpPost("bulkapproverejectearlylogout")]
+        public async Task<IActionResult> BulkApproveRejectEarlyLogout(
+            [FromBody] BulkApproveRejectEarlyLogoutDto dto)
+        {
+            var result = await _earlyLogoutService.BulkApproveRejectEarlyLogout(dto);
+
+            return Ok(new
+            {
+                Success = true,
+                Count = result,
+                Message = $"Successfully {dto.Status} {result} request(s)"
+            });
+        }
         #endregion
     }
 }
