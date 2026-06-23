@@ -171,11 +171,24 @@ namespace BusinessLayer.Implementations
         {
             try
             {
+                // Check if grade is assigned
+                var isAssigned = (await _unitOfWork.Repository<EmployeePersonalDetail>()
+                    .GetAllAsync())
+                    .Any(x => x.BandGrade == id.ToString());
+
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Cannot delete this record. It is already assigned to one or more users.",
+                        false);
+                }
+
                 var entity = await _unitOfWork.Repository<Grade>().GetByIdAsync(id);
 
                 if (entity == null)
                 {
-                    return new ApiResponse<bool>(false, "Grade not found", false);
+                    return new ApiResponse<bool>(false, "You have already assigned to employee for this grade cannot delete", false);
                 }
 
                 entity.IsDeleted = true;
@@ -188,8 +201,25 @@ namespace BusinessLayer.Implementations
             }
             catch (Exception ex)
             {
-                return new ApiResponse<bool>(false, $"Error deleting grade: {ex.Message}", false);
+                return new ApiResponse<bool>(
+                    false,
+                    $"Error deleting grade: {ex.Message}",
+                    false);
             }
+        }
+        public async Task<List<GradeDto>> GetGradesByCompanyRegionAsync(int companyId, int regionId)
+        {
+            return await _context.Set<Grade>()
+                .Where(g => g.CompanyId == companyId
+                         && g.RegionId == regionId
+                         && !g.IsDeleted
+                         && g.IsActive)
+                .Select(g => new GradeDto
+                {
+                    gradeID = g.GradeId,
+                    gradeName = g.GradeName
+                })
+                .ToListAsync();
         }
 
     }

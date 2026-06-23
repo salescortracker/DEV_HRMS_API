@@ -452,26 +452,51 @@ namespace BusinessLayer.Implementations
             }
         }
 
-        public async Task<ApiResponse<object>> SoftDeleteAsync(int id)
+        public async Task<ApiResponse<bool>> SoftDeleteAsync(int id)
         {
             try
             {
-                var entity = await _unitOfWork.Repository<Designation>().GetByIdAsync(id);
-                if (entity == null || entity.IsDeleted)
-                    return new ApiResponse<object>(null!, "Designation not found.", false);
+                // ✅ STEP 1: Check if designation is assigned to any employee
+                var isAssigned = (await _unitOfWork.Repository<User>()
+                    .GetAllAsync())
+                    .Any(x => x.DesignationId == id);
 
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Cannot delete this designation. It is already assigned to one or more users.",
+                        false);
+                }
+
+                // ✅ STEP 2: Get entity
+                var entity = await _unitOfWork.Repository<Designation>().GetByIdAsync(id);
+
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Designation not found or already deleted.",
+                        false);
+                }
+
+                // ✅ STEP 3: Soft delete
                 entity.IsDeleted = true;
-                entity.ModifiedBy = entity.ModifiedBy;
                 entity.ModifiedAt = DateTime.UtcNow;
 
                 _unitOfWork.Repository<Designation>().Update(entity);
                 await _unitOfWork.CompleteAsync();
 
-                return new ApiResponse<object>(null!, "Designation deleted successfully (soft delete).");
+                return new ApiResponse<bool>(
+                    true,
+                    "Designation deleted successfully");
             }
             catch (Exception ex)
             {
-                return new ApiResponse<object>(null!, $"Delete failed. {ex.Message}", false);
+                return new ApiResponse<bool>(
+                    false,
+                    $"Error deleting designation: {ex.Message}",
+                    false);
             }
         }
 
