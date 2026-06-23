@@ -749,42 +749,47 @@ int userId)
 
                 // STORE INTERVIEWERS FOR EMAIL AFTER COMMIT
                 var interviewerList = new List<User>();
+                var interviewers = new List<User>();
 
-                // ================= SAVE INTERVIEWS =================
                 foreach (var interviewerId in dto.InterviewerIds)
                 {
                     var interviewer = await _unitOfWork
                         .Repository<User>()
                         .GetByIdAsync(interviewerId);
 
-                    if (interviewer == null)
-                        continue;
-
-                    interviewerList.Add(interviewer);
-
-                    var interview = new CandidateInterview
+                    if (interviewer != null)
                     {
-                        RegionId = dto.RegionId,
-                        CompanyId = dto.CompanyId,
-                        UserId = dto.UserId,
-                        CandidateId = dto.CandidateId,
-                        LevelNo = dto.LevelNo,
-                        InterviewerId = string.Join(",", dto.InterviewerIds),
-                        InterviewerName = interviewer.FullName,
-                        InterviewDate = dto.InterviewDate,
-                        Location = dto.Location,
-                        MeetingLink = dto.MeetingLink,
-                        Description = dto.Description,
-                        Result = "Pending",
-                        HrEmail = dto.HrEmail,
-                        CreatedAt = DateTime.Now,
-                        CreatedBy = dto.UserId
-                    };
-
-                    await _unitOfWork
-                        .Repository<CandidateInterview>()
-                        .AddAsync(interview);
+                        interviewers.Add(interviewer);
+                        interviewerList.Add(interviewer); // emails kosam
+                    }
                 }
+
+                var interview = new CandidateInterview
+                {
+                    RegionId = dto.RegionId,
+                    CompanyId = dto.CompanyId,
+                    UserId = dto.UserId,
+                    CandidateId = dto.CandidateId,
+                    LevelNo = dto.LevelNo,
+
+                    InterviewerId = string.Join(",", dto.InterviewerIds),
+
+                    InterviewerName = string.Join(",",
+                        interviewers.Select(x => x.FullName)),
+
+                    InterviewDate = dto.InterviewDate,
+                    Location = dto.Location,
+                    MeetingLink = dto.MeetingLink,
+                    Description = dto.Description,
+                    Result = "Pending",
+                    HrEmail = dto.HrEmail,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = dto.UserId
+                };
+
+                await _unitOfWork
+                    .Repository<CandidateInterview>()
+                    .AddAsync(interview);
 
                 // ================= UPDATE CANDIDATE =================
                 candidate.StageId = 4;
@@ -798,11 +803,6 @@ int userId)
 
                 // IMPORTANT
                 await transaction.CommitAsync();
-
-                // =====================================================
-                // EMAIL SECTION
-                // EMAIL FAILURE SHOULD NOT ROLLBACK DATABASE
-                // =====================================================
 
                 // ================= EMAIL TO INTERVIEWERS =================
                 foreach (var interviewer in interviewerList)
@@ -929,6 +929,7 @@ int userId)
                         await _emailService.SendEmailAsync(interviewer.Email, subject, body);
                     }
                 }
+
 
                 // ================= EMAIL TO CANDIDATE =================
                 try
