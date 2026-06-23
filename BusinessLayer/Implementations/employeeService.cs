@@ -3144,6 +3144,10 @@ namespace BusinessLayer.Implementations
                     equals new { reg.CompanyId, reg.RegionId } into regJoin
                 from reg in regJoin.DefaultIfEmpty()
 
+                join etm in _context.Employmenttypes
+                on Convert.ToInt32(ep.EmployeeType) 
+                equals etm.EmploymenttypeId into etmJoin
+                from etm in etmJoin.DefaultIfEmpty()
 
                 where u.UserId == userId
 
@@ -3166,7 +3170,7 @@ namespace BusinessLayer.Implementations
                     DateOfJoining = ep.DateOfJoining,
 
                     Rolename = r.RoleName,
-                    EmployeeType = ep.EmployeeType,
+                    EmployeeType = etm.EmploymenttypeName,
 
                     ServiceStatus = u.Status,
                     Location = reg.RegionName,
