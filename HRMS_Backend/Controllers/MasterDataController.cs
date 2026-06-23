@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Implementations;
 using BusinessLayer.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -2198,18 +2199,22 @@ namespace HRMS_Backend.Controllers
         {
             try
             {
-                // 🔒 TODO: Replace with JWT user later
                 var result = await _designationService.SoftDeleteAsync(id);
 
+                // ❌ Not Found is not correct here
                 if (!result.Success)
-                    return NotFound(result);
+                    return BadRequest(result); // ✅ FIXED
 
-                return Ok(new { success = true, message = result.Message });
+                return Ok(result); // ✅ return full ApiResponse<bool>
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error deleting designation with ID {id}.");
-                return StatusCode(500, new { success = false, message = "An error occurred while deleting the designation." });
+
+                return StatusCode(500, new ApiResponse<bool>(
+                    false,
+                    "An error occurred while deleting the designation.",
+                    false));
             }
         }
         // ✅ BULK INSERT
@@ -3718,6 +3723,12 @@ int regionId)
             if (!success.Success)
                 return BadRequest(success);
             return Ok(new { message = "Deleted successfully" });
+        }
+        [HttpGet("GetGradesByCompanyRegion")]
+        public async Task<IActionResult> GetGradesByCompanyRegion(int companyId, int regionId)
+        {
+            var data = await _gradeService.GetGradesByCompanyRegionAsync(companyId, regionId);
+            return Ok(data);
         }
 
         #endregion

@@ -15,5 +15,6 @@ namespace BusinessLayer.Interfaces
         Task<ApiResponse<GradeDto>> AddAsync(GradeDto dto);
         Task<ApiResponse<GradeDto>> UpdateAsync(GradeDto dto);
         Task<ApiResponse<bool>> DeleteAsync(int id);
+        Task<List<GradeDto>> GetGradesByCompanyRegionAsync(int companyId, int regionId);
     }
 }
