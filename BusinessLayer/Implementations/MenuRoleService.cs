@@ -62,6 +62,40 @@ namespace BusinessLayer.Implementations
                                   IsActive = mr.IsActive
                               }).ToList();
 
+                var parentIds = result
+     .Where(x => x.ParentId.HasValue)
+     .Select(x => x.ParentId.Value)
+     .Distinct()
+     .ToList();
+
+                foreach (var parentId in parentIds)
+                {
+                    if (!result.Any(x => x.MenuId == parentId))
+                    {
+                        var parentMenu = menus.FirstOrDefault(x => x.MenuId == parentId);
+
+                        if (parentMenu != null)
+                        {
+                            result.Add(new MenuRoleMasterDto
+                            {
+                                MenuId = parentMenu.MenuId,
+                                MenuName = parentMenu.MenuName,
+                                MenuUrl = parentMenu.Url,
+                                ParentId = parentMenu.ParentMenuId,
+                                OrderNo = parentMenu.OrderNo,
+                                icon = parentMenu.Icon,
+                                CanView = true,
+                                CanAdd = false,
+                                CanEdit = false,
+                                CanDelete = false,
+                                IsActive = true
+                            });
+                        }
+                    }
+                }
+
+                result = result.OrderBy(x => x.OrderNo).ToList();
+
                 return result;
             }
             catch (Exception ex)
