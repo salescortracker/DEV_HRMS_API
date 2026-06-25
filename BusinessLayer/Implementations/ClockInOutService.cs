@@ -119,6 +119,7 @@ GetAttendanceByDateRangeAsync(
         //}
 
         public async Task<ClockInOutDto> AddAsync(ClockInOutCreateDto dto, int userId)
+
         {
             try
             {
@@ -172,12 +173,12 @@ GetAttendanceByDateRangeAsync(
                 };
 
                 // ✅ SAVE RECORD
-                //await _unitOfWork
-                //    .Repository<ClockInOut>()
-                //    .AddAsync(entity);
+                await _unitOfWork
+                    .Repository<ClockInOut>()
+                    .AddAsync(entity);
 
-                //await _unitOfWork.CompleteAsync();
-                
+                await _unitOfWork.CompleteAsync();
+
 
                 var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
 
