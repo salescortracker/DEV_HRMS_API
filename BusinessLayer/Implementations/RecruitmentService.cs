@@ -803,6 +803,27 @@ int userId)
 
                 // IMPORTANT
                 await transaction.CommitAsync();
+                var ccList = new List<string>();
+
+                // 1. Interviewer Emails
+                var interviewerUsers = await _unitOfWork.Repository<User>()
+                    .FindAsync(u => dto.InterviewerIds.Contains(u.UserId));
+
+                ccList.AddRange(interviewerUsers
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                    .Select(x => x.Email));
+
+                // 2. HR Emails (SINGLE STRING → SPLIT)
+                if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                {
+                    ccList.AddRange(dto.HrEmail.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                }
+
+                // 3. Clean duplicates
+                ccList = ccList
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct()
+                    .ToList();
 
                 // ================= EMAIL TO INTERVIEWERS =================
                 foreach (var interviewer in interviewerList)
@@ -902,9 +923,8 @@ int userId)
                                 interviewer.Email,
                                 subject,
                                 body,
-                                !string.IsNullOrWhiteSpace(dto.HrEmail)
-                                    ? new List<string> { dto.HrEmail }
-                                    : null
+                                ccList
+
                             );
                         }
                     }
@@ -1017,7 +1037,8 @@ int userId)
                         await _emailService.SendEmailAsync(
                             candidate.Email,
                             "Interview Scheduled",
-                            candidateBody
+                            candidateBody,
+                            ccList
                         );
                     }
                 }
@@ -1235,15 +1256,30 @@ int userId)
 
                 // ================= HR USERS =================
 
-                var ccEmails = !string.IsNullOrWhiteSpace(dto.HrEmail)
-                    ? dto.HrEmail
-                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(e => e.Trim())
-                        .Where(e => !string.IsNullOrWhiteSpace(e))
-                        .Distinct()
-                        .ToList()
-                    : new List<string>();
-                var toEmail = candidate.Email;
+                var ccEmails = new List<string>();
+
+                // 1. HR emails from DTO
+                if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                {
+                    ccEmails.AddRange(
+                        dto.HrEmail.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(e => e.Trim())
+                    );
+                }
+
+                // 2. Interviewer emails from DB
+                var interviewerUsers = await _unitOfWork.Repository<User>()
+                    .FindAsync(u => dto.InterviewerIds.Contains(u.UserId));
+
+                ccEmails.AddRange(interviewerUsers
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                    .Select(x => x.Email));
+
+                // 3. Remove duplicates
+                ccEmails = ccEmails
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct()
+                    .ToList();
 
                 // ================= EMAILS =================
 
@@ -1314,11 +1350,10 @@ int userId)
 
                             </body>
                             </html>";
-
-                    if (!string.IsNullOrWhiteSpace(toEmail))
+                    if (!string.IsNullOrWhiteSpace(candidate.Email))
                     {
                         await _emailService.SendEmailAsync(
-                            toEmail,
+                            candidate.Email,
                             hrSubject,
                             hrBody,
                             ccEmails.Any() ? ccEmails : null
@@ -1398,7 +1433,8 @@ int userId)
                         await _emailService.SendEmailAsync(
                             candidate.Email,
                             candidateSubject,
-                            candidateBody
+                            candidateBody,
+                            ccEmails.Any() ? ccEmails : null
                         );
                     }
                 }
