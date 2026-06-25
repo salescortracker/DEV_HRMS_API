@@ -4,6 +4,7 @@ using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BusinessLayer.Implementations
 {
@@ -14,7 +15,7 @@ namespace BusinessLayer.Implementations
         public employeeService(HRMSContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork;           
         }
         #region employee Certification Details
         /// <summary>
@@ -2909,12 +2910,7 @@ namespace BusinessLayer.Implementations
 
             return all.Select(MapToDto).ToList();
         }
-        public async Task<string?> GetProfilePictureByUserIdAsync(int userId)
-        {
-            var entity = await _unitOfWork.Repository<EmployeePersonalDetail>().GetAllAsync();
-            var employee = entity.FirstOrDefault(x => x.UserId == userId);
-            return employee?.ProfilePictureName; 
-        }
+        
         // GET by user id
         public async Task<PersonalDetailsDto?> GetByUserIdempProfileAsync(int userId)
         {
@@ -2939,26 +2935,12 @@ namespace BusinessLayer.Implementations
                 PresentAddress = dto.PresentAddress,
                 Pannumber = dto.PanNumber,
                 AadhaarNumber = dto.AadhaarNumber,
-                PassportNumber = dto.PassportNumber,
-                PlaceOfBirth = dto.PlaceOfBirth,
-                Uan = dto.Uan,
-                BloodGroup = dto.BloodGroup,
-                Citizenship = dto.Citizenship,
-                Religion = dto.Religion,
-                DrivingLicence = dto.DrivingLicence,
-                MaritalStatusId = dto.maritalStatusId,
-                MarriageDate = dto.MarriageDate,
-                WorkPhone = dto.WorkPhone,
-                LinkedInProfile = dto.LinkedInProfile,
-                PreviousExperienceText = dto.PreviousExperience,
+
+                // ✅ ONLY THIS (NO FILE UPLOAD LOGIC HERE)
                 ProfilePictureName = dto.profilePicturePath,
+
                 CompanyId = dto.CompanyId,
                 RegionId = dto.RegionId,
-                BandGrade = dto.brandGrade,
-                EsicNumber = dto.esicNumber,
-                Pfnumber = dto.pfNumber,
-                EmployeeType = dto.employmentType,
-                DateOfJoining = dto.dateofJoining,
                 UserId = dto.userId,
                 CreatedBy = dto.userId,
                 CreatedAt = DateTime.UtcNow
@@ -2972,57 +2954,36 @@ namespace BusinessLayer.Implementations
 
         public async Task<PersonalDetailsDto> UpdateempPersonalAsync(PersonalDetailsDto dto)
         {
-            try
+            var entity = await _unitOfWork.Repository<EmployeePersonalDetail>()
+                .GetByIdAsync(dto.Id);
+
+            if (entity == null)
+                throw new Exception("Personal details not found");
+
+            entity.FirstName = dto.FirstName;
+            entity.LastName = dto.LastName;
+            entity.DateOfBirth = dto.DateOfBirth;
+            entity.GenderId = dto.genderId;
+            entity.MobileNumber = dto.MobileNumber;
+            entity.PersonalEmail = dto.PersonalEmail;
+            entity.PermanentAddress = dto.PermanentAddress;
+            entity.PresentAddress = dto.PresentAddress;
+            entity.Pannumber = dto.PanNumber;
+            entity.AadhaarNumber = dto.AadhaarNumber;
+
+            // ✅ ONLY UPDATE PATH
+            if (!string.IsNullOrEmpty(dto.profilePicturePath))
             {
-                var entity = await _unitOfWork.Repository<EmployeePersonalDetail>()
-                    .GetByIdAsync(dto.Id);
-
-                if (entity == null) throw new Exception("Personal details not found");
-
-                entity.FirstName = dto.FirstName;
-                entity.LastName = dto.LastName;
-                entity.DateOfBirth = dto.DateOfBirth;
-                entity.GenderId = dto.genderId;
-                entity.MobileNumber = dto.MobileNumber;
-                entity.PersonalEmail = dto.PersonalEmail;
-                entity.PermanentAddress = dto.PermanentAddress;
-                entity.PresentAddress = dto.PresentAddress;
-                entity.Pannumber = dto.PanNumber;
-                entity.AadhaarNumber = dto.AadhaarNumber;
-                entity.PassportNumber = dto.PassportNumber;
-                entity.PlaceOfBirth = dto.PlaceOfBirth;
-                entity.Uan = dto.Uan;
-                entity.BloodGroup = dto.BloodGroup;
-                entity.Citizenship = dto.Citizenship;
-                entity.Religion = dto.Religion;
-                entity.DrivingLicence = dto.DrivingLicence;
-                entity.MaritalStatusId = dto.maritalStatusId;
-                entity.MarriageDate = dto.MarriageDate ?? null;
-                entity.WorkPhone = dto.WorkPhone;
-                entity.LinkedInProfile = dto.LinkedInProfile;
-                entity.PreviousExperienceText = dto.PreviousExperience;
                 entity.ProfilePictureName = dto.profilePicturePath;
-                entity.BandGrade = dto.brandGrade;
-                entity.EsicNumber = dto.esicNumber;
-                entity.Pfnumber = dto.pfNumber;
-                entity.EmployeeType = dto.employmentType;
-                entity.DateOfJoining = dto.dateofJoining;
-
-
-                entity.CompanyId = dto.CompanyId;
-                entity.RegionId = dto.RegionId;
-                entity.UserId = dto.userId;
-                entity.ModifiedBy = dto.userId;
-                entity.ModifiedAt = DateTime.UtcNow;
-                _unitOfWork.Repository<EmployeePersonalDetail>().Update(entity);
-                await _unitOfWork.CompleteAsync();
-
-                return MapToDto(entity);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+
+            entity.ModifiedBy = dto.userId;
+            entity.ModifiedAt = DateTime.UtcNow;
+
+            _unitOfWork.Repository<EmployeePersonalDetail>().Update(entity);
+            await _unitOfWork.CompleteAsync();
+
+            return MapToDto(entity);
         }
 
         public async Task<bool> DeletePersonalEmailAsync(int id)
