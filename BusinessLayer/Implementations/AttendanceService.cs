@@ -795,41 +795,24 @@ namespace BusinessLayer.Implementations
                     continue;
 
                 // FIRST REMINDER
-                if (emp.ShiftEndReminderSent == 0 && now >= firstReminder && now < firstReminder.AddMinutes(2))
+                if (dbRow.ShiftEndReminderSent == 0 && now >= firstReminder)
                 {
-                    await SendMail(userId, emp.EmployeeCode, 1);
+                    await SendMail(userId, dbRow.EmployeeCode, 1);
 
-                    emp.ShiftEndReminderSent = 1;
+                    dbRow.ShiftEndReminderSent = 1;
+
+                    await _hrmsContext.SaveChangesAsync();
                 }
 
-                // SECOND REMINDER + MISS PUNCH
-                else if (emp.ShiftEndReminderSent == 1 && now >= secondReminder && now < secondReminder.AddMinutes(2))
+                else if (dbRow.ShiftEndReminderSent == 1 && now >= secondReminder)
                 {
-                    await SendMail(userId, emp.EmployeeCode, 2);
+                    // 1️⃣ LOCK FIRST
+                    dbRow.ShiftEndReminderSent = 2;
+                    await _hrmsContext.SaveChangesAsync();
 
-                    emp.ShiftEndReminderSent = 2;
+                    // 2️⃣ SEND FINAL EMAIL
+                    await SendMail(userId, dbRow.EmployeeCode, 2);
 
-                    var exists = await _hrmsContext.MissedPunchRequests
-                        .AnyAsync(x =>
-                            x.UserId == userId &&
-                            x.MissedDate == emp.AttendanceDate);
-
-                    if (!exists)
-                    {
-                        await _hrmsContext.MissedPunchRequests.AddAsync(new MissedPunchRequest
-                        {
-                            EmployeeId = userId,
-                            UserId = userId,
-                            CompanyId = emp.CompanyId,
-                            RegionId = emp.RegionId,
-                            MissedDate = emp.AttendanceDate,
-                            MissedType = "Missed Clock Out",
-                            Reason = "",
-                            Status = "Draft",
-                            CreatedAt = DateTime.Now,
-                            CreatedBy = userId
-                        });
-                    }
                 }
             }
 
