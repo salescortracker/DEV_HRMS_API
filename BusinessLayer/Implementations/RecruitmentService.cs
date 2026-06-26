@@ -2383,13 +2383,14 @@ Date : _____________________________________
             }
 
             await _unitOfWork.CompleteAsync();
+            var baseUrl = _configuration["AppSettings:FrontendUrl"];
 
             string uploadLink =
-    $"http://localhost:4200/#/offer-documents" +
-    $"/{offer.OfferId}" +
-    $"/{candidate.CandidateId}" +
-    $"/{offer.CompanyId}" +
-    $"/{offer.RegionId}";
+                $"{baseUrl}/#/offer-documents" +
+                $"/{offer.OfferId}" +
+                $"/{candidate.CandidateId}" +
+                $"/{offer.CompanyId}" +
+                $"/{offer.RegionId}";
 
             // ============================================================
             // ======================== EMAIL =============================

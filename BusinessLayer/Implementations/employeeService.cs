@@ -2943,7 +2943,27 @@ namespace BusinessLayer.Implementations
                 RegionId = dto.RegionId,
                 UserId = dto.userId,
                 CreatedBy = dto.userId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+
+
+
+                PassportNumber = dto.PassportNumber,
+                PlaceOfBirth = dto.PlaceOfBirth,
+                Uan = dto.Uan,
+                BloodGroup = dto.BloodGroup,
+                Citizenship = dto.Citizenship,
+                Religion = dto.Religion,
+                DrivingLicence = dto.DrivingLicence,
+                MaritalStatusId = dto.maritalStatusId,
+                MarriageDate = dto.MarriageDate,
+                WorkPhone = dto.WorkPhone,
+                LinkedInProfile = dto.LinkedInProfile,
+                PreviousExperienceText = dto.PreviousExperience,
+                BandGrade = dto.brandGrade,
+                EsicNumber = dto.esicNumber,
+                Pfnumber = dto.pfNumber,
+                EmployeeType = dto.employmentType,
+                DateOfJoining = dto.dateofJoining,
             };
 
             await _unitOfWork.Repository<EmployeePersonalDetail>().AddAsync(entity);
@@ -2970,7 +2990,23 @@ namespace BusinessLayer.Implementations
             entity.PresentAddress = dto.PresentAddress;
             entity.Pannumber = dto.PanNumber;
             entity.AadhaarNumber = dto.AadhaarNumber;
-
+            entity.PassportNumber = dto.PassportNumber;
+            entity.PlaceOfBirth = dto.PlaceOfBirth;
+            entity.Uan = dto.Uan;
+            entity.BloodGroup = dto.BloodGroup;
+            entity.Citizenship = dto.Citizenship;
+            entity.Religion = dto.Religion;
+            entity.DrivingLicence = dto.DrivingLicence;
+            entity.MaritalStatusId = dto.maritalStatusId;
+            entity.MarriageDate = dto.MarriageDate;
+            entity.WorkPhone = dto.WorkPhone;
+            entity.LinkedInProfile = dto.LinkedInProfile;
+            entity.PreviousExperienceText = dto.PreviousExperience;
+            entity.BandGrade = dto.brandGrade;
+            entity.EsicNumber = dto.esicNumber;
+            entity.Pfnumber = dto.pfNumber;
+            entity.EmployeeType = dto.employmentType;
+            entity.DateOfJoining = dto.dateofJoining;
             // ✅ ONLY UPDATE PATH
             if (!string.IsNullOrEmpty(dto.profilePicturePath))
             {
