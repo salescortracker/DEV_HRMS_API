@@ -12,5 +12,7 @@ namespace BusinessLayer.DTOs
         public int CompanyId { get; set; }
         public int RegionId { get; set; }
         public string StatusName { get; set; } = null!;
+        public bool IsActive { get; set; }
+        public int UserId { get; set; }
     }
 }

@@ -874,21 +874,132 @@ public class UpdateResignationStatusRequest
             return Ok(response);
         }
 
+        [HttpGet("GetStatusesByCompanyRegion")]
+        public async Task<IActionResult> GetStatusesByCompanyRegion(int companyId, int regionId)
+        {
+            var list = await _employeeService.GetStatusByCompanyRegionAsync(companyId, regionId);
+            return Ok(list);
+        }
+
+        //[HttpGet("GetStatuses")]
+        //public async Task<IActionResult> GetStatuses()
+        //{
+        //    var list = await _employeeService.GetStatusListAsync();
+        //    var response = list.
+        //Select(s => new
+        //{
+        //    statusId = s.StatusId,
+        //    statusName = s.StatusName
+        //})
+        //.ToList();
+
+        //    return Ok(response);
+        //}
+
         [HttpGet("GetStatuses")]
-        public async Task<IActionResult> GetStatuses()
+        public async Task<IActionResult> GetStatuses(int userId)
         {
-            var list = await _employeeService.GetStatusListAsync();
-            var response = list.
-        Select(s => new
-        {
-            statusId = s.StatusId,
-            statusName = s.StatusName
-        })
-        .ToList();
+            var list = await _employeeService.GetStatusByUserIdAsync(userId);
+
+            var response = list.Select(s => new
+            {
+                statusId = s.StatusId,
+                companyId = s.CompanyId,
+                regionId = s.RegionId,
+                statusName = s.StatusName,
+                isActive = s.IsActive,
+                userId = s.UserId
+            }).ToList();
 
             return Ok(response);
         }
 
+
+
+
+
+        [HttpPost("CreateWorkAuthStatus")]
+        public async Task<IActionResult> CreateStatus([FromBody] WorkAuthStatusDto model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.StatusName))
+                return BadRequest(new { success = false, message = "Status name is required." });
+
+            try
+            {
+                var created = await _employeeService.CreateStatusAsync(model);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Work auth status created successfully.",
+                    data = created
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+
+        }
+
+        [HttpPost("UpdateWorkAuthStatus")]
+        public async Task<IActionResult> UpdateStatus([FromBody] WorkAuthStatusDto model)
+        {
+            if (model == null || model.StatusId <= 0)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Invalid status id."
+                });
+            }
+
+            try
+            {
+                var updated = await _employeeService.UpdateStatusAsync(model);
+
+                if (updated == null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Status not found."
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Work auth status updated successfully.",
+                    data = updated
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("DeleteWorkAuthStatus")]
+        public async Task<IActionResult> DeleteStatus(int statusId, int companyId, int regionId, int userId)
+        {
+            if (statusId <= 0)
+                return BadRequest(new { success = false, message = "Invalid status id." });
+
+            var deleted = await _employeeService.DeleteStatusAsync(statusId, companyId, regionId, userId);
+            if (!deleted)
+                return BadRequest(new { success = false, message = "Delete failed or status not found." });
+
+            return Ok(new { success = true, message = "Work auth status deleted successfully." });
+        }
 
 
         #endregion

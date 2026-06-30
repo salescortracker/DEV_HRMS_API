@@ -855,18 +855,131 @@ namespace BusinessLayer.Implementations
         }
 
 
-        public async Task<List<WorkAuthStatusDto>> GetStatusListAsync()
+        //public async Task<List<WorkAuthStatusDto>> GetStatusListAsync()
+        //{
+        //    return await _context.WorkAuthStatusMasters
+        //        .Select(s => new WorkAuthStatusDto
+        //        {
+        //            StatusId = s.StatusId,
+        //            CompanyId = s.CompanyId,
+        //            RegionId = s.RegionId,
+        //            StatusName = s.StatusName
+        //        })
+        //        .ToListAsync();
+        //}
+
+        public async Task<List<WorkAuthStatusDto>> GetStatusByUserIdAsync(int userId)
         {
             return await _context.WorkAuthStatusMasters
-                .Select(s => new WorkAuthStatusDto
+                .Where(x => x.UserId == userId)
+                .Select(x => new WorkAuthStatusDto
                 {
-                    StatusId = s.StatusId,
-                    CompanyId = s.CompanyId,
-                    RegionId = s.RegionId,
-                    StatusName = s.StatusName
+                    StatusId = x.StatusId,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId,
+                    StatusName = x.StatusName,
+                    IsActive = x.IsActive,
+                    //UserId = x.UserId
                 })
                 .ToListAsync();
         }
+
+        public async Task<List<WorkAuthStatusDto>> GetStatusByCompanyRegionAsync(int companyId, int regionId)
+        {
+            return await _context.WorkAuthStatusMasters
+                .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+                .Select(x => new WorkAuthStatusDto
+                {
+                    StatusId = x.StatusId,
+                    CompanyId = x.CompanyId,
+                    RegionId = x.RegionId,
+                    StatusName = x.StatusName,
+                    IsActive = x.IsActive
+                    
+                })
+                .ToListAsync();
+        }
+        public async Task<WorkAuthStatusDto> CreateStatusAsync(WorkAuthStatusDto dto)
+        {
+
+            var exists = await _context.WorkAuthStatusMasters.AnyAsync(x =>
+            x.CompanyId == dto.CompanyId &&
+            x.RegionId == dto.RegionId &&
+            x.StatusName.Trim().ToLower() == dto.StatusName.Trim().ToLower());
+
+            if (exists)
+            {
+                throw new Exception("Work auth status already exists for the selected Company and Region.");
+            }
+
+            var entity = new WorkAuthStatusMaster
+            {
+                CompanyId = dto.CompanyId,
+                RegionId = dto.RegionId,
+                StatusName = dto.StatusName,
+                IsActive = dto.IsActive,
+                UserId = dto.UserId,
+                CreatedBy = dto.UserId.ToString(),
+                CreatedDate = DateTime.Now.Date
+
+            };
+
+            _context.WorkAuthStatusMasters.Add(entity);
+            await _context.SaveChangesAsync();
+
+            dto.StatusId = entity.StatusId;
+            return dto;
+        }
+
+        public async Task<WorkAuthStatusDto?> UpdateStatusAsync(WorkAuthStatusDto dto)
+        {
+
+
+            var duplicate = await _context.WorkAuthStatusMasters.AnyAsync(x =>
+            x.StatusId != dto.StatusId &&
+            x.CompanyId == dto.CompanyId &&
+            x.RegionId == dto.RegionId &&
+            x.StatusName.Trim().ToLower() == dto.StatusName.Trim().ToLower());
+
+            if (duplicate)
+            {
+                throw new Exception("Work auth status already exists for the selected Company and Region.");
+            }
+
+
+            var entity = await _context.WorkAuthStatusMasters.FindAsync(dto.StatusId);
+            if (entity == null)
+                return null;
+
+            entity.CompanyId = dto.CompanyId;
+            entity.RegionId = dto.RegionId;
+            entity.StatusName = dto.StatusName;
+            entity.IsActive = dto.IsActive;
+            entity.UserId = dto.UserId;
+            entity.ModifiedDate = DateTime.Now;
+            entity.ModifiedBy = dto.UserId.ToString();
+            await _context.SaveChangesAsync();
+
+            return dto;
+        }
+
+        public async Task<bool> DeleteStatusAsync(int statusId, int companyId, int regionId, int userId)
+        {
+            var entity = await _context.WorkAuthStatusMasters
+                .FirstOrDefaultAsync(x =>
+                    x.StatusId == statusId &&
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId);
+
+            if (entity == null)
+                return false;
+
+            _context.WorkAuthStatusMasters.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
         #endregion
         #region employee Document
         /// <summary>
