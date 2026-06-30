@@ -196,7 +196,7 @@ namespace BusinessLayer.Implementations
         {
             try
             {
-                var user= await _context.Users.FirstOrDefaultAsync(u => u.Email == username);
+                var user= await _context.Users.FirstOrDefaultAsync(u => u.Email == username && u.PasswordHash == password);
                 if (user == null)
                 {
                     return new { error = "Invalid username or password" };

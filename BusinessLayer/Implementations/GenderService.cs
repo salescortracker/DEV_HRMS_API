@@ -3,6 +3,7 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
 {
@@ -168,16 +169,53 @@ namespace BusinessLayer.Implementations
             return MapToDto(entity);
         }
 
-        public async Task<bool> DeleteGenderAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteGenderAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<Gender>().GetByIdAsync(id);
-            if (entity == null)
-                return false;
+            try
+            {
+                // Check whether gender is assigned to any employee
+                var isAssigned = await _hRMSContext.EmployeePersonalDetails
+                 .Where(x => x.GenderId == id)
+                 .FirstOrDefaultAsync() != null;
 
-            _unitOfWork.Repository<Gender>().Remove(entity);
-            await _unitOfWork.CompleteAsync();
-            return true;
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this gender. It is assigned to one or more employees.",
+                        false);
+                }
+
+                var entity = await _unitOfWork.Repository<Gender>().GetByIdAsync(id);
+
+                if (entity == null)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Gender not found.",
+                        false);
+                }
+
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                _unitOfWork.Repository<Gender>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<bool>(
+                    true,
+                    "Gender deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(
+                    false,
+                    $"Error deleting gender: {ex.Message}",
+                    false);
+            }
         }
+
 
         public async Task<IEnumerable<Gender>> AddGendersAsync(List<GenderDto> dtos)
         {

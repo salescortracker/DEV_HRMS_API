@@ -17,7 +17,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<GenderDto>> SearchGenderAsync(object filter);
         Task<GenderDto> AddGenderAsync(GenderDto dto);
         Task<GenderDto> UpdateGenderAsync(GenderDto dto);
-        Task<bool> DeleteGenderAsync(int id);
+        Task<ApiResponse<bool>> DeleteGenderAsync(int id);
         Task<IEnumerable<Gender>> AddGendersAsync(List<GenderDto> dtos);
     }
 }

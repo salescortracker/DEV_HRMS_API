@@ -126,19 +126,51 @@ namespace BusinessLayer.Implementations
 
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<Employmenttype>().GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<Employmenttype>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted)
-                return new ApiResponse<string>(null!, "Not found", false);
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Employment Type not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.UtcNow;
+                // Check whether Employment Type is assigned
+                var isAssigned = (await _unitOfWork.Repository<EmployeePersonalDetail>()
+    .FindAsync(x => x.EmployeeType == entity.EmploymenttypeName))
+    .Any();
 
-            _unitOfWork.Repository<Employmenttype>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                if (isAssigned)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this employment type. It is assigned to one or more employees.",
+                        false);
+                }
 
-            return new ApiResponse<string>("Employment Type deleted successfully.");
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                _unitOfWork.Repository<Employmenttype>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Employment Type deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
+
         public async Task<ApiResponse<IEnumerable<EmploymentTypeDto>>> GetByCompanyRegion(
        int companyId, int regionId)
         {

@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using DataAccessLayer.DBContext;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace BusinessLayer.Interfaces
         Task<IEnumerable<Relationship>> GetAllrelatiopnshipByUserAsync( int userId, int regionId);
         Task<RelationshipDto> AddrelatiopnshipAsync(RelationshipDto relationship);
         Task<RelationshipDto?> UpdaterelatiopnshipAsync(RelationshipDto relationship);
-        Task<bool> Deleterelatiopnship(int relationshipId);
+        Task<ApiResponse<bool>> Deleterelatiopnship(int relationshipId);
         Task<IEnumerable<Employmenttype>> GetAllEmploymentTypeByUserAsync(int companyId, int regionId);
         Task<IEnumerable<Gender>> GetAllgenderByUserAsync(int companyId, int regionId);
         Task<Gender> AddgenderAsync(Gender gender);
