@@ -131,28 +131,67 @@ namespace BusinessLayer.Implementations
 
 
         #region Get By Id
-        public async Task<ApiResponse<IEnumerable<BloodGroupDto>?>>
-            GetByIdAsync(int id)
+        //public async Task<ApiResponse<IEnumerable<BloodGroupDto>?>>
+        //    GetByIdAsync(int id)
+        //{
+        //    try
+        //    {
+        //        //var entity =  _context.BloodGroups.Where(x => x.UserId == id).Select(MapToDto).ToList();
+        //        var entity = _context.BloodGroups
+        //        .Where(x => x.UserId == id && !x.IsDeleted)
+        //        .Select(MapToDto)
+        //        .ToList();
+
+        //        if (entity == null)
+        //            return new ApiResponse<IEnumerable<BloodGroupDto>>(
+        //                null,
+        //                "Blood group not found",
+        //                true
+        //            );
+
+        //        var dto = (entity);
+
+
+        //            return new ApiResponse<IEnumerable<BloodGroupDto>>(
+        //                dto,
+        //                "Blood group Fetched Successfully",
+        //                true
+        //            );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<IEnumerable<BloodGroupDto>>(
+        //            null,
+        //            ex.Message,
+        //            false
+        //        );
+        //    }
+        //}
+
+
+        public async Task<ApiResponse<IEnumerable<BloodGroupDto>>> GetByIdAsync(int id)
         {
             try
             {
-                var entity =  _context.BloodGroups.Where(x => x.UserId == id).Select(MapToDto).ToList();
+                var entity = await _context.BloodGroups
+                    .Where(x => x.UserId == id)
+                    .Select(x => new BloodGroupDto
+                    {
+                        BloodGroupID = x.BloodGroupId,
+                        CompanyID = x.CompanyId,
+                        RegionID = x.RegionId,
+                        BloodGroupName = x.BloodGroupName,
+                        Description = x.Description,
+                        IsActive = x.IsActive,
+                        //UserID = x.UserId
+                    })
+                    .ToListAsync();
 
-                if (entity == null)
-                    return new ApiResponse<IEnumerable<BloodGroupDto>>(
-                        null,
-                        "Blood group not found",
-                        true
-                    );
-
-                var dto = (entity);
-
-                
-                    return new ApiResponse<IEnumerable<BloodGroupDto>>(
-                        dto,
-                        "Blood group Fetched Successfully",
-                        true
-                    );
+                return new ApiResponse<IEnumerable<BloodGroupDto>>(
+                    entity,
+                    "Blood groups fetched successfully",
+                    true
+                );
             }
             catch (Exception ex)
             {
@@ -295,26 +334,34 @@ namespace BusinessLayer.Implementations
 
 
         #region Delete
-        public async Task<ApiResponse<bool>>
-            DeleteAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteAsync(int id)
         {
             try
             {
-                var entity = await _unitOfWork
-                .Repository<BloodGroup>()
-                .GetByIdAsync(id);
+                var entity = await _context.BloodGroups
+                    .FirstOrDefaultAsync(x => x.BloodGroupId == id);
 
-                if (entity == null || entity.IsDeleted)
+                if (entity == null)
+                {
                     return new ApiResponse<bool>(
-                        false, "Record not found", false);
+                        false,
+                        "Blood Group not found",
+                        false
+                    );
+                }
 
-                entity.IsDeleted = true;
-                //entity.CreatedBy = 
-                _unitOfWork.Repository<BloodGroup>().Update(entity);
-                await _unitOfWork.CompleteAsync();
+                //entity.IsDeleted = true;
+                //entity.ModifiedAt = DateTime.Now;
 
+                //_context.BloodGroups.Update(entity);
+                //await _context.SaveChangesAsync();
+                _context.BloodGroups.Remove(entity);
+                await _context.SaveChangesAsync();
                 return new ApiResponse<bool>(
-                    true, "Deleted successfully", true);
+                    true,
+                    "Blood Group deleted successfully",
+                    true
+                );
             }
             catch (Exception ex)
             {

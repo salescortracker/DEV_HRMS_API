@@ -2448,11 +2448,26 @@ namespace HRMS_Backend.Controllers
             });
         }
 
+     
+
+
+        #region Search
+        [HttpPost("SearchBloodGroups")]
+        //public async Task<IActionResult> SearchBloodGroups([FromBody] BloodGroupDto filter)
+        //{
+        //    var result = await _bloodGroupService
+        //        .SearchbloodgroupAsync(filter);
+
+        //    return Ok(result);
+        //}
         #endregion
 
-        #region BloodGroup
 
-        #region Get All
+
+
+
+        #region BloodGropu
+
         [HttpGet("GetAllBloodGroups")]
         public async Task<IActionResult> GetAllBloodGroups(int companyId)
         {
@@ -2473,7 +2488,7 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
-        #endregion
+
         [HttpGet("GetAlluserIdAsync")]
         public async Task<IActionResult> GetAlluserIdAsync(int userId)
         {
@@ -2485,7 +2500,6 @@ namespace HRMS_Backend.Controllers
             return Ok(result.Data);
         }
 
-        #region Get By Id
         [HttpGet("GetBloodGroupsById/{id}")]
         public async Task<IActionResult> GetBloodGroupsById(int id)
         {
@@ -2496,22 +2510,7 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
-        #endregion
 
-
-        #region Search
-        [HttpPost("SearchBloodGroups")]
-        //public async Task<IActionResult> SearchBloodGroups([FromBody] BloodGroupDto filter)
-        //{
-        //    var result = await _bloodGroupService
-        //        .SearchbloodgroupAsync(filter);
-
-        //    return Ok(result);
-        //}
-        #endregion
-
-
-        #region Add
         [HttpPost("AddBloodGroups")]
         public async Task<IActionResult> AddBloodGroups([FromBody] BloodGroupDto dto)
         {
@@ -2522,10 +2521,6 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
-        #endregion
-
-
-        #region Update
         [HttpPut("UpdateBloodGroups")]
         public async Task<IActionResult> UpdateBloodGroups(int id,
             [FromBody] BloodGroupDto dto)
@@ -2540,14 +2535,19 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
-        #endregion
 
-
-        #region Delete
         [HttpDelete("DeleteBloodGroups/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        => Ok(await _bloodGroupService.DeleteAsync(id));
+        public async Task<IActionResult> DeleteBloodGroups(int id)
+        {
+            var result = await _bloodGroupService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
         #endregion
+
 
 
         #endregion
