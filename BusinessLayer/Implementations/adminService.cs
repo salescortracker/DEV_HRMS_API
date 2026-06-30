@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.EntityFrameworkCore;
@@ -125,20 +126,52 @@ namespace BusinessLayer.Implementations
 
 
 
-        public async Task<bool> Deleterelatiopnship(int relationshipId)
+        public async Task<ApiResponse<bool>> Deleterelatiopnship(int relationshipId)
         {
-            var dbObj = await _context.Relationships
-                        .FirstOrDefaultAsync(x => x.RelationshipId == relationshipId);
+            try
+            {
+                // Get Relationship
+                var dbObj = await _context.Relationships
+                    .FirstOrDefaultAsync(x => x.RelationshipId == relationshipId && !x.IsDeleted);
 
-            if (dbObj == null)
-                return false;
+                if (dbObj == null)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Relationship not found.",
+                        false);
+                }
 
-            dbObj.IsDeleted = true;
-           
-            dbObj.ModifiedAt = DateTime.UtcNow;
+                // Check whether Relationship is assigned
+                var isAssigned = _context.EmployeeFamilyDetails
+                    .Any(x => x.Relationship == dbObj.RelationshipName);
 
-            await _context.SaveChangesAsync();
-            return true;
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this relationship. It is assigned to one or more employees.",
+                        false);
+                }
+
+                // Soft Delete
+                dbObj.IsDeleted = true;
+                dbObj.ModifiedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse<bool>(
+                    true,
+                    "Relationship deleted successfully.",
+                    true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(
+                    false,
+                    $"Error deleting relationship: {ex.Message}",
+                    false);
+            }
         }
         private static RelationshipDto MapToDto(Relationship entity)
         {

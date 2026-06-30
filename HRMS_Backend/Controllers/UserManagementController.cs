@@ -1068,15 +1068,14 @@ namespace HRMS_Backend.Controllers
         /// Soft delete relationship by Id
         /// </summary>
         [HttpPost("DeleteRelationship")]
-        public async Task<IActionResult> DeleteRelationship(
-         [FromQuery]   int relationshipId
-            )
+        public async Task<IActionResult> DeleteRelationship([FromQuery] int relationshipId)
         {
             var result = await _adminService.Deleterelatiopnship(relationshipId);
 
-            if (!result)
-                return NotFound("Relationship record not found to delete.");
-            return Ok(new { message = "Deleted Successfully" });
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
         #endregion
         #region gender Details
@@ -1254,9 +1253,11 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> DeleteMaritalStatus([FromForm] int id)
         {
             var result = await _maritalStatusService.DeleteAsync(id);
-            return result
-                ? Ok(new { message = "Marital Status deleted successfully" })
-                : NotFound();
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
         #endregion

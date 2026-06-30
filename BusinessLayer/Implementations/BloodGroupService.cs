@@ -131,28 +131,29 @@ namespace BusinessLayer.Implementations
 
 
         #region Get By Id
-        public async Task<ApiResponse<IEnumerable<BloodGroupDto>?>>
-            GetByIdAsync(int id)
+        public async Task<ApiResponse<IEnumerable<BloodGroupDto>?>> GetByIdAsync(int id)
         {
             try
             {
-                var entity =  _context.BloodGroups.Where(x => x.UserId == id).Select(MapToDto).ToList();
+                var entity = _context.BloodGroups
+                    .Where(x => x.UserId == id && !x.IsDeleted)
+                    .Select(MapToDto)
+                    .ToList();
 
-                if (entity == null)
+                if (!entity.Any())
+                {
                     return new ApiResponse<IEnumerable<BloodGroupDto>>(
                         null,
                         "Blood group not found",
-                        true
+                        false
                     );
+                }
 
-                var dto = (entity);
-
-                
-                    return new ApiResponse<IEnumerable<BloodGroupDto>>(
-                        dto,
-                        "Blood group Fetched Successfully",
-                        true
-                    );
+                return new ApiResponse<IEnumerable<BloodGroupDto>>(
+                    entity,
+                    "Blood group fetched successfully",
+                    true
+                );
             }
             catch (Exception ex)
             {
@@ -295,34 +296,53 @@ namespace BusinessLayer.Implementations
 
 
         #region Delete
-        public async Task<ApiResponse<bool>>
-            DeleteAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteAsync(int id)
         {
             try
             {
-                var entity = await _unitOfWork
-                .Repository<BloodGroup>()
-                .GetByIdAsync(id);
+                // Get blood group by ID
+                var bloodGroup = await _context.BloodGroups
+                    .FirstOrDefaultAsync(x => x.BloodGroupId == id);
 
-                if (entity == null || entity.IsDeleted)
+                // ❌ FIXED: correct null check
+                if (bloodGroup == null)
+                {
                     return new ApiResponse<bool>(
-                        false, "Record not found", false);
+                        false,
+                        "Blood Group not found or already deleted.",
+                        false);
+                }
 
-                entity.IsDeleted = true;
-                //entity.CreatedBy = 
-                _unitOfWork.Repository<BloodGroup>().Update(entity);
-                await _unitOfWork.CompleteAsync();
+                // Check assignment using name (your current DB design)
+                var isAssigned = _context.EmployeePersonalDetails
+                    .Any(x => x.BloodGroup == bloodGroup.BloodGroupName);
+
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this blood group. It is assigned to one or more employees.",
+                        false);
+                }
+
+                // Soft delete
+                bloodGroup.IsDeleted = true;
+                bloodGroup.ModifiedAt = DateTime.UtcNow;
+
+                _context.BloodGroups.Update(bloodGroup);
+                await _context.SaveChangesAsync();
 
                 return new ApiResponse<bool>(
-                    true, "Deleted successfully", true);
+                    true,
+                    "Blood Group deleted successfully.",
+                    true);
             }
             catch (Exception ex)
             {
                 return new ApiResponse<bool>(
                     false,
-                    ex.Message,
-                    false
-                );
+                    $"Error deleting Blood Group: {ex.Message}",
+                    false);
             }
         }
         #endregion

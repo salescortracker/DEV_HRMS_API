@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +21,10 @@ namespace BusinessLayer.Implementations
             _context = context;
         }
 
-        public async Task<List<MaritalStatusDto>> GetAllAsync(int UserId)
+        public async Task<List<MaritalStatusDto>> GetAllAsync(int userId)
         {
             return await _context.MaritalStatuses
-                .Where(x =>x.UserId==UserId )
+                .Where(x => x.UserId == userId && !x.IsDeleted)
                 .OrderByDescending(x => x.MaritalStatusId)
                 .Select(x => new MaritalStatusDto
                 {
@@ -113,19 +114,51 @@ namespace BusinessLayer.Implementations
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteAsync(int id)
         {
-            var entity = await _context.MaritalStatuses
-                .FirstOrDefaultAsync(x => x.MaritalStatusId == id && !x.IsDeleted);
+            try
+            {
+                // Get Marital Status
+                var maritalStatus = await _context.MaritalStatuses
+                    .FirstOrDefaultAsync(x => x.MaritalStatusId == id && !x.IsDeleted);
 
-            if (entity == null) return false;
+                if (maritalStatus == null)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Marital Status not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            
-            entity.ModifiedAt = DateTime.Now;
+                // Check whether it is assigned to any employee
+                var isAssigned = _context.EmployeePersonalDetails
+                    .Any(x => x.MaritalStatusId == id);
 
-            await _context.SaveChangesAsync();
-            return true;
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this marital status. It is assigned to one or more employees.",
+                        false);
+                }
+
+                maritalStatus.IsDeleted = true;
+                maritalStatus.ModifiedAt = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse<bool>(
+                    true,
+                    "Marital Status deleted successfully.",
+                    true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(
+                    false,
+                    $"Error deleting marital status: {ex.Message}",
+                    false);
+            }
         }
     }
 }

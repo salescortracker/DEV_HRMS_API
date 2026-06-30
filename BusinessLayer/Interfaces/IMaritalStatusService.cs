@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 
 namespace BusinessLayer.Interfaces
 {
@@ -7,6 +8,6 @@ namespace BusinessLayer.Interfaces
         Task<List<MaritalStatusDto>> GetAllAsync(int UserId);
         Task<bool> CreateAsync(MaritalStatusDto dto);
         Task<bool> UpdateAsync(MaritalStatusDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task<ApiResponse<bool>> DeleteAsync(int id);
     }
 }

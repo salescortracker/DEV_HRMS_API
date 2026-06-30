@@ -2316,10 +2316,14 @@ namespace HRMS_Backend.Controllers
         [HttpPost("DeleteGender")]
         public async Task<IActionResult> DeleteGender([FromQuery] int id)
         {
-            bool success = await _genderService.DeleteGenderAsync(id);
-            if (!success) return NotFound("Gender not found");
+            var result = await _genderService.DeleteGenderAsync(id);
 
-            return Ok(new { message = "Gender deleted successfully" });
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
         #endregion
         #region KPICategory
@@ -2546,7 +2550,14 @@ namespace HRMS_Backend.Controllers
         #region Delete
         [HttpDelete("DeleteBloodGroups/{id}")]
         public async Task<IActionResult> Delete(int id)
-        => Ok(await _bloodGroupService.DeleteAsync(id));
+        {
+            var result = await _bloodGroupService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
         #endregion
 
 
@@ -3677,6 +3688,10 @@ int regionId)
         public async Task<IActionResult> DeleteEmploymentType([FromQuery] int id)
         {
             var result = await _employmentTypeService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
 
