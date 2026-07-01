@@ -119,17 +119,28 @@ namespace BusinessLayer.Implementations
         public async Task<bool> DeleteAccountType(int id)
         {
             var entity = await _context.AccountTypes
-                .FirstOrDefaultAsync(x => x.AccountTypeId == id);
+                .FirstOrDefaultAsync(x => x.AccountTypeId == id && !x.IsDeleted);
 
             if (entity == null)
                 return false;
 
+            // 🔥 CHECK IF ASSIGNED
+            var isAssigned = await _context.EmployeeBankDetails
+                .AnyAsync(x => x.AccountTypeId == id);
+
+            if (isAssigned)
+            {
+                // optional: throw or return false
+                return false;
+            }
+
+            // ✅ SOFT DELETE
             entity.IsDeleted = true;
+            entity.ModifiedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<List<AccountTypeDto>> GetAccountTypesByCompanyRegion(int companyId, int regionId)
         {
             return await _context.AccountTypes
