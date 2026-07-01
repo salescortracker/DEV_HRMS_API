@@ -711,7 +711,9 @@ namespace BusinessLayer.Implementations
                     Status = x.Status,
                     SelfReviewSummary = x.SelfReviewSummary,
                     ApplicableStartDate = x.ApplicableStartDate,
-                    ApplicableEndDate = x.ApplicableEndDate
+                    ApplicableEndDate = x.ApplicableEndDate,
+                    Designation = x.Designation,
+                    Department = x.Department,
                 })
                 .ToListAsync();
 
