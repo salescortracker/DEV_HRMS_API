@@ -127,20 +127,52 @@ namespace BusinessLayer.Implementations
         // DELETE
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<AssetType>().GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<AssetType>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted)
-                return new ApiResponse<string>(null!, "Not found", false);
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Asset Type not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.UtcNow;
-            entity.ModifiedBy = entity.UserId;
+                // Check whether Asset Type is assigned
+                var isAssigned = (await _unitOfWork.Repository<Asset>()
+                    .FindAsync(x => x.AssetTypeId == id))
+                    .Any();
 
-            _unitOfWork.Repository<AssetType>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                if (isAssigned)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this asset type. It is assigned to one or more assets.",
+                        false);
+                }
 
-            return new ApiResponse<string>("Deleted successfully");
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+                entity.ModifiedBy = entity.UserId;
+
+                _unitOfWork.Repository<AssetType>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Asset Type deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
+
         public async Task<ApiResponse<IEnumerable<AssetTypeDto>>> GetByCompanyRegion(int companyId, int regionId, int assetCategoryId)
         {
             var list = (await _unitOfWork.Repository<AssetType>()

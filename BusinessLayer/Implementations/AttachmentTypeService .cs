@@ -103,22 +103,59 @@ namespace BusinessLayer.Implementations
             return data;
         }
 
-        public async Task<bool> DeleteAttachmentTypeAsync(int id)
+        public async Task<ApiResponse<string>> DeleteAttachmentTypeAsync(int id)
         {
-            var entity = await _context.AttachmentTypes
-                .FirstOrDefaultAsync(x => x.AttachmentTypeId == id);
+            try
+            {
+                var entity = await _context.AttachmentTypes
+                    .FirstOrDefaultAsync(x => x.AttachmentTypeId == id && !x.IsDeleted);
 
-            if (entity == null) return false;
+                if (entity == null)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Attachment Type not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedBy = 1;
-            entity.ModifiedAt = DateTime.Now;
+                // ✅ CHECK 1: EmployeeDocuments
+                var usedInDocuments = await _context.EmployeeDocuments
+                    .AnyAsync(x => x.DocumentTypeId == id);
 
-            return await _context.SaveChangesAsync() > 0;
+                // ✅ CHECK 2: EmployeeForms
+                var usedInForms = await _context.EmployeeForms
+                    .AnyAsync(x => x.DocumentTypeId == id);
+
+                // ✅ CHECK 3: EmployeeLetters
+                var usedInLetters = await _context.EmployeeLetters
+                    .AnyAsync(x => x.DocumentTypeId == id);
+
+                if (usedInDocuments || usedInForms || usedInLetters)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this attachment type. It is already used in employee documents/forms/letters.",
+                        false);
+                }
+
+                // ✅ Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                _context.AttachmentTypes.Update(entity);
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse<string>(
+                    "Attachment Type deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    $"Error: {ex.Message}",
+                    false);
+            }
         }
-
-
-
 
         public async Task<IEnumerable<AttachmentTypeDto>> GetByCategoryAsync(
       string category,

@@ -162,20 +162,52 @@ namespace BusinessLayer.Implementations
         // ================= DELETE =================
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<AssetCategory>().GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<AssetCategory>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted)
-                return new ApiResponse<string>(null!, "Asset Category not found.", false);
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Asset Category not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.UtcNow;
-            entity.ModifiedBy = entity.UserId;
+                // Check whether Asset Category is assigned
+                var isAssigned = (await _unitOfWork.Repository<Asset>()
+                    .FindAsync(x => x.AssetCategoryId == id))
+                    .Any();
 
-            _unitOfWork.Repository<AssetCategory>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                if (isAssigned)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this asset category. It is assigned to one or more assets.",
+                        false);
+                }
 
-            return new ApiResponse<string>("Asset Category deleted successfully.");
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+                entity.ModifiedBy = entity.UserId;
+
+                _unitOfWork.Repository<AssetCategory>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Asset Category deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
+
         public async Task<ApiResponse<IEnumerable<AssetCategoryDto>>> AssetCategoryDropDown(int companyId, int regionId)
         {
             var list = (await _unitOfWork.Repository<AssetCategory>()

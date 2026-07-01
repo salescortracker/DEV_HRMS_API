@@ -323,19 +323,51 @@ namespace BusinessLayer.Implementations
         // DELETE
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<CertificationType>().GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<CertificationType>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted)
-                return new ApiResponse<string>(null!, "Not found", false);
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Certification Type not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedDate = DateTime.UtcNow;
+                // Check whether Certification Type is assigned
+                var isAssigned = (await _unitOfWork.Repository<EmployeeCertification>()
+                    .FindAsync(x => x.CertificationTypeId == id))
+                    .Any();
 
-            _unitOfWork.Repository<CertificationType>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                if (isAssigned)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this certification type. It is assigned to one or more employees.",
+                        false);
+                }
 
-            return new ApiResponse<string>("Deleted successfully");
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedDate = DateTime.UtcNow;
+
+                _unitOfWork.Repository<CertificationType>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Certification Type deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
+
         public async Task<ApiResponse<IEnumerable<CertificationTypeDto>>> GetCmpregionAllAsync(
       int companyId, int regionId)
         {

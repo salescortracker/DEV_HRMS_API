@@ -2645,7 +2645,12 @@ namespace HRMS_Backend.Controllers
         [HttpPost("DeleteAssetStatus")]
         public async Task<IActionResult> DeleteAsssetStatus(int id)
         {
-            return Ok(await _assetStatusService.DeleteAsync(id));
+            var result = await _assetStatusService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
 
@@ -2683,6 +2688,10 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> DeleteCertificationType([FromQuery] int id)
         {
             var result = await _certificationTypeService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
         [HttpGet("GetCmpregionAllAsync")]
@@ -3774,9 +3783,14 @@ int regionId)
         }
 
         [HttpPost("DeleteAssetType")]
-        public async Task<IActionResult> DeleteAssetType(int id)
+        public async Task<IActionResult> DeleteAssetType([FromQuery] int id)
         {
-            return Ok(await _assetTypeService.DeleteAsync(id));
+            var result = await _assetTypeService.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
         [HttpGet("assettypesfilter")]
         public async Task<IActionResult> GetByCompanyRegion(
@@ -3826,7 +3840,11 @@ int regionId)
         public async Task<IActionResult> DeleteAssetCategory([FromQuery] int id)
         {
             var result = await _assetCategoryService.DeleteAsync(id);
-            return result.Success ? Ok(result) : NotFound(result);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
         [HttpGet("assetcategoryfilter")]
         public async Task<IActionResult> AssetCategoryDropDown(
@@ -3919,8 +3937,11 @@ int regionId)
         public async Task<IActionResult> DeleteAttachmentType(int id)
         {
             var result = await _attachmentTypeService.DeleteAttachmentTypeAsync(id);
-            if (!result) return BadRequest("Delete failed");
-            return Ok();
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
         [HttpGet("GetAttachmentByCategory")]

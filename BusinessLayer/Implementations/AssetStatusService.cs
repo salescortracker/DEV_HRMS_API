@@ -98,20 +98,50 @@ namespace BusinessLayer.Implementations
 
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<AssetStatus>().GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<AssetStatus>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted)
-                return new ApiResponse<string>(null!, "Not found", false);
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Asset Status not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.UtcNow;
+                // Check whether Asset Status is assigned to any Asset
+                var isAssigned = (await _unitOfWork.Repository<Asset>()
+                    .FindAsync(x => x.AssetStatusId == id))
+                    .Any();
 
-            _unitOfWork.Repository<AssetStatus>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                if (isAssigned)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this asset status. It is assigned to one or more assets.",
+                        false);
+                }
 
-            return new ApiResponse<string>("Deleted successfully");
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                _unitOfWork.Repository<AssetStatus>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Asset Status deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
-      
 
     }
 }
