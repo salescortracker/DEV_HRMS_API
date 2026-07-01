@@ -728,13 +728,31 @@ namespace HRMS_Backend.Controllers
 
         #region EarlyLogOut
 
-        [HttpPost("createearlylogoutrequest")]
-        public async Task<IActionResult> CreateEarlyLogoutRequest(
-          [FromBody] CreateEarlyLogoutRequestDto dto)
-        {
-            var result = await _earlyLogoutService.CreateEarlyLogoutRequest(dto);
+        //[HttpPost("createearlylogoutrequest")]
+        //public async Task<IActionResult> CreateEarlyLogoutRequest(
+        //  [FromBody] CreateEarlyLogoutRequestDto dto)
+        //{
+        //    var result = await _earlyLogoutService.CreateEarlyLogoutRequest(dto);
 
-            return Ok(result);
+        //    return Ok(result);
+        //}
+
+
+        [HttpPost("createearlylogoutrequest")]
+        public async Task<IActionResult> CreateEarlyLogoutRequest(CreateEarlyLogoutRequestDto dto)
+        {
+            try
+            {
+                var result = await _earlyLogoutService.CreateEarlyLogoutRequest(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpGet("getearlylogoutrequest")]
@@ -781,13 +799,30 @@ namespace HRMS_Backend.Controllers
         //    });
         //}
 
-        [HttpPut("updateearlylogout")]
+        [HttpPost("updateearlylogout")]
         public async Task<IActionResult> UpdateEarlyLogout(UpdateEarlyLogoutDto dto)
         {
-            var success = await _earlyLogoutService.UpdateEarlyLogout (dto);
-            if (!success)
-                return BadRequest("Record not found or already processed.");
-            return Ok(new { message = "Early logout request updated successfully" });
+            try
+            {
+                var result = await _earlyLogoutService.UpdateEarlyLogout(dto);
+
+                if (!result)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Request not found or already processed."
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpPost("bulkapproverejectearlylogout")]

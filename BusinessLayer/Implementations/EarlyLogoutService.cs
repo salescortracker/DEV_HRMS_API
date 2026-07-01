@@ -21,96 +21,50 @@ namespace BusinessLayer.Implementations
             _context = context;
             _emailService = emailService;
         }
-        //        public async Task<EarlyLogoutRequest> CreateEarlyLogoutRequest(CreateEarlyLogoutRequestDto dto)
-        //        {
-        //            try
-        //            {
-        //                var entity = new EarlyLogoutRequest
-        //                {
-        //                    EmployeeId = dto.EmployeeID,
-        //                    UserId = dto.UserId,
-        //                    RequestDate = dto.RequestDate,
-        //                    RequestedLogoutTime = dto.RequestedLogoutTime,
-        //                    ManagerId = dto.reportingTo,
-        //                    Reason = dto.Reason,
-        //                    Status = "Pending",
-        //                    CompanyId = dto.CompanyID,
-        //                    RegionId = dto.RegionID,
-        //                    CreatedAt = DateTime.UtcNow,
-        //                    CreatedBy = dto.UserId,
-        //                    HrEmail = dto.HrEmail,
-        //                };
+      
 
-        //                _context.EarlyLogoutRequests.Add(entity);
-        //                await _context.SaveChangesAsync();
-
-        //                // ✅ RELOAD WITH NAVIGATION PROPERTIES
-        //                var saved = await _context.EarlyLogoutRequests
-        //                    .Include(x => x.Employee)
-        //                    .Include(x => x.Manager)
-        //                    .FirstOrDefaultAsync(x => x.EarlyLogoutRequestId == entity.EarlyLogoutRequestId);
-
-        //                if (saved?.Manager != null && !string.IsNullOrEmpty(saved.Manager.Email))
-        //                {
-        //                    var body = $@"
-        //<div style='font-family:Arial'>
-        //    <h3>Early Logout Request Notification</h3>
-        //    <p>Dear {saved.Manager.FullName},</p>
-        //    <p>A new early logout request has been submitted.</p>
-        //    <table border='1' cellpadding='6' cellspacing='0'>
-        //        <tr><td><b>Employee</b></td><td>{saved.Employee?.FullName}</td></tr>
-        //        <tr><td><b>Date</b></td><td>{saved.RequestDate:dd-MM-yyyy}</td></tr>
-        //        <tr><td><b>Requested Logout Time</b></td><td>{saved.RequestedLogoutTime}</td></tr>
-        //        <tr><td><b>Reason</b></td><td>{saved.Reason}</td></tr>
-        //    </table>
-        //    <p>Please review and take action.</p>
-        //    <br/>
-        //    <p>Regards,<br/><b>HRMS Team</b></p>
-        //</div>";
-
-        //                    await _emailService.SendEmailAsync(
-        //                        saved.Manager.Email,
-        //                        "New Early Logout Request",
-        //                        body,
-        //                        string.IsNullOrEmpty(dto.HrEmail) ? null : new List<string> { dto.HrEmail }
-        //                    );
-        //                }
-
-        //                return entity;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                throw ex;
-        //            }
-        //        }
-
-
-
-
-
-
-        public async Task<EarlyLogoutRequest> CreateEarlyLogoutRequest(CreateEarlyLogoutRequestDto dto)
+        public async Task<int> CreateEarlyLogoutRequest(CreateEarlyLogoutRequestDto dto)
         {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var duplicateRequest = await _context.EarlyLogoutRequests
+            .FirstOrDefaultAsync(x =>
+                x.UserId == dto.UserId &&
+                x.CompanyId == dto.CompanyID &&
+                x.RequestDate == dto.RequestDate);
+
+            if (duplicateRequest != null)
+            {
+                throw new Exception("Early Logout Request already exists for this date.");
+            }
+
+
             var entity = new EarlyLogoutRequest
             {
-                EmployeeId = dto.EmployeeID,
+                EmployeeId = dto.UserId,
                 UserId = dto.UserId,
                 RequestDate = dto.RequestDate,
                 RequestedLogoutTime = dto.RequestedLogoutTime,
-                ManagerId = dto.reportingTo,
+                ManagerId = user.ReportingTo,
+
                 Reason = dto.Reason,
                 Status = "Pending",
                 CompanyId = dto.CompanyID,
                 RegionId = dto.RegionID,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = dto.UserId,
-                HrEmail = dto.HrEmail,
+                HrEmail = dto.HrEmail
             };
 
             _context.EarlyLogoutRequests.Add(entity);
             await _context.SaveChangesAsync();
 
-            // ✅ Email failures should NEVER break request creation
             try
             {
                 var saved = await _context.EarlyLogoutRequests
@@ -118,41 +72,96 @@ namespace BusinessLayer.Implementations
                     .Include(x => x.Manager)
                     .FirstOrDefaultAsync(x => x.EarlyLogoutRequestId == entity.EarlyLogoutRequestId);
 
+                // Employee Details
+                var employee = await _context.Users
+                    .Where(x => x.UserId == dto.UserId)
+                    .Select(x => new
+                    {
+                        x.FullName,
+                        x.Email,
+                        x.ReportingHr
+                    })
+                    .FirstOrDefaultAsync();
+
+                // Reporting HR Email
+                string? reportingHrEmail = null;
+
+                if (employee?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
+
                 if (saved?.Manager != null && !string.IsNullOrEmpty(saved.Manager.Email))
                 {
                     var body = $@"
-<div style='font-family:Arial'>
-    <h3>Early Logout Request Notification</h3>
-    <p>Dear {saved.Manager.FullName},</p>
-    <p>A new early logout request has been submitted.</p>
-    <table border='1' cellpadding='6' cellspacing='0'>
-        <tr><td><b>Employee</b></td><td>{saved.Employee?.FullName}</td></tr>
-        <tr><td><b>Date</b></td><td>{saved.RequestDate:dd-MM-yyyy}</td></tr>
-        <tr><td><b>Requested Logout Time</b></td><td>{saved.RequestedLogoutTime}</td></tr>
-        <tr><td><b>Reason</b></td><td>{saved.Reason}</td></tr>
-    </table>
-    <p>Please review and take action.</p>
-    <br/>
-    <p>Regards,<br/><b>HRMS Team</b></p>
-</div>";
+        <div style='font-family:Arial'>
+            <h3>Early Logout Request Notification</h3>
+            <p>Dear {saved.Manager.FullName},</p>
+
+            <p>A new early logout request has been submitted.</p>
+
+            <table border='1' cellpadding='6' cellspacing='0'>
+                <tr>
+                    <td><b>Employee</b></td>
+                    <td>{saved.Employee?.FullName}</td>
+                </tr>
+                <tr>
+                    <td><b>Date</b></td>
+                    <td>{saved.RequestDate:dd-MM-yyyy}</td>
+                </tr>
+                <tr>
+                    <td><b>Requested Logout Time</b></td>
+                    <td>{saved.RequestedLogoutTime}</td>
+                </tr>
+                <tr>
+                    <td><b>Reason</b></td>
+                    <td>{saved.Reason}</td>
+                </tr>
+            </table>
+
+            <br/>
+            <p>Regards,<br/><b>HRMS Team</b></p>
+        </div>";
+
+                    var ccList = new List<string>();
+
+                    // Reporting HR Email
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // Optional CC Emails from UI
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList.AddRange(
+                            dto.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                        );
+                    }
+
+                    ccList = ccList.Distinct().ToList();
 
                     await _emailService.SendEmailAsync(
                         saved.Manager.Email,
                         "New Early Logout Request",
                         body,
-                        string.IsNullOrEmpty(dto.HrEmail) ? null : new List<string> { dto.HrEmail }
+                        ccList.Any() ? ccList : null
                     );
                 }
             }
-            catch (Exception emailEx)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Email send failed for EarlyLogoutRequest {entity.EarlyLogoutRequestId}: {emailEx.Message}");
+                Console.WriteLine($"Email Error: {ex.Message}");
             }
 
-            return entity;
+            return entity.EarlyLogoutRequestId;
         }
-
-
 
         public async Task<IEnumerable<EarlyLogoutRequest>> GetEarlyLogoutRequest(int companyId, int? regionId, int userId)
         {
@@ -191,62 +200,6 @@ namespace BusinessLayer.Implementations
             return result;
         }
 
-        //        public async Task<bool> UpdateEarlyLogout(UpdateEarlyLogoutDto dto)
-        //        {
-        //            var entity = await _context.EarlyLogoutRequests
-        //                .Include(x => x.Employee)
-        //                .FirstOrDefaultAsync(x =>
-        //                    x.EarlyLogoutRequestId == dto.EarlyLogoutRequestID &&
-        //                    x.CompanyId == dto.CompanyID &&
-        //                    (dto.RegionID == null || x.RegionId == dto.RegionID) &&
-        //                    x.Status == "Pending");
-
-        //            if (entity == null)
-        //                return false;
-
-        //            entity.Status = dto.Status;
-        //            entity.ManagerRemarks = dto.ManagerRemarks;
-        //            entity.ManagerId = dto.ManagerID;
-        //            entity.ModifiedAt = DateTime.UtcNow;
-        //            entity.ModifiedBy = dto.ManagerID;
-        //            entity.HrEmail = dto.HrEmail;
-
-        //            await _context.SaveChangesAsync();
-
-        //            var manager = await _context.Users
-        //                .Where(x => x.UserId == dto.ManagerID)
-        //                .Select(x => new { x.FullName })
-        //                .FirstOrDefaultAsync();
-
-        //            if (entity.Employee != null && !string.IsNullOrEmpty(entity.Employee.Email))
-        //            {
-        //                var body = $@"
-        //<div style='font-family:Arial'>
-        //    <h3>Early Logout Request Update</h3>
-        //    <p>Dear {entity.Employee.FullName},</p>
-        //    <p>Your early logout request has been <b>{dto.Status}</b>.</p>
-        //    <table border='1' cellpadding='6' cellspacing='0'>
-        //        <tr><td><b>Date</b></td><td>{entity.RequestDate:dd-MM-yyyy}</td></tr>
-        //        <tr><td><b>Requested Logout Time</b></td><td>{entity.RequestedLogoutTime}</td></tr>
-        //        <tr><td><b>Reason</b></td><td>{entity.Reason}</td></tr>
-        //        <tr><td><b>Manager</b></td><td>{manager?.FullName}</td></tr>
-        //        <tr><td><b>Manager Remarks</b></td><td>{dto.ManagerRemarks}</td></tr>
-        //        <tr><td><b>Status</b></td><td>{dto.Status}</td></tr>
-        //    </table>
-        //    <br/>
-        //    <p>Regards,<br/><b>HRMS Team</b></p>
-        //</div>";
-
-        //                await _emailService.SendEmailAsync(
-        //                    entity.Employee.Email,
-        //                    $"Early Logout Request {dto.Status}",
-        //                    body,
-        //                    string.IsNullOrEmpty(entity.HrEmail) ? null : new List<string> { entity.HrEmail }
-        //                );
-        //            }
-
-        //            return true;
-        //        }
 
 
 
@@ -261,6 +214,21 @@ namespace BusinessLayer.Implementations
 
             if (entity == null)
                 return false;
+
+
+
+            var duplicate = await _context.EarlyLogoutRequests
+            .AnyAsync(x =>
+                x.UserId == entity.UserId &&
+                x.RequestDate == dto.RequestDate &&
+                x.EarlyLogoutRequestId != dto.EarlyLogoutRequestID);
+
+            if (duplicate)
+            {
+                throw new Exception("Early Logout Request already exists for this date.");
+            }
+
+
 
             entity.RequestDate = dto.RequestDate;
             entity.RequestedLogoutTime = dto.RequestedLogoutTime;
@@ -284,41 +252,7 @@ namespace BusinessLayer.Implementations
             if (!records.Any())
                 return 0;
 
-            //            foreach (var item in records)
-            //            {
-            //                item.Status = dto.Status;
-            //                item.ManagerRemarks = dto.ManagerRemarks;
-            //                item.ManagerId = dto.ManagerID;
-            //                item.ModifiedAt = DateTime.UtcNow;
-            //                item.ModifiedBy = dto.ManagerID;
-
-            //                if (item.Employee != null && !string.IsNullOrEmpty(item.Employee.Email))
-            //                {
-            //                    var body = $@"
-            //<div style='font-family:Arial'>
-            //    <h3>Early Logout Request Update</h3>
-            //    <p>Dear {item.Employee.FullName},</p>
-            //    <p>Your early logout request has been <b>{dto.Status}</b>.</p>
-            //    <table border='1' cellpadding='6' cellspacing='0'>
-            //        <tr><td><b>Date</b></td><td>{item.RequestDate:dd-MM-yyyy}</td></tr>
-            //        <tr><td><b>Requested Logout Time</b></td><td>{item.RequestedLogoutTime}</td></tr>
-            //        <tr><td><b>Reason</b></td><td>{item.Reason}</td></tr>
-            //        <tr><td><b>Manager Remarks</b></td><td>{dto.ManagerRemarks}</td></tr>
-            //        <tr><td><b>Status</b></td><td>{dto.Status}</td></tr>
-            //    </table>
-            //    <br/>
-            //    <p>Regards,<br/><b>HRMS Team</b></p>
-            //</div>";
-
-            //                    await _emailService.SendEmailAsync(
-            //                        item.Employee.Email,
-            //                        $"Early Logout Request {dto.Status}",
-            //                        body,
-            //                        string.IsNullOrEmpty(item.HrEmail) ? null : new List<string> { item.HrEmail }
-            //                    );
-            //                }
-            //            }
-
+          
             foreach (var item in records)
             {
                 item.Status = dto.Status;
@@ -327,32 +261,93 @@ namespace BusinessLayer.Implementations
                 item.ModifiedAt = DateTime.UtcNow;
                 item.ModifiedBy = dto.ManagerID;
 
-                if (item.Employee != null && !string.IsNullOrEmpty(item.Employee.Email))
+                try
                 {
-                    try
+                    // Get Employee Details
+                    var employee = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == item.UserId);
+
+                    if (employee != null && !string.IsNullOrWhiteSpace(employee.Email))
                     {
-                        var body = $@"...";
+                        var body = $@"
+            <div style='font-family:Arial'>
+                <h3>Early Logout Request Update</h3>
+
+                <p>Dear {employee.FullName},</p>
+
+                <p>Your early logout request has been
+                <b>{dto.Status}</b>.</p>
+
+                <table border='1' cellpadding='6' cellspacing='0'>
+                    <tr>
+                        <td><b>Date</b></td>
+                        <td>{item.RequestDate:dd-MM-yyyy}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Requested Logout Time</b></td>
+                        <td>{item.RequestedLogoutTime}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Reason</b></td>
+                        <td>{item.Reason}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Manager Remarks</b></td>
+                        <td>{dto.ManagerRemarks}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Status</b></td>
+                        <td>{dto.Status}</td>
+                    </tr>
+                </table>
+
+                <br/>
+                <p>Regards,<br/><b>HRMS Team</b></p>
+            </div>";
+
+                        var ccList = new List<string>();
+
+                        // Reporting HR Email
+                        if (employee.ReportingHr != null)
+                        {
+                            var reportingHr = await _context.Users
+                                .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                            if (!string.IsNullOrWhiteSpace(reportingHr?.Email))
+                            {
+                                ccList.Add(reportingHr.Email);
+                            }
+                        }
+
+                        // Additional HR Emails entered in UI
+                        if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                        {
+                            ccList.AddRange(
+                                item.HrEmail
+                                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(x => x.Trim())
+                                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                            );
+                        }
+
+                        ccList = ccList.Distinct().ToList();
+
+                        Console.WriteLine($"Employee Email : {employee.Email}");
+                        Console.WriteLine($"CC Emails      : {string.Join(",", ccList)}");
 
                         await _emailService.SendEmailAsync(
-                            item.Employee.Email,
+                            employee.Email,                     // TO Employee
                             $"Early Logout Request {dto.Status}",
                             body,
-                            string.IsNullOrEmpty(item.HrEmail)
-                                ? null
-                                : new List<string> { item.HrEmail }
+                            ccList.Any() ? ccList : null        // CC HR
                         );
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Email Error: {ex.Message}");
-                        // Don't throw
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Email Error: {ex.Message}");
                 }
             }
-
-            await _context.SaveChangesAsync();
-            return records.Count;
-
 
             await _context.SaveChangesAsync();
             return records.Count;
