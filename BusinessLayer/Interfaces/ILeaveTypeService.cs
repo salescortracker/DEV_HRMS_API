@@ -11,7 +11,7 @@ namespace BusinessLayer.Interfaces
         Task<ApiResponse<IEnumerable<LeaveTypeDto>>> GetCRLeaveTypesAsync(
     int companyId,
     int regionId);
-        Task<bool> DeleteLeaveTypeAsync(int id);
+        Task<ApiResponse<bool>> DeleteLeaveTypeAsync(int id);
         Task<List<LeaveTypeDto>> GetLeaveTypesByuserIdAsync(int userId);
         Task<List<DesignationDTO>> GetDesignationsAsync(int companyId, int regionId);
     }

@@ -2799,10 +2799,10 @@ namespace HRMS_Backend.Controllers
         {
             var result = await _leaveTypeService.DeleteLeaveTypeAsync(id);
 
-            if (!result)
-                return NotFound("Leave Type not found or already deleted");
+            if (!result.Success)
+                return BadRequest(result);
 
-            return Ok(new { message = "Leave Type deleted successfully" });
+            return Ok(result);
         }
 
 
@@ -2834,6 +2834,10 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> DeleteexpenseCategory([FromQuery] int id)
         {
             var result = await _expensecategoryservice.DeleteAsync(id);
+
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
         #endregion
@@ -3877,7 +3881,9 @@ int regionId)
         [HttpPost("DeleteCurrency")]
         public async Task<IActionResult> DeleteCurrency([FromQuery] int id)
         {
-            return Ok(await _currencyService.DeleteAsync(id));
+            var result = await _currencyService.DeleteAsync(id);
+
+            return result.Success ? Ok(result) : BadRequest(result);
         }
         [HttpGet("currencyfilter")]
         public async Task<IActionResult> CurrencyDropDown(
@@ -4047,7 +4053,7 @@ int regionId)
             if (result)
                 return Ok(new { message = "Account Type deleted successfully" });
 
-            return BadRequest("Failed to delete Account Type");
+            return BadRequest(new { message = "Cannot delete. It is assigned to employee bank details." });
         }
 
         [HttpGet("GetAccountTypes")]
@@ -4080,8 +4086,11 @@ int regionId)
         public async Task<IActionResult> DeleteProjectMaster(int id)
         {
             var result = await _projectMasterService.DeleteProject(id);
-            if (!result) return NotFound(); 
-            return Ok(new { success = true });
+
+            if (!result)
+                return BadRequest(new { success = false, message = "Project is assigned to tasks or not found" });
+
+            return Ok(new { success = true, message = "Project deleted successfully" });
         }
 
         [HttpGet("GetProjectsByCompanyRegion")]

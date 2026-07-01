@@ -175,19 +175,54 @@ namespace BusinessLayer.Implementations
         // =====================================
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<Priority>().GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<Priority>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted)
-                return new ApiResponse<string>(null!, "Priority not found.", false);
+                if (entity == null || entity.IsDeleted)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Priority not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.UtcNow;
-            entity.ModifiedBy = entity.UserId;
+                // Check Asset Requests
+                var isAssignedInAsset = (await _unitOfWork.Repository<AssetRequest>()
+    .FindAsync(x => x.PriorityId == id))
+    .Any();
 
-            _unitOfWork.Repository<Priority>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                var isAssignedInTicket = (await _unitOfWork.Repository<Ticket>()
+                    .FindAsync(x => x.PriorityId == id))
+                    .Any();
 
-            return new ApiResponse<string>("Priority deleted successfully.");
+                if (isAssignedInAsset || isAssignedInTicket)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "You cannot delete this priority. It is assigned to one or more records.",
+                        false);
+                }
+
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+                entity.ModifiedBy = entity.UserId;
+
+                _unitOfWork.Repository<Priority>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Priority deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
     }
 }

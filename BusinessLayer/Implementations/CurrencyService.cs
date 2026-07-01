@@ -100,21 +100,50 @@ namespace BusinessLayer.Implementations
             return new ApiResponse<string>("Updated successfully");
         }
 
+
         public async Task<ApiResponse<string>> DeleteAsync(int id)
         {
-            var entity = await _unitOfWork.Repository<CurrencyMaster>()
-                .GetByIdAsync(id);
+            try
+            {
+                var entity = await _unitOfWork.Repository<CurrencyMaster>()
+                    .GetByIdAsync(id);
 
-            if (entity == null || entity.IsDeleted == true)
-                return new ApiResponse<string>(null!, "Not found", false);
+                if (entity == null || entity.IsDeleted == true)
+                {
+                    return new ApiResponse<string>(
+                        null!,
+                        "Currency not found.",
+                        false);
+                }
 
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.UtcNow;
+                // Check whether Currency is assigned to any Asset
+                var isAssigned = await _unitOfWork.Repository<Asset>()
+    .FindAsync(x => x.CurrencyCode == entity.CurrencyCode);
 
-            _unitOfWork.Repository<CurrencyMaster>().Update(entity);
-            await _unitOfWork.CompleteAsync();
+                if (isAssigned.Any())
+                {
+                    return new ApiResponse<string>(null!,
+                        "You cannot delete this currency. It is assigned.",
+                        false);
+                }
 
-            return new ApiResponse<string>("Deleted successfully");
+                // Soft Delete
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                _unitOfWork.Repository<CurrencyMaster>().Update(entity);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<string>(
+                    "Currency deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>(
+                    null!,
+                    ex.Message,
+                    false);
+            }
         }
         public async Task<ApiResponse<IEnumerable<CurrencyDto>>> CurrencyDropDown(int companyId, int regionId)
         {

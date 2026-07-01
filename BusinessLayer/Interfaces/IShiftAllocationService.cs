@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace BusinessLayer.Interfaces
         Task<ShiftMasterDto?> GetShiftByIdAsync(int shiftId);
         Task<bool> AddShiftAsync(ShiftMasterDto dto);
         Task<bool> UpdateShiftAsync(ShiftMasterDto dto);
-        Task<bool> DeleteShiftAsync(int shiftId);
+        Task<ApiResponse<bool>> DeleteShiftAsync(int shiftId);
         Task<bool> ActivateShiftAsync(int shiftId);
         Task<bool> DeactivateShiftAsync(int shiftId);
         Task<IEnumerable<ShiftMasterDto>> GetShiftsForDropdownAsync(int companyId, int regionId);

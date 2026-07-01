@@ -362,32 +362,62 @@ namespace BusinessLayer.Implementations
         //    return true;
         //}
 
-        public async Task<bool> DeleteLeaveTypeAsync(int id)
+        public async Task<ApiResponse<bool>> DeleteLeaveTypeAsync(int id)
         {
-            var entity = await _context.LeaveTypes
-                .FirstOrDefaultAsync(x => x.LeaveTypeId == id && !x.IsDeleted);
-
-            if (entity == null)
-                return false;
-
-            // ✅ Soft delete LeaveType
-            entity.IsDeleted = true;
-            entity.ModifiedAt = DateTime.Now;
-
-            // 🔥 Soft delete related grades
-            var grades = await _context.LeaveTypeGrades
-                .Where(x => x.LeaveTypeId == id)
-                .ToListAsync();
-
-            foreach (var g in grades)
+            try
             {
-                g.IsActive = false;
+                var entity = await _context.LeaveTypes
+                    .FirstOrDefaultAsync(x => x.LeaveTypeId == id && !x.IsDeleted);
+
+                if (entity == null)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Leave Type not found.",
+                        false);
+                }
+
+                // Check whether Leave Type is assigned
+                var isAssigned = await _context.LeaveRequests
+                    .AnyAsync(x => x.LeaveTypeId == id);
+
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this leave type. It is assigned to one or more leave requests.",
+                        false);
+                }
+
+                // Soft Delete Leave Type
+                entity.IsDeleted = true;
+                entity.ModifiedAt = DateTime.UtcNow;
+
+                // Disable related Leave Type Grades
+                var grades = await _context.LeaveTypeGrades
+                    .Where(x => x.LeaveTypeId == id)
+                    .ToListAsync();
+
+                foreach (var g in grades)
+                {
+                    g.IsActive = false;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse<bool>(
+                    true,
+                    "Leave Type deleted successfully.",
+                    true);
             }
-
-            await _context.SaveChangesAsync();
-            return true;
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(
+                    false,
+                    ex.Message,
+                    false);
+            }
         }
-
 
         public async Task<List<DesignationDTO>> GetDesignationsAsync(int companyId, int regionId)
         {

@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Common;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Models;
@@ -139,22 +140,50 @@ namespace BusinessLayer.Implementations
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteShiftAsync(int shiftId)
+        public async Task<ApiResponse<bool>> DeleteShiftAsync(int shiftId)
         {
             try
             {
-                var entity = await _context.ShiftMasters.FindAsync(shiftId);
-                if (entity == null) return false;
+                var entity = await _context.ShiftMasters
+                    .FirstOrDefaultAsync(x => x.ShiftId == shiftId);
 
+                if (entity == null)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Shift not found.",
+                        false);
+                }
+
+                // Check whether Shift is assigned
+                var isAssigned = await _context.ShiftAllocations
+                    .AnyAsync(x => x.ShiftId == shiftId);
+
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this shift. It is assigned to one or more employees.",
+                        false);
+                }
+
+                // Delete (or Soft Delete if your table has IsDeleted)
                 _context.ShiftMasters.Remove(entity);
-                return await _context.SaveChangesAsync() > 0;
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse<bool>(
+                    true,
+                    "Shift deleted successfully.",
+                    true);
             }
             catch (Exception ex)
             {
-                throw ex;
+                return new ApiResponse<bool>(
+                    false,
+                    ex.Message,
+                    false);
             }
         }
-
         public async Task<bool> ActivateShiftAsync(int shiftId)
         {
             var entity = await _context.ShiftMasters.FindAsync(shiftId);

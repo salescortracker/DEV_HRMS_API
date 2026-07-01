@@ -104,16 +104,45 @@ namespace BusinessLayer.Implementations
 
         public async Task<ApiResponse<bool>> DeleteAsync(int expenseCategoryId)
         {
-            var entity = await _context.ExpenseCategories
-                .FirstOrDefaultAsync(x => x.ExpenseCategoryId == expenseCategoryId);
+            try
+            {
+                var entity = await _context.ExpenseCategories
+                    .FirstOrDefaultAsync(x => x.ExpenseCategoryId == expenseCategoryId);
 
-            if (entity == null)
-                return new ApiResponse<bool>(false, "Record not found");
+                if (entity == null)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Expense Category not found.",
+                        false);
+                }
 
-            _context.ExpenseCategories.Remove(entity);
-            await _context.SaveChangesAsync();
+                var isAssigned = await _context.Expenses
+                    .AnyAsync(x => x.ExpenseCategoryId == expenseCategoryId);
 
-            return new ApiResponse<bool>(true);
+                if (isAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "You cannot delete this expense category. It is assigned to one or more expenses.",
+                        false);
+                }
+
+                _context.ExpenseCategories.Remove(entity);
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse<bool>(
+                    true,
+                    "Expense Category deleted successfully.",
+                    true);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>(
+                    false,
+                    ex.Message,
+                    false);
+            }
         }
     }
 }

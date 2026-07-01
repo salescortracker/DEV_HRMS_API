@@ -92,11 +92,12 @@ namespace HRMS_Backend.Controllers
         [HttpPost("DeleteShift")]
         public async Task<IActionResult> DeleteShift(int shiftId)
         {
-            var status = await _shiftAllocationService.DeleteShiftAsync(shiftId);
-            if (status)
-                return Ok(new { success = true, message = "Shift deleted successfully" });
-            else
-                return NotFound(new { success = false, message = "Shift not found" });
+            var result = await _shiftAllocationService.DeleteShiftAsync(shiftId);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
         [HttpPut("ActivateShift/{shiftId}")]
@@ -400,8 +401,7 @@ namespace HRMS_Backend.Controllers
             var result = await _service.CreateMissedPunchRequest(dto);
             return Ok(result);
         }
-
-     
+        
         [HttpGet("getmissedpunchrequest")]
         public async Task<IActionResult> GetMissedPunchRequest(
             int companyId, int? regionId, int userId)

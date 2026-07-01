@@ -75,12 +75,29 @@ namespace BusinessLayer.Implementations
         }
         public async Task<bool> DeleteProject(int id)
         {
-            var entity = await _context.ProjectMasters.FindAsync(id);
-            if (entity == null) return false;
+            var entity = await _context.ProjectMasters
+                .FirstOrDefaultAsync(x => x.ProjectMasterId == id && !x.IsDeleted);
+
+            if (entity == null)
+                return false;
+
+            // 🔥 CHECK ASSIGNMENT IN TASKS
+            var isAssigned = await _context.TaskAssignments
+                .AnyAsync(x => x.ProjectId == id);
+
+            if (isAssigned)
+            {
+                return false; // assigned → cannot delete
+            }
+
+            // ✅ SOFT DELETE
             entity.IsDeleted = true;
+            entity.ModifiedAt = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<List<ProjectMasterDto>> GetProjectsByCompanyRegion(int companyId, int regionId)
         {
             return await _context.ProjectMasters
