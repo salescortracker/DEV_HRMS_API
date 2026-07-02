@@ -567,6 +567,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "BulkApproveRejectEarlyLogout",
+    "RelativePath": "api/Attendance/bulkapproverejectearlylogout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.BulkApproveRejectEarlyLogoutDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "BulkApproveRejectPunch",
     "RelativePath": "api/Attendance/bulkapproverejectpunch",
     "HttpMethod": "POST",
@@ -576,6 +592,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.BulkApproveRejectPunchDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "CreateEarlyLogoutRequest",
+    "RelativePath": "api/Attendance/createearlylogoutrequest",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CreateEarlyLogoutRequestDto",
         "IsRequired": true
       }
     ],
@@ -923,6 +955,32 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetApprovalEarlyLogoutRequest",
+    "RelativePath": "api/Attendance/getapprovalearlylogoutrequest",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "managerId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "GetApprovalMissedPunchRequest",
     "RelativePath": "api/Attendance/getapprovalmissedpunchrequest",
     "HttpMethod": "GET",
@@ -1005,6 +1063,32 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetEarlyLogoutRequest",
+    "RelativePath": "api/Attendance/getearlylogoutrequest",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1652,6 +1736,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "UpdateEarlyLogout",
+    "RelativePath": "api/Attendance/updateearlylogout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.UpdateEarlyLogoutDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "UpdateMissedPunch",
     "RelativePath": "api/Attendance/updatemissedpunch",
     "HttpMethod": "PUT",
@@ -1778,8 +1878,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "model",
-        "Type": "DataAccessLayer.DBContext.CompanyEvent",
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CompanyEventsDto",
         "IsRequired": true
       }
     ],
@@ -1858,8 +1958,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "model",
-        "Type": "DataAccessLayer.DBContext.CompanyEvent",
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CompanyEventsDto",
         "IsRequired": true
       }
     ],
@@ -2655,7 +2755,7 @@
       },
       {
         "Name": "genderId",
-        "Type": "System.Int32",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -2725,7 +2825,7 @@
       },
       {
         "Name": "maritalStatusId",
-        "Type": "System.Int32",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -3179,6 +3279,16 @@
       {
         "Name": "WorkAuthStatus.StatusName",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "WorkAuthStatus.IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "WorkAuthStatus.UserId",
+        "Type": "System.Int32",
         "IsRequired": false
       },
       {
@@ -3642,6 +3752,37 @@
     "Parameters": [
       {
         "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "DeleteStatus",
+    "RelativePath": "api/Employee/DeleteWorkAuthStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "statusId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
       }
@@ -4338,22 +4479,6 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
-    "Method": "GetProfilePicture",
-    "RelativePath": "api/Employee/GetProfilePicture/{userId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "userId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetReportingManager",
     "RelativePath": "api/Employee/GetReportingManager/{userId}",
     "HttpMethod": "GET",
@@ -4507,16 +4632,6 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
-    "Method": "GetStatuses",
-    "RelativePath": "api/Employee/GetStatuses",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetUserForms",
     "RelativePath": "api/Employee/GetUserForms/{userId}",
     "HttpMethod": "GET",
@@ -4643,6 +4758,22 @@
         "Name": "request",
         "Type": "BusinessLayer.Implementations.LeaveService\u002BLeaveReportRequest",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetManagerEmployees",
+    "RelativePath": "api/Employee/manager-employees",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loginUserId",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -5395,7 +5526,7 @@
       },
       {
         "Name": "genderId",
-        "Type": "System.Int32",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -5465,7 +5596,7 @@
       },
       {
         "Name": "maritalStatusId",
-        "Type": "System.Int32",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -5939,6 +6070,16 @@
       {
         "Name": "WorkAuthStatus.StatusName",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "WorkAuthStatus.IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "WorkAuthStatus.UserId",
+        "Type": "System.Int32",
         "IsRequired": false
       },
       {
@@ -10170,6 +10311,27 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetGradesByCompanyRegion",
+    "RelativePath": "api/MasterData/GetGradesByCompanyRegion",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "Getholidaybycompanyidandregionid",
     "RelativePath": "api/MasterData/Getholidaybycompanyidandregionid",
     "HttpMethod": "GET",
@@ -10356,7 +10518,12 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "userId",
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
         "Type": "System.Int32",
         "IsRequired": false
       }
@@ -10604,8 +10771,29 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
-    "Method": "GetByCompanyAndRegion",
+    "Method": "GetByCompanyRegionPolicyCategory",
     "RelativePath": "api/MasterData/policy-category/company-region",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
+    "Method": "GetByCompanyAndRegion",
+    "RelativePath": "api/MasterData/policy/company-region",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -10818,8 +11006,8 @@
         "IsRequired": false
       },
       {
-        "Name": "departmentId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "DepartmentIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -11502,8 +11690,8 @@
         "IsRequired": false
       },
       {
-        "Name": "departmentId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "DepartmentIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -11808,7 +11996,7 @@
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
     "Method": "AssignCompanyRegion",
     "RelativePath": "api/Recruitment/assign-company-region",
-    "HttpMethod": "PUT",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [

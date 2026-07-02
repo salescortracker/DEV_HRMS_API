@@ -20,4 +20,8 @@ public partial class WorkAuthStatusMaster
     public string? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public int? UserId { get; set; }
 }

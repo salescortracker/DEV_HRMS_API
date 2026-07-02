@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj": {}
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj": {}
   },
   "projects": {
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj": {
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj",
+        "projectUniqueName": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj",
         "projectName": "BusinessLayer",
-        "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj",
+        "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj",
         "packagesPath": "C:\\Users\\HR\\.nuget\\packages\\",
-        "outputPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\obj\\",
+        "outputPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,8 +33,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
-                "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj"
+              "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
+                "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj"
               }
             }
           }
@@ -124,14 +124,14 @@
         }
       }
     },
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+        "projectUniqueName": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
         "projectName": "DataAccessLayer",
-        "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+        "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
         "packagesPath": "C:\\Users\\HR\\.nuget\\packages\\",
-        "outputPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\obj\\",
+        "outputPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -252,14 +252,14 @@
         }
       }
     },
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj": {
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+        "projectUniqueName": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
         "projectName": "HRMS_Backend",
-        "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+        "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
         "packagesPath": "C:\\Users\\HR\\.nuget\\packages\\",
-        "outputPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\obj\\",
+        "outputPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -281,14 +281,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj": {
-                "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj"
+              "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj": {
+                "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\BusinessLayer.csproj"
               },
-              "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
-                "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj"
+              "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
+                "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj"
               },
-              "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj": {
-                "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj"
+              "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\Utility\\Utility.csproj": {
+                "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\Utility\\Utility.csproj"
               }
             }
           }
@@ -320,6 +320,18 @@
             "ExcelDataReader.DataSet": {
               "target": "Package",
               "version": "[3.8.0, )"
+            },
+            "Hangfire": {
+              "target": "Package",
+              "version": "[1.8.23, )"
+            },
+            "Hangfire.AspNetCore": {
+              "target": "Package",
+              "version": "[1.8.23, )"
+            },
+            "Hangfire.SqlServer": {
+              "target": "Package",
+              "version": "[1.8.23, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
@@ -383,14 +395,14 @@
         }
       }
     },
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj": {
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\Utility\\Utility.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj",
+        "projectUniqueName": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\Utility\\Utility.csproj",
         "projectName": "Utility",
-        "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\Utility.csproj",
+        "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\Utility\\Utility.csproj",
         "packagesPath": "C:\\Users\\HR\\.nuget\\packages\\",
-        "outputPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\Utility\\obj\\",
+        "outputPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\Utility\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
