@@ -3405,7 +3405,50 @@ namespace BusinessLayer.Implementations
         }
         #endregion
 
+        public async Task<List<NotificationDto>> GetTodayNotifications(int companyId, int regionId)
+        {
+            var today = DateTime.Today;
 
+            // 🎂 BIRTHDAY NOTIFICATIONS
+            var birthdays = await (
+                from p in _context.EmployeePersonalDetails
+                join u in _context.Users on p.UserId equals u.UserId
+                where u.CompanyId == companyId
+                   && u.RegionId == regionId
+                   && p.DateOfBirth != null
+                   && p.DateOfBirth.Month == today.Month
+                   && p.DateOfBirth.Day == today.Day
+                select new NotificationDto
+                {
+                    Type = "Birthday",
+                    Message = p.FirstName + " 🎂 Birthday Today",
+                    UserId = u.UserId,
+                    Date = today
+                }
+            ).ToListAsync();
+
+            // 🎉 ANNIVERSARY NOTIFICATIONS
+            var anniversaries = await (
+                from u in _context.Users
+                where u.CompanyId == companyId
+                   && u.RegionId == regionId
+                   && u.JoiningDate != null
+                   && u.JoiningDate.Value.Month == today.Month
+                   && u.JoiningDate.Value.Day == today.Day
+                select new NotificationDto
+                {
+                    Type = "Anniversary",
+                    Message = u.FullName + " 🎉 " +
+                  (today.Year - u.JoiningDate.Value.Year) +
+                  " Year Work Anniversary",
+                    UserId = u.UserId,
+                    Date = today
+                }
+            ).ToListAsync();
+
+            // 🔥 MERGE BOTH
+            return birthdays.Concat(anniversaries).ToList();
+        }
 
     }
 }
