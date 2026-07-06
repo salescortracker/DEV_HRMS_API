@@ -49,6 +49,7 @@ namespace HRMS_Backend.Controllers
         {
             public string EntityName { get; set; }
             public List<object> Data { get; set; }
+            public int LoggedInUserId { get; set; }
         }
         public class BulkInsertResult<T>
         {
@@ -160,8 +161,12 @@ namespace HRMS_Backend.Controllers
         [Route("BulkInsert")]
         public async Task<IActionResult> BulkInsert([FromBody] BulkInsertRequest request)
         {
+            Console.WriteLine($"LoggedInUserId from Request = {request.LoggedInUserId}");
             try
             {
+
+                
+
                 if (string.IsNullOrWhiteSpace(request.EntityName) || request.Data == null || !request.Data.Any())
                     return BadRequest(new { Success = false, Message = "Invalid request. No data provided." });
 
@@ -239,7 +244,16 @@ namespace HRMS_Backend.Controllers
                             }
 
                             if (user != null)
+                            {
+                                // Blank row ni skip cheyyi
+                                if (string.IsNullOrWhiteSpace(user.FullName) &&
+                                    string.IsNullOrWhiteSpace(user.CompanyName))
+                                {
+                                    continue;
+                                }
+
                                 users.Add(user);
+                            }
                         }
 
                         if (!users.Any())
@@ -250,15 +264,20 @@ namespace HRMS_Backend.Controllers
                                 Message = "Failed to parse user data."
                             });
                         }
+                        foreach (var u in users)
+                        {
+                            Console.WriteLine(
+                                $"FullName='{u.FullName}', Company='{u.CompanyName}', Region='{u.RegionName}'");
+                        }
 
                         foreach (var user in users)
                         {
 
                             // Company Name → Company ID
-                            user.CompanyID = await _hRMSContext.Companies
-                                .Where(x => x.CompanyName == user.CompanyName)
-                                .Select(x => x.CompanyId)
-                                .FirstOrDefaultAsync();
+                            //user.CompanyID = await _hRMSContext.Companies
+                            //    .Where(x => x.CompanyName == user.CompanyName)
+                            //    .Select(x => x.CompanyId)
+                            //    .FirstOrDefaultAsync();
 
                             //if (user.CompanyID == 0)
                             //{
@@ -269,6 +288,41 @@ namespace HRMS_Backend.Controllers
                             //    });
                             //}
 
+
+                            var matchedCompanies = await _hRMSContext.Companies
+                                .Where(x => x.CompanyName == user.CompanyName)
+                                .ToListAsync();
+
+                            Console.WriteLine("===== MATCHED COMPANIES =====");
+
+                            foreach (var c in matchedCompanies)
+                            {
+                                Console.WriteLine($"ID={c.CompanyId}, Name={c.CompanyName}, Code={c.CompanyCode}, UserId={c.UserId}");
+                            }
+
+                            Console.WriteLine("=============================");
+
+                            //user.CompanyID = matchedCompanies
+                            //    .OrderByDescending(x => x.CompanyId)
+                            //    .Select(x => x.CompanyId)
+                            //    .FirstOrDefault();
+
+                            var loggedInUserId = request.LoggedInUserId;
+                            Console.WriteLine($"Logged In User : {loggedInUserId}");
+
+                            user.CompanyID = await _hRMSContext.Companies
+                                .Where(x =>
+                                    x.CompanyName == user.CompanyName &&
+                                    x.UserId == loggedInUserId)
+                                .Select(x => x.CompanyId)
+                                .FirstOrDefaultAsync();
+
+                            Console.WriteLine($"CompanyID = {user.CompanyID}");
+
+                            Console.WriteLine("========== COMPANY ==========");
+                            Console.WriteLine($"Excel Company : '{user.CompanyName}'");
+                            Console.WriteLine($"CompanyID : {user.CompanyID}");
+                            Console.WriteLine("=============================");
                             if (user.CompanyID == 0)
                             {
                                 validationErrors.Add(
@@ -277,14 +331,45 @@ namespace HRMS_Backend.Controllers
                                 continue;
                             }
 
+                            var regions = await _hRMSContext.Regions
+                            .Where(x => x.CompanyId == user.CompanyID)
+                            .ToListAsync();
+
+                            Console.WriteLine("===== DB REGIONS =====");
+
+                            foreach (var r in regions)
+                            {
+                                Console.WriteLine($"RegionID={r.RegionId} Name='{r.RegionName}' Company={r.CompanyId}");
+                            }
+
+                            Console.WriteLine("======================");
+
+
+                            Console.WriteLine("========== REGION ==========");
+                            Console.WriteLine($"Excel Region : '{user.RegionName}'");
+                            Console.WriteLine($"CompanyID : {user.CompanyID}");
+                            Console.WriteLine("============================");
+
+
+
 
                             // Region Name → Region ID
+                            //user.RegionID = await _hRMSContext.Regions
+                            //.Where(x =>
+                            //    x.RegionName == user.RegionName &&
+                            //    x.CompanyId == user.CompanyID)
+                            //.Select(x => x.RegionId)
+                            //.FirstOrDefaultAsync();
+
                             user.RegionID = await _hRMSContext.Regions
                             .Where(x =>
-                                x.RegionName == user.RegionName &&
-                                x.CompanyId == user.CompanyID)
+                                x.UserId == request.LoggedInUserId &&
+                                x.RegionName.Trim().ToLower() == user.RegionName.Trim().ToLower())
                             .Select(x => x.RegionId)
                             .FirstOrDefaultAsync();
+                            Console.WriteLine($"RegionID : {user.RegionID}");
+
+
                             //if (user.RegionID == 0)
                             //{
                             //    return BadRequest(new
