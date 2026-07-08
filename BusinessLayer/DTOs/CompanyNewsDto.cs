@@ -18,5 +18,8 @@
         public int? UpdatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int? UserId { get; set; }
+        public bool IsAllDepartments { get; set; }
+
+        public List<int> DepartmentIds { get; set; } = new List<int>();
     }
 }
