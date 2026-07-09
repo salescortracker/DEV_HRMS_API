@@ -19,6 +19,76 @@ namespace BusinessLayer.Implementations
             _context = context;
         }
 
+        public async Task<object?> GetUserSubscription(int userId)
+        {
+            return await _context.UserSubscriptions
+                .Include(x => x.Plan)
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.EndDate)
+                .Select(x => new
+                {
+                    x.SubscriptionId,
+                    x.Status,
+                    x.StartDate,
+                    x.EndDate,
+                    x.PaymentStatus,
+
+                    Plan = new
+                    {
+                        x.Plan.PlanId,
+                        x.Plan.PlanName,
+                        x.Plan.Price
+                    }
+                })
+                .FirstOrDefaultAsync();
+        }
+        public async Task<List<object>> GetUserAllowedModules(int userId)
+        {
+            var subscriptionUserId = userId;
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+
+
+            if (user.UserCompanyId.HasValue)
+            {
+                subscriptionUserId = user.UserCompanyId.Value;
+            }
+
+
+            var subscription = await _context.UserSubscriptions
+                .Where(x => x.UserId == subscriptionUserId
+                     && x.EndDate >= DateTime.UtcNow.Date)
+                .OrderByDescending(x => x.EndDate)
+                .FirstOrDefaultAsync();
+
+
+            if (subscription == null)
+                return new List<object>();
+
+
+            var modules = await (
+                from spm in _context.SubscriptionPlanModules
+                join m in _context.Modules
+                on spm.ModuleId equals m.ModuleId
+
+                where spm.PlanId == subscription.PlanId
+                && spm.IsAllowed == true
+                && m.IsActive == true
+
+                select new
+                {
+                    m.ModuleId,
+                    m.ModuleName,
+                    m.Route,
+                    m.Icon
+                }
+
+            ).ToListAsync();
+
+
+            return modules.Cast<object>().ToList();
+        }
         public async Task<List<SubscriptionPlanDto>> GetPlansAsync()
         {
             return await _context.SubscriptionPlans1
@@ -35,6 +105,7 @@ namespace BusinessLayer.Implementations
                     Status = p.Status
                 }).ToListAsync();
         }
+
 
         public async Task<SubscriptionPlanDto> GetPlanByIdAsync(int id)
         {

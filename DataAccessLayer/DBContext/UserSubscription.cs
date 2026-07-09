@@ -19,5 +19,11 @@ public partial class UserSubscription
 
     public DateTime? CreatedDate { get; set; }
 
+    public bool IsActive { get; set; }
+
+    public string? PaymentStatus { get; set; }
+
+    public string? PaymentId { get; set; }
+
     public virtual SubscriptionPlan1 Plan { get; set; } = null!;
 }
