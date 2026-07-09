@@ -750,8 +750,9 @@ namespace BusinessLayer.Implementations
             if (roleName.ToLower() == "hr")
             {
                 query = query.Where(x =>
-                    x.u.CompanyId == user.CompanyId &&
-                    x.u.RegionId == user.RegionId);
+                     //x.u.CompanyId == user.CompanyId &&
+                     //x.u.RegionId == user.RegionId);
+                     x.u.ReportingHr == userId);
             }
 
             // MANAGER
@@ -760,6 +761,8 @@ namespace BusinessLayer.Implementations
                 query = query.Where(x =>
                     x.pr.ReportingManagerId == userId);
             }
+            // Hide Draft records
+            query = query.Where(x => x.pr.Status != "Draft");
 
             var result = await query
                 .Select(x => new
