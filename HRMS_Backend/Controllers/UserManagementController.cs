@@ -781,23 +781,52 @@ namespace HRMS_Backend.Controllers
 
             return Ok(new { message = "User deleted successfully." });
         }
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest model)
         {
             try
             {
-               var user = await _userService.VerifyLoginAsync(model.Email, model.Password);
+                var loginResponse = await _userService.VerifyLoginAsync(model.Email, model.Password);
 
-                if (user == null)
-                    return Unauthorized(new { message = "Invalid username or password" });
+                if (loginResponse == null)
+                {
+                    return Unauthorized(new
+                    {
+                        message = "Invalid username or password"
+                    });
+                }
 
-                return Ok(new { message = "Login successful", user });
+                // Subscription / Login Errors
+                if (!string.IsNullOrEmpty(loginResponse.Error))
+                {
+                    return Ok(new
+                    {
+                        message = loginResponse.Message,
+                        user = new
+                        {
+                            userId = loginResponse.UserId,
+                            error = loginResponse.Error,
+                            message = loginResponse.Message
+                        },
+                        allowedModules = new List<object>()
+                    });
+                }
+
+                // Success
+                return Ok(new
+                {
+                    message = "Login successful",
+                    user = loginResponse.User,
+                    allowedModules = loginResponse.AllowedModules
+                });
             }
             catch (Exception ex)
             {
-                // Handle unexpected API-level issues
-                Console.WriteLine($"Login failed: {ex.Message}");
-                return StatusCode(500, new { message = "An error occurred while processing your login." });
+                Console.WriteLine($"Login failed: {ex}");
+                return StatusCode(500, new
+                {
+                    message = "An error occurred while processing your login."
+                });
             }
         }
 
@@ -1242,6 +1271,46 @@ namespace HRMS_Backend.Controllers
 
                 _hRMSContext.Users.Add(entity);
                await _hRMSContext.SaveChangesAsync();
+                // 2. Get Demo Plan
+                var demoPlan = await _hRMSContext.SubscriptionPlans
+                    .FirstOrDefaultAsync(x => x.PlanName == "Demo");
+
+
+                if (demoPlan == null)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Demo plan not configured"
+                    });
+                }
+
+
+                // 3. Create User Subscription
+                var subscription = new DataAccessLayer.DBContext.UserSubscription
+                {
+                    UserId = entity.UserId,
+
+                    PlanId = demoPlan.PlanId,
+
+                    StartDate = DateTime.UtcNow,
+
+                    EndDate = DateTime.UtcNow.AddDays(14),
+
+                    Status = "ACTIVE",
+
+                    CreatedDate = DateTime.UtcNow,
+
+                    IsActive = true,
+
+                    PaymentStatus = "FREE",
+
+                    PaymentId = null
+                };
+
+
+                _hRMSContext.UserSubscriptions.Add(subscription);
+
+                await _hRMSContext.SaveChangesAsync();
                 // ✅ Send Welcome Email
                 await _userService.SendWelcomeEmailAsync(
                    entity, entity.PasswordHash
@@ -1435,13 +1504,13 @@ namespace HRMS_Backend.Controllers
             return Ok();
         }
 
-        //[HttpGet("GetALLSubcriptionUsers")]
-        //public async Task<IActionResult> GetALLSubcriptionUsers()
-        //{
-        //    var users = await _userService.GetALLSubcriptionUsers();
+        [HttpGet("GetALLSubcriptionUsers")]
+        public async Task<IActionResult> GetALLSubcriptionUsers()
+        {
+            var users = await _userService.GetALLSubcriptionUsers();
 
-        //    return Ok(users);
-        //}
+            return Ok(users);
+        }
 
         #region Late Login Policy
 

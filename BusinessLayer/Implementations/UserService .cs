@@ -187,86 +187,99 @@ namespace BusinessLayer.Implementations
                 .ToListAsync();
         }
 
-        //public async Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers()
-        //{
-        //    return await _context.DemoUserSubscriptionDtos
-        //        .ToListAsync();
-        //}
-        public async Task<object?> VerifyLoginAsync(string username, string password)
+        public async Task<List<UserSubscriptionDto>> GetALLSubcriptionUsers()
+        {
+            var subscriptions = await _context.UserSubscriptions
+                .Select(x => new UserSubscriptionDto
+                {
+                    SubscriptionId = x.SubscriptionId,
+                    UserId = x.UserId,
+                    PlanId = x.PlanId,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    Status = x.Status
+                })
+                .ToListAsync();
+
+            return subscriptions;
+        }
+        public async Task<LoginResponseDto?> VerifyLoginAsync(string username, string password)
         {
             try
             {
-                var user= await _context.Users.FirstOrDefaultAsync(u => u.Email == username && u.PasswordHash == password);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == username && u.PasswordHash == password);
                 if (user == null)
                 {
-                    return new { error = "Invalid username or password" };
+                    return new LoginResponseDto
+                    {
+                        Error = "Invalid username or password"
+                    };
+                }
+                if (user.RoleId == 0)
+                {
+                    var superAdminData = await _context.Users
+                        .Where(u => u.UserId == user.UserId)
+                        .Select(u => new
+                        {
+                            u.UserId,
+                            u.Email,
+                            u.FullName,
+                            u.RoleId,
+                            u.CompanyId,
+                            u.RegionId,
+                            u.EmployeeCode,
+                            u.Userloginstatus,
+                            u.Passwordchanged
+                        })
+                        .FirstOrDefaultAsync();
+
+                    user.Userloginstatus = true;
+                    await _context.SaveChangesAsync();
+
+                    return new LoginResponseDto
+                    {
+                        User = superAdminData,
+                        AllowedModules = new List<object>()
+                    };
+                }
+                int subscriptionUserId = user.UserId;
+
+                if (user.UserCompanyId.HasValue && user.UserCompanyId.Value > 0)
+                {
+                    subscriptionUserId = user.UserCompanyId.Value;
                 }
 
-                // Check demo expiry
-                if (user.DemoExpiryDate != null && user.DemoExpiryDate < DateTime.Now)
-                {
-                    return new { error="Your demo period has expired. Please contact support."} ;
-                }
+                var subscription = await _context.UserSubscriptions
+                .Include(x => x.Plan)
+                .Where(x => x.UserId == subscriptionUserId)
+                .OrderByDescending(x => x.SubscriptionId)
+                .FirstOrDefaultAsync();
+
+                if (subscription == null)
+                    return new LoginResponseDto { UserId = user.UserId, Error = "NO_SUBSCRIPTION", Message = "No active subscription found" };
+
+                if (subscription.EndDate < DateTime.UtcNow.Date)
+                    return new LoginResponseDto { UserId = user.UserId, Error = "SUBSCRIPTION_EXPIRED", Message = "Please renew your plan" };
+
+                if (subscription.Plan != null && subscription.Plan.Status != true)
+                    return new LoginResponseDto { UserId = user.UserId, Error = "PLAN_DISABLED", Message = "Plan disabled" };
+
+                var allowedModules = await _context.SubscriptionPlanModules
+               .Where(x => x.PlanId == subscription.PlanId
+                        && x.IsAllowed == true)
+               .Select(x => new
+               {
+                   x.ModuleId,
+                   ModuleName = x.Module.ModuleName
+               })
+               .ToListAsync();
+
                 if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
                     throw new ArgumentException("Username or password cannot be empty.");
                 var result = _context.Users.Where(x => x.Email == username && x.PasswordHash == password).FirstOrDefault();
-                //                var userData = await (
-                //    from u in _context.Users
-                //    join r in _context.RoleMasters on u.RoleId equals r.RoleId
-                //    join reg in _context.Regions on u.RegionId equals reg.RegionId
-                //    join c in _context.Companies on u.CompanyId equals c.CompanyId
-                //    join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
-                //    from d in deptJoin.DefaultIfEmpty()
-                //    join des in _context.Designations
-                //        on u.DepartmentId equals des.DesignationId into desJoin
-                //    from des in desJoin.DefaultIfEmpty()
 
 
-                //    join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
-                //    from rm in managerJoin.DefaultIfEmpty()
-
-                //    where u.Email == username && u.PasswordHash == password
-
-                //    select new
-                //    {
-                //        u.UserId,
-                //        u.Email,
-                //        u.FullName,
-
-                //        RoleName = r.RoleName,
-                //        RegionName = reg.RegionName,
-                //        CompanyName = c.CompanyName,
-
-                //        roleId = u.RoleId,
-                //        companyId = u.CompanyId,
-                //        regionId = u.RegionId,
-                //        employeeCode = u.EmployeeCode,
-
-                //        DepartmentId = u.DepartmentId,
-                //        DepartmentName = d.DepartmentName, // 🔥 STRING
-
-                //        ReportingManagerId = u.ReportingTo,
-                //        ReportingManagerName = rm.FullName, // 🔥 STRING
-
-                //        DesignationId = u.Designation,
-                //        designation = u.Designation, // if stored as string in Users table
-
-                //        personalEmail = u.Email,
-                //        userLoginStatus = u.Userloginstatus,
-                //        paswordChanged = u.Passwordchanged,
-                //        userCompanyId=u.UserCompanyId
-                //    })
-                //.FirstOrDefaultAsync();
-
-
-
-                //                var loginStatus = await _context.Users.FirstOrDefaultAsync(u => u.Email == username);
-                //                loginStatus.Userloginstatus = true;
-                //                _context.Users.Update(loginStatus);
-                //                await _context.SaveChangesAsync();
-
-                //                return userData;
-                if (result!=null?result.RoleId == 0:false)
+                if (result != null ? result.RoleId == 0 : false)
                 {
                     var roledata = await (
     from u in _context.Users
@@ -320,7 +333,11 @@ namespace BusinessLayer.Implementations
                     _context.Users.Update(loginStatus);
                     await _context.SaveChangesAsync();
 
-                    return roledata;
+                    return new LoginResponseDto
+                    {
+                        User = roledata,
+                        AllowedModules = allowedModules.Cast<object>().ToList()
+                    };
 
                 }
                 else
@@ -328,13 +345,7 @@ namespace BusinessLayer.Implementations
                     var userData = await (
         from u in _context.Users
         join r in _context.RoleMasters on u.RoleId equals r.RoleId
-        join reg in _context.Regions on u.RegionId equals reg.RegionId
-        join c in _context.Companies on u.CompanyId equals c.CompanyId
-        join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
-        from d in deptJoin.DefaultIfEmpty()
-        join des in _context.Designations
-            on u.DesignationId equals des.DesignationId into desJoin
-        from des in desJoin.DefaultIfEmpty()
+
 
 
         join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
@@ -349,8 +360,8 @@ namespace BusinessLayer.Implementations
             u.FullName,
 
             RoleName = r.RoleName,
-            RegionName = reg.RegionName,
-            CompanyName = c.CompanyName,
+            // RegionName = reg.RegionName,
+            //CompanyName = c.CompanyName,
 
             roleId = u.RoleId,
             companyId = u.CompanyId,
@@ -358,13 +369,13 @@ namespace BusinessLayer.Implementations
             employeeCode = u.EmployeeCode,
 
             DepartmentId = u.DepartmentId,
-            DepartmentName = d.DepartmentName, // 🔥 STRING
+            //  DepartmentName = d.DepartmentName, // 🔥 STRING
 
             ReportingManagerId = u.ReportingTo,
             ReportingManagerName = rm.FullName, // 🔥 STRING
 
             DesignationId = u.DesignationId,
-            DesignationName = des.DesignationName,
+            // DesignationName = des.DesignationName,
 
 
             personalEmail = u.Email,
@@ -378,7 +389,11 @@ namespace BusinessLayer.Implementations
                     _context.Users.Update(loginStatus);
                     await _context.SaveChangesAsync();
 
-                    return userData;
+                    return new LoginResponseDto
+                    {
+                        User = userData,
+                        AllowedModules = allowedModules.Cast<object>().ToList()
+                    };
 
                 }
             }
@@ -393,6 +408,26 @@ namespace BusinessLayer.Implementations
                 return null;
             }
         }
+        //public async Task<List<UserSubscriptionDto>> GetALLSubcriptionUsers()
+        //{
+        //    var users = await _context.UserSubscriptions
+        //        .Include(x => x.User)
+        //        .Include(x => x.SubscriptionPlan)
+        //        .Select(x => new UserSubscriptionDto
+        //        {
+        //            SubscriptionId = x.SubscriptionId,
+        //            UserId = x.UserId,
+        //            UserName = x.User.FirstName + " " + x.User.LastName,
+        //            PlanName = x.SubscriptionPlan.PlanName,
+        //            StartDate = x.StartDate,
+        //            EndDate = x.EndDate,
+        //            Status = x.Status,
+        //            IsActive = x.IsActive
+        //        })
+        //        .ToListAsync();
+
+        //    return users;
+        //}
         public async Task<ApiResponse<bool>> ChangePasswordAsync(PasswordChangeDto dto)
         {
             try
