@@ -26,4 +26,14 @@ public partial class AdminMenuMaster
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
+
+    public bool? CanView { get; set; }
+
+    public bool? CanAdd { get; set; }
+
+    public bool? CanEdit { get; set; }
+
+    public bool? CanDelete { get; set; }
+
+    public bool? CanApprove { get; set; }
 }

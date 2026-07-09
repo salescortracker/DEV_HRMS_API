@@ -13,7 +13,7 @@ namespace BusinessLayer.Interfaces
         Task<User> CreateUserAsync(UserCreateDto userDto);
         Task<User?> UpdateUserAsync(UserCreateDto updatedUser);
         Task<bool> DeleteUserAsync(int id);
-        Task<object?> VerifyLoginAsync(string username, string password);
+        Task<LoginResponseDto?> VerifyLoginAsync(string username, string password);
         Task SendWelcomeEmailAsync(User user, string password, List<string>? ccEmails = null);
         Task<ApiResponse<bool>> ChangePasswordAsync(PasswordChangeDto dto);
 
@@ -25,5 +25,6 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateDemoExpiry(int userId, DateTime demoExpiryDate);
 
         //Task<List<DemoUserSubscriptionDto>> GetALLSubcriptionUsers();
+        Task<IEnumerable<object>> GetAdminsAsync();
     }
 }
