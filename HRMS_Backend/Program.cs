@@ -130,6 +130,8 @@ builder.Services.AddScoped<ITaskStatusService, TaskStatusService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IEarlyLogoutService, EarlyLogoutService>();
+builder.Services.AddScoped<ISubscriptionJobService, SubscriptionJobService>();
+builder.Services.AddScoped<IAdminMenuMasterService, AdminMenuMasterService>();
 
 var app = builder.Build();
 
@@ -163,6 +165,11 @@ RecurringJob.AddOrUpdate<IAttendanceService>(
     "clockout-reminder-job",
     x => x.ProcessClockOutReminders(),
     Cron.Minutely
+);
+RecurringJob.AddOrUpdate<ISubscriptionJobService>(
+    "subscription-expiry-job",
+    x => x.ProcessExpiredSubscriptions(),
+    Cron.Daily
 );
 
 app.Run();

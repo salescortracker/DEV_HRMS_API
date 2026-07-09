@@ -22,5 +22,8 @@ namespace BusinessLayer.Interfaces
         Task<string> SavePlanMenus(PlanMenuRequestDto request);
         Task<List<MenuMaster>> GetAllMenus();
         Task<List<MenuMaster>> GetMenusByType(string type);
+        Task<object?> GetUserSubscription(int userId);
+        Task<List<object>> GetUserAllowedModules(int userId);
+
     }
 }
