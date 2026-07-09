@@ -924,16 +924,37 @@ namespace HRMS_Backend.Controllers
         }
 
         // ✅ POST: api/RoleMaster
+        //[HttpPost("CreateRole")]
+        //public async Task<IActionResult> CreateRole([FromBody] RoleMasterDto dto)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    var createdRole = await _roleService.AddRoleAsync(dto);
+        //    return CreatedAtAction(nameof(GetRoleById), new { id = createdRole.RoleId }, createdRole);
+        //}
+
+
         [HttpPost("CreateRole")]
         public async Task<IActionResult> CreateRole([FromBody] RoleMasterDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var createdRole = await _roleService.AddRoleAsync(dto);
-            return CreatedAtAction(nameof(GetRoleById), new { id = createdRole.RoleId }, createdRole);
+            try
+            {
+                var createdRole = await _roleService.AddRoleAsync(dto);
+                return CreatedAtAction(nameof(GetRoleById),
+                    new { id = createdRole.RoleId }, createdRole);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
-
         // ✅ PUT: api/RoleMaster/{id}
         [HttpPost("UpdateRole/{id}")]
         public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleMasterDto dto)

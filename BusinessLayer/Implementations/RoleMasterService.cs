@@ -61,13 +61,52 @@ namespace BusinessLayer.Implementations
         }
 
         // Add new role
+        //public async Task<RoleMasterDto> AddRoleAsync(RoleMasterDto dto)
+        //{
+        //    try
+        //    {
+        //        var entity = new RoleMaster
+        //        {
+        //            RoleName = dto.RoleName,
+        //            RoleDescription = dto.RoleDescription,
+        //            IsActive = dto.IsActive,
+        //            CreatedBy = dto.CreatedBy,
+        //            CompanyId = dto.CompanyId,
+        //            RegionId = dto.RegionId,
+        //            UserId = dto.UserId,
+        //            CreatedAt = DateTime.Now
+        //        };
+
+        //        await _unitOfWork.Repository<RoleMaster>().AddAsync(entity);
+        //        await _unitOfWork.CompleteAsync();
+
+        //        return MapToDto(entity);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
         public async Task<RoleMasterDto> AddRoleAsync(RoleMasterDto dto)
         {
             try
             {
+                // Check duplicate role
+                var isRoleExists = await context.RoleMasters.AnyAsync(x =>
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId &&
+                    x.RoleName.ToLower().Trim() == dto.RoleName.ToLower().Trim());
+
+                if (isRoleExists != null)
+                {
+                    throw new Exception("Role already exists.");
+                }
+
                 var entity = new RoleMaster
                 {
-                    RoleName = dto.RoleName,
+                    RoleName = dto.RoleName.Trim(),
                     RoleDescription = dto.RoleDescription,
                     IsActive = dto.IsActive,
                     CreatedBy = dto.CreatedBy,
@@ -82,9 +121,9 @@ namespace BusinessLayer.Implementations
 
                 return MapToDto(entity);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
 
