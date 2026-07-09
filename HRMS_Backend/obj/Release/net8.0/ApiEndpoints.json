@@ -4632,6 +4632,27 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
+    "Method": "GetTodayNotifications",
+    "RelativePath": "api/Employee/GetTodayNotifications",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
     "Method": "GetUserForms",
     "RelativePath": "api/Employee/GetUserForms/{userId}",
     "HttpMethod": "GET",

@@ -2363,32 +2363,39 @@ namespace BusinessLayer.Implementations
         }
         public async Task<List<UserCreateDto>> GetUsersByCompanyRegion(int companyId, int regionId)
         {
-            return await _context.Users
-                .Where(u =>
-                    u.CompanyId == companyId &&
-                    u.RegionId == regionId)
-                .Select(u => new UserCreateDto
-                {
-                    userId = u.UserId,
-                    CompanyID = u.CompanyId,
-                    RegionID = u.RegionId,
-                    EmployeeCode = u.EmployeeCode,
-                    FullName = u.FullName,
-                    Email = u.Email,
-                    Status = u.Status,
-                    RoleId = u.RoleId,
+            try
+            {
+                return await _context.Users
+                    .Where(u =>
+                        u.CompanyId == companyId &&
+                        u.RegionId == regionId)
+                    .Select(u => new UserCreateDto
+                    {
+                        userId = u.UserId,
+                        CompanyID = u.CompanyId,
+                        RegionID = u.RegionId,
+                        EmployeeCode = u.EmployeeCode,
+                        FullName = u.FullName,
+                        Email = u.Email,
+                        Status = u.Status,
+                        RoleId = u.RoleId,
 
-                    ReportingHR = u.ReportingHr ?? 0,
-                    reportingTo = u.ReportingTo ?? 0,
+                        ReportingHR = u.ReportingHr ?? 0,
+                        reportingTo = u.ReportingTo ?? 0,
 
-                    JoiningDate = u.JoiningDate,
-                    departmentId = (int)u.DepartmentId,
-                    DesignationId = u.DesignationId,
-                    loginType = u.LoginType,
-                    Password = u.PasswordHash
-                })
-                .OrderBy(u => u.FullName)
-                .ToListAsync();
+                        JoiningDate = u.JoiningDate,
+                        departmentId = (int)u.DepartmentId,
+                        DesignationId = u.DesignationId,
+                        loginType = u.LoginType,
+                        Password = u.PasswordHash
+                    })
+                    .OrderBy(u => u.FullName)
+                    .ToListAsync();
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
         public async Task<List<UserCreateDto>> GetManagerEmployees(int loginUserId)
         {
