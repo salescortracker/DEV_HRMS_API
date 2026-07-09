@@ -113,16 +113,55 @@ var priority = priorityName.FirstOrDefault()?.PriorityName ?? "N/A";
             if (emp != null && !string.IsNullOrEmpty(emp.Email))
             {
                 var body = $@"
-            <h3>New Task Assigned</h3>
-            <p><b>Task:</b> {dto.TaskName}</p>
-           <p><b>Project:</b> {project}</p>
-<p><b>Priority:</b> {priority}</p>
-            <p><b>Start Date:</b> {dto.StartDate:dd-MM-yyyy}</p>
-            <p><b>Due Date:</b> {dto.DueDate:dd-MM-yyyy}</p>
-            <p><b>Comment:</b> {dto.Comment}</p>
-            <br/>
-            <p>Please check your task dashboard.</p>
-        ";
+                <html>
+                <body style='font-family: Arial, Helvetica, sans-serif; color:#333;'>
+
+                    <h2 style='color:#0d6efd;'>New Task Assigned</h2>
+
+                    <p>Dear <b>{emp.FullName}</b>,</p>
+
+                    <p>
+                        A new task has been assigned to you. Please find the details below:
+                    </p>
+
+                    <table style='border-collapse:collapse; width:100%; max-width:600px;'>
+                        <tr>
+                            <td style='padding:8px; border:1px solid #ddd;'><b>Task Name</b></td>
+                            <td style='padding:8px; border:1px solid #ddd;'>{dto.TaskName}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding:8px; border:1px solid #ddd;'><b>Project</b></td>
+                            <td style='padding:8px; border:1px solid #ddd;'>{project}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding:8px; border:1px solid #ddd;'><b>Priority</b></td>
+                            <td style='padding:8px; border:1px solid #ddd;'>{priority}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding:8px; border:1px solid #ddd;'><b>Start Date</b></td>
+                            <td style='padding:8px; border:1px solid #ddd;'>{dto.StartDate:dd-MMM-yyyy}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding:8px; border:1px solid #ddd;'><b>Due Date</b></td>
+                            <td style='padding:8px; border:1px solid #ddd;'>{dto.DueDate:dd-MMM-yyyy}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding:8px; border:1px solid #ddd;'><b>Comments</b></td>
+                            <td style='padding:8px; border:1px solid #ddd;'>{dto.Comment}</td>
+                        </tr>
+                    </table>
+
+                    <p style='margin-top:20px;'>
+                        Please log in to the Task Management portal to review the task details and update the progress accordingly.
+                    </p>
+
+                    <p>
+                        Thank you,<br/>
+                        <b>Task Management System</b>
+                    </p>
+
+                </body>
+                </html>";
 
                 await _emailService.SendEmailAsync(
                     emp.Email,
@@ -251,6 +290,97 @@ var priority = priorityName.FirstOrDefault()?.PriorityName ?? "N/A";
                 .Update(entity);
 
             await _unitOfWork.CompleteAsync();
+
+            // Get assigned employee
+            var assignedEmployee = (await _unitOfWork.Repository<User>()
+                .FindAsync(x => x.FullName == entity.AssignedTo))
+                .FirstOrDefault();
+
+            if (assignedEmployee != null && assignedEmployee.ReportingTo != null)
+            {
+                // Get Manager
+                var manager = await _unitOfWork.Repository<User>()
+                    .GetByIdAsync(assignedEmployee.ReportingTo.Value);
+
+
+                var statusName = await _unitOfWork.Repository<DataAccessLayer.DBContext.TaskStatus>()
+    .FindAsync(x => x.TaskStatusId == dto.StatusId);
+
+                var status = statusName.FirstOrDefault()?.TaskStatusName ?? "N/A";
+
+                if (manager != null && !string.IsNullOrEmpty(manager.Email))
+                {
+                    var project = (await _unitOfWork.Repository<ProjectMaster>()
+                        .FindAsync(x => x.ProjectMasterId == dto.ProjectId))
+                        .FirstOrDefault()?.ProjectName ?? "N/A";
+
+                    var priority = (await _unitOfWork.Repository<Priority>()
+                        .FindAsync(x => x.PriorityId == dto.PriorityId))
+                        .FirstOrDefault()?.PriorityName ?? "N/A";
+
+                    var body = $@"
+                    <html>
+                    <body style='font-family: Arial, Helvetica, sans-serif; color:#333;'>
+
+                        <h2 style='color:#198754;'>Task Update Notification</h2>
+
+                        <p>Dear <b>{manager.FullName}</b>,</p>
+
+                        <p>
+                            This is to inform you that the following task has been updated by
+                            <b>{assignedEmployee.FullName}</b>.
+                        </p>
+
+                        <table style='border-collapse:collapse; width:100%; max-width:650px;'>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Employee</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{assignedEmployee.FullName}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Task Name</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{dto.TaskName}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Project</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{project}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Priority</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{priority}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Status</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{status}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Comments</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{dto.Comment}</td>
+                            </tr>
+                            <tr>
+                                <td style='padding:8px; border:1px solid #ddd;'><b>Updated On</b></td>
+                                <td style='padding:8px; border:1px solid #ddd;'>{DateTime.Now:dd-MMM-yyyy hh:mm tt}</td>
+                            </tr>
+                        </table>
+
+                        <p style='margin-top:20px;'>
+                            Kindly review the updated task status and take any necessary action.
+                        </p>
+
+                        <p>
+                            Regards,<br/>
+                            <b>Task Management System</b>
+                        </p>
+
+                    </body>
+                    </html>";
+
+                    await _emailService.SendEmailAsync(
+                        manager.Email,
+                        "Task Updated by Employee",
+                        body);
+                }
+            }
+
 
             // =========================
             // EMAIL IF TASK REASSIGNED
