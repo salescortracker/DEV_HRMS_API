@@ -328,13 +328,13 @@ namespace BusinessLayer.Implementations
                     var userData = await (
         from u in _context.Users
         join r in _context.RoleMasters on u.RoleId equals r.RoleId
-       // join reg in _context.Regions on u.RegionId equals reg.RegionId
-        //join c in _context.Companies on u.CompanyId equals c.CompanyId
-        //join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
-        //from d in deptJoin.DefaultIfEmpty()
-        //join des in _context.Designations
-        //    on u.DesignationId equals des.DesignationId into desJoin
-        //from des in desJoin.DefaultIfEmpty()
+        join reg in _context.Regions on u.RegionId equals reg.RegionId
+        join c in _context.Companies on u.CompanyId equals c.CompanyId
+        join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
+        from d in deptJoin.DefaultIfEmpty()
+        join des in _context.Designations
+            on u.DesignationId equals des.DesignationId into desJoin
+        from des in desJoin.DefaultIfEmpty()
 
 
         join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
@@ -349,8 +349,8 @@ namespace BusinessLayer.Implementations
             u.FullName,
 
             RoleName = r.RoleName,
-           // RegionName = reg.RegionName,
-            //CompanyName = c.CompanyName,
+            RegionName = reg.RegionName,
+            CompanyName = c.CompanyName,
 
             roleId = u.RoleId,
             companyId = u.CompanyId,
@@ -358,13 +358,13 @@ namespace BusinessLayer.Implementations
             employeeCode = u.EmployeeCode,
 
             DepartmentId = u.DepartmentId,
-          //  DepartmentName = d.DepartmentName, // 🔥 STRING
+            DepartmentName = d.DepartmentName, // 🔥 STRING
 
             ReportingManagerId = u.ReportingTo,
             ReportingManagerName = rm.FullName, // 🔥 STRING
 
             DesignationId = u.DesignationId,
-           // DesignationName = des.DesignationName,
+            DesignationName = des.DesignationName,
 
 
             personalEmail = u.Email,
@@ -513,7 +513,7 @@ namespace BusinessLayer.Implementations
                         _configuration["Smtp:Password"]
                     );
 
-                    string logoUrl = "https://corhr.cortracker360.com/assets/images/cor-logo.png"; // Replace with your actual logo
+                    string logoUrl = "https://qa-hr.cortracker360.com/assets/images/cor-logo.png"; // Replace with your actual logo
 
                     string subject = "Welcome to HRMS – Your Login Details";
 
@@ -544,7 +544,7 @@ namespace BusinessLayer.Implementations
                             <table cellpadding='6' cellspacing='0' style='width:100%;margin:20px 0;border-collapse:collapse;'>
                                 <tr>
                                     <td style='font-weight:bold;color:#004aad;width:120px;'>Login URL:</td>
-                                    <td><a href='https://corhr.cortracker360.com' style='color:#004aad;text-decoration:none;'>https://corhr.cortracker360.com</a></td>
+                                    <td><a href='https://qa-hr.cortracker360.com' style='color:#004aad;text-decoration:none;'>https://qa-hr.cortracker360.com</a></td>
                                 </tr>
                                 <tr>
                                     <td style='font-weight:bold;color:#004aad;'>Username:</td>
@@ -561,7 +561,7 @@ namespace BusinessLayer.Implementations
                             </p>
 
                             <div style='margin-top:30px;text-align:center;'>
-                                <a href='https://corhr.cortracker360.com' 
+                                <a href='https://qa-hr.cortracker360.com' 
                                    style='background-color:#004aad;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;'>
                                    Go to HRMS Portal
                                 </a>
@@ -680,9 +680,9 @@ namespace BusinessLayer.Implementations
                                         Login URL:
                                     </td>
                                     <td>
-                                        <a href='https://corhr.cortracker360.com'
+                                        <a href='https://qa-hr.cortracker360.com'
                                            style='color:#004aad;text-decoration:none;'>
-                                           https://corhr.cortracker360.com
+                                           https://qa-hr.cortracker360.com
                                         </a>
                                     </td>
                                 </tr>
@@ -702,7 +702,7 @@ namespace BusinessLayer.Implementations
                             </p>
 
                             <div style='margin-top:30px;text-align:center;'>
-                                <a href='https://corhr.cortracker360.com'
+                                <a href='https://qa-hr.cortracker360.com'
                                    style='background:#004aad;color:#fff;padding:12px 26px;
                                           border-radius:6px;text-decoration:none;font-weight:600;'>
                                    Login to HRMS

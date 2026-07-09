@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {}
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {}
   },
   "projects": {
-    "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
+    "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+        "projectUniqueName": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
         "projectName": "DataAccessLayer",
-        "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+        "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
         "packagesPath": "C:\\Users\\HR\\.nuget\\packages\\",
-        "outputPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\obj\\",
+        "outputPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

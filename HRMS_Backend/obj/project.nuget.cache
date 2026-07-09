@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "zATGdt+Fh7g=",
+  "dgSpecHash": "6twS+/RhDFg=",
   "success": true,
-  "projectFilePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+  "projectFilePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\HR\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
@@ -11,6 +11,11 @@
     "C:\\Users\\HR\\.nuget\\packages\\documentformat.openxml.framework\\3.5.1\\documentformat.openxml.framework.3.5.1.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\exceldatareader\\3.8.0\\exceldatareader.3.8.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\exceldatareader.dataset\\3.8.0\\exceldatareader.dataset.3.8.0.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\hangfire\\1.8.23\\hangfire.1.8.23.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\hangfire.aspnetcore\\1.8.23\\hangfire.aspnetcore.1.8.23.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\hangfire.core\\1.8.23\\hangfire.core.1.8.23.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\hangfire.netcore\\1.8.23\\hangfire.netcore.1.8.23.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\hangfire.sqlserver\\1.8.23\\hangfire.sqlserver.1.8.23.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\itext\\9.6.0\\itext.9.6.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\itext.bouncy-castle-adapter\\9.6.0\\itext.bouncy-castle-adapter.9.6.0.nupkg.sha512",
@@ -50,6 +55,7 @@
     "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\9.0.10\\microsoft.extensions.fileproviders.abstractions.9.0.10.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\9.0.10\\microsoft.extensions.fileproviders.physical.9.0.10.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\9.0.10\\microsoft.extensions.filesystemglobbing.9.0.10.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\3.0.0\\microsoft.extensions.hosting.abstractions.3.0.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.logging\\9.0.10\\microsoft.extensions.logging.9.0.10.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.10\\microsoft.extensions.logging.abstractions.9.0.10.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\microsoft.extensions.options\\9.0.10\\microsoft.extensions.options.9.0.10.nupkg.sha512",
@@ -174,12 +180,21 @@
   ],
   "logs": [
     {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "targetGraphs": []
+    },
+    {
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'NPOI 2.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "libraryId": "NPOI",
       "targetGraphs": [
         "net8.0"
@@ -189,9 +204,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'NPOI.HWPF 2.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "libraryId": "NPOI.HWPF",
       "targetGraphs": [
         "net8.0"
@@ -201,9 +216,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'SharpZipLib 0.86.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "libraryId": "SharpZipLib",
       "targetGraphs": [
         "net8.0"
@@ -213,9 +228,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'ZKemkeeper 1.0.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
       "libraryId": "ZKemkeeper",
       "targetGraphs": [
         "net8.0"

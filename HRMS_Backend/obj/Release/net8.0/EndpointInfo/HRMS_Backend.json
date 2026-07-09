@@ -2847,6 +2847,175 @@
         }
       }
     },
+    "/api/Attendance/createearlylogoutrequest": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEarlyLogoutRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEarlyLogoutRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEarlyLogoutRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/getearlylogoutrequest": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/getapprovalearlylogoutrequest": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "managerId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/updateearlylogout": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEarlyLogoutDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEarlyLogoutDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEarlyLogoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/bulkapproverejectearlylogout": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkApproveRejectEarlyLogoutDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkApproveRejectEarlyLogoutDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkApproveRejectEarlyLogoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/CompanyEvent/GetAllEvents": {
       "get": {
         "tags": [
@@ -2900,17 +3069,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyEvent"
+                "$ref": "#/components/schemas/CompanyEventsDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyEvent"
+                "$ref": "#/components/schemas/CompanyEventsDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyEvent"
+                "$ref": "#/components/schemas/CompanyEventsDto"
               }
             }
           }
@@ -2931,17 +3100,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyEvent"
+                "$ref": "#/components/schemas/CompanyEventsDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyEvent"
+                "$ref": "#/components/schemas/CompanyEventsDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/CompanyEvent"
+                "$ref": "#/components/schemas/CompanyEventsDto"
               }
             }
           }
@@ -4551,6 +4720,13 @@
                   "WorkAuthStatus.StatusName": {
                     "type": "string"
                   },
+                  "WorkAuthStatus.IsActive": {
+                    "type": "boolean"
+                  },
+                  "WorkAuthStatus.UserId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
                   "PassportCopy": {
                     "type": "string",
                     "format": "binary"
@@ -4717,6 +4893,12 @@
                   "style": "form"
                 },
                 "WorkAuthStatus.StatusName": {
+                  "style": "form"
+                },
+                "WorkAuthStatus.IsActive": {
+                  "style": "form"
+                },
+                "WorkAuthStatus.UserId": {
                   "style": "form"
                 },
                 "PassportCopy": {
@@ -4936,6 +5118,13 @@
                   "WorkAuthStatus.StatusName": {
                     "type": "string"
                   },
+                  "WorkAuthStatus.IsActive": {
+                    "type": "boolean"
+                  },
+                  "WorkAuthStatus.UserId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
                   "PassportCopy": {
                     "type": "string",
                     "format": "binary"
@@ -5104,6 +5293,12 @@
                 "WorkAuthStatus.StatusName": {
                   "style": "form"
                 },
+                "WorkAuthStatus.IsActive": {
+                  "style": "form"
+                },
+                "WorkAuthStatus.UserId": {
+                  "style": "form"
+                },
                 "PassportCopy": {
                   "style": "form"
                 },
@@ -5216,10 +5411,44 @@
         }
       }
     },
-    "/api/Employee/GetStatuses": {
-      "get": {
+    "/api/Employee/DeleteWorkAuthStatus": {
+      "post": {
         "tags": [
           "Employee"
+        ],
+        "parameters": [
+          {
+            "name": "statusId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -7186,29 +7415,6 @@
         }
       }
     },
-    "/api/Employee/GetProfilePicture/{userId}": {
-      "get": {
-        "tags": [
-          "Employee"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/Employee/GetByUserIdempProfile/{userId}": {
       "get": {
         "tags": [
@@ -8335,6 +8541,28 @@
           },
           {
             "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Employee/manager-employees": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
+        "parameters": [
+          {
+            "name": "loginUserId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -9816,6 +10044,36 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Employee/GetTodayNotifications": {
+      "get": {
+        "tags": [
+          "Employee"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -15169,7 +15427,7 @@
         }
       }
     },
-    "/api/MasterData/policy-category/company-region": {
+    "/api/MasterData/policy/company-region": {
       "get": {
         "tags": [
           "MasterData"
@@ -15292,6 +15550,36 @@
         "parameters": [
           {
             "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/policy-category/company-region": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -15962,7 +16250,15 @@
         ],
         "parameters": [
           {
-            "name": "userId",
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -16084,9 +16380,12 @@
                   "AttachmentPath": {
                     "type": "string"
                   },
-                  "departmentId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "DepartmentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
                   "Attachment": {
                     "type": "string",
@@ -16149,7 +16448,7 @@
                 "AttachmentPath": {
                   "style": "form"
                 },
-                "departmentId": {
+                "DepartmentIds": {
                   "style": "form"
                 },
                 "Attachment": {
@@ -16254,9 +16553,12 @@
                   "AttachmentPath": {
                     "type": "string"
                   },
-                  "departmentId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "DepartmentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
                   "Attachment": {
                     "type": "string",
@@ -16319,7 +16621,7 @@
                 "AttachmentPath": {
                   "style": "form"
                 },
-                "departmentId": {
+                "DepartmentIds": {
                   "style": "form"
                 },
                 "Attachment": {
@@ -16971,6 +17273,36 @@
         "parameters": [
           {
             "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterData/GetGradesByCompanyRegion": {
+      "get": {
+        "tags": [
+          "MasterData"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -19731,7 +20063,7 @@
       }
     },
     "/api/Recruitment/assign-company-region": {
-      "put": {
+      "post": {
         "tags": [
           "Recruitment"
         ],
@@ -23457,9 +23789,17 @@
             "type": "integer",
             "format": "int32"
           },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
           "regionId": {
             "type": "integer",
             "format": "int32"
+          },
+          "regionName": {
+            "type": "string",
+            "nullable": true
           },
           "accountType1": {
             "type": "string",
@@ -24681,6 +25021,45 @@
           "userID": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BulkApproveRejectEarlyLogoutDto": {
+        "type": "object",
+        "properties": {
+          "earlyLogoutRequestIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "managerRemarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "managerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -26267,7 +26646,7 @@
         },
         "additionalProperties": false
       },
-      "CompanyEvent": {
+      "CompanyEventsDto": {
         "type": "object",
         "properties": {
           "id": {
@@ -26287,6 +26666,14 @@
           "departmentId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "departmentIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
             "nullable": true
           },
           "eventTitle": {
@@ -26329,7 +26716,93 @@
             "nullable": true
           },
           "isActive": {
-            "type": "boolean",
+            "type": "boolean"
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyNewsDepartment": {
+        "type": "object",
+        "properties": {
+          "newsDepartmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "newsId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "departmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "department": {
+            "$ref": "#/components/schemas/Department"
+          },
+          "news": {
+            "$ref": "#/components/schemas/CompanyNewsMaster"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyNewsMaster": {
+        "type": "object",
+        "properties": {
+          "newsId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "postedDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "createdBy": {
@@ -26337,14 +26810,53 @@
             "format": "int32",
             "nullable": true
           },
-          "createdDate": {
+          "updatedBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "userId": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "fromDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "toDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "attachmentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "attachmentPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "departmentId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "companyNewsDepartments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyNewsDepartment"
+            },
             "nullable": true
           }
         },
@@ -26678,6 +27190,48 @@
             "type": "boolean"
           },
           "userId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateEarlyLogoutRequestDto": {
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedLogoutTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reportingTo": {
             "type": "integer",
             "format": "int32"
           }
@@ -27195,6 +27749,13 @@
           "company": {
             "$ref": "#/components/schemas/Company"
           },
+          "companyNewsDepartments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanyNewsDepartment"
+            },
+            "nullable": true
+          },
           "companyPolicyDepartments": {
             "type": "array",
             "items": {
@@ -27298,6 +27859,88 @@
           },
           "region": {
             "$ref": "#/components/schemas/Region"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EarlyLogoutRequest": {
+        "type": "object",
+        "properties": {
+          "earlyLogoutRequestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "employeeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "managerId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedLogoutTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "managerRemarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "modifiedBy": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "employee": {
+            "$ref": "#/components/schemas/User"
+          },
+          "manager": {
+            "$ref": "#/components/schemas/User"
           }
         },
         "additionalProperties": false
@@ -28259,7 +28902,8 @@
           },
           "genderId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "mobileNumber": {
             "type": "string",
@@ -28328,7 +28972,8 @@
           },
           "maritalStatusId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "marriageDate": {
             "type": "string",
@@ -33442,6 +34087,41 @@
         },
         "additionalProperties": false
       },
+      "UpdateEarlyLogoutDto": {
+        "type": "object",
+        "properties": {
+          "earlyLogoutRequestID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedLogoutTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateEmployeeFileStatusDto": {
         "type": "object",
         "properties": {
@@ -33745,6 +34425,20 @@
             "format": "date",
             "nullable": true
           },
+          "earlyLogoutRequestEmployees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EarlyLogoutRequest"
+            },
+            "nullable": true
+          },
+          "earlyLogoutRequestManagers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EarlyLogoutRequest"
+            },
+            "nullable": true
+          },
           "employeeMasterCreatedByNavigations": {
             "type": "array",
             "items": {
@@ -33815,9 +34509,17 @@
             "type": "integer",
             "format": "int32"
           },
+          "companyName": {
+            "type": "string",
+            "nullable": true
+          },
           "regionID": {
             "type": "integer",
             "format": "int32"
+          },
+          "regionName": {
+            "type": "string",
+            "nullable": true
           },
           "employeeCode": {
             "type": "string",
@@ -33839,13 +34541,25 @@
             "type": "integer",
             "format": "int32"
           },
+          "roleName": {
+            "type": "string",
+            "nullable": true
+          },
           "reportingTo": {
             "type": "integer",
             "format": "int32"
           },
+          "reportingToName": {
+            "type": "string",
+            "nullable": true
+          },
           "departmentId": {
             "type": "integer",
             "format": "int32"
+          },
+          "departmentName": {
+            "type": "string",
+            "nullable": true
           },
           "userCompanyId": {
             "type": "integer",
@@ -33869,9 +34583,17 @@
             "format": "int32",
             "nullable": true
           },
+          "designationName": {
+            "type": "string",
+            "nullable": true
+          },
           "reportingHR": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "reportingHRName": {
+            "type": "string",
             "nullable": true
           },
           "joiningDate": {

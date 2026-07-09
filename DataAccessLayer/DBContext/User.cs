@@ -69,6 +69,10 @@ public partial class User
 
     public DateOnly? JoiningDate { get; set; }
 
+    public virtual ICollection<EarlyLogoutRequest> EarlyLogoutRequestEmployees { get; set; } = new List<EarlyLogoutRequest>();
+
+    public virtual ICollection<EarlyLogoutRequest> EarlyLogoutRequestManagers { get; set; } = new List<EarlyLogoutRequest>();
+
     public virtual ICollection<EmployeeMaster> EmployeeMasterCreatedByNavigations { get; set; } = new List<EmployeeMaster>();
 
     public virtual ICollection<EmployeeMaster> EmployeeMasterManagers { get; set; } = new List<EmployeeMaster>();

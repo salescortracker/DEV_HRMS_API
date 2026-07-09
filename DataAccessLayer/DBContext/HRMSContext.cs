@@ -19,6 +19,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<AdminMenuMaster> AdminMenuMasters { get; set; }
 
+    public virtual DbSet<AggregatedCounter> AggregatedCounters { get; set; }
+
     public virtual DbSet<Asset> Assets { get; set; }
 
     public virtual DbSet<AssetAssignment> AssetAssignments { get; set; }
@@ -109,6 +111,8 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<CompanyUsageLog> CompanyUsageLogs { get; set; }
 
+    public virtual DbSet<Counter> Counters { get; set; }
+
     public virtual DbSet<CountryMaster> CountryMasters { get; set; }
 
     public virtual DbSet<Currency> Currencies { get; set; }
@@ -120,6 +124,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<Designation> Designations { get; set; }
 
     public virtual DbSet<DocumentType> DocumentTypes { get; set; }
+
+    public virtual DbSet<EarlyLogoutRequest> EarlyLogoutRequests { get; set; }
 
     public virtual DbSet<EmailLog> EmailLogs { get; set; }
 
@@ -219,13 +225,21 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<Grade> Grades { get; set; }
 
+    public virtual DbSet<Hash> Hashes { get; set; }
+
     public virtual DbSet<HelpDeskCategory> HelpDeskCategories { get; set; }
 
     public virtual DbSet<HolidayList> HolidayLists { get; set; }
 
     public virtual DbSet<InterviewLevel> InterviewLevels { get; set; }
 
+    public virtual DbSet<Job> Jobs { get; set; }
+
     public virtual DbSet<JobApplication> JobApplications { get; set; }
+
+    public virtual DbSet<JobParameter> JobParameters { get; set; }
+
+    public virtual DbSet<JobQueue> JobQueues { get; set; }
 
     public virtual DbSet<KpiCategory> KpiCategories { get; set; }
 
@@ -242,6 +256,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<LeaveTypeDesignation> LeaveTypeDesignations { get; set; }
 
     public virtual DbSet<LeaveTypeGrade> LeaveTypeGrades { get; set; }
+
+    public virtual DbSet<List> Lists { get; set; }
 
     public virtual DbSet<ManagerKpireview> ManagerKpireviews { get; set; }
 
@@ -305,7 +321,13 @@ public partial class HRMSContext : DbContext
 
     public virtual DbSet<SalaryStructureComponent> SalaryStructureComponents { get; set; }
 
+    public virtual DbSet<Schema> Schemas { get; set; }
+
     public virtual DbSet<ScreeningResult> ScreeningResults { get; set; }
+
+    public virtual DbSet<Server> Servers { get; set; }
+
+    public virtual DbSet<Set> Sets { get; set; }
 
     public virtual DbSet<ShiftAllocation> ShiftAllocations { get; set; }
 
@@ -314,6 +336,8 @@ public partial class HRMSContext : DbContext
     public virtual DbSet<StageMaster> StageMasters { get; set; }
 
     public virtual DbSet<State> States { get; set; }
+
+    public virtual DbSet<State1> States1 { get; set; }
 
     public virtual DbSet<StateMaster> StateMasters { get; set; }
 
@@ -359,7 +383,7 @@ public partial class HRMSContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_Prod_New;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
+        => optionsBuilder.UseSqlServer("Server=192.168.29.53,50491;Database=HRMS_QA_Testing;user id= sa; password=CtDev@2026@01; TrustServerCertificate=True;MultipleActiveResultSets=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -396,6 +420,18 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.ParentMenuId).HasColumnName("ParentMenuID");
             entity.Property(e => e.Url).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<AggregatedCounter>(entity =>
+        {
+            entity.HasKey(e => e.Key).HasName("PK_HangFire_CounterAggregated");
+
+            entity.ToTable("AggregatedCounter", "HangFire");
+
+            entity.HasIndex(e => e.ExpireAt, "IX_HangFire_AggregatedCounter_ExpireAt").HasFilter("([ExpireAt] IS NOT NULL)");
+
+            entity.Property(e => e.Key).HasMaxLength(100);
+            entity.Property(e => e.ExpireAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Asset>(entity =>
@@ -1172,6 +1208,7 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.RegulationStatus)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.ShiftEndReminderSent).HasDefaultValue(0);
             entity.Property(e => e.Status).HasMaxLength(20);
         });
 
@@ -1423,6 +1460,17 @@ public partial class HRMSContext : DbContext
                 .HasColumnName("StorageUsedMB");
         });
 
+        modelBuilder.Entity<Counter>(entity =>
+        {
+            entity.HasKey(e => new { e.Key, e.Id }).HasName("PK_HangFire_Counter");
+
+            entity.ToTable("Counter", "HangFire");
+
+            entity.Property(e => e.Key).HasMaxLength(100);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.ExpireAt).HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<CountryMaster>(entity =>
         {
             entity.HasKey(e => e.CountryId).HasName("PK__CountryM__10D160BF24940B4E");
@@ -1575,6 +1623,31 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
             entity.Property(e => e.TypeName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<EarlyLogoutRequest>(entity =>
+        {
+            entity.HasKey(e => e.EarlyLogoutRequestId).HasName("PK__EarlyLog__AE5C0194B71D45C1");
+
+            entity.ToTable("EarlyLogoutRequest", "employee");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.HrEmail).HasMaxLength(255);
+            entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.EarlyLogoutRequestEmployees)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EarlyLogoutRequest_Employee");
+
+            entity.HasOne(d => d.Manager).WithMany(p => p.EarlyLogoutRequestManagers)
+                .HasForeignKey(d => d.ManagerId)
+                .HasConstraintName("FK_EarlyLogoutRequest_Manager");
         });
 
         modelBuilder.Entity<EmailLog>(entity =>
@@ -2879,6 +2952,18 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
         });
 
+        modelBuilder.Entity<Hash>(entity =>
+        {
+            entity.HasKey(e => new { e.Key, e.Field }).HasName("PK_HangFire_Hash");
+
+            entity.ToTable("Hash", "HangFire");
+
+            entity.HasIndex(e => e.ExpireAt, "IX_HangFire_Hash_ExpireAt").HasFilter("([ExpireAt] IS NOT NULL)");
+
+            entity.Property(e => e.Key).HasMaxLength(100);
+            entity.Property(e => e.Field).HasMaxLength(100);
+        });
+
         modelBuilder.Entity<HelpDeskCategory>(entity =>
         {
             entity.HasKey(e => e.HelpDeskCategoryId).HasName("PK__HelpDesk__9F010540E4760B6A");
@@ -2967,6 +3052,21 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_InterviewLevels_Region");
         });
 
+        modelBuilder.Entity<Job>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_HangFire_Job");
+
+            entity.ToTable("Job", "HangFire");
+
+            entity.HasIndex(e => e.ExpireAt, "IX_HangFire_Job_ExpireAt").HasFilter("([ExpireAt] IS NOT NULL)");
+
+            entity.HasIndex(e => e.StateName, "IX_HangFire_Job_StateName").HasFilter("([StateName] IS NOT NULL)");
+
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.ExpireAt).HasColumnType("datetime");
+            entity.Property(e => e.StateName).HasMaxLength(20);
+        });
+
         modelBuilder.Entity<JobApplication>(entity =>
         {
             entity.HasKey(e => e.ApplicationId).HasName("PK__JobAppli__C93A4C990C323E90");
@@ -2987,6 +3087,30 @@ public partial class HRMSContext : DbContext
                 .HasMaxLength(50)
                 .HasDefaultValue("Applied");
             entity.Property(e => e.Technology).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<JobParameter>(entity =>
+        {
+            entity.HasKey(e => new { e.JobId, e.Name }).HasName("PK_HangFire_JobParameter");
+
+            entity.ToTable("JobParameter", "HangFire");
+
+            entity.Property(e => e.Name).HasMaxLength(40);
+
+            entity.HasOne(d => d.Job).WithMany(p => p.JobParameters)
+                .HasForeignKey(d => d.JobId)
+                .HasConstraintName("FK_HangFire_JobParameter_Job");
+        });
+
+        modelBuilder.Entity<JobQueue>(entity =>
+        {
+            entity.HasKey(e => new { e.Queue, e.Id }).HasName("PK_HangFire_JobQueue");
+
+            entity.ToTable("JobQueue", "HangFire");
+
+            entity.Property(e => e.Queue).HasMaxLength(50);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.FetchedAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<KpiCategory>(entity =>
@@ -3216,6 +3340,19 @@ public partial class HRMSContext : DbContext
                 .HasForeignKey(d => d.LeaveTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__LeaveType__Leave__08A03ED0");
+        });
+
+        modelBuilder.Entity<List>(entity =>
+        {
+            entity.HasKey(e => new { e.Key, e.Id }).HasName("PK_HangFire_List");
+
+            entity.ToTable("List", "HangFire");
+
+            entity.HasIndex(e => e.ExpireAt, "IX_HangFire_List_ExpireAt").HasFilter("([ExpireAt] IS NOT NULL)");
+
+            entity.Property(e => e.Key).HasMaxLength(100);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.ExpireAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<ManagerKpireview>(entity =>
@@ -3891,6 +4028,15 @@ public partial class HRMSContext : DbContext
                 .HasConstraintName("FK_Structure");
         });
 
+        modelBuilder.Entity<Schema>(entity =>
+        {
+            entity.HasKey(e => e.Version).HasName("PK_HangFire_Schema");
+
+            entity.ToTable("Schema", "HangFire");
+
+            entity.Property(e => e.Version).ValueGeneratedNever();
+        });
+
         modelBuilder.Entity<ScreeningResult>(entity =>
         {
             entity.HasKey(e => e.ScreeningResultId).HasName("PK__Screenin__4EBB59125B5AE574");
@@ -3916,6 +4062,33 @@ public partial class HRMSContext : DbContext
                 .HasForeignKey(d => d.RegionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ScreeningResult_Region");
+        });
+
+        modelBuilder.Entity<Server>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_HangFire_Server");
+
+            entity.ToTable("Server", "HangFire");
+
+            entity.HasIndex(e => e.LastHeartbeat, "IX_HangFire_Server_LastHeartbeat");
+
+            entity.Property(e => e.Id).HasMaxLength(200);
+            entity.Property(e => e.LastHeartbeat).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<Set>(entity =>
+        {
+            entity.HasKey(e => new { e.Key, e.Value }).HasName("PK_HangFire_Set");
+
+            entity.ToTable("Set", "HangFire");
+
+            entity.HasIndex(e => e.ExpireAt, "IX_HangFire_Set_ExpireAt").HasFilter("([ExpireAt] IS NOT NULL)");
+
+            entity.HasIndex(e => new { e.Key, e.Score }, "IX_HangFire_Set_Score");
+
+            entity.Property(e => e.Key).HasMaxLength(100);
+            entity.Property(e => e.Value).HasMaxLength(256);
+            entity.Property(e => e.ExpireAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<ShiftAllocation>(entity =>
@@ -3991,6 +4164,24 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.ModifiedAt).HasColumnType("datetime");
             entity.Property(e => e.RegionId).HasColumnName("RegionID");
             entity.Property(e => e.StateName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<State1>(entity =>
+        {
+            entity.HasKey(e => new { e.JobId, e.Id }).HasName("PK_HangFire_State");
+
+            entity.ToTable("State", "HangFire");
+
+            entity.HasIndex(e => e.CreatedAt, "IX_HangFire_State_CreatedAt");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(20);
+            entity.Property(e => e.Reason).HasMaxLength(100);
+
+            entity.HasOne(d => d.Job).WithMany(p => p.State1s)
+                .HasForeignKey(d => d.JobId)
+                .HasConstraintName("FK_HangFire_State_Job");
         });
 
         modelBuilder.Entity<StateMaster>(entity =>
@@ -4472,6 +4663,7 @@ public partial class HRMSContext : DbContext
             entity.Property(e => e.StatusId).HasColumnName("StatusID");
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.ModifiedBy).HasMaxLength(100);
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.StatusName).HasMaxLength(50);

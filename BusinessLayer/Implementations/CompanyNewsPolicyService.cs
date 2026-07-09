@@ -8,16 +8,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
 {
     public class CompanyNewsPolicyService: ICompanyNewsPolicyService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
+        private readonly HRMSContext _context;
 
-        public CompanyNewsPolicyService(IUnitOfWork unitOfWork)
+        public CompanyNewsPolicyService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext context)
         {
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
+            _context = context;
         }
 
         // =========================================================
@@ -124,10 +129,88 @@ namespace BusinessLayer.Implementations
         /// <summary>
         /// Add new news
         /// </summary>
+        //public async Task<CompanyNewsMasterDto> AddNewsAsync(CompanyNewsMasterDto dto)
+        //{
+        //    string? fileName = null;
+        //    string? filePath = null;
+
+        //    if (dto.Attachment != null)
+        //    {
+        //        var uploadsFolder = Path.Combine(
+        //            Directory.GetCurrentDirectory(),
+        //            "wwwroot",
+        //            "news"
+        //        );
+
+        //        if (!Directory.Exists(uploadsFolder))
+        //        {
+        //            Directory.CreateDirectory(uploadsFolder);
+        //        }
+
+        //        fileName = Guid.NewGuid().ToString()
+        //                   + Path.GetExtension(dto.Attachment.FileName);
+
+        //        var fullPath = Path.Combine(uploadsFolder, fileName);
+
+        //        using (var stream = new FileStream(fullPath, FileMode.Create))
+        //        {
+        //            await dto.Attachment.CopyToAsync(stream);
+        //        }
+
+        //        filePath = "/news/" + fileName;
+        //    }
+
+        //    var entity = new CompanyNewsMaster
+        //    {
+        //        Title = dto.Title,
+        //        Description = dto.Description,
+        //        PostedDate = dto.PostedDate,
+        //        ExpiryDate = dto.ExpiryDate,
+        //        Category = dto.Category,
+        //        IsActive = true,
+        //        UserId = dto.UserId,
+        //        CompanyId = dto.CompanyId,
+        //        RegionId = dto.RegionId,
+        //        AttachmentName = fileName,
+        //        AttachmentPath = filePath,
+        //        CreatedBy = dto.CreatedBy,
+        //        CreatedAt = DateTime.UtcNow
+        //    };
+
+        //    await _unitOfWork
+        //        .Repository<CompanyNewsMaster>()
+        //        .AddAsync(entity);
+
+        //    await _unitOfWork.CompleteAsync();
+
+        //    if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+        //    {
+        //        foreach (var deptId in dto.DepartmentIds)
+        //        {
+        //            await _unitOfWork
+        //                .Repository<CompanyNewsDepartment>()
+        //                .AddAsync(new CompanyNewsDepartment
+        //                {
+        //                    NewsId = entity.NewsId,
+        //                    DepartmentId = deptId,
+        //                    CreatedAt = DateTime.UtcNow
+        //                });
+        //        }
+
+        //        await _unitOfWork.CompleteAsync();
+        //    }
+
+        //    return MapNewsToDto(entity);
+        //}
+
         public async Task<CompanyNewsMasterDto> AddNewsAsync(CompanyNewsMasterDto dto)
         {
             string? fileName = null;
             string? filePath = null;
+
+            //=============================
+            // Upload Attachment
+            //=============================
 
             if (dto.Attachment != null)
             {
@@ -142,8 +225,8 @@ namespace BusinessLayer.Implementations
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                fileName = Guid.NewGuid().ToString()
-                           + Path.GetExtension(dto.Attachment.FileName);
+                fileName = Guid.NewGuid().ToString() +
+                           Path.GetExtension(dto.Attachment.FileName);
 
                 var fullPath = Path.Combine(uploadsFolder, fileName);
 
@@ -154,6 +237,10 @@ namespace BusinessLayer.Implementations
 
                 filePath = "/news/" + fileName;
             }
+
+            //=============================
+            // Save News
+            //=============================
 
             var entity = new CompanyNewsMaster
             {
@@ -178,6 +265,10 @@ namespace BusinessLayer.Implementations
 
             await _unitOfWork.CompleteAsync();
 
+            //=============================
+            // Save Departments
+            //=============================
+
             if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
             {
                 foreach (var deptId in dto.DepartmentIds)
@@ -193,6 +284,140 @@ namespace BusinessLayer.Implementations
                 }
 
                 await _unitOfWork.CompleteAsync();
+            }
+
+            //=============================
+            // Get Employee Emails
+            //=============================
+
+            List<string> emails = new();
+
+            if (dto.DepartmentIds == null || !dto.DepartmentIds.Any())
+            {
+                // Send to all employees in Company & Region
+
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else
+            {
+                // Send only selected departments
+
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        dto.DepartmentIds.Contains((int)x.DepartmentId) &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            //=============================
+            // Send Mail
+            //=============================
+
+            if (emails.Any())
+            {
+                string subject = $"Company News - {dto.Title}";
+
+                string body = $@"
+<html>
+<body style='font-family:Calibri'>
+
+<h2 style='color:#0d6efd;'>Company News</h2>
+
+<p>Dear Employee,</p>
+
+<p>A new company announcement has been published.</p>
+
+<table border='1'
+       cellpadding='8'
+       cellspacing='0'
+       style='border-collapse:collapse;'>
+
+<tr>
+<td><b>Title</b></td>
+<td>{dto.Title}</td>
+</tr>
+
+<tr>
+<td><b>Category</b></td>
+<td>{dto.Category}</td>
+</tr>
+
+<tr>
+<td><b>Posted Date</b></td>
+<td>{dto.PostedDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Expiry Date</b></td>
+<td>{dto.ExpiryDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Description</b></td>
+<td>{dto.Description}</td>
+</tr>
+
+</table>
+
+<br/>
+
+<p>Please login to the HRMS Portal for more details.</p>
+
+<br/>
+
+Regards,<br/>
+<b>HR Team</b>
+
+</body>
+</html>";
+
+                List<string>? attachments = null;
+
+                if (!string.IsNullOrWhiteSpace(filePath))
+                {
+                    string physicalPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        filePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                    if (File.Exists(physicalPath))
+                    {
+                        attachments = new List<string>
+                {
+                    physicalPath
+                };
+                    }
+                }
+
+                foreach (var email in emails)
+                {
+                    try
+                    {
+                        await _emailService.SendEmailAsync(
+                            email,
+                            subject,
+                            body,
+                            null,
+                            attachments);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Mail failed to {email}: {ex.Message}");
+                    }
+                }
             }
 
             return MapNewsToDto(entity);
@@ -324,7 +549,142 @@ namespace BusinessLayer.Implementations
 
                 await _unitOfWork.CompleteAsync();
             }
+            //=========================================
+            // Get User Emails
+            //=========================================
 
+            List<string> emails = new();
+
+            if (dto.DepartmentIds == null || !dto.DepartmentIds.Any())
+            {
+                // All employees in Company & Region
+
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else
+            {
+                // Selected Departments
+
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        dto.DepartmentIds.Contains((int)x.DepartmentId) &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            //=========================================
+            // Send Mail
+            //=========================================
+
+            if (emails.Any())
+            {
+                string subject = $"Updated Company News - {entity.Title}";
+
+                string body = $@"
+<html>
+
+<body style='font-family:Calibri'>
+
+<h2 style='color:#0d6efd;'>Company News Updated</h2>
+
+<p>Dear Employee,</p>
+
+<p>An existing company announcement has been updated.</p>
+
+<table border='1'
+       cellpadding='8'
+       cellspacing='0'
+       style='border-collapse:collapse;'>
+
+<tr>
+<td><b>Title</b></td>
+<td>{entity.Title}</td>
+</tr>
+
+<tr>
+<td><b>Category</b></td>
+<td>{entity.Category}</td>
+</tr>
+
+<tr>
+<td><b>Posted Date</b></td>
+<td>{entity.PostedDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Expiry Date</b></td>
+<td>{entity.ExpiryDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Description</b></td>
+<td>{entity.Description}</td>
+</tr>
+
+</table>
+
+<br/>
+
+<p>Please login to the HRMS Portal to view the updated announcement.</p>
+
+<br/>
+
+Regards,<br/>
+<b>HR Team</b>
+
+</body>
+
+</html>";
+
+                List<string>? attachments = null;
+
+                if (!string.IsNullOrWhiteSpace(entity.AttachmentPath))
+                {
+                    string physicalPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        entity.AttachmentPath.TrimStart('/')
+                            .Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                    if (File.Exists(physicalPath))
+                    {
+                        attachments = new List<string>
+            {
+                physicalPath
+            };
+                    }
+                }
+
+                foreach (var email in emails)
+                {
+                    try
+                    {
+                        await _emailService.SendEmailAsync(
+                            email,
+                            subject,
+                            body,
+                            null,
+                            attachments);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to send mail to {email}: {ex.Message}");
+                    }
+                }
+            }
             return MapNewsToDto(entity);
         }
 
@@ -505,11 +865,89 @@ namespace BusinessLayer.Implementations
             return MapPolicyToDto(entity);
         }
 
+        //public async Task<CompanyPolicyMasterDto> AddPolicyAsync(CompanyPolicyMasterDto dto)
+        //{
+
+        //    var deptIds = dto.DepartmentIds;
+
+
+        //    var entity = new CompanyPoliciesMaster
+        //    {
+        //        PolicyTitle = dto.PolicyTitle,
+        //        PolicyDescription = dto.PolicyDescription,
+        //        PostedDate = dto.PostedDate,
+        //        EffectiveDate = dto.EffectiveDate,
+        //        ExpiryDate = dto.ExpiryDate,
+        //        DepartmentId = null,
+        //        AttachmentName = dto.AttachmentName,
+        //        AttachmentPath = dto.AttachmentPath,
+        //        Category = dto.Category,
+        //        IsActive = dto.IsActive,
+        //        UserId = dto.UserId,
+        //        CompanyId = dto.CompanyId,
+        //        RegionId = dto.RegionId,
+        //        CreatedBy = dto.CreatedBy,
+        //        CreatedAt = DateTime.UtcNow
+        //    };
+
+        //    await _unitOfWork.Repository<CompanyPoliciesMaster>().AddAsync(entity);
+        //    await _unitOfWork.CompleteAsync();
+        //    var policyId = entity.PolicyId;
+        //    if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+        //    {
+        //        foreach (var deptId in dto.DepartmentIds)
+        //        {
+        //            await _unitOfWork.Repository<CompanyPolicyDepartment>()
+        //                .AddAsync(new CompanyPolicyDepartment
+        //                {
+        //                    PolicyId = entity.PolicyId,
+        //                    DepartmentId = deptId,
+        //                    CreatedDate = DateTime.Now
+        //                });
+        //        }
+
+        //        await _unitOfWork.CompleteAsync();
+        //    }
+
+        //    await _unitOfWork.CompleteAsync();
+
+        //    return MapPolicyToDto(entity);
+        //}
+
         public async Task<CompanyPolicyMasterDto> AddPolicyAsync(CompanyPolicyMasterDto dto)
         {
+            string? fileName = null;
+            string? filePath = null;
 
-            var deptIds = dto.DepartmentIds;
+            //=============================
+            // Upload Attachment
+            //=============================
 
+            if (dto.Attachment != null)
+            {
+                var uploadsFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "CompanyPolicies"
+                );
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                fileName = Guid.NewGuid().ToString() +
+                           Path.GetExtension(dto.AttachmentName);
+
+                var fullPath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await dto.Attachment.CopyToAsync(stream);
+                }
+
+                filePath = "/CompanyPolicies/" + fileName;
+            }
 
             var entity = new CompanyPoliciesMaster
             {
@@ -527,12 +965,23 @@ namespace BusinessLayer.Implementations
                 CompanyId = dto.CompanyId,
                 RegionId = dto.RegionId,
                 CreatedBy = dto.CreatedBy,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+
             };
 
-            await _unitOfWork.Repository<CompanyPoliciesMaster>().AddAsync(entity);
+            //=========================================
+            // Save Policy
+            //=========================================
+
+            await _unitOfWork.Repository<CompanyPoliciesMaster>()
+                .AddAsync(entity);
+
             await _unitOfWork.CompleteAsync();
-            var policyId = entity.PolicyId;
+
+            //=========================================
+            // Save Departments
+            //=========================================
+
             if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
             {
                 foreach (var deptId in dto.DepartmentIds)
@@ -549,17 +998,222 @@ namespace BusinessLayer.Implementations
                 await _unitOfWork.CompleteAsync();
             }
 
-            await _unitOfWork.CompleteAsync();
+            //=========================================
+            // Get Employee Emails
+            //=========================================
+
+            List<string> emails = new();
+
+            if (dto.DepartmentIds == null || !dto.DepartmentIds.Any())
+            {
+                // Send to all active employees of Company & Region
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else
+            {
+                // Send only to selected departments
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        dto.DepartmentIds.Contains((int)x.DepartmentId) &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            //=========================================
+            // Send Email
+            //=========================================
+
+            if (emails.Any())
+            {
+                string subject = $"New Company Policy - {dto.PolicyTitle}";
+
+                string body = $@"
+<html>
+
+<body style='font-family:Calibri'>
+
+<h2 style='color:#0d6efd;'>Company Policy Notification</h2>
+
+<p>Dear Employee,</p>
+
+<p>A new company policy has been published.</p>
+
+<table border='1'
+       cellpadding='8'
+       cellspacing='0'
+       style='border-collapse:collapse;'>
+
+<tr>
+<td><b>Policy Title</b></td>
+<td>{dto.PolicyTitle}</td>
+</tr>
+
+<tr>
+<td><b>Category</b></td>
+<td>{dto.Category}</td>
+</tr>
+
+<tr>
+<td><b>Posted Date</b></td>
+<td>{dto.PostedDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Effective Date</b></td>
+<td>{dto.EffectiveDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Expiry Date</b></td>
+<td>{dto.ExpiryDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Description</b></td>
+<td>{dto.PolicyDescription}</td>
+</tr>
+
+</table>
+
+<br/>
+
+<p>Please login to the HRMS Portal to view the complete policy.</p>
+
+<br/>
+
+Regards,<br/>
+
+<b>HR Team</b>
+
+</body>
+
+</html>";
+
+                List<string>? attachments = null;
+
+                if (!string.IsNullOrWhiteSpace(dto.AttachmentPath))
+                {
+                    string physicalPath = dto.AttachmentPath;
+                    //string physicalPath = Path.Combine(
+                    //    Directory.GetCurrentDirectory(),
+                    //    "wwwroot",
+                    //    filePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                    if (File.Exists(physicalPath))
+                    {
+                        attachments = new List<string>
+                {
+                    physicalPath
+                };
+                    }
+                }
+
+                foreach (var email in emails)
+                {
+                    try
+                    {
+                        await _emailService.SendEmailAsync(
+                            email,
+                            subject,
+                            body,
+                            null,
+                            attachments);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to send mail to {email}: {ex.Message}");
+                    }
+                }
+            }
 
             return MapPolicyToDto(entity);
         }
 
-        public async Task<CompanyPolicyMasterDto> UpdatePolicyAsync(int id, CompanyPolicyMasterDto dto)
+        // public async Task<CompanyPolicyMasterDto> UpdatePolicyAsync(int id, CompanyPolicyMasterDto dto)
+        // {
+        //     var entity = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetByIdAsync(id);
+
+        //     if (entity == null)
+        //         throw new Exception("Policy not found");
+
+        //     entity.CompanyId = dto.CompanyId;
+        //     entity.RegionId = dto.RegionId;
+        //     entity.PolicyTitle = dto.PolicyTitle;
+        //     entity.PolicyDescription = dto.PolicyDescription;
+        //     entity.PostedDate = dto.PostedDate;
+        //     entity.EffectiveDate = dto.EffectiveDate;
+        //     entity.AttachmentPath = dto.AttachmentPath;
+        //     entity.Category = dto.Category;
+        //     entity.AttachmentName = dto.AttachmentName;
+        //     entity.DepartmentId = null;
+        //     entity.ExpiryDate = dto.ExpiryDate;
+        //     entity.IsActive = dto.IsActive;
+        //     entity.UpdatedBy = dto.UpdatedBy;
+        //     entity.UpdatedAt = DateTime.UtcNow;
+
+        //     _unitOfWork.Repository<CompanyPoliciesMaster>().Update(entity);
+        //     await _unitOfWork.CompleteAsync();
+
+        //     var existingMappings =
+        //(await _unitOfWork.Repository<CompanyPolicyDepartment>().GetAllAsync())
+        //.Where(x => x.PolicyId == id)
+        //.ToList();
+
+        //     foreach (var item in existingMappings)
+        //     {
+        //         _unitOfWork.Repository<CompanyPolicyDepartment>().Remove(item);
+        //     }
+
+        //     await _unitOfWork.CompleteAsync();
+
+        //     // Add new mappings
+        //     if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
+        //     {
+        //         foreach (var deptId in dto.DepartmentIds)
+        //         {
+        //             await _unitOfWork.Repository<CompanyPolicyDepartment>()
+        //                 .AddAsync(new CompanyPolicyDepartment
+        //                 {
+        //                     PolicyId = id,
+        //                     DepartmentId = deptId,
+        //                     CreatedDate = DateTime.Now
+        //                 });
+        //         }
+
+        //         await _unitOfWork.CompleteAsync();
+        //     }
+
+
+        //     return MapPolicyToDto(entity);
+        // }
+
+        public async Task<CompanyPolicyMasterDto> UpdatePolicyAsync(
+     int id,
+     CompanyPolicyMasterDto dto)
         {
-            var entity = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetByIdAsync(id);
+            var entity = await _unitOfWork
+                .Repository<CompanyPoliciesMaster>()
+                .GetByIdAsync(id);
 
             if (entity == null)
                 throw new Exception("Policy not found");
+
+            //=========================================
+            // Update Basic Fields
+            //=========================================
 
             entity.CompanyId = dto.CompanyId;
             entity.RegionId = dto.RegionId;
@@ -567,51 +1221,249 @@ namespace BusinessLayer.Implementations
             entity.PolicyDescription = dto.PolicyDescription;
             entity.PostedDate = dto.PostedDate;
             entity.EffectiveDate = dto.EffectiveDate;
-            entity.AttachmentPath = dto.AttachmentPath;
-            entity.Category = dto.Category;
-            entity.AttachmentName = dto.AttachmentName;
-            entity.DepartmentId = null;
             entity.ExpiryDate = dto.ExpiryDate;
+            entity.Category = dto.Category;
             entity.IsActive = dto.IsActive;
             entity.UpdatedBy = dto.UpdatedBy;
             entity.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.Repository<CompanyPoliciesMaster>().Update(entity);
+            //=========================================
+            // Upload New File
+            //=========================================
+
+            if (dto.Attachment != null)
+            {
+                var uploadsFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "policy");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = Guid.NewGuid().ToString()
+                               + Path.GetExtension(dto.Attachment.FileName);
+
+                var fullPath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await dto.Attachment.CopyToAsync(stream);
+                }
+
+                // Delete old file
+                if (!string.IsNullOrEmpty(entity.AttachmentPath))
+                {
+                    var oldFile = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        entity.AttachmentPath.TrimStart('/'));
+
+                    if (File.Exists(oldFile))
+                    {
+                        File.Delete(oldFile);
+                    }
+                }
+
+                entity.AttachmentName = dto.Attachment.FileName;
+                entity.AttachmentPath = "/policy/" + fileName;
+            }
+
+            _unitOfWork
+                .Repository<CompanyPoliciesMaster>()
+                .Update(entity);
+
             await _unitOfWork.CompleteAsync();
 
+            //=========================================
+            // Delete Existing Department Mapping
+            //=========================================
+
             var existingMappings =
-       (await _unitOfWork.Repository<CompanyPolicyDepartment>().GetAllAsync())
-       .Where(x => x.PolicyId == id)
-       .ToList();
+                (await _unitOfWork
+                    .Repository<CompanyPolicyDepartment>()
+                    .GetAllAsync())
+                .Where(x => x.PolicyId == entity.PolicyId)
+                .ToList();
 
             foreach (var item in existingMappings)
             {
-                _unitOfWork.Repository<CompanyPolicyDepartment>().Remove(item);
+                _unitOfWork
+                    .Repository<CompanyPolicyDepartment>()
+                    .Remove(item);
             }
 
             await _unitOfWork.CompleteAsync();
 
-            // Add new mappings
+            //=========================================
+            // Add New Department Mapping
+            //=========================================
+
             if (dto.DepartmentIds != null && dto.DepartmentIds.Any())
             {
                 foreach (var deptId in dto.DepartmentIds)
                 {
-                    await _unitOfWork.Repository<CompanyPolicyDepartment>()
+                    await _unitOfWork
+                        .Repository<CompanyPolicyDepartment>()
                         .AddAsync(new CompanyPolicyDepartment
                         {
-                            PolicyId = id,
+                            PolicyId = entity.PolicyId,
                             DepartmentId = deptId,
-                            CreatedDate = DateTime.Now
+                            CreatedDate = DateTime.UtcNow
                         });
                 }
 
                 await _unitOfWork.CompleteAsync();
             }
 
+            //=========================================
+            // Get User Emails
+            //=========================================
+
+            List<string> emails = new();
+
+            if (dto.DepartmentIds == null || !dto.DepartmentIds.Any())
+            {
+                // All Employees
+
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+            else
+            {
+                // Selected Departments
+
+                emails = await _context.Users
+                    .Where(x =>
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        dto.DepartmentIds.Contains((int)x.DepartmentId) &&
+                        x.Status == "Active" &&
+                        !string.IsNullOrEmpty(x.Email))
+                    .Select(x => x.Email)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            //=========================================
+            // Send Email
+            //=========================================
+
+            if (emails.Any())
+            {
+                string subject = $"Updated Company Policy - {entity.PolicyTitle}";
+
+                string body = $@"
+<html>
+
+<body style='font-family:Calibri'>
+
+<h2 style='color:#0d6efd;'>Company Policy Updated</h2>
+
+<p>Dear Employee,</p>
+
+<p>An existing company policy has been updated.</p>
+
+<table border='1'
+       cellpadding='8'
+       cellspacing='0'
+       style='border-collapse:collapse;'>
+
+<tr>
+<td><b>Policy Title</b></td>
+<td>{entity.PolicyTitle}</td>
+</tr>
+
+<tr>
+<td><b>Category</b></td>
+<td>{entity.Category}</td>
+</tr>
+
+<tr>
+<td><b>Posted Date</b></td>
+<td>{entity.PostedDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Effective Date</b></td>
+<td>{entity.EffectiveDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Expiry Date</b></td>
+<td>{entity.ExpiryDate:dd-MMM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Description</b></td>
+<td>{entity.PolicyDescription}</td>
+</tr>
+
+</table>
+
+<br/>
+
+<p>Please find the updated policy document attached for your reference.</p>
+
+<br/>
+
+Regards,<br/>
+<b>HR Team</b>
+
+</body>
+
+</html>";
+
+                List<string>? attachments = null;
+
+                if (!string.IsNullOrWhiteSpace(entity.AttachmentPath))
+                {
+                    string physicalPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        entity.AttachmentPath.TrimStart('/')
+                            .Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                    if (File.Exists(physicalPath))
+                    {
+                        attachments = new List<string>
+                {
+                    physicalPath
+                };
+                    }
+                }
+
+                foreach (var email in emails)
+                {
+                    try
+                    {
+                        await _emailService.SendEmailAsync(
+                            email,
+                            subject,
+                            body,
+                            null,
+                            attachments);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to send mail to {email}: {ex.Message}");
+                    }
+                }
+            }
 
             return MapPolicyToDto(entity);
         }
-
+        
+        
         //public async Task<bool> DeletePolicyAsync(int id, int userId)
         //{
         //    var entity = await _unitOfWork.Repository<CompanyPoliciesMaster>()

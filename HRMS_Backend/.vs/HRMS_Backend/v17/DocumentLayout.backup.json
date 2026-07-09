@@ -1,248 +1,274 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\",
+  "WorkspaceRootPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\employeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\performancereview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\performancekpi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\hrmscontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\hrms_backend.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:hrms_backend.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\accounttypeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\accounttypedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\recruitmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\recruitmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\recruitmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\expensescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\expensescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\userservice .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\performancereviewdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\companyeventsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\interfaces\\icompanyeventsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\companyeventcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\companyeventcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\timesheetservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\businesslayer\\implementations\\userservice .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\timesheetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\UserService .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\hrmscontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\timesheetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\timesheetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\masterdatacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\masterdatacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\employeecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\employeecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\employeecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\attendancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\attendancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\biometricservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\interfaces\\ibiometricservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\candidateinterview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\leaveservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\leaverequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\companynewspolicyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\businesslayer\\implementations\\employeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\0e599f47268ea62b9af937dc43e1103c8accf8988ef11d1cec2bae5c647caaf7\\TaskAwaiter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\usermanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\usermanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\performanceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HR\\AppData\\Local\\SourceServer\\9fe49fbecc751a711827b968e05fb7088990cd9977e78ba7c1e218227f7bd190\\src\\Hangfire.Core\\JobStorage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\interfaces\\iperformanceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\performancekpi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\employeekpicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\employeekpicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\performancereview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\assetservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\businesslayer\\interfaces\\iemployeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\assetrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\businesslayer\\implementations\\attendanceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\assetdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\businesslayer\\interfaces\\iearlylogoutservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\interfaces\\ileaveservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\businesslayer\\implementations\\earlylogoutservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\leavetypeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\leavetypedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\clockinoutcreatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\eventtypeservice .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\expenseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\4dcf567db33b8407e8e7e85491df71d46c06985d33f5ad8d904e52c3b325c6c5\\ExecutionContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\workfromhomerequestservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AccountTypeDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\geolocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\PerformanceReviewDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\createexpensedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\ICompanyEventsService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\taskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\CompanyEventsService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\User.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\BiometricService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IBiometricService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\CandidateInterview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\RecruitmentService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\LeaveRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IPerformanceService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\CompanyNewsPolicyService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AssetService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AssetRequestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AssetDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\LeaveTypeService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\LeaveTypeDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\ClockInOutCreateDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EventTypeService .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ExpenseService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EmailService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\WorkFromHomeRequestService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\GeoLocationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\CreateExpenseDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\ILeaveService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IShiftAllocationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\JobApplicationDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\BirthdayDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IBirthdayService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\BirthayEmployee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\BirthdayService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\BirthdayEmployeeDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceKpi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceReview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\PerformanceService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ResumeParserHelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\LeaveService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\CandidateInterviewDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AttendanceService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\PayrollService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\EmployeeShiftDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ShiftAllocationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeLetter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeKpi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeForm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\AssetCategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\AssetType.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeAttendance.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\employeeService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ProjectMasterService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\HRMSContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\Timesheet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\TimesheetService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\companyeventcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\companyeventcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\employeekpicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\employeekpicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\expensescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\expensescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\taskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\taskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\interfaces\\ishiftallocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\shiftallocationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\jobapplicationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\payrollservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\interfaces\\ibirthdayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\birthdayservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\birthdaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\birthdaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\birthdaycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\birthdaydto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\birthayemployee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\birthdayemployeedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\resumeparserhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\candidateinterviewdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\assetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\assetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\assetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\employeeletter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\recruitmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\recruitmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\employeepayrollcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\employeepayrollcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\employeepayrollcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\attendanceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\attendancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\attendancecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\timesheet.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\dtos\\employeeshiftdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\employeekpi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\employeeform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\assetcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\assettype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{59D02645-05B5-4934-B2D9-9563DF03B383}|..\\DataAccessLayer\\DataAccessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\dataaccesslayer\\dbcontext\\employeeattendance.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9ED16FC8-004A-47B5-B556-65EE44DEE523}|..\\BusinessLayer\\BusinessLayer.csproj|c:\\hrms\\dev\\dev_hrms_api\\businesslayer\\implementations\\projectmasterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|c:\\hrms\\dev\\dev_hrms_api\\hrms_backend\\controllers\\subscriptionplancontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\subscriptionplancontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\subscriptionplancontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\masterdatacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\masterdatacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|d:\\hrms\\hrms_dev\\dev_hrms_api\\hrms_backend\\controllers\\usermanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8E251F59-A28C-42A9-B86A-064FB6948BC5}|HRMS_Backend.csproj|solutionrelative:controllers\\usermanagementcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -252,7 +278,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 67,
+          "SelectedChildIndex": 84,
           "Children": [
             {
               "$type": "Bookmark",
@@ -268,97 +294,203 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "AccountTypeService.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AccountTypeService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\AccountTypeService.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AccountTypeService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\AccountTypeService.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAtwCwAAAApAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "UserService .cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\UserService .cs",
+              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\UserService .cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\UserService .cs",
+              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\UserService .cs",
+              "ViewState": "AgIAALkCAAAAAAAAAAAiwMACAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-16T07:20:42.894Z"
+              "WhenOpened": "2026-07-01T09:01:08.311Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 10,
+              "Title": "JobStorage.cs",
+              "DocumentMoniker": "C:\\Users\\HR\\AppData\\Local\\SourceServer\\9fe49fbecc751a711827b968e05fb7088990cd9977e78ba7c1e218227f7bd190\\src\\Hangfire.Core\\JobStorage.cs",
+              "ToolTip": "C:\\Users\\HR\\AppData\\Local\\SourceServer\\9fe49fbecc751a711827b968e05fb7088990cd9977e78ba7c1e218227f7bd190\\src\\Hangfire.Core\\JobStorage.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAjwCkAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T09:00:12.581Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "PerformanceKpi.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
+              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAUwBoAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T07:00:50.777Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "PerformanceReview.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
+              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
+              "ViewState": "AgIAADEAAAAAAAAAAAAIwDYAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T07:00:31.926Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "HRMSContext.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\HRMSContext.cs",
+              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\HRMSContext.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\HRMSContext.cs",
+              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\HRMSContext.cs",
+              "ViewState": "AgIAAHoBAAAAAAAAAAAUwIEBAABbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T06:55:51.445Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IemployeeService.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IemployeeService.cs",
+              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\IemployeeService.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IemployeeService.cs",
+              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\IemployeeService.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAIAywCkAAABKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T06:49:26.175Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "employeeService.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\employeeService.cs",
+              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\employeeService.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\employeeService.cs",
+              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\employeeService.cs",
+              "ViewState": "AgIAAEgJAAAAAAAAAAAAAFIJAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T06:48:45.501Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "AttendanceService.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AttendanceService.cs",
+              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\AttendanceService.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AttendanceService.cs",
+              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\AttendanceService.cs",
+              "ViewState": "AgIAACkDAAAAAAAAAADwvy4DAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T06:35:26.565Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IEarlyLogoutService.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IEarlyLogoutService.cs",
+              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\IEarlyLogoutService.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IEarlyLogoutService.cs",
+              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\IEarlyLogoutService.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABAAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T06:33:23.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "EarlyLogoutService.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EarlyLogoutService.cs",
+              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\EarlyLogoutService.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EarlyLogoutService.cs",
+              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\EarlyLogoutService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIoBAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-01T06:32:11.203Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "DataAccessLayer.csproj",
+              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-06-19T05:45:21.739Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
               "Title": "AccountTypeDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AccountTypeDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\AccountTypeDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AccountTypeDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\AccountTypeDto.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAA5wBAAAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwBAAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-16T07:15:37.234Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 20,
               "Title": "PerformanceReviewDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\PerformanceReviewDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\PerformanceReviewDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\PerformanceReviewDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\PerformanceReviewDto.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAEBVwBwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-12T09:52:47.726Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 72,
               "Title": "CompanyEventController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\CompanyEventController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\CompanyEventController.cs",
               "RelativeDocumentMoniker": "Controllers\\CompanyEventController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\CompanyEventController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\CompanyEventController.cs",
               "RelativeToolTip": "Controllers\\CompanyEventController.cs",
-              "ViewState": "AgIAAFkAAAAAAAAAAAAzwGIAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAAwGIAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-12T09:51:03.947Z"
+              "WhenOpened": "2026-06-12T09:51:03.947Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 21,
               "Title": "ICompanyEventsService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\ICompanyEventsService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\ICompanyEventsService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\ICompanyEventsService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\ICompanyEventsService.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAA1wBIAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAQwBIAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-12T09:49:37.983Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 22,
               "Title": "CompanyEventsService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\CompanyEventsService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\CompanyEventsService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\CompanyEventsService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\CompanyEventsService.cs",
               "ViewState": "AgIAAKwAAAAAAAAAAAAQwLsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-12T09:48:47.583Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 9,
               "Title": "Task.cs",
               "DocumentMoniker": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs",
-              "ToolTip": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs [Read Only]",
-              "RelativeToolTip": "..\\..\\..\\..\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs [Read Only]",
-              "ViewState": "AgIAAP8FAAAAAAAAAAAwwAoGAAAPAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\d8933d8c84a635e1c37e9eb18c6bd032217008a8799fd62d3548cc8ad96b6005\\Task.cs",
+              "ViewState": "AgIAAAIGAAAAAAAAAADwvwoGAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-12T08:41:14.772Z",
-              "EditorCaption": " [Read Only]"
+              "WhenOpened": "2026-06-12T08:41:14.772Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\User.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\User.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\User.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\User.cs",
               "ViewState": "AgIAADwAAAAAAAAAAAASwEUAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-09T10:35:01.523Z"
@@ -368,10 +500,8 @@
               "DocumentIndex": 24,
               "Title": "BiometricService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\BiometricService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\BiometricService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\BiometricService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\BiometricService.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAAB8AAAA4AAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAIBJwB8AAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-05T11:30:38.027Z"
             },
@@ -380,9 +510,7 @@
               "DocumentIndex": 25,
               "Title": "IBiometricService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IBiometricService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\IBiometricService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IBiometricService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\IBiometricService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-05T11:30:02.476Z"
@@ -392,21 +520,17 @@
               "DocumentIndex": 26,
               "Title": "CandidateInterview.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\CandidateInterview.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\CandidateInterview.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\CandidateInterview.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\CandidateInterview.cs",
               "ViewState": "AgIAAAoAAAAAAAAAAAAgwBMAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-05T06:31:59.71Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 27,
               "Title": "RecruitmentService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\RecruitmentService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\RecruitmentService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\RecruitmentService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\RecruitmentService.cs",
               "ViewState": "AgIAABUBAAAAAAAAAAAlwBcBAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-05T06:23:08.622Z"
@@ -416,44 +540,38 @@
               "DocumentIndex": 28,
               "Title": "LeaveRequestDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\LeaveRequestDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\LeaveRequestDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\LeaveRequestDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\LeaveRequestDto.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAkwB0AAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-05T06:16:21.86Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 8,
               "Title": "TaskAwaiter.cs",
               "DocumentMoniker": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\0e599f47268ea62b9af937dc43e1103c8accf8988ef11d1cec2bae5c647caaf7\\TaskAwaiter.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\0e599f47268ea62b9af937dc43e1103c8accf8988ef11d1cec2bae5c647caaf7\\TaskAwaiter.cs",
               "ToolTip": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\0e599f47268ea62b9af937dc43e1103c8accf8988ef11d1cec2bae5c647caaf7\\TaskAwaiter.cs",
-              "RelativeToolTip": "..\\..\\..\\..\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\0e599f47268ea62b9af937dc43e1103c8accf8988ef11d1cec2bae5c647caaf7\\TaskAwaiter.cs",
-              "ViewState": "AgIAAKUAAAAAAAAAAAAwwLAAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAKcAAAAAAAAAAADwv7AAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-06-04T11:46:06.57Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 29,
               "Title": "IPerformanceService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IPerformanceService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\IPerformanceService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IPerformanceService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\IPerformanceService.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAxwBEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAUAAAAAAAAAAABRwBEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-25T04:57:50.301Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 73,
               "Title": "EmployeeKpiController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeKpiController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeKpiController.cs",
               "RelativeDocumentMoniker": "Controllers\\EmployeeKpiController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeKpiController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeKpiController.cs",
               "RelativeToolTip": "Controllers\\EmployeeKpiController.cs",
               "ViewState": "AgIAAM0AAAAAAAAAAAAgwM0AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -461,192 +579,152 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 30,
               "Title": "CompanyNewsPolicyService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\CompanyNewsPolicyService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\CompanyNewsPolicyService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\CompanyNewsPolicyService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\CompanyNewsPolicyService.cs",
               "ViewState": "AgIAAHgAAAAAAAAAAAAowIYAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-22T06:20:21.705Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 31,
               "Title": "AssetService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AssetService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\AssetService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AssetService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\AssetService.cs",
               "ViewState": "AgIAAEUBAAAAAAAAAAAmwFUBAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-22T06:12:55.044Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 32,
               "Title": "AssetRequestDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AssetRequestDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\AssetRequestDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AssetRequestDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\AssetRequestDto.cs",
               "ViewState": "AgIAAAUAAAAAAAAAAAAQwA0AAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-22T06:12:29.939Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 33,
               "Title": "AssetDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AssetDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\AssetDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\AssetDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\AssetDto.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAA0wBkAAAAzAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAIwBkAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-22T06:11:55Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 34,
               "Title": "LeaveTypeService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\LeaveTypeService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\LeaveTypeService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\LeaveTypeService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\LeaveTypeService.cs",
               "ViewState": "AgIAAEUBAAAAAAAAAAAQwEwBAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-20T05:48:59.852Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 35,
               "Title": "LeaveTypeDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\LeaveTypeDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\LeaveTypeDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\LeaveTypeDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\LeaveTypeDto.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAA5wBYAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwBYAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-20T05:48:26.025Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 3,
               "Title": "UserService .cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\UserService .cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\UserService .cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\UserService .cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\UserService .cs",
-              "ViewState": "AgIAAAMCAAAAAAAAAAAcwAwCAACJAAAAAAAAAA==",
+              "ViewState": "AgIAANsCAAAAAAAAAAAiwOYCAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-11T05:07:31.783Z"
+              "WhenOpened": "2026-05-11T05:07:31.783Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 36,
               "Title": "ClockInOutCreateDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\ClockInOutCreateDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\ClockInOutCreateDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\ClockInOutCreateDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\ClockInOutCreateDto.cs",
               "ViewState": "AgIAABIAAAAAAAAAAAAmwBoAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-11T05:05:20.76Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 37,
               "Title": "EventTypeService .cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EventTypeService .cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\EventTypeService .cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EventTypeService .cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\EventTypeService .cs",
               "ViewState": "AgIAAI8AAAAAAAAAAAAkwKAAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-09T07:35:03.903Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 38,
               "Title": "ExpenseService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ExpenseService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\ExpenseService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ExpenseService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\ExpenseService.cs",
               "ViewState": "AgIAAIoAAAAAAAAAAAArwJMAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-06T08:54:38.442Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 39,
               "Title": "EmailService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EmailService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\EmailService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\EmailService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\EmailService.cs",
               "ViewState": "AgIAAFUAAAAAAAAAAAAqwF8AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-06T08:56:11.757Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 40,
               "Title": "WorkFromHomeRequestService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\WorkFromHomeRequestService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\WorkFromHomeRequestService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\WorkFromHomeRequestService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\WorkFromHomeRequestService.cs",
               "ViewState": "AgIAAFUAAAAAAAAAAAAiwGcAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-04T05:52:10.157Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "HRMS_Backend.csproj",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
-              "RelativeDocumentMoniker": "HRMS_Backend.csproj",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
-              "RelativeToolTip": "HRMS_Backend.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-04-30T08:15:52.398Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 41,
               "Title": "GeoLocationService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\GeoLocationService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\GeoLocationService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\GeoLocationService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\GeoLocationService.cs",
               "ViewState": "AgIAAHgAAAAAAAAAAAAMwIMAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-30T06:53:16.749Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 42,
               "Title": "CreateExpenseDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\CreateExpenseDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\CreateExpenseDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\CreateExpenseDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\CreateExpenseDto.cs",
               "ViewState": "AgIAAAoAAAAAAAAAAAAcwA4AAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-30T06:00:30.437Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 74,
               "Title": "ExpensesController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\ExpensesController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\ExpensesController.cs",
               "RelativeDocumentMoniker": "Controllers\\ExpensesController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\ExpensesController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\ExpensesController.cs",
               "RelativeToolTip": "Controllers\\ExpensesController.cs",
               "ViewState": "AgIAACQAAAAAAAAAAAAmwC8AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -654,11 +732,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 75,
               "Title": "TaskController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TaskController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TaskController.cs",
               "RelativeDocumentMoniker": "Controllers\\TaskController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TaskController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TaskController.cs",
               "RelativeToolTip": "Controllers\\TaskController.cs",
               "ViewState": "AgIAABYAAAAAAAAAAIAwwAwAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -666,169 +744,143 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 43,
               "Title": "ILeaveService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\ILeaveService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\ILeaveService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\ILeaveService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\ILeaveService.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAAxwBwAAABMAAAAAAAAAA==",
+              "ViewState": "AgIAABMAAAAAAAAAAABRwBwAAABMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-27T09:39:32.352Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 44,
               "Title": "IShiftAllocationService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IShiftAllocationService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\IShiftAllocationService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IShiftAllocationService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\IShiftAllocationService.cs",
               "ViewState": "AgIAABUAAAAAAAAAAAAwwB4AAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-27T08:31:59.75Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 45,
               "Title": "JobApplicationDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\JobApplicationDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\JobApplicationDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\JobApplicationDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\JobApplicationDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAIBZwBQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-24T06:58:46.169Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 57,
+              "DocumentIndex": 46,
               "Title": "BirthdayDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\BirthdayDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\BirthdayDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\BirthdayDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\BirthdayDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T11:30:13.903Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 56,
+              "DocumentIndex": 76,
               "Title": "BirthdayController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\BirthdayController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\BirthdayController.cs",
               "RelativeDocumentMoniker": "Controllers\\BirthdayController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\BirthdayController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\BirthdayController.cs",
               "RelativeToolTip": "Controllers\\BirthdayController.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAIBZwBQAAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAMBkwBQAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T09:52:06.473Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 47,
               "Title": "IBirthdayService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IBirthdayService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Interfaces\\IBirthdayService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Interfaces\\IBirthdayService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Interfaces\\IBirthdayService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T09:51:10.119Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 58,
+              "DocumentIndex": 48,
               "Title": "BirthayEmployee.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\BirthayEmployee.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\BirthayEmployee.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\BirthayEmployee.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\BirthayEmployee.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T09:44:14.428Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 55,
+              "DocumentIndex": 49,
               "Title": "BirthdayService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\BirthdayService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\BirthdayService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\BirthdayService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\BirthdayService.cs",
               "ViewState": "AgIAAEIAAAAAAAAAAAAIwEwAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T09:37:43.195Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 59,
+              "DocumentIndex": 50,
               "Title": "BirthdayEmployeeDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\BirthdayEmployeeDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\BirthdayEmployeeDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\BirthdayEmployeeDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\BirthdayEmployeeDto.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAxwA0AAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAUAAAAAAAAAAABRwA0AAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-22T09:32:19.131Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 51,
               "Title": "PerformanceKpi.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\PerformanceKpi.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAmwBoAAABEAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAmwBoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T09:33:18.95Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-21T09:33:18.95Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 52,
               "Title": "PerformanceReview.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\PerformanceReview.cs",
               "ViewState": "AgIAADIAAAAAAAAAAADwvzcAAABBAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T09:33:02.346Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-21T09:33:02.346Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 53,
               "Title": "PerformanceService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\PerformanceService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\PerformanceService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\PerformanceService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\PerformanceService.cs",
-              "ViewState": "AgIAAPEBAAAAAAAAAAAowPMBAAA7AAAAAAAAAA==",
+              "ViewState": "AgIAAPEBAAAAAAAAAAAowPMBAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-21T09:32:23.658Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 60,
+              "DocumentIndex": 54,
               "Title": "ResumeParserHelper.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ResumeParserHelper.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\ResumeParserHelper.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ResumeParserHelper.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\ResumeParserHelper.cs",
               "ViewState": "AgIAAB8AAAAAAAAAAAAWwCQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-21T05:13:42.861Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 62,
+              "DocumentIndex": 77,
               "Title": "AssetController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AssetController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AssetController.cs",
               "RelativeDocumentMoniker": "Controllers\\AssetController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AssetController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AssetController.cs",
               "RelativeToolTip": "Controllers\\AssetController.cs",
               "ViewState": "AgIAAFQAAAAAAAAAAAAWwIoAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -836,11 +888,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 78,
               "Title": "RecruitmentController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\RecruitmentController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\RecruitmentController.cs",
               "RelativeDocumentMoniker": "Controllers\\RecruitmentController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\RecruitmentController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\RecruitmentController.cs",
               "RelativeToolTip": "Controllers\\RecruitmentController.cs",
               "ViewState": "AgIAAEQAAAAAAAAAAAAAwEkAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -848,71 +900,64 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 55,
               "Title": "LeaveService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\LeaveService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\LeaveService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\LeaveService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\LeaveService.cs",
               "ViewState": "AgIAAOIBAAAAAAAAAAAkwOkBAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-16T07:04:17.846Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 61,
+              "DocumentIndex": 56,
               "Title": "CandidateInterviewDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\CandidateInterviewDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\CandidateInterviewDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\CandidateInterviewDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\CandidateInterviewDto.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAxwAwAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAUAAAAAAAAAAABRwAwAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-16T07:01:10.452Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 65,
+              "DocumentIndex": 57,
               "Title": "AttendanceService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AttendanceService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\AttendanceService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\AttendanceService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\AttendanceService.cs",
               "ViewState": "AgIAAEABAAAAAAAAAAAIwE0BAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-14T09:55:47.323Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\appsettings.json",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\appsettings.json",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAWwBsAAABLAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAewBgAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-14T09:22:57.438Z"
+              "WhenOpened": "2026-04-14T09:22:57.438Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 58,
               "Title": "PayrollService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\PayrollService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\PayrollService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\PayrollService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\PayrollService.cs",
-              "ViewState": "AgIAABoEAAAAAAAAAAASwCEEAAAaAAAAAAAAAA==",
+              "ViewState": "AgIAABoEAAAAAAAAAAASwCEEAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-14T06:07:03.475Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 64,
+              "DocumentIndex": 79,
               "Title": "EmployeePayRollController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeePayRollController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeePayRollController.cs",
               "RelativeDocumentMoniker": "Controllers\\EmployeePayRollController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeePayRollController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeePayRollController.cs",
               "RelativeToolTip": "Controllers\\EmployeePayRollController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAJsAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -920,193 +965,166 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 5,
               "Title": "TimesheetController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TimesheetController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TimesheetController.cs",
               "RelativeDocumentMoniker": "Controllers\\TimesheetController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TimesheetController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\TimesheetController.cs",
               "RelativeToolTip": "Controllers\\TimesheetController.cs",
-              "ViewState": "AgIAAC8AAAAAAAAAAAAAwDcAAAAsAAAAAAAAAA==",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAuwEsAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T09:59:23.294Z"
+              "WhenOpened": "2026-04-13T09:59:23.294Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 67,
+              "DocumentIndex": 59,
               "Title": "EmployeeShiftDto.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\EmployeeShiftDto.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\DTOs\\EmployeeShiftDto.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\DTOs\\EmployeeShiftDto.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\DTOs\\EmployeeShiftDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T09:02:45.94Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 60,
               "Title": "ShiftAllocationService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ShiftAllocationService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\ShiftAllocationService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ShiftAllocationService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\ShiftAllocationService.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAABhwG8BAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAACBjwG8BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T08:50:50.713Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 80,
               "Title": "AttendanceController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AttendanceController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AttendanceController.cs",
               "RelativeDocumentMoniker": "Controllers\\AttendanceController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AttendanceController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\AttendanceController.cs",
               "RelativeToolTip": "Controllers\\AttendanceController.cs",
-              "ViewState": "AgIAAOQAAAAAAAAAAEBtwPAAAAApAAAAAAAAAA==",
+              "ViewState": "AgIAABMCAAAAAAAAAAAwwNgCAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T08:50:24.75Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 63,
+              "DocumentIndex": 61,
               "Title": "EmployeeLetter.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeLetter.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\EmployeeLetter.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeLetter.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\EmployeeLetter.cs",
-              "ViewState": "AgIAABsAAAAAAAAAAAAxwCMAAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAABgAAAAAAAAAAABRwCMAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T07:00:17.108Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 68,
+              "DocumentIndex": 62,
               "Title": "EmployeeKpi.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeKpi.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\EmployeeKpi.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeKpi.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\EmployeeKpi.cs",
               "ViewState": "AgIAACIAAAAAAAAAAAAUwDMAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T06:58:23.205Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 69,
+              "DocumentIndex": 63,
               "Title": "EmployeeForm.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeForm.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\EmployeeForm.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeForm.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\EmployeeForm.cs",
               "ViewState": "AgIAAB4AAAAAAAAAAAAkwCkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T06:53:15.458Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 70,
+              "DocumentIndex": 64,
               "Title": "AssetCategory.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\AssetCategory.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\AssetCategory.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\AssetCategory.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\AssetCategory.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAAmwA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T06:49:55.119Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 71,
+              "DocumentIndex": 65,
               "Title": "AssetType.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\AssetType.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\AssetType.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\AssetType.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\AssetType.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T06:43:34.617Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 72,
+              "DocumentIndex": 66,
               "Title": "EmployeeAttendance.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeAttendance.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\EmployeeAttendance.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\EmployeeAttendance.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\EmployeeAttendance.cs",
               "ViewState": "AgIAABoAAAAAAAAAAAAAwCoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T06:42:18.615Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 67,
               "Title": "employeeService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\employeeService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\employeeService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\employeeService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\employeeService.cs",
-              "ViewState": "AgIAAOMLAAAAAAAAAAAAwOULAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAACsLAAAAAAAAAAAAwCsLAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T06:40:50.41Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T06:40:50.41Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 73,
+              "DocumentIndex": 68,
               "Title": "ProjectMasterService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ProjectMasterService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\ProjectMasterService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\ProjectMasterService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\ProjectMasterService.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAnwCMAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T06:39:55.208Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 69,
               "Title": "HRMSContext.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\HRMSContext.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\HRMSContext.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\HRMSContext.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\HRMSContext.cs",
               "ViewState": "AgIAAF4BAAAAAAAAAAAgwGIBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T06:39:42.536Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T06:39:42.536Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 66,
+              "DocumentIndex": 70,
               "Title": "Timesheet.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\Timesheet.cs",
-              "RelativeDocumentMoniker": "..\\DataAccessLayer\\DBContext\\Timesheet.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DBContext\\Timesheet.cs",
-              "RelativeToolTip": "..\\DataAccessLayer\\DBContext\\Timesheet.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAD4vxEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-08T05:44:59.751Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 71,
               "Title": "TimesheetService.cs",
               "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\TimesheetService.cs",
-              "RelativeDocumentMoniker": "..\\BusinessLayer\\Implementations\\TimesheetService.cs",
               "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\BusinessLayer\\Implementations\\TimesheetService.cs",
-              "RelativeToolTip": "..\\BusinessLayer\\Implementations\\TimesheetService.cs",
-              "ViewState": "AgIAANoAAAAAAAAAAAAgwPMAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAANoAAAAAAAAAAAAgwPMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-08T05:44:49.949Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 74,
+              "DocumentIndex": 81,
               "Title": "SubscriptionPlanController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\SubscriptionPlanController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\SubscriptionPlanController.cs",
               "RelativeDocumentMoniker": "Controllers\\SubscriptionPlanController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\SubscriptionPlanController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\SubscriptionPlanController.cs",
               "RelativeToolTip": "Controllers\\SubscriptionPlanController.cs",
               "ViewState": "AgIAADwAAAAAAAAAAAAIwEsAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -1114,62 +1132,64 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 18,
               "Title": "ExecutionContext.cs",
               "DocumentMoniker": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\4dcf567db33b8407e8e7e85491df71d46c06985d33f5ad8d904e52c3b325c6c5\\ExecutionContext.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\4dcf567db33b8407e8e7e85491df71d46c06985d33f5ad8d904e52c3b325c6c5\\ExecutionContext.cs",
               "ToolTip": "C:\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\4dcf567db33b8407e8e7e85491df71d46c06985d33f5ad8d904e52c3b325c6c5\\ExecutionContext.cs",
-              "RelativeToolTip": "..\\..\\..\\..\\Users\\HR\\AppData\\Local\\Temp\\.vsdbgsrc\\4dcf567db33b8407e8e7e85491df71d46c06985d33f5ad8d904e52c3b325c6c5\\ExecutionContext.cs",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-06T14:06:36.548Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 82,
               "Title": "MasterDataController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\MasterDataController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\MasterDataController.cs",
               "RelativeDocumentMoniker": "Controllers\\MasterDataController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\MasterDataController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\MasterDataController.cs",
               "RelativeToolTip": "Controllers\\MasterDataController.cs",
-              "ViewState": "AgIAAH0MAAAAAAAAAAAAwIUMAAARAAAAAAAAAA==",
+              "ViewState": "AgIAADcMAAAAAAAAAAAAwDcMAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-06T13:56:31.272Z"
+              "WhenOpened": "2026-04-06T13:56:31.272Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 0,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Program.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Program.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAcwBgAAACxAAAAAAAAAA==",
+              "ViewState": "AgIAABMAAAAAAAAAAAAiwBoAAADMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-06T10:11:24.584Z"
+              "WhenOpened": "2026-04-06T10:11:24.584Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 6,
               "Title": "EmployeeController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeController.cs",
               "RelativeDocumentMoniker": "Controllers\\EmployeeController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\EmployeeController.cs",
               "RelativeToolTip": "Controllers\\EmployeeController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFYIAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAACYJAAAAAAAAAADwvzEJAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-06T09:33:06.484Z"
+              "WhenOpened": "2026-04-06T09:33:06.484Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 83,
               "Title": "UserManagementController.cs",
-              "DocumentMoniker": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\UserManagementController.cs",
+              "DocumentMoniker": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\UserManagementController.cs",
               "RelativeDocumentMoniker": "Controllers\\UserManagementController.cs",
-              "ToolTip": "C:\\HRMS\\DEV\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\UserManagementController.cs",
+              "ToolTip": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\Controllers\\UserManagementController.cs",
               "RelativeToolTip": "Controllers\\UserManagementController.cs",
-              "ViewState": "AgIAAFwBAAAAAAAAAAAQwFwBAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAADwAAAAAAAAAAAAQwDwAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-06T09:11:08.587Z"
+              "WhenOpened": "2026-04-06T09:11:08.587Z",
+              "EditorCaption": ""
             }
           ]
         }

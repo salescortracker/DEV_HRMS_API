@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JeKfPpb6NSQ=",
+  "dgSpecHash": "yf1bmnpxBGg=",
   "success": true,
-  "projectFilePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+  "projectFilePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\HR\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
@@ -163,12 +163,21 @@
   ],
   "logs": [
     {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "targetGraphs": []
+    },
+    {
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'NPOI 2.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
       "libraryId": "NPOI",
       "targetGraphs": [
         "net8.0"
@@ -178,9 +187,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'NPOI.HWPF 2.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
       "libraryId": "NPOI.HWPF",
       "targetGraphs": [
         "net8.0"
@@ -190,9 +199,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'SharpZipLib 0.86.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
-      "projectPath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\HRMS\\DEV\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
+      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\DataAccessLayer\\DataAccessLayer.csproj",
       "libraryId": "SharpZipLib",
       "targetGraphs": [
         "net8.0"

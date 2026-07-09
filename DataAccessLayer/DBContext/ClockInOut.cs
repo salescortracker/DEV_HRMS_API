@@ -39,7 +39,7 @@ public partial class ClockInOut
 
     public TimeOnly ActionTime { get; set; }
 
-    public bool ShiftEndReminderSent { get; set; }
+    public int? ShiftEndReminderSent { get; set; }
 
     public bool LessThan8HrMailSent { get; set; }
 

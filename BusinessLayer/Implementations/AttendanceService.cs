@@ -739,8 +739,8 @@ namespace BusinessLayer.Implementations
             var pendingEmployees = await _hrmsContext.ClockInOuts
                 .Where(x =>
                     x.ClockInTime != null &&
-                    x.ClockOutTime == null &&
-                    x.ShiftEndReminderSent < 2)
+                    x.ClockOutTime == null)// &&
+                    //x.ShiftEndReminderSent < 2)
                 .GroupBy(x => x.CreatedBy)
                 .Select(g => g
                     .OrderByDescending(x => x.ClockInTime)
