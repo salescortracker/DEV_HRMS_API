@@ -86,6 +86,17 @@ namespace HRMS_Backend.Controllers
             return success ? Ok() : BadRequest();
         }
 
+        [HttpPut("RejectCandidate/{candidateId}")]
+        public async Task<IActionResult> RejectCandidate(int candidateId)
+        {
+            var result = await _service.RejectCandidateAsync(candidateId);
+
+            if (!result)
+                return NotFound(new { Message = "Candidate not found" });
+
+            return Ok(new { Message = "Candidate rejected successfully" });
+        }
+
         [HttpGet("GetCandidateById/{candidateId}")]
         public async Task<IActionResult> GetCandidateById(int candidateId)
         {
@@ -407,6 +418,8 @@ namespace HRMS_Backend.Controllers
 
             return Ok("Updated successfully");
         }
+
+
 
     }
 }
