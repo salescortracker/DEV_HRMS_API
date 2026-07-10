@@ -129,6 +129,5 @@ namespace BusinessLayer.Interfaces
         Task<List<UserDesignationDto>> GetUsersWithDesignation(int companyId, int regionId);
         Task<List<UserCreateDto>> GetUsersByCompanyRegion(int companyId, int regionId);
         Task<List<UserCreateDto>> GetManagerEmployees(int loginUserId);
-        Task<List<NotificationDto>> GetTodayNotifications(int companyId, int regionId);
     }
 }

@@ -3120,12 +3120,6 @@ public class UpdateResignationStatusRequest
         //    var logs = await _service.GetAttendanceLogs();
         //    return Ok(logs);
         //}
-        [HttpGet("GetTodayNotifications")]
-        public async Task<IActionResult> GetTodayNotifications(int companyId, int regionId)
-        {
-            var result = await _employeeService.GetTodayNotifications(companyId, regionId);
-            return Ok(result);
-        }
 
     }
 

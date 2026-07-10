@@ -19,14 +19,15 @@ namespace BusinessLayer.Implementations
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly HRMSContext _context;
+        private readonly INotificationService _notificationService;
         public LeaveService(IUnitOfWork unitOfWork, IEmailService emailService,
-                            IConfiguration configuration, HRMSContext context)
+                            IConfiguration configuration, HRMSContext context, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _context = context;
             _configuration = configuration;
-
+            _notificationService = notificationService;
         }
         public class LeaveReportRequest
         {
@@ -509,6 +510,29 @@ namespace BusinessLayer.Implementations
             await _unitOfWork.Repository<LeaveRequest>().AddAsync(entity);
 
             await _unitOfWork.CompleteAsync();
+            var notifyUsers = new List<int>();
+
+            // Manager
+            if (dto.ReportingManagerId.HasValue)
+            {
+                notifyUsers.Add(dto.ReportingManagerId.Value);
+            }
+
+            // Reporting HR ni DB nundi fetch cheyyi
+            var employee = await _context.EmployeePersonalDetails
+                .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
+
+            if (user.ReportingHr != null)
+            {
+                notifyUsers.Add(user.ReportingHr.Value);
+            }
+
+            await _notificationService.CreateNotificationAsync(
+                notifyUsers,
+                "Leave Request",
+                $"{user.FullName} applied leave",
+                "Leave",
+                entity.LeaveRequestId);
 
             return entity.LeaveRequestId;
         }

@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs
 {
-    public class NotificationDto
+    public class NotificationCreateDto
     {
-        public int NotificationId { get; set; }
-
-        public int UserId { get; set; }
+        public List<int> UserIds { get; set; }
 
         public string Title { get; set; }
 
@@ -19,9 +17,5 @@ namespace BusinessLayer.DTOs
         public string Type { get; set; }
 
         public int? ReferenceId { get; set; }
-
-        public bool IsRead { get; set; }
-
-        public DateTime CreatedDate { get; set; }
     }
 }

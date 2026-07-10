@@ -188,21 +188,21 @@ namespace BusinessLayer.Implementations
         }
 
         public async Task<List<UserSubscriptionDto>> GetALLSubcriptionUsers()
+{
+    var subscriptions = await _context.UserSubscriptions
+        .Select(x => new UserSubscriptionDto
         {
-            var subscriptions = await _context.UserSubscriptions
-                .Select(x => new UserSubscriptionDto
-                {
-                    SubscriptionId = x.SubscriptionId,
-                    UserId = x.UserId,
-                    PlanId = x.PlanId,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
-                    Status = x.Status
-                })
-                .ToListAsync();
+            SubscriptionId = x.SubscriptionId,
+            UserId = x.UserId,
+            PlanId = x.PlanId,
+            StartDate = x.StartDate,
+            EndDate = x.EndDate,
+            Status = x.Status
+        })
+        .ToListAsync();
 
-            return subscriptions;
-        }
+    return subscriptions;
+}
         public async Task<LoginResponseDto?> VerifyLoginAsync(string username, string password)
         {
             try

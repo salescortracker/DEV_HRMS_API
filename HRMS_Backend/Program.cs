@@ -132,6 +132,7 @@ builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IEarlyLogoutService, EarlyLogoutService>();
 builder.Services.AddScoped<ISubscriptionJobService, SubscriptionJobService>();
 builder.Services.AddScoped<IAdminMenuMasterService, AdminMenuMasterService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
