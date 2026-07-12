@@ -839,5 +839,128 @@ namespace HRMS_Backend.Controllers
             });
         }
         #endregion
+
+        #region
+
+        [HttpPost("CreateLateArrivalRequest")]
+        public async Task<IActionResult> CreateLateArrivalRequest(
+           [FromBody] CreateLateArrivalRequestDto dto)
+        {
+            try
+            {
+                var id = await _earlyLogoutService.CreateLateArrivalRequest(dto);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Late Arrival Request Created Successfully.",
+                    requestId = id
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        //==========================================================
+        // Employee Request List
+        //==========================================================
+        [HttpGet("GetLateArrivalRequest")]
+        public async Task<IActionResult> GetLateArrivalRequest(
+            int companyId,
+            int? regionId,
+            int userId)
+        {
+            var result = await _earlyLogoutService.GetLateArrivalRequest(
+                companyId,
+                regionId,
+                userId);
+
+            return Ok(result);
+        }
+
+        //==========================================================
+        // Manager Approval List
+        //==========================================================
+        [HttpGet("GetApprovalLateArrivalRequest")]
+        public async Task<IActionResult> GetApprovalLateArrivalRequest(
+            int companyId,
+            int? regionId,
+            int userId)
+        {
+            var result = await _earlyLogoutService.GetApprovalLateArrivalRequest(
+                companyId,
+                regionId,
+                userId);
+
+            return Ok(result);
+        }
+
+        //==========================================================
+        // Update Request
+        //==========================================================
+        [HttpPost("UpdateLateArrival")]
+        public async Task<IActionResult> UpdateLateArrival(
+            [FromBody] UpdateLateArrivalDto dto)
+        {
+            try
+            {
+                var result = await _earlyLogoutService.UpdateLateArrival(dto);
+
+                if (!result)
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Request not found."
+                    });
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Late Arrival Request Updated Successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        //==========================================================
+        // Approve / Reject
+        //==========================================================
+        [HttpPost("BulkApproveRejectLateArrival")]
+        public async Task<IActionResult> BulkApproveRejectLateArrival(
+            [FromBody] BulkApproveRejectLateArrivalDto dto)
+        {
+            try
+            {
+                var count = await _earlyLogoutService.BulkApproveRejectLateArrival(dto);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"{count} request(s) updated successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+        #endregion
     }
 }

@@ -403,5 +403,427 @@ namespace BusinessLayer.Implementations
             }
         }
 
+
+
+        #region
+
+
+        public async Task<int> CreateLateArrivalRequest(CreateLateArrivalRequestDto dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            var duplicate = await _context.LateLogins
+                .FirstOrDefaultAsync(x =>
+                    x.UserId == dto.UserId &&
+                    x.CompanyId == dto.CompanyID &&
+                    x.RequestDate == dto.RequestDate);
+
+            if (duplicate != null)
+                throw new Exception("Late Arrival Request already exists for this date.");
+
+            var entity = new LateLogin
+            {
+                EmployeeId = dto.UserId,
+                UserId = dto.UserId,
+                ManagerId = user.ReportingTo ?? 0,
+                LateLogin1 = dto.RequestedLateLoginTime.ToString(),
+                CompanyId = dto.CompanyID,
+                RegionId = dto.RegionID,
+
+                RequestDate = dto.RequestDate,
+                RequestedLateLoginTime = dto.RequestedLateLoginTime,
+
+                Reason = dto.Reason,
+                HrEmail = dto.HrEmail,
+
+                Status = "Pending",
+
+                IsActive = true,
+                IsDeleted = false,
+
+                CreatedBy = dto.UserId,
+                CreatedAt = DateTime.UtcNow
+            }; 
+
+            _context.LateLogins.Add(entity);
+
+            //await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                throw new Exception(ex.InnerException?.Message ?? ex.Message);
+            }
+
+            try
+            {
+                var saved = await _context.LateLogins
+                    .FirstOrDefaultAsync(x => x.LateLoginId == entity.LateLoginId);
+
+                var employee = await _context.Users
+                    .Where(x => x.UserId == dto.UserId)
+                    .Select(x => new
+                    {
+                        x.FullName,
+                        x.Email,
+                        x.ReportingHr
+                    })
+                    .FirstOrDefaultAsync();
+
+                string? reportingHrEmail = null;
+
+                if (employee?.ReportingHr != null)
+                {
+                    var hr = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = hr?.Email;
+                }
+
+                var manager = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == entity.ManagerId);
+
+                if (manager != null && !string.IsNullOrWhiteSpace(manager.Email))
+                {
+                    var body = $@"
+<div style='font-family:Arial'>
+
+<h3>Late Arrival Request Notification</h3>
+
+<p>Dear {manager.FullName},</p>
+
+<p>A new Late Arrival Request has been submitted.</p>
+
+<table border='1' cellpadding='6' cellspacing='0'>
+
+<tr>
+<td><b>Employee</b></td>
+<td>{employee?.FullName}</td>
+</tr>
+
+<tr>
+<td><b>Date</b></td>
+<td>{entity.RequestDate:dd-MM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Requested Login Time</b></td>
+<td>{entity.RequestedLateLoginTime}</td>
+</tr>
+
+<tr>
+<td><b>Reason</b></td>
+<td>{entity.Reason}</td>
+</tr>
+
+</table>
+
+<br/>
+
+Regards,<br/>
+<b>HRMS Team</b>
+
+</div>";
+
+                    var ccList = new List<string>();
+
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                        ccList.Add(reportingHrEmail);
+
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList.AddRange(
+                            dto.HrEmail
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim()));
+                    }
+
+                    ccList = ccList.Distinct().ToList();
+
+                    await _emailService.SendEmailAsync(
+                        manager.Email,
+                        "New Late Arrival Request",
+                        body,
+                        ccList.Any() ? ccList : null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return entity.LateLoginId;
+        }
+
+        public async Task<IEnumerable<LateLogin>> GetLateArrivalRequest(
+    int companyId,
+    int? regionId,
+    int userId)
+        {
+            return await _context.LateLogins
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.UserId == userId &&
+                    (regionId == null || x.RegionId == regionId))
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<LateArrivalApprovalListDto>>
+        GetApprovalLateArrivalRequest(
+            int companyId,
+            int? regionId,
+            int userId)
+        {
+            var result = await (
+                from lr in _context.LateLogins
+                join u in _context.Users
+                    on lr.UserId equals u.UserId
+
+                where lr.CompanyId == companyId
+                      && (regionId == null || lr.RegionId == regionId)
+
+                select new
+                {
+                    lr,
+                    u
+                }
+            ).ToListAsync();
+
+            Console.WriteLine($"Total Records : {result.Count}");
+
+            foreach (var item in result)
+            {
+                Console.WriteLine(
+                    $"User:{item.lr.UserId}  Manager:{item.lr.ManagerId}  ReportingHR:{item.u.ReportingHr}");
+            }
+
+            return result
+                .Where(x => x.lr.ManagerId == userId || x.u.ReportingHr == userId)
+                .Select(x => new LateArrivalApprovalListDto
+                {
+                    LateArrivalRequestId = x.lr.LateLoginId,
+                    UserId = x.lr.UserId,
+                    EmployeeName = x.u.FullName,
+                    RequestDate = x.lr.RequestDate,
+                    RequestedLateLoginTime = x.lr.RequestedLateLoginTime,
+                    Reason = x.lr.Reason,
+                    HrEmail = x.lr.HrEmail,
+                    Status = x.lr.Status,
+                    ManagerRemarks = x.lr.ManagerRemarks
+                })
+                .ToList();
+        }
+
+        public async Task<bool> UpdateLateArrival(UpdateLateArrivalDto dto)
+        {
+            var entity = await _context.LateLogins
+                .FirstOrDefaultAsync(x =>
+                    x.LateLoginId == dto.LateArrivalRequestID &&
+                    x.CompanyId == dto.CompanyID &&
+                    (dto.RegionID == null || x.RegionId == dto.RegionID) &&
+                    x.Status == "Pending");
+
+            if (entity == null)
+                return false;
+
+            var duplicate = await _context.LateLogins.AnyAsync(x =>
+                x.UserId == entity.UserId &&
+                x.RequestDate == dto.RequestDate &&
+                x.LateLoginId != dto.LateArrivalRequestID);
+
+            if (duplicate)
+                throw new Exception("Late Arrival Request already exists for this date.");
+
+            entity.RequestDate = dto.RequestDate;
+            entity.RequestedLateLoginTime = dto.RequestedLateLoginTime;
+            entity.Reason = dto.Reason;
+            entity.HrEmail = dto.HrEmail;
+            entity.ModifiedAt = DateTime.UtcNow;
+            entity.ModifiedBy = entity.UserId;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<int> BulkApproveRejectLateArrival(BulkApproveRejectLateArrivalDto dto)
+        {
+            var records = await _context.LateLogins
+                .Where(x =>
+                    dto.LateArrivalRequestIds.Contains(x.LateLoginId) &&
+                    x.Status == "Pending")
+                .ToListAsync();
+
+            if (!records.Any())
+                return 0;
+
+            foreach (var item in records)
+            {
+                item.Status = dto.Status;
+                item.ManagerRemarks = dto.ManagerRemarks;
+                item.ManagerId = dto.ManagerID;
+                item.ModifiedAt = DateTime.UtcNow;
+                item.ModifiedBy = dto.ManagerID;
+
+                if (dto.Status == "Approved")
+                {
+                    await UpdateLateLoginIfApproved(item);
+                }
+
+                try
+                {
+                    var employee = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == item.UserId);
+
+                    if (employee != null && !string.IsNullOrWhiteSpace(employee.Email))
+                    {
+                        string? reportingHrEmail = null;
+
+                        if (employee.ReportingHr != null)
+                        {
+                            var hr = await _context.Users
+                                .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                            reportingHrEmail = hr?.Email;
+                        }
+
+                        var ccList = new List<string>();
+
+                        if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                            ccList.Add(reportingHrEmail);
+
+                        if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                        {
+                            ccList.AddRange(
+                                item.HrEmail
+                                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(x => x.Trim()));
+                        }
+
+                        ccList = ccList.Distinct().ToList();
+
+                        var body = $@"
+<div style='font-family:Arial'>
+<h3>Late Arrival Request Update</h3>
+
+<p>Dear {employee.FullName},</p>
+
+<p>Your Late Arrival request has been
+<b>{dto.Status}</b>.</p>
+
+<table border='1' cellpadding='6' cellspacing='0'>
+<tr>
+<td><b>Date</b></td>
+<td>{item.RequestDate:dd-MM-yyyy}</td>
+</tr>
+
+<tr>
+<td><b>Requested Login Time</b></td>
+<td>{item.RequestedLateLoginTime}</td>
+</tr>
+
+<tr>
+<td><b>Reason</b></td>
+<td>{item.Reason}</td>
+</tr>
+
+<tr>
+<td><b>Manager Remarks</b></td>
+<td>{dto.ManagerRemarks}</td>
+</tr>
+
+<tr>
+<td><b>Status</b></td>
+<td>{dto.Status}</td>
+</tr>
+
+</table>
+
+<br/>
+
+Regards,<br/>
+<b>HRMS Team</b>
+
+</div>";
+
+                        await _emailService.SendEmailAsync(
+                            employee.Email,
+                            $"Late Arrival Request {dto.Status}",
+                            body,
+                            ccList.Any() ? ccList : null);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return records.Count;
+        }
+
+        private async Task UpdateLateLoginIfApproved(LateLogin entity)
+        {
+            var user = await _context.Users
+                .Where(x =>
+                    x.UserId == entity.UserId &&
+                    x.CompanyId == entity.CompanyId &&
+                    x.RegionId == entity.RegionId)
+                .Select(x => new
+                {
+                    x.EmployeeCode,
+                    x.FullName
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                return;
+
+            var existingClockIn = await _context.ClockInOuts
+                .Where(x =>
+                    x.EmployeeCode == user.EmployeeCode &&
+                    x.CompanyId == entity.CompanyId &&
+                    x.RegionId == entity.RegionId &&
+                    x.AttendanceDate == entity.RequestDate &&
+                    x.ActionType == "ClockIn")
+                .FirstOrDefaultAsync();
+
+            if (existingClockIn != null)
+            {
+                existingClockIn.ActionTime = entity.RequestedLateLoginTime;
+                existingClockIn.ClockInTime = entity.RequestedLateLoginTime;
+                existingClockIn.ModifiedAt = DateTime.UtcNow;
+                existingClockIn.ModifiedBy = entity.ModifiedBy;
+            }
+            else
+            {
+                _context.ClockInOuts.Add(new ClockInOut
+                {
+                    EmployeeCode = user.EmployeeCode,
+                    EmployeeName = user.FullName,
+                    CompanyId = entity.CompanyId,
+                    RegionId = entity.RegionId,
+                    AttendanceDate = entity.RequestDate,
+                    ActionType = "ClockIn",
+                    ActionTime = entity.RequestedLateLoginTime,
+                    ClockInTime = entity.RequestedLateLoginTime,
+                    Status = "Approved Late Login",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = entity.ModifiedBy
+                });
+            }
+        }
+
+
+        #endregion
+
     }
 }
