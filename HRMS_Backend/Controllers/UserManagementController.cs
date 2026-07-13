@@ -1272,6 +1272,31 @@ namespace HRMS_Backend.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
+                var existingDemoUser = await _hRMSContext.Users
+                    .FirstOrDefaultAsync(x =>
+                        x.RoleId == 1 &&
+                        (x.Type == "Demo" || x.Type == "Demo Plan") &&
+                        (
+                            x.Email.ToLower() == dto.Email.Trim().ToLower()
+                            ||
+                            x.PhoneNumber == dto.Phone.Trim()
+                        ));
+
+                if (existingDemoUser != null)
+                {
+                    if (existingDemoUser.Email.Trim().ToLower() == dto.Email.Trim().ToLower())
+                    {
+                        return BadRequest(new
+                        {
+                            message = "Demo admin account already exists with this email."
+                        });
+                    }
+
+                    return BadRequest(new
+                    {
+                        message = "Demo admin account already exists with this phone number."
+                    });
+                }
 
                 var entity = new DataAccessLayer.DBContext.User
                 {

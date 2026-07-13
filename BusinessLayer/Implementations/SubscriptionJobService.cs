@@ -40,53 +40,53 @@ namespace BusinessLayer.Implementations
             return $"INV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 6).ToUpper()}";
         }
 
-        //public async Task<Invoice> CreateInvoiceAsync(int userId, int planId, string paymentId, string orderId)
-        //{
-        //    var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
-        //    var plan = await _context.SubscriptionPlans.FirstOrDefaultAsync(x => x.PlanId == planId);
+        public async Task<Invoice> CreateInvoiceAsync(int userId, int planId, string paymentId, string orderId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
+            var plan = await _context.SubscriptionPlans.FirstOrDefaultAsync(x => x.PlanId == planId);
 
-        //    if (user == null || plan == null)
-        //        throw new Exception("Invalid user or plan");
+            if (user == null || plan == null)
+                throw new Exception("Invalid user or plan");
 
-        //    decimal amount = plan.Price;
-        //    decimal tax = 18;
-        //    decimal taxAmount = (amount * tax) / 100;
-        //    decimal total = amount + taxAmount;
+            decimal amount = plan.Price;
+            decimal tax = 18;
+            decimal taxAmount = (amount * tax) / 100;
+            decimal total = amount + taxAmount;
 
-        //    var invoice = new Invoice
-        //    {
-        //        InvoiceNumber = GenerateInvoiceNumber(),
-        //        UserId = userId,
-        //        CompanyId = user.CompanyId,
-        //        RegionId = user.RegionId,
-        //        PlanId = planId,
+            var invoice = new Invoice
+            {
+                InvoiceNumber = GenerateInvoiceNumber(),
+                UserId = userId,
+                CompanyId = user.CompanyId,
+                RegionId = user.RegionId,
+                PlanId = planId,
 
-        //        Amount = amount,
-        //        TaxPercentage = tax,
-        //        TaxAmount = taxAmount,
-        //        TotalAmount = total,
+                Amount = amount,
+                TaxPercentage = tax,
+                TaxAmount = taxAmount,
+                TotalAmount = total,
 
-        //        Currency = "INR",
-        //        PaymentId = paymentId,
-        //        OrderId = orderId,
+                Currency = "INR",
+                PaymentId = paymentId,
+                OrderId = orderId,
 
-        //        BillingDate = DateTime.UtcNow,
-        //        StartDate = DateTime.UtcNow,
-        //        EndDate = plan.Price == 0 ? DateTime.UtcNow.AddDays(14) : DateTime.UtcNow.AddMonths(1),
+                BillingDate = DateTime.UtcNow,
+                StartDate = DateTime.UtcNow,
+                EndDate = plan.Price == 0 ? DateTime.UtcNow.AddDays(14) : DateTime.UtcNow.AddMonths(1),
 
-        //        Status = "PAID",
-        //        PaymentMethod = "Razorpay",
+                Status = "PAID",
+                PaymentMethod = "Razorpay",
 
-        //        CreatedAt = DateTime.UtcNow,
-        //        IsActive = true
-        //    };
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
 
-        //    _context.Invoices.Add(invoice);
-        //    await _context.SaveChangesAsync();
+            _context.Invoices.Add(invoice);
+            await _context.SaveChangesAsync();
 
-        //    return invoice;
-        //}
+            return invoice;
+        }
 
-        
+
     }
 }
