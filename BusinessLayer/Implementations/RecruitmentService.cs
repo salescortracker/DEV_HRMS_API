@@ -310,6 +310,26 @@ namespace BusinessLayer.Implementations
             return true;
         }
 
+        public async Task<bool> RejectCandidateAsync(int candidateId)
+        {
+            var candidate = await _unitOfWork.Repository<Candidate>()
+                .GetByIdAsync(candidateId);
+
+            if (candidate == null)
+                return false;
+
+            // Update stage to Rejected
+            candidate.StageId = 12;
+
+            // Optional
+            candidate.ModifiedAt = DateTime.Now;
+
+            _unitOfWork.Repository<Candidate>().Update(candidate);
+
+            await _unitOfWork.CompleteAsync();
+
+            return true;
+        }
 
         public async Task<CandidateDto?> GetCandidateByIdAsync(int candidateId)
         {

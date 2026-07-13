@@ -22,6 +22,7 @@ namespace BusinessLayer.Interfaces
         Task<bool> MoveStageAsync(int candidateId, int stageId);
 
         Task<bool> DeleteCandidateAsync(int candidateId);
+        Task<bool> RejectCandidateAsync(int candidateId);
 
 
         Task<CandidateDto?> GetCandidateByIdAsync(int candidateId);

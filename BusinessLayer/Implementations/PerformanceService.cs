@@ -330,35 +330,35 @@ namespace BusinessLayer.Implementations
                 }
 
                 // 🔹 EMAIL TO EMPLOYEE
-                if (employee != null && !string.IsNullOrEmpty(employee.Email))
-                {
-                    var body = $@"
-        <div style='font-family:Arial'>
-            <h3>KPI Submitted Successfully</h3>
+        //        if (employee != null && !string.IsNullOrEmpty(employee.Email))
+        //        {
+        //            var body = $@"
+        //<div style='font-family:Arial'>
+        //    <h3>KPI Submitted Successfully</h3>
 
-            <p>Dear {employee.FullName},</p>
+        //    <p>Dear {employee.FullName},</p>
 
-            <p>Your KPI has been submitted successfully.</p>
+        //    <p>Your KPI has been submitted successfully.</p>
 
-            <table border='1' cellpadding='6' cellspacing='0'>
-                <tr><td><b>Project</b></td><td>{dto.DepartmentProject}</td></tr>
-                <tr><td><b>Cycle</b></td><td>{dto.PerformanceCycle}</td></tr>
-                <tr><td><b>Appraisal Year</b></td><td>{dto.AppraisalYear}</td></tr>
-            </table>
+        //    <table border='1' cellpadding='6' cellspacing='0'>
+        //        <tr><td><b>Project</b></td><td>{dto.DepartmentProject}</td></tr>
+        //        <tr><td><b>Cycle</b></td><td>{dto.PerformanceCycle}</td></tr>
+        //        <tr><td><b>Appraisal Year</b></td><td>{dto.AppraisalYear}</td></tr>
+        //    </table>
 
-            <br/>
-            <p>Regards,<br/><b>HRMS Team</b></p>
-        </div>";
+        //    <br/>
+        //    <p>Regards,<br/><b>HRMS Team</b></p>
+        //</div>";
 
-                    await _emailService.SendEmailAsync(
-                        employee.Email,
-                        "KPI Submission Confirmation",
-                        body,
-                        string.IsNullOrEmpty(dto.HrEmail)
-                            ? null
-                            : new List<string> { dto.HrEmail }
-                    );
-                }
+        //            await _emailService.SendEmailAsync(
+        //                employee.Email,
+        //                "KPI Submission Confirmation",
+        //                body,
+        //                string.IsNullOrEmpty(dto.HrEmail)
+        //                    ? null
+        //                    : new List<string> { dto.HrEmail }
+        //            );
+        //        }
             }
 
             return new ApiResponse<bool>(true);
