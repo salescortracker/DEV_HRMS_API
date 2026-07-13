@@ -1280,7 +1280,7 @@ namespace HRMS_Backend.Controllers
                     PhoneNumber = dto.Phone,
                     CompanyName = dto.Company,
                     Module = dto.Module,
-                    Type = "Demo",
+                    Type = "Demo Plan",
                     CompanyId = 1,
                     RegionId = 2,
                     RoleId = 1,
@@ -1291,11 +1291,10 @@ namespace HRMS_Backend.Controllers
                 };
 
                 _hRMSContext.Users.Add(entity);
-               await _hRMSContext.SaveChangesAsync();
+                await _hRMSContext.SaveChangesAsync();
                 // 2. Get Demo Plan
-                var demoPlan = await _hRMSContext.SubscriptionPlans
-                    .FirstOrDefaultAsync(x => x.PlanName == "Demo");
-
+                var demoPlan = await _hRMSContext.SubscriptionPlans1
+                        .FirstOrDefaultAsync(x => x.PlanId == 4);
 
                 if (demoPlan == null)
                 {

@@ -1375,6 +1375,27 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
+            var employees = await _context.Users
+        .Where(u => u.CompanyId == model.CompanyId
+                 && u.RegionId == model.RegionId
+                 && codes.Contains(u.EmployeeCode))
+        .ToListAsync();
+
+            // Send Notification
+            var notifyUsers = employees
+                .Select(x => x.UserId)
+                .ToList();
+
+            if (notifyUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notifyUsers,
+                    "New Form",
+                    $"A new {model.DocumentName} has been assigned to you.",
+                    "EmployeeForm",
+                    entity.Id
+                );
+            }
 
             return entity.Id;
         }
