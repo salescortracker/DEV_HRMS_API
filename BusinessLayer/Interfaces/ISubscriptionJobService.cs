@@ -10,7 +10,7 @@ namespace BusinessLayer.Interfaces
     public interface ISubscriptionJobService
     {
         Task ProcessExpiredSubscriptions();
-        //Task<Invoice> CreateInvoiceAsync(int userId, int planId, string paymentId, string orderId);
+        Task<Invoice> CreateInvoiceAsync(int userId, int planId, string paymentId, string orderId);
 
     }
 }
