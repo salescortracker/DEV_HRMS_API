@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "6twS+/RhDFg=",
+  "dgSpecHash": "OZTvlQLMnXI=",
   "success": true,
   "projectFilePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
   "expectedPackageFiles": [
@@ -80,6 +80,8 @@
     "C:\\Users\\HR\\.nuget\\packages\\npoi\\2.3.0\\npoi.2.3.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\npoi.hwpf\\2.3.0\\npoi.hwpf.2.3.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\pdfpig\\0.1.14\\pdfpig.0.1.14.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\portable.bouncycastle\\1.9.0\\portable.bouncycastle.1.9.0.nupkg.sha512",
+    "C:\\Users\\HR\\.nuget\\packages\\razorpay\\3.3.2\\razorpay.3.3.2.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\HR\\.nuget\\packages\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
@@ -179,15 +181,6 @@
     "C:\\Users\\HR\\.nuget\\packages\\zkemkeeper\\1.0.2\\zkemkeeper.1.0.2.nupkg.sha512"
   ],
   "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
-      "projectPath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
-      "warningLevel": 1,
-      "filePath": "D:\\HRMS\\HRMS_Dev\\DEV_HRMS_API\\HRMS_Backend\\HRMS_Backend.csproj",
-      "targetGraphs": []
-    },
     {
       "code": "NU1701",
       "level": "Warning",

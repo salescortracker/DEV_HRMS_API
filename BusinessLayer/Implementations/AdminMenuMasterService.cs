@@ -32,11 +32,11 @@ namespace BusinessLayer.Implementations
                 Icon = x.Icon,
                 OrderNo = x.OrderNo,
                 IsActive = x.IsActive,
-                CanView = x.CanView,
-                CanAdd = x.CanAdd,
-                CanEdit = x.CanEdit,
-                CanDelete = x.CanDelete,
-                CanApprove = x.CanApprove
+                //CanView = x.CanView,
+                //CanAdd = x.CanAdd,
+                //CanEdit = x.CanEdit,
+                //CanDelete = x.CanDelete,
+                //CanApprove = x.CanApprove
             });
         }
 
@@ -56,11 +56,11 @@ namespace BusinessLayer.Implementations
                 Icon = x.Icon,
                 OrderNo = x.OrderNo,
                 IsActive = x.IsActive,
-                CanView = x.CanView,
-                CanAdd = x.CanAdd,
-                CanEdit = x.CanEdit,
-                CanDelete = x.CanDelete,
-                CanApprove = x.CanApprove
+                //CanView = x.CanView,
+                //CanAdd = x.CanAdd,
+                //CanEdit = x.CanEdit,
+                //CanDelete = x.CanDelete,
+                //CanApprove = x.CanApprove
             };
         }
 
@@ -74,11 +74,11 @@ namespace BusinessLayer.Implementations
                 Icon = dto.Icon,
                 OrderNo = dto.OrderNo,
                 IsActive = dto.IsActive,
-                CanView = dto.CanView,
-                CanAdd = dto.CanAdd,
-                CanEdit = dto.CanEdit,
-                CanDelete = dto.CanDelete,
-                CanApprove = dto.CanApprove,
+                //CanView = dto.CanView,
+                //CanAdd = dto.CanAdd,
+                //CanEdit = dto.CanEdit,
+                //CanDelete = dto.CanDelete,
+                //CanApprove = dto.CanApprove,
                 CreatedBy = createdBy,
                 CreatedDate = DateTime.Now
             };
@@ -105,11 +105,11 @@ namespace BusinessLayer.Implementations
             entity.Icon = dto.Icon;
             entity.OrderNo = dto.OrderNo;
             entity.IsActive = dto.IsActive;
-            entity.CanView = dto.CanView;
-            entity.CanAdd = dto.CanAdd;
-            entity.CanEdit = dto.CanEdit;
-            entity.CanDelete = dto.CanDelete;
-            entity.CanApprove = dto.CanApprove;
+            //entity.CanView = dto.CanView;
+            //entity.CanAdd = dto.CanAdd;
+            //entity.CanEdit = dto.CanEdit;
+            //entity.CanDelete = dto.CanDelete;
+            //entity.CanApprove = dto.CanApprove;
             entity.ModifiedBy = modifiedBy;
             entity.ModifiedAt = DateTime.Now;
 

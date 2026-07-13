@@ -5,6 +5,114 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/AdminMenuMaster/GetAllMenus": {
+      "get": {
+        "tags": [
+          "AdminMenuMaster"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/AdminMenuMaster/CreateMenu": {
+      "post": {
+        "tags": [
+          "AdminMenuMaster"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMenuMasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMenuMasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMenuMasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/AdminMenuMaster/UpdateMenu/{id}": {
+      "post": {
+        "tags": [
+          "AdminMenuMaster"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMenuMasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMenuMasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMenuMasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/AdminMenuMaster/DeleteMenu/{id}": {
+      "post": {
+        "tags": [
+          "AdminMenuMaster"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Asset": {
       "get": {
         "tags": [
@@ -2037,6 +2145,16 @@
                   "UserId": {
                     "type": "integer",
                     "format": "int32"
+                  },
+                  "IsAllDepartments": {
+                    "type": "boolean"
+                  },
+                  "DepartmentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   }
                 }
               },
@@ -2087,6 +2205,12 @@
                   "style": "form"
                 },
                 "UserId": {
+                  "style": "form"
+                },
+                "IsAllDepartments": {
+                  "style": "form"
+                },
+                "DepartmentIds": {
                   "style": "form"
                 }
               }
@@ -2209,6 +2333,16 @@
                   "UserId": {
                     "type": "integer",
                     "format": "int32"
+                  },
+                  "IsAllDepartments": {
+                    "type": "boolean"
+                  },
+                  "DepartmentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   }
                 }
               },
@@ -2259,6 +2393,12 @@
                   "style": "form"
                 },
                 "UserId": {
+                  "style": "form"
+                },
+                "IsAllDepartments": {
+                  "style": "form"
+                },
+                "DepartmentIds": {
                   "style": "form"
                 }
               }
@@ -20360,6 +20500,28 @@
         }
       }
     },
+    "/api/SubscriptionPlan/GetUserSubscription": {
+      "get": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/SubscriptionPlan/GetPlans": {
       "get": {
         "tags": [
@@ -20577,6 +20739,29 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubscriptionPlan/GetUserModules/{userId}": {
+      "get": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -21965,7 +22150,7 @@
         }
       }
     },
-    "/api/UserManagement/login": {
+    "/api/UserManagement/Login": {
       "post": {
         "tags": [
           "UserManagement"
@@ -23400,6 +23585,18 @@
         }
       }
     },
+    "/api/UserManagement/GetALLSubcriptionUsers": {
+      "get": {
+        "tags": [
+          "UserManagement"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/UserManagement/GetLateLoginPolicy": {
       "get": {
         "tags": [
@@ -23838,6 +24035,62 @@
           "userId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "AdminMenuMasterDto": {
+        "type": "object",
+        "properties": {
+          "menuID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "menuName": {
+            "type": "string",
+            "nullable": true
+          },
+          "parentMenuID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderNo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "canView": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "canAdd": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "canEdit": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "canDelete": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "canApprove": {
+            "type": "boolean",
             "nullable": true
           }
         },
@@ -25144,6 +25397,10 @@
             "type": "array",
             "items": { },
             "nullable": true
+          },
+          "loggedInUserId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -27149,6 +27406,11 @@
           },
           "attachmentPath": {
             "type": "string",
+            "nullable": true
+          },
+          "attachment": {
+            "type": "string",
+            "format": "binary",
             "nullable": true
           },
           "departmentId": {
@@ -34628,7 +34890,8 @@
             "format": "date-time"
           },
           "status": {
-            "type": "boolean"
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

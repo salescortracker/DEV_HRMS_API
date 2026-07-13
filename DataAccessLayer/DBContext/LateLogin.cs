@@ -27,7 +27,29 @@ public partial class LateLogin
 
     public DateTime? ModifiedAt { get; set; }
 
+    public int EmployeeId { get; set; }
+
+    public int UserId { get; set; }
+
+    public int ManagerId { get; set; }
+
+    public DateOnly RequestDate { get; set; }
+
+    public TimeOnly RequestedLateLoginTime { get; set; }
+
+    public string Reason { get; set; } = null!;
+
+    public string? ManagerRemarks { get; set; }
+
+    public string Status { get; set; } = null!;
+
+    public string? HrEmail { get; set; }
+
     public virtual Company Company { get; set; } = null!;
+
+    public virtual User Employee { get; set; } = null!;
+
+    public virtual User Manager { get; set; } = null!;
 
     public virtual Region Region { get; set; } = null!;
 }

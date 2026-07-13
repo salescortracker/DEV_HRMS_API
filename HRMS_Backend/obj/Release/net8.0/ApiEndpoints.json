@@ -1,5 +1,68 @@
 [
   {
+    "ContainingType": "HRMS_Backend.Controllers.AdminMenuMasterController",
+    "Method": "CreateMenu",
+    "RelativePath": "api/AdminMenuMaster/CreateMenu",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AdminMenuMasterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AdminMenuMasterController",
+    "Method": "DeleteMenu",
+    "RelativePath": "api/AdminMenuMaster/DeleteMenu/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AdminMenuMasterController",
+    "Method": "GetAllMenus",
+    "RelativePath": "api/AdminMenuMaster/GetAllMenus",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AdminMenuMasterController",
+    "Method": "UpdateMenu",
+    "RelativePath": "api/AdminMenuMaster/UpdateMenu/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.AdminMenuMasterDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "HRMS_Backend.Controllers.AssetController",
     "Method": "GetAllAssets",
     "RelativePath": "api/Asset",
@@ -480,6 +543,16 @@
       {
         "Name": "UserId",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsAllDepartments",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmentIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       }
     ],
@@ -1697,6 +1770,16 @@
       {
         "Name": "UserId",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsAllDepartments",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmentIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       }
     ],
@@ -13325,6 +13408,38 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
+    "Method": "GetUserModules",
+    "RelativePath": "api/SubscriptionPlan/GetUserModules/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
+    "Method": "GetUserSubscription",
+    "RelativePath": "api/SubscriptionPlan/GetUserSubscription",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
     "Method": "SavePlanMenus",
     "RelativePath": "api/SubscriptionPlan/SavePlanMenus",
     "HttpMethod": "POST",
@@ -14504,6 +14619,16 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "GetALLSubcriptionUsers",
+    "RelativePath": "api/UserManagement/GetALLSubcriptionUsers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "GetAllUserIdrelatiopnshipByUserAsync",
     "RelativePath": "api/UserManagement/GetAllUserIdrelatiopnshipByUserAsync",
     "HttpMethod": "GET",
@@ -14835,7 +14960,7 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
     "Method": "Login",
-    "RelativePath": "api/UserManagement/login",
+    "RelativePath": "api/UserManagement/Login",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

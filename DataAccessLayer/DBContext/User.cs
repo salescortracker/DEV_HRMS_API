@@ -69,6 +69,8 @@ public partial class User
 
     public DateOnly? JoiningDate { get; set; }
 
+    public int? CurrentPlanId { get; set; }
+
     public virtual ICollection<EarlyLogoutRequest> EarlyLogoutRequestEmployees { get; set; } = new List<EarlyLogoutRequest>();
 
     public virtual ICollection<EarlyLogoutRequest> EarlyLogoutRequestManagers { get; set; } = new List<EarlyLogoutRequest>();
@@ -78,6 +80,10 @@ public partial class User
     public virtual ICollection<EmployeeMaster> EmployeeMasterManagers { get; set; } = new List<EmployeeMaster>();
 
     public virtual ICollection<EmployeeMaster> EmployeeMasterUpdatedByNavigations { get; set; } = new List<EmployeeMaster>();
+
+    public virtual ICollection<LateLogin> LateLoginEmployees { get; set; } = new List<LateLogin>();
+
+    public virtual ICollection<LateLogin> LateLoginManagers { get; set; } = new List<LateLogin>();
 
     public virtual ICollection<LeaveRequest> LeaveRequestReportingManagers { get; set; } = new List<LeaveRequest>();
 

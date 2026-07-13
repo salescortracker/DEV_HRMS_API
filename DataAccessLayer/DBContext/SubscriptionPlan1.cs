@@ -32,6 +32,4 @@ public partial class SubscriptionPlan1
     public DateTime? ModifiedDate { get; set; }
 
     public virtual ICollection<UserSubscription> UserSubscriptions { get; set; } = new List<UserSubscription>();
-
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

@@ -5,7 +5,7 @@ using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Razorpay.Api;
+//using Razorpay.Api;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,107 +39,107 @@ namespace HRMS_Backend.Controllers
 
             return Ok(result);
         }
-        [HttpPost("CreateOrder")]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequestDto req)
-        {
-            var plan = await _service.GetPlanByIdAsync(req.PlanId);
-            var receipt = $"rcpt_{DateTime.UtcNow.Ticks}";
-            receipt = receipt.Length > 40 ? receipt.Substring(0, 40) : receipt;
+        //[HttpPost("CreateOrder")]
+        //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequestDto req)
+        //{
+        //    var plan = await _service.GetPlanByIdAsync(req.PlanId);
+        //    var receipt = $"rcpt_{DateTime.UtcNow.Ticks}";
+        //    receipt = receipt.Length > 40 ? receipt.Substring(0, 40) : receipt;
 
 
-            if (plan == null)
-                return BadRequest("Plan not found");
-            if (plan.Price <= 0)
-                return BadRequest("Invalid plan price");
-            int amount = (int)(plan.Price * 100);
+        //    if (plan == null)
+        //        return BadRequest("Plan not found");
+        //    if (plan.Price <= 0)
+        //        return BadRequest("Invalid plan price");
+        //    int amount = (int)(plan.Price * 100);
 
-            RazorpayClient client = new RazorpayClient(
-                _config["Razorpay:KeyId"],
-                _config["Razorpay:KeySecret"]
-            );
+        //    RazorpayClient client = new RazorpayClient(
+        //        _config["Razorpay:KeyId"],
+        //        _config["Razorpay:KeySecret"]
+        //    );
 
-            Dictionary<string, object> options = new Dictionary<string, object>();
-            options.Add("amount", amount);
-            options.Add("currency", "INR");
-            options.Add("receipt", receipt);
+        //    Dictionary<string, object> options = new Dictionary<string, object>();
+        //    options.Add("amount", amount);
+        //    options.Add("currency", "INR");
+        //    options.Add("receipt", receipt);
 
-            Order order = client.Order.Create(options);
+        //    Order order = client.Order.Create(options);
 
-            return Ok(new
-            {
-                orderId = order["id"].ToString(),
-                amount = amount,
-                key = _config["Razorpay:KeyId"]
-            });
-        }
-        [HttpPost("ActivateSubscription")]
-        public async Task<IActionResult> ActivateSubscription([FromBody] ActivateDto dto)
-        {
-            string keySecret = _config["Razorpay:KeySecret"];
+        //    return Ok(new
+        //    {
+        //        orderId = order["id"].ToString(),
+        //        amount = amount,
+        //        key = _config["Razorpay:KeyId"]
+        //    });
+        //}
+        //[HttpPost("ActivateSubscription")]
+        //public async Task<IActionResult> ActivateSubscription([FromBody] ActivateDto dto)
+        //{
+        //    string keySecret = _config["Razorpay:KeySecret"];
 
-            string payload = dto.OrderId + "|" + dto.PaymentId;
+        //    string payload = dto.OrderId + "|" + dto.PaymentId;
 
-            var expectedSignature = ComputeHmac(payload, keySecret);
+        //    var expectedSignature = ComputeHmac(payload, keySecret);
 
-            if (expectedSignature != dto.Signature)
-                return BadRequest("Invalid payment");
+        //    if (expectedSignature != dto.Signature)
+        //        return BadRequest("Invalid payment");
 
-            // 1️⃣ Create Subscription
-            var sub = new UserSubscription
-            {
-                UserId = dto.UserId,
-                PlanId = dto.PlanId,
-                PaymentId = dto.PaymentId,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddMonths(1),
-                Status = "ACTIVE",
-                PaymentStatus = "PAID"
-            };
+        //    // 1️⃣ Create Subscription
+        //    var sub = new UserSubscription
+        //    {
+        //        UserId = dto.UserId,
+        //        PlanId = dto.PlanId,
+        //        PaymentId = dto.PaymentId,
+        //        StartDate = DateTime.Now,
+        //        EndDate = DateTime.Now.AddMonths(1),
+        //        Status = "ACTIVE",
+        //        PaymentStatus = "PAID"
+        //    };
 
-            _context.UserSubscriptions.Add(sub);
-            await _context.SaveChangesAsync();
+        //    _context.UserSubscriptions.Add(sub);
+        //    await _context.SaveChangesAsync();
 
-            // 2️⃣ 🔥 CREATE INVOICE HERE (IMPORTANT)
-            await _subscriptionJobService.CreateInvoiceAsync(
-                dto.UserId,
-                dto.PlanId,
-                dto.PaymentId,
-                dto.OrderId
-            );
+        //    // 2️⃣ 🔥 CREATE INVOICE HERE (IMPORTANT)
+        //    await _subscriptionJobService.CreateInvoiceAsync(
+        //        dto.UserId,
+        //        dto.PlanId,
+        //        dto.PaymentId,
+        //        dto.OrderId
+        //    );
 
-            return Ok("Subscription Activated + Invoice Generated");
-        }
-        private string ComputeHmac(string data, string secret)
-        {
-            using (var hmac = new System.Security.Cryptography.HMACSHA256(
-                Encoding.UTF8.GetBytes(secret)))
-            {
-                var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
-                return BitConverter.ToString(hash).Replace("-", "").ToLower();
-            }
-        }
-        [HttpPost("CreateInvoice")]
-        public async Task<IActionResult> CreateInvoice([FromBody] ActivateDto dto)
-        {
-            var invoice = await _subscriptionJobService.CreateInvoiceAsync(
-                dto.UserId,
-                dto.PlanId,
-                dto.PaymentId,
-                dto.OrderId
-            );
+        //    return Ok("Subscription Activated + Invoice Generated");
+        //}
+        //private string ComputeHmac(string data, string secret)
+        //{
+        //    using (var hmac = new System.Security.Cryptography.HMACSHA256(
+        //        Encoding.UTF8.GetBytes(secret)))
+        //    {
+        //        var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+        //        return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        //    }
+        //}
+        //[HttpPost("CreateInvoice")]
+        //public async Task<IActionResult> CreateInvoice([FromBody] ActivateDto dto)
+        //{
+        //    var invoice = await _subscriptionJobService.CreateInvoiceAsync(
+        //        dto.UserId,
+        //        dto.PlanId,
+        //        dto.PaymentId,
+        //        dto.OrderId
+        //    );
 
-            return Ok(invoice);
-        }
-        [HttpGet("GetInvoiceByUser")]
-        public async Task<IActionResult> GetInvoiceByUser(int userId)
-        {
-            var invoice = await _context.Invoices
-                .Where(x => x.UserId == userId)
-                .OrderByDescending(x => x.InvoiceId)
-                .FirstOrDefaultAsync();
+        //    return Ok(invoice);
+        //}
+        //[HttpGet("GetInvoiceByUser")]
+        //public async Task<IActionResult> GetInvoiceByUser(int userId)
+        //{
+        //    var invoice = await _context.Invoices
+        //        .Where(x => x.UserId == userId)
+        //        .OrderByDescending(x => x.InvoiceId)
+        //        .FirstOrDefaultAsync();
 
-            return Ok(invoice);
-        }
+        //    return Ok(invoice);
+        //}
 
         [HttpGet("GetPlans")]
         public async Task<IActionResult> GetPlans()

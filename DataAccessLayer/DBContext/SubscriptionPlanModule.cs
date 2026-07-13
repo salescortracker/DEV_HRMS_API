@@ -20,7 +20,4 @@ public partial class SubscriptionPlanModule
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedAt { get; set; }
-    public virtual Module Module { get; set; }
-
-    public virtual SubscriptionPlan Plan { get; set; }
 }

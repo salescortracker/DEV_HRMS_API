@@ -75,6 +75,8 @@ D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToa
 D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.Tokenization.dll
 D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.Tokens.dll
 D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\UglyToad.PdfPig.dll
+D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\BouncyCastle.Crypto.dll
+D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Razorpay.dll
 D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\ICSharpCode.SharpZipLib.dll
 D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\SkiaSharp.dll
 D:\HRMS\HRMS_Dev\DEV_HRMS_API\HRMS_Backend\obj\Release\net8.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
