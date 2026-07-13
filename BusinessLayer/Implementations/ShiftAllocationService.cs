@@ -4,6 +4,7 @@ using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Models;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -353,20 +354,119 @@ namespace BusinessLayer.Implementations
                 {
                     try
                     {
-                        var subject = "New Shift Assigned";
+                        //var subject = "New Shift Assigned";
+
+                        //var body = $@"
+                        //   <p>Dear {dto.FullName},</p>
+
+                        //   <p>Your shift has been assigned successfully.</p>
+
+                        //   <table border='1' cellpadding='5' cellspacing='0'>
+                        //       <tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
+                        //       <tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
+                        //       <tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
+                        //   </table>
+
+                        //   <p>Regards,<br/>HR Team</p>";
+                        var shift = await _context.ShiftMasters
+    .FirstOrDefaultAsync(x => x.ShiftId == dto.ShiftID);
+                        var subject = $"Shift Allocation Notification - {dto.ShiftName}";
 
                         var body = $@"
-                           <p>Dear {dto.FullName},</p>
- 
-                           <p>Your shift has been assigned successfully.</p>
- 
-                           <table border='1' cellpadding='5' cellspacing='0'>
-                               <tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
-                               <tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
-                               <tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
-                           </table>
- 
-                           <p>Regards,<br/>HR Team</p>";
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }}
+
+        table {{
+            border-collapse: collapse;
+            width: 600px;
+            margin-top: 15px;
+        }}
+
+        th {{
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }}
+
+        td {{
+            border: 1px solid #ddd;
+            padding: 10px;
+        }}
+
+        .footer {{
+            margin-top: 20px;
+        }}
+    </style>
+</head>
+
+<body>
+
+<p>Dear <strong>{dto.FullName}</strong>,</p>
+
+<p>
+We would like to inform you that your work shift has been successfully assigned.
+Please find the details of your allocated shift below:
+</p>
+
+<table>
+    <tr>
+        <th colspan='2'>Shift Allocation Details</th>
+    </tr>
+
+    <tr>
+        <td><strong>Employee Code</strong></td>
+        <td>{dto.EmployeeCode}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Employee Name</strong></td>
+        <td>{dto.FullName}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Shift Name</strong></td>
+        <td>{dto.ShiftName}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Shift Timings</strong></td>
+        <td>{shift?.ShiftStartTime:hh\\:mm} - {shift?.ShiftEndTime:hh\\:mm}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Effective From</strong></td>
+        <td>{dto.StartDate:dd MMM yyyy}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Effective To</strong></td>
+        <td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd MMM yyyy") : "Until Further Notice")}</td>
+    </tr>
+</table>
+
+<p>
+Kindly ensure that you report to work according to the above shift timings.
+If you have any questions regarding your shift allocation, please contact the HR Department.
+</p>
+
+<p>Thank you for your cooperation.</p>
+
+<div class='footer'>
+Regards,<br/>
+<strong>HR Department</strong><br/>
+Your Company Name
+</div>
+
+</body>
+</html>";
 
                         await emailservice.SendEmailAsync(user.Email, subject, body);
                     }
@@ -405,20 +505,128 @@ namespace BusinessLayer.Implementations
                 {
                     try
                     {
-                        var subject = "Shift Updated";
+                        //var subject = "Shift Updated";
+
+                        //var body = $@"
+                        //   <p>Dear {dto.FullName},</p>
+
+                        //   <p>Your shift has been <b>updated</b>.</p>
+
+                        //   <table border='1' cellpadding='5' cellspacing='0'>
+                        //       <tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
+                        //       <tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
+                        //       <tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
+                        //   </table>
+
+                        //   <p>Regards,<br/>HR Team</p>";
+                        var shift = await _context.ShiftMasters
+    .FirstOrDefaultAsync(x => x.ShiftId == dto.ShiftID);
+                        var subject = $"Shift Allocation Updated - {dto.ShiftName}";
 
                         var body = $@"
-                           <p>Dear {dto.FullName},</p>
- 
-                           <p>Your shift has been <b>updated</b>.</p>
- 
-                           <table border='1' cellpadding='5' cellspacing='0'>
-                               <tr><td><b>Shift</b></td><td>{dto.ShiftName}</td></tr>
-                               <tr><td><b>Start Date</b></td><td>{dto.StartDate:dd-MM-yyyy}</td></tr>
-                               <tr><td><b>End Date</b></td><td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd-MM-yyyy") : "N/A")}</td></tr>
-                           </table>
- 
-                           <p>Regards,<br/>HR Team</p>";
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }}
+
+        table {{
+            border-collapse: collapse;
+            width: 600px;
+            margin-top: 15px;
+        }}
+
+        th {{
+            background-color: #0d6efd;
+            color: #ffffff;
+            padding: 10px;
+            text-align: left;
+        }}
+
+        td {{
+            border: 1px solid #ddd;
+            padding: 10px;
+        }}
+
+        .note {{
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+        }}
+
+        .footer {{
+            margin-top: 20px;
+        }}
+    </style>
+</head>
+
+<body>
+
+<p>Dear <strong>{dto.FullName}</strong>,</p>
+
+<p>
+This is to inform you that your work shift has been <strong>updated</strong>.
+Please find your revised shift details below.
+</p>
+
+<table>
+    <tr>
+        <th colspan='2'>Updated Shift Details</th>
+    </tr>
+
+    <tr>
+        <td><strong>Employee Code</strong></td>
+        <td>{dto.EmployeeCode}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Employee Name</strong></td>
+        <td>{dto.FullName}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Shift Name</strong></td>
+        <td>{dto.ShiftName}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Shift Timings</strong></td>
+        <td>{shift?.ShiftStartTime:hh\\:mm} - {shift?.ShiftEndTime:hh\\:mm}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Effective From</strong></td>
+        <td>{dto.StartDate:dd MMM yyyy}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Effective To</strong></td>
+        <td>{(dto.EndDate.HasValue ? dto.EndDate.Value.ToString("dd MMM yyyy") : "Until Further Notice")}</td>
+    </tr>
+</table>
+
+<div class='note'>
+<strong>Important:</strong> Your previous shift assignment has been replaced with the above schedule.
+Please report to work according to the updated shift timings from the effective date.
+</div>
+
+<p>
+If you have any questions regarding this update, please contact the HR Department.
+</p>
+
+<div class='footer'>
+Regards,<br/>
+<strong>HR Department</strong><br/>
+Your Company Name
+</div>
+
+</body>
+</html>";
 
                         await emailservice.SendEmailAsync(user.Email, subject, body);
                     }
