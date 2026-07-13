@@ -17,7 +17,7 @@ public partial class PerformanceKpi
 
     public string? Achieved { get; set; }
 
-    public int? SelfRating { get; set; }
+    public decimal? SelfRating { get; set; }
 
     public int? ManagerRating { get; set; }
 
