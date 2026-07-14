@@ -735,6 +735,7 @@ namespace BusinessLayer.Implementations
             }
         }
 
+
         // ✅ SINGLE APPROVE
         public async Task<bool> ApproveLeaveByManagerAsync(int leaveId)
         {
@@ -747,6 +748,37 @@ namespace BusinessLayer.Implementations
 
             repo.Update(leave);
             await _unitOfWork.CompleteAsync();
+            // ================= NOTIFICATION =================
+
+            var notificationUsers = new List<int>();
+
+            // Employee
+            notificationUsers.Add(leave.UserId);
+
+
+            // Reporting HR
+            var employeeUser = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == leave.UserId);
+
+
+            if (employeeUser?.ReportingHr != null)
+            {
+                notificationUsers.Add(employeeUser.ReportingHr.Value);
+            }
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+            await _notificationService.CreateNotificationAsync(
+                notificationUsers,
+                "Leave Request",
+                $"{employeeUser?.FullName} leave request has been Approved by Manager.",
+                "Leave",
+                leave.LeaveRequestId
+            );
 
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(leave.UserId);
             if (user != null)
@@ -815,6 +847,38 @@ namespace BusinessLayer.Implementations
 
             repo.Update(leave);
             await _unitOfWork.CompleteAsync();
+            // ================= NOTIFICATION =================
+
+            var notificationUsers = new List<int>();
+
+            // Employee
+            notificationUsers.Add(leave.UserId);
+
+
+            var employeeUser = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == leave.UserId);
+
+
+            // Reporting HR
+            if (employeeUser?.ReportingHr != null)
+            {
+                notificationUsers.Add(employeeUser.ReportingHr.Value);
+            }
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+
+            await _notificationService.CreateNotificationAsync(
+                notificationUsers,
+                "Leave Request",
+                $"{employeeUser?.FullName} leave request has been Rejected by Manager.",
+                "Leave",
+                leave.LeaveRequestId
+            );
 
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(leave.UserId);
             if (user != null)

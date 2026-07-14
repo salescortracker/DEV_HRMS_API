@@ -13,11 +13,13 @@ namespace BusinessLayer.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
-        public ClockInOutService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext context)
+        private readonly INotificationService _notificationService;
+        public ClockInOutService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext context, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<IEnumerable<ClockInOutDto>> GetAllAsync()
@@ -178,7 +180,54 @@ GetAttendanceByDateRangeAsync(
                     .AddAsync(entity);
 
                 await _unitOfWork.CompleteAsync();
+                // ================= NOTIFICATION =================
 
+                var employeeUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == userId);
+
+                if (employeeUser != null)
+                {
+                    var notifyUsers = new List<int>();
+
+                    // Manager
+                    if (employeeUser.ReportingTo.HasValue)
+                    {
+                        var manager = await _context.Users
+                            .FirstOrDefaultAsync(x => x.UserId == employeeUser.ReportingTo.Value);
+
+                        if (manager != null)
+                        {
+                            notifyUsers.Add(manager.UserId);
+                        }
+                    }
+
+                    // Reporting HR
+                    if (employeeUser.ReportingHr.HasValue)
+                    {
+                        notifyUsers.Add(employeeUser.ReportingHr.Value);
+                    }
+
+                    notifyUsers = notifyUsers.Distinct().ToList();
+
+                    if (notifyUsers.Any())
+                    {
+                        string title = dto.ActionType == "ClockIn"
+                            ? "Employee Clock In"
+                            : "Employee Clock Out";
+
+                        string message = dto.ActionType == "ClockIn"
+                            ? $"{employeeUser.FullName} has clocked in at {dto.ActionTime}."
+                            : $"{employeeUser.FullName} has clocked out at {dto.ActionTime}.";
+
+                        await _notificationService.CreateNotificationAsync(
+                            notifyUsers,
+                            title,
+                            message,
+                            "Attendance",
+                            entity.ClockInOutId // Replace with your actual PK column if different
+                        );
+                    }
+                }
 
                 var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
 
