@@ -10,12 +10,15 @@ namespace BusinessLayer.Implementations
     {
         private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
+        private readonly INotificationService _notificationService;
 
-        public AssetService(HRMSContext context, IEmailService emailService)
+        public AssetService(HRMSContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
+
 
         public async Task<int> CreateAssetAsync(AssetDto assetDto)
         {
@@ -260,6 +263,58 @@ namespace BusinessLayer.Implementations
 
             _context.AssetRequests.Add(entity);
             await _context.SaveChangesAsync();
+            // ================= NOTIFICATION SECTION =================
+
+            var notificationUsers = new List<int>();
+
+
+            // 1. Manager Notification
+            if (dto.ReportingTo.HasValue && dto.ReportingTo.Value > 0)
+            {
+                notificationUsers.Add(dto.ReportingTo.Value);
+            }
+
+
+            // 2. Admin Notification By Email
+            if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+            {
+                var adminEmails = dto.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToList();
+
+
+                var adminUsers = await _context.Users
+                    .Where(x =>
+                        adminEmails.Contains(x.Email) &&
+                        x.CompanyId == dto.CompanyID &&
+                        x.RegionId == dto.RegionID
+                    )
+                    .Select(x => x.UserId)
+                    .ToListAsync();
+
+
+                notificationUsers.AddRange(adminUsers);
+            }
+
+
+            // Remove duplicates
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Asset Request",
+                    $"{dto.EmployeeName} submitted a new Asset Request.",
+                    "Asset",
+                    entity.RequestId
+                );
+            }
 
             // ✅ STEP 1: Get Reporting Manager Email
             var manager = await _context.Users

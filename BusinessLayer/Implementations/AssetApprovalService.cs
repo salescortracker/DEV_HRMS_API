@@ -10,11 +10,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
+        private readonly INotificationService _notificationService;
 
-        public AssetApprovalService(HRMSContext context, IEmailService emailService)
+        public AssetApprovalService(HRMSContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         // 🔹 Manager sees team pending assets
@@ -59,6 +61,7 @@ namespace BusinessLayer.Implementations
      .OrderByDescending(a => a.AssetID)
      .ToListAsync();
         }
+
 
         // 🔹 Single API → Approve / Reject
         public async Task<bool> ApproveOrRejectAssetAsync(
@@ -116,8 +119,25 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
-          
 
+            var notificationUsers = new List<int>();
+
+            foreach (var item in requests)
+            {
+                notificationUsers.Clear();
+
+                // Employee Notification
+                notificationUsers.Add(item.Request.UserId);
+
+
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Asset Request",
+                    $"Your asset request #{item.Request.RequestId} has been {dto.Action} by Manager.",
+                    "Asset",
+                    item.Request.RequestId
+                );
+            }
 
             // ✅ SEND EMAIL TO EMPLOYEE
             foreach (var item in requests)
