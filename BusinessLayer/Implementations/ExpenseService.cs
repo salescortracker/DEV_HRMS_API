@@ -10,11 +10,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly HRMSContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
-        public ExpenseService(HRMSContext context, IEmailService emailService)
+        public ExpenseService(HRMSContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
         // -----------------------------------------------------
         // CREATE EXPENSE + SEND EMAIL TO REPORTING MANAGER
@@ -75,6 +77,54 @@ namespace BusinessLayer.Implementations
 
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();
+            var notificationUsers = new List<int>();
+
+            // Reporting Manager
+            if (user.ReportingTo.HasValue)
+            {
+                notificationUsers.Add(user.ReportingTo.Value);
+            }
+
+            // Reporting HR
+            if (user.ReportingHr.HasValue)
+            {
+                notificationUsers.Add(user.ReportingHr.Value);
+            }
+
+            // Additional HR from HrEmail (Company + Region based)
+            if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+            {
+                var hrEmails = dto.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+                var hrUserIds = await _context.Users
+                    .Where(x =>
+                        hrEmails.Contains(x.Email) &&
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId)
+                    .Select(x => x.UserId)
+                    .ToListAsync();
+
+                notificationUsers.AddRange(hrUserIds);
+            }
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Expense Request",
+                    $"{user.FullName} submitted an expense request.",
+                    "Expense",
+                    expense.ExpenseId
+                );
+            }
             string? reportingHrEmail = null;
 
             if (user.ReportingHr.HasValue)
@@ -244,6 +294,61 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
+            foreach (var item in expenseData)
+            {
+                var notificationUsers = new List<int>();
+
+                // Employee Notification
+                notificationUsers.Add(item.Expense.UserId);
+
+
+                // Reporting HR Notification
+                if (item.ReportingHr.HasValue)
+                {
+                    notificationUsers.Add(item.ReportingHr.Value);
+                }
+
+
+                // Additional HR from HrEmail (Company + Region based)
+                if (!string.IsNullOrWhiteSpace(item.HrEmail))
+                {
+                    var hrEmails = item.HrEmail
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .Distinct()
+                        .ToList();
+
+
+                    var hrUserIds = await _context.Users
+                        .Where(x =>
+                            hrEmails.Contains(x.Email) &&
+                            x.CompanyId == item.Expense.CompanyId &&
+                            x.RegionId == item.Expense.RegionId
+                        )
+                        .Select(x => x.UserId)
+                        .ToListAsync();
+
+
+                    notificationUsers.AddRange(hrUserIds);
+                }
+
+
+                notificationUsers = notificationUsers
+                    .Distinct()
+                    .ToList();
+
+
+                if (notificationUsers.Any())
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        notificationUsers,
+                        "Expense Request",
+                        $"{item.EmployeeName}'s expense request has been {dto.Action} by Manager.",
+                        "Expense",
+                        item.Expense.ExpenseId
+                    );
+                }
+            }
 
             // -------------------------------
             // SEND EMAIL TO EMPLOYEE

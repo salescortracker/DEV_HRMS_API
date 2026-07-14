@@ -3,6 +3,7 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,14 @@ namespace BusinessLayer.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly HRMSContext _hRMSContext;
+        private readonly INotificationService _notificationService;
 
-        public TimesheetService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext hRMSContext)
+        public TimesheetService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext hRMSContext, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _hRMSContext = hRMSContext;
+            _notificationService = notificationService;
         }
 
         public async Task<LoggedInUserDto> GetLoggedInUserAsync(int userId)
@@ -214,12 +217,89 @@ namespace BusinessLayer.Implementations
             {
                 ts.Status = "Submitted";
                 ts.ModifiedAt = DateTime.Now;
+                await SendTimesheetNotificationAsync(ts);
 
                 await SendManagerEmailAsync(ts);
             }
 
             await _unitOfWork.CompleteAsync();
             return true;
+        }
+        // =====================================
+        // 🔔 TIMESHEET SUBMIT NOTIFICATION
+        // =====================================
+        private async Task SendTimesheetNotificationAsync(Timesheet ts)
+        {
+            var notificationUsers = new List<int>();
+
+
+            // Get Employee
+            var employee = await _unitOfWork.Repository<User>()
+                .GetByIdAsync(ts.UserId);
+
+
+            if (employee == null)
+                return;
+
+
+
+            // Manager Notification
+            if (ts.ManagerUserId.HasValue)
+            {
+                notificationUsers.Add(ts.ManagerUserId.Value);
+            }
+
+
+
+            // Reporting HR Notification
+            if (employee.ReportingHr.HasValue)
+            {
+                notificationUsers.Add(employee.ReportingHr.Value);
+            }
+
+
+
+            // HR Emails from UI
+            if (!string.IsNullOrWhiteSpace(ts.HrEmail))
+            {
+                var hrEmails = ts.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+
+                var hrUserIds = await _hRMSContext.Users
+                    .Where(x =>
+                        hrEmails.Contains(x.Email) &&
+                        x.CompanyId == ts.CompanyId &&
+                        x.RegionId == ts.RegionId
+                    )
+                    .Select(x => x.UserId)
+                    .ToListAsync();
+
+
+                notificationUsers.AddRange(hrUserIds);
+            }
+
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Timesheet Submitted",
+                    $"{ts.EmployeeName} submitted timesheet for {ts.TimesheetDate:dd-MMM-yyyy}.",
+                    "Timesheet",
+                    ts.TimesheetId
+                );
+            }
         }
 
         // ✅ EMAIL MANAGER LOGIC
@@ -403,6 +483,7 @@ namespace BusinessLayer.Implementations
                 ts.Status = "Approved";
                 ts.Comments = comments;
                 ts.ModifiedAt = DateTime.Now;
+                await SendTimesheetStatusNotificationAsync(ts, "Approved");
 
                 await SendEmployeeStatusEmailAsync(ts, "Approved");
             }
@@ -421,12 +502,82 @@ namespace BusinessLayer.Implementations
                 ts.Status = "Rejected";
                 ts.Comments = comments;
                 ts.ModifiedAt = DateTime.Now;
+                await SendTimesheetStatusNotificationAsync(ts, "Rejected");
 
                 await SendEmployeeStatusEmailAsync(ts, "Rejected");
             }
 
             await _unitOfWork.CompleteAsync();
             return true;
+        }
+        private async Task SendTimesheetStatusNotificationAsync(
+    Timesheet ts,
+    string status)
+        {
+            var employee = await _unitOfWork.Repository<User>()
+                .GetByIdAsync(ts.UserId);
+
+            if (employee == null)
+                return;
+
+
+            var notificationUsers = new List<int>();
+
+
+            // Employee Notification
+            notificationUsers.Add(ts.UserId);
+
+
+
+            // Reporting HR Notification
+            if (employee.ReportingHr.HasValue)
+            {
+                notificationUsers.Add(employee.ReportingHr.Value);
+            }
+
+
+
+            // HR Email users from UI
+            if (!string.IsNullOrWhiteSpace(ts.HrEmail))
+            {
+                var hrEmails = ts.HrEmail
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+
+                var hrUsers = await _unitOfWork.Repository<User>()
+                    .FindAsync(x =>
+                        hrEmails.Contains(x.Email) &&
+                        x.CompanyId == ts.CompanyId &&
+                        x.RegionId == ts.RegionId
+                    );
+
+
+                notificationUsers.AddRange(
+                    hrUsers.Select(x => x.UserId)
+                );
+            }
+
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Timesheet",
+                    $"Your timesheet for {ts.TimesheetDate:dd-MMM-yyyy} has been {status} by Manager.",
+                    "Timesheet",
+                    ts.TimesheetId
+                );
+            }
         }
         private async Task SendEmployeeStatusEmailAsync(Timesheet ts, string status)
         {

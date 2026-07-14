@@ -2,6 +2,7 @@
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace BusinessLayer.Implementations
@@ -12,16 +13,19 @@ namespace BusinessLayer.Implementations
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly HRMSContext _hRMSContext;
+        private readonly INotificationService _notificationService;
 
         public HelpdeskService(IUnitOfWork unitOfWork,
                                IEmailService emailService,
                                IConfiguration configuration,
-                               HRMSContext hRMSContext)
+                               HRMSContext hRMSContext,
+                               INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _configuration = configuration;
             _hRMSContext = hRMSContext;
+            _notificationService = notificationService;
         }
 
         public async Task<IEnumerable<Priority>> GetActivePrioritiesAsync(int companyId, int regionId)
@@ -112,7 +116,43 @@ namespace BusinessLayer.Implementations
 
             await _unitOfWork.Repository<Ticket>().AddAsync(entity);
             await _unitOfWork.CompleteAsync();
+            var employee = await _hRMSContext.Users
+    .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
 
+
+            var notificationUsers = new List<int>();
+
+
+            // Reporting Manager
+            if (employee?.ReportingTo.HasValue == true)
+            {
+                notificationUsers.Add(employee.ReportingTo.Value);
+            }
+
+
+            // Reporting HR
+            if (employee?.ReportingHr.HasValue == true)
+            {
+                notificationUsers.Add(employee.ReportingHr.Value);
+            }
+
+
+            // Remove duplicate IDs
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "New Ticket Raised",
+                    $"{employee.FullName} raised a ticket - {entity.TicketNumber}",
+                    "Helpdesk",
+                    entity.TicketId
+                );
+            }
             return entity.TicketId;
         }
 
@@ -253,6 +293,42 @@ namespace BusinessLayer.Implementations
 
             _unitOfWork.Repository<Ticket>().Update(ticket);
             await _unitOfWork.CompleteAsync();
+            var employee = await _hRMSContext.Users
+        .FirstOrDefaultAsync(x => x.UserId == ticket.UserId);
+
+
+            var notificationUsers = new List<int>();
+
+
+            // Employee Notification
+            if (ticket.UserId > 0)
+            {
+                notificationUsers.Add(ticket.UserId);
+            }
+
+
+            // Reporting HR Notification
+            if (employee?.ReportingHr.HasValue == true)
+            {
+                notificationUsers.Add(employee.ReportingHr.Value);
+            }
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    $"Ticket {dto.Status}",
+                    $"Your ticket {ticket.TicketNumber} has been {dto.Status}",
+                    "Helpdesk",
+                    ticket.TicketId
+                );
+            }
 
             // ✅ Send email to employee
             await SendTicketStatusEmailToEmployeeAsync(dto.TicketId);

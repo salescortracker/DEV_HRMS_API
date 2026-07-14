@@ -16,11 +16,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly HRMSContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
-        public PayrollService(HRMSContext context, IEmailService emailService)
+        public PayrollService(HRMSContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         /* ============================================================
@@ -799,6 +801,45 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
+            
+
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var hrEmails = dto.Email
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Distinct()
+                    .ToList();
+
+                var employeeUser = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == payrolls.First().EmployeeId);
+
+                if (employeeUser != null)
+                {
+                    var hrUsers = await _context.Users
+                        .Where(x =>
+                            hrEmails.Contains(x.Email) &&
+                            x.CompanyId == employeeUser.CompanyId &&
+                            x.RegionId == employeeUser.RegionId)
+                        .ToListAsync();
+
+                    var notificationUsers = hrUsers
+                        .Select(x => x.UserId)
+                        .Distinct()
+                        .ToList();
+
+                    if (notificationUsers.Any())
+                    {
+                        await _notificationService.CreateNotificationAsync(
+                            notificationUsers,
+                            "Payslip Request",
+                            $"{employeeUser.FullName} requested payslips for {monthDisplay} {dto.Year}.",
+                            "Payroll",
+                            payrolls.First().PayrollId
+                        );
+                    }
+                }
+            }
 
             // 🔥 SINGLE EMAIL FOR ALL MONTHS
             var body = $@"
@@ -970,6 +1011,21 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
+            
+            var employeeUserId = payrolls
+                .Select(x => x.EmployeeId)
+                .FirstOrDefault();
+
+            if (employeeUserId > 0)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    new List<int> { employeeUserId },
+                    "Payslip Request",
+                    $"Your payslip request has been {dto.Action}.",
+                    "Payslip",
+                    payrolls.First().PayrollId
+                );
+            }
 
             // 🔥 EMAIL TEMPLATE COLOR BASED ON ACTION
             string headerColor = dto.Action == "Approved" ? "#28a745" : "#dc3545";
