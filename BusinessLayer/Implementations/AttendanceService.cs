@@ -702,25 +702,63 @@ namespace BusinessLayer.Implementations
         // ================================
         // GetUnsavedDates
         // ================================
+        //public async Task<List<DateTime>> GetUnsavedDates(int companyId, int regionId)
+        //{
+        //    var attendanceData = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
+
+        //    var last7Days = Enumerable.Range(0, 7)
+        //        .Select(d => DateTime.Today.AddDays(-d).Date)
+        //        .Where(d => d.DayOfWeek != DayOfWeek.Saturday &&
+        //                    d.DayOfWeek != DayOfWeek.Sunday)
+        //        .ToList();
+
+        //    var savedDates = attendanceData
+        //        .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+        //        .Select(x => x.AttendanceDate.Value.ToDateTime(TimeOnly.MinValue).Date)
+        //        .Distinct()
+        //        .ToList();
+
+        //    var unsavedDates = last7Days
+        //        .Where(d => !savedDates.Contains(d))
+        //        .ToList();
+
+        //    return unsavedDates;
+        //}
+
         public async Task<List<DateTime>> GetUnsavedDates(int companyId, int regionId)
         {
             var attendanceData = await _unitOfWork.Repository<EmployeeAttendance>().GetAllAsync();
 
+            // Last 7 days
             var last7Days = Enumerable.Range(0, 7)
                 .Select(d => DateTime.Today.AddDays(-d).Date)
-                .Where(d => d.DayOfWeek != DayOfWeek.Saturday &&
-                            d.DayOfWeek != DayOfWeek.Sunday)
                 .ToList();
 
+            // Saved attendance dates
             var savedDates = attendanceData
-                .Where(x => x.CompanyId == companyId && x.RegionId == regionId)
+                .Where(x => x.CompanyId == companyId &&
+                            x.RegionId == regionId &&
+                            x.AttendanceDate.HasValue)
                 .Select(x => x.AttendanceDate.Value.ToDateTime(TimeOnly.MinValue).Date)
                 .Distinct()
                 .ToList();
 
-            var unsavedDates = last7Days
-                .Where(d => !savedDates.Contains(d))
+            // Company/Region weekoff dates
+            // Company weekoff days
+            var weekoffDays = (await _unitOfWork.Repository<Weekoff>()
+                .FindAsync(x => !x.IsDeleted &&
+                                x.IsActive &&
+                                x.CompanyId == companyId &&
+                                x.RegionId == regionId))
+                .Select(x => x.Weekoff1?.Trim())
+                .Where(x => !string.IsNullOrEmpty(x))
                 .ToList();
+
+            // Exclude weekoffs
+              var unsavedDates = last7Days
+             .Where(d => !savedDates.Contains(d))
+             .Where(d => !weekoffDays.Contains(d.DayOfWeek.ToString()))
+             .ToList();
 
             return unsavedDates;
         }
