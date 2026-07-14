@@ -9,11 +9,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly HRMSContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
-        public WorkFromHomeRequestService(HRMSContext context, IEmailService emailService)
+        public WorkFromHomeRequestService(HRMSContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         // 🔹 CREATE WFH / REMOTE REQUEST
@@ -74,6 +76,39 @@ namespace BusinessLayer.Implementations
                 // GET MANAGER EMAIL
                 var manager = await _context.Users
                     .FirstOrDefaultAsync(u => u.UserId == dto.ManagerID);
+                // ================= NOTIFICATION SECTION =================
+
+                var notificationUsers = new List<int>();
+
+                // Manager Notification
+                if (manager != null)
+                {
+                    notificationUsers.Add(manager.UserId);
+                }
+
+
+                // Reporting HR Notification
+                if (employeeUser?.ReportingHr != null)
+                {
+                    notificationUsers.Add(employeeUser.ReportingHr.Value);
+                }
+
+
+                notificationUsers = notificationUsers
+                    .Distinct()
+                    .ToList();
+
+
+                if (notificationUsers.Any())
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        notificationUsers,
+                        "WFH Request",
+                        $"{dto.EmployeeName} has submitted a Work From Home request.",
+                        "Work From Home",
+                        entity.WfhrequestId
+                    );
+                }
 
                 if (manager != null && !string.IsNullOrEmpty(manager.Email))
                 {
@@ -178,6 +213,35 @@ namespace BusinessLayer.Implementations
             var employee = await _context.Users
         .FirstOrDefaultAsync(u => u.UserId == entity.EmployeeId);
 
+            var notificationUsers = new List<int>();
+
+            // Employee Notification
+            notificationUsers.Add(entity.EmployeeId);
+
+
+            // Reporting HR Notification
+            if (employee?.ReportingHr != null)
+            {
+                notificationUsers.Add(employee.ReportingHr.Value);
+            }
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "WFH Request",
+                    $"{entity.EmployeeName}'s Work From Home request has been {entity.Status} by Manager.",
+                    "Work From Home",
+                    entity.WfhrequestId
+                );
+            }
+
             if (employee != null && !string.IsNullOrEmpty(employee.Email))
             {
                 var subject = $"WFH Request {entity.Status}";
@@ -242,6 +306,39 @@ namespace BusinessLayer.Implementations
             {
                 var employee = await _context.Users
                     .FirstOrDefaultAsync(u => u.UserId == item.EmployeeId);
+
+                if (employee != null)
+                {
+                    var notificationUsers = new List<int>();
+
+                    // Employee Notification
+                    notificationUsers.Add(item.EmployeeId);
+
+
+                    // Reporting HR Notification
+                    if (employee.ReportingHr.HasValue)
+                    {
+                        notificationUsers.Add(employee.ReportingHr.Value);
+                    }
+
+
+                    notificationUsers = notificationUsers
+                        .Distinct()
+                        .ToList();
+
+
+                    if (notificationUsers.Any())
+                    {
+                        await _notificationService.CreateNotificationAsync(
+                            notificationUsers,
+                            "WFH Request",
+                            $"{item.EmployeeName}'s Work From Home request has been {item.Status} by Manager.",
+                            "Work From Home",
+                            item.WfhrequestId
+                        );
+                    }
+                }
+
 
 
 

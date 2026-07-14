@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs;
+﻿using System.Reflection.Emit;
+using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
@@ -1445,6 +1446,26 @@ namespace BusinessLayer.Implementations
 
 
             await _context.SaveChangesAsync();
+            var employees = await _context.Users
+            .Where(u => u.CompanyId == model.CompanyId
+                     && u.RegionId == model.RegionId
+                     && codes.Contains(u.EmployeeCode))
+            .ToListAsync();
+
+            var notifyUsers = employees
+                .Select(x => x.UserId)
+                .ToList();
+
+            if (notifyUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notifyUsers,
+                    "Form Updated",
+                    $"Your {model.DocumentName} has been updated.",
+                    "EmployeeForm",
+                    entity.Id
+                );
+            }
             return true;
         }
         /// <summary>
@@ -1738,6 +1759,24 @@ namespace BusinessLayer.Implementations
             }
 
             await _context.SaveChangesAsync();
+            var notificationEmpCodes = model.EmployeeCode.Split(',');
+
+            var notifyUsers = await _context.Users
+                .Where(u => u.CompanyId == model.CompanyId
+                         && u.RegionId == model.RegionId
+                         && notificationEmpCodes.Contains(u.EmployeeCode))
+                .Select(u => u.UserId)
+                .ToListAsync();
+            if (notifyUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notifyUsers,
+                    "Letter Updated",
+                    $"Your {model.DocumentName} has been updated.",
+                    "EmployeeLetter",
+                    model.Id
+                );
+            }
             return true;
         }
 

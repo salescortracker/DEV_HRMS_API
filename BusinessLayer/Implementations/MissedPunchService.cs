@@ -9,11 +9,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly HRMSContext _context;
         private readonly IEmailService _emailService; // ✅ ADD
+        private readonly INotificationService _notificationService;
 
-        public MissedPunchService(HRMSContext context, IEmailService emailService) // ✅ ADD
+        public MissedPunchService(HRMSContext context, IEmailService emailService, INotificationService notificationService) // ✅ ADD
         {
             _context = context;
             _emailService = emailService; // ✅ ADD
+            _notificationService = notificationService;
         }
 
         // 🔹 CREATE
@@ -72,7 +74,32 @@ namespace BusinessLayer.Implementations
 
                     reportingHrEmail = reportingHrUser?.Email;
                 }
+                // ================= NOTIFICATION SECTION =================
 
+                var notificationUsers = new List<int>();
+
+                if (dto.reportingTo.HasValue)
+                {
+                    notificationUsers.Add(dto.reportingTo.Value);
+                }
+
+                if (employee?.ReportingHr != null)
+                {
+                    notificationUsers.Add(employee.ReportingHr.Value);
+                }
+
+                notificationUsers = notificationUsers.Distinct().ToList();
+
+                if (notificationUsers.Any())
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        notificationUsers,
+                        "Missed Punch Request",
+                        $"{employee.FullName} has submitted a missed punch request for {dto.MissedDate:dd-MMM-yyyy}.",
+                        "Attendance",
+                        entity.MissedPunchRequestId   // Replace with your actual PK if needed
+                    );
+                }
                 // ✅ SEND EMAIL TO MANAGER
                 if (manager != null && !string.IsNullOrEmpty(manager.Email))
                 {
@@ -249,6 +276,31 @@ namespace BusinessLayer.Implementations
                 .Where(x => x.UserId == dto.ManagerID)
                 .Select(x => new { x.FullName })
                 .FirstOrDefaultAsync();
+            // ================= NOTIFICATION =================
+
+            var notificationUsers = new List<int>();
+
+            // Employee
+            notificationUsers.Add(entity.UserId);
+
+            // Reporting HR
+            if (employee?.ReportingHr != null)
+            {
+                notificationUsers.Add(employee.ReportingHr.Value);
+            }
+
+            notificationUsers = notificationUsers.Distinct().ToList();
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Missed Punch Request",
+                    $"{employee?.FullName}'s missed punch request has been {dto.Status} by Manager.",
+                    "Attendance",
+                    entity.MissedPunchRequestId
+                );
+            }
 
             if (employee != null && !string.IsNullOrEmpty(employee.Email))
             {
@@ -356,6 +408,36 @@ namespace BusinessLayer.Implementations
         x.ReportingHr
     })
     .FirstOrDefaultAsync();
+                // ================= NOTIFICATION SECTION =================
+
+                var notificationUsers = new List<int>();
+
+                // Employee Notification
+                notificationUsers.Add(item.UserId);
+
+
+                // Reporting HR Notification
+                if (employee?.ReportingHr != null)
+                {
+                    notificationUsers.Add(employee.ReportingHr.Value);
+                }
+
+
+                notificationUsers = notificationUsers
+                    .Distinct()
+                    .ToList();
+
+
+                if (notificationUsers.Any())
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        notificationUsers,
+                        "Missed Punch Request",
+                        $"{employee?.FullName}'s missed punch request has been {dto.Status} by Manager.",
+                        "Attendance",
+                        item.MissedPunchRequestId
+                    );
+                }
 
                 string? reportingHrEmail = null;
 
@@ -366,6 +448,7 @@ namespace BusinessLayer.Implementations
 
                     reportingHrEmail = reportingHrUser?.Email;
                 }
+
 
                 if (employee != null && !string.IsNullOrEmpty(employee.Email))
                 {

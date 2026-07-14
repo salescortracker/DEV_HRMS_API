@@ -14,12 +14,14 @@ namespace BusinessLayer.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
 
-        public EmployeeResignationService(IUnitOfWork unitOfWork, IEmailService emailService)
+        public EmployeeResignationService(IUnitOfWork unitOfWork, IEmailService emailService, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         // ===================== OLD REQUIRED METHOD =====================
@@ -200,10 +202,86 @@ namespace BusinessLayer.Implementations
 
             await _unitOfWork.Repository<EmployeeResignation>().AddAsync(entity);
             await _unitOfWork.CompleteAsync();
+            // ================= NOTIFICATION SECTION =================
+
+            var employeeName = employeeUser?.FullName ?? dto.EmployeeId;
+
+            var requestType = string.IsNullOrWhiteSpace(dto.ResignationType)
+                                ? "Employee Exit"
+                                : dto.ResignationType;
+
+
+            var notificationTitle = $"{requestType} Request";
+
+            var notificationMessage =
+                $"{employeeName} has submitted a {requestType} request.";
+
+
+            // Get Manager (needed for both notification and email)
+            var manager = await GetManagerAsync(dto.UserId.Value);
+
+
+            // ================= EMPLOYEE SUBMITTED =================
+            // Employee creates resignation
+            // Notify HR + Manager
+
+            // ================= EMPLOYEE SUBMITTED =================
+
+            if (int.TryParse(dto.CreatedBy, out int createdUserId)
+                && createdUserId == dto.UserId.Value)
+            {
+                var notificationUsers = new List<int>();
+
+                if (manager != null)
+                {
+                    notificationUsers.Add(manager.UserId);
+                }
+
+                if (reportingHrId.HasValue)
+                {
+                    notificationUsers.Add(reportingHrId.Value);
+                }
+
+
+                if (notificationUsers.Any())
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        notificationUsers,
+                        notificationTitle,
+                        notificationMessage,
+                        "Employee Exit",
+                        entity.ResignationId
+                    );
+                }
+            }
+
+
+            // ================= HR / MANAGER SUBMITTED =================
+
+            else
+            {
+                string title = requestType;
+
+                string message = requestType.ToLower() switch
+                {
+                    "resignation" => "You have been resigned.",
+                    "termination" => "You have been terminated.",
+                    "retirement" => "You have been retired.",
+                    "voluntary retirement" => "You have been retired.",
+                    _ => $"Your {requestType} process has been initiated."
+                };
+
+                await _notificationService.CreateNotificationAsync(
+                    new List<int> { dto.UserId.Value },
+                    title,
+                    message,
+                    "Employee Exit",
+                    entity.ResignationId
+                );
+            }
 
             // ================= EMAIL SECTION =================
 
-            var manager = await GetManagerAsync(dto.UserId.Value);
             if (manager == null || string.IsNullOrWhiteSpace(manager.Email))
                 return MapToDto(entity);
 
@@ -421,6 +499,78 @@ namespace BusinessLayer.Implementations
 
             _unitOfWork.Repository<EmployeeResignation>().Update(entity);
             await _unitOfWork.CompleteAsync();
+            // ================= NOTIFICATION SECTION =================
+
+            var notificationUsers = new List<int>();
+
+            var requestType = string.IsNullOrWhiteSpace(entity.ResignationType)
+                ? "Employee Exit"
+                : entity.ResignationType;
+
+            string notificationTitle = "";
+            string notificationMessage = "";
+
+
+            // ================= MANAGER ACTION =================
+
+            if (isManagerApprove || isManagerReject)
+            {
+                notificationTitle = $"{requestType} {status}";
+
+                notificationMessage =
+                    $"Employee {entity.EmployeeId} {requestType} request has been {status} by Manager.";
+
+                // Employee
+                if (entity.UserId.HasValue)
+                    notificationUsers.Add(entity.UserId.Value);
+
+                // Reporting HR
+                if (entity.ReportingHr.HasValue)
+                    notificationUsers.Add(entity.ReportingHr.Value);
+            }
+
+
+            // ================= HR ACTION =================
+
+            else if (isHRApprove || isHRReject)
+            {
+                notificationTitle = $"{requestType} {status}";
+
+                notificationMessage =
+                    $"Employee {entity.EmployeeId} {requestType} request has been {status} by HR.";
+
+                // Employee
+                if (entity.UserId.HasValue)
+                    notificationUsers.Add(entity.UserId.Value);
+
+                // Manager
+                if (entity.UserId.HasValue)
+                {
+                    var manager = await GetManagerAsync(entity.UserId.Value);
+
+                    if (manager != null)
+                    {
+                        notificationUsers.Add(manager.UserId);
+                    }
+                }
+            }
+
+
+            // Remove duplicate users
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    notificationTitle,
+                    notificationMessage,
+                    "Employee Exit",
+                    resignationId
+                );
+            }
 
             // send email
             if (entity.UserId.HasValue)
