@@ -17,12 +17,14 @@ namespace BusinessLayer.Implementations
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
         private readonly HRMSContext _context;
+        private readonly INotificationService _notificationService;
 
-        public CompanyNewsPolicyService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext context)
+        public CompanyNewsPolicyService(IUnitOfWork unitOfWork, IEmailService emailService, HRMSContext context, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _context = context;
+            _notificationService = notificationService;
         }
 
         // =========================================================
@@ -203,6 +205,7 @@ namespace BusinessLayer.Implementations
         //    return MapNewsToDto(entity);
         //}
 
+
         public async Task<CompanyNewsMasterDto> AddNewsAsync(CompanyNewsMasterDto dto)
         {
             string? fileName = null;
@@ -264,6 +267,34 @@ namespace BusinessLayer.Implementations
                 .AddAsync(entity);
 
             await _unitOfWork.CompleteAsync();
+            //=========================================
+            // CREATE SYSTEM NOTIFICATION
+            //=========================================
+
+            var notificationUsers = await _context.Users
+                .Where(x =>
+                    x.CompanyId == dto.CompanyId &&
+                    x.RegionId == dto.RegionId &&
+                    x.Status == "Active" &&
+                    (
+                        dto.DepartmentIds == null ||
+                        !dto.DepartmentIds.Any() ||
+                        dto.DepartmentIds.Contains((int)x.DepartmentId)
+                    ))
+                .Select(x => x.UserId)
+                .ToListAsync();
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "New Company Announcement",
+                    dto.Title,
+                    "CompanyNews",
+                    entity.NewsId
+                );
+            }
 
             //=============================
             // Save Departments
@@ -512,6 +543,30 @@ Regards,<br/>
     .Update(entity);
 
             await _unitOfWork.CompleteAsync();
+            var notificationUsers = await _context.Users
+    .Where(x =>
+        x.CompanyId == dto.CompanyId &&
+        x.RegionId == dto.RegionId &&
+        x.Status == "Active" &&
+        (
+            dto.DepartmentIds == null ||
+            !dto.DepartmentIds.Any() ||
+            dto.DepartmentIds.Contains((int)x.DepartmentId)
+        ))
+    .Select(x => x.UserId)
+    .ToListAsync();
+
+
+            if (notificationUsers.Any())
+            {
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Company News Updated",
+                    entity.Title,
+                    "CompanyNews",
+                    entity.NewsId
+                );
+            }
 
 
             // Existing mappings delete

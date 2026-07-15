@@ -1680,5 +1680,13 @@ namespace HRMS_Backend.Controllers
 
         #endregion
 
+        [HttpPost("SendEmployeeCelebration")]
+        public async Task<IActionResult> SendEmployeeCelebration()
+        {
+            await _userService.SendEmployeeCelebrationEmailsAsync();
+
+            return Ok("Birthday and Work Anniversary Emails Sent");
+        }
+
     }
 }

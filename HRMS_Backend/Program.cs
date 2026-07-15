@@ -172,6 +172,10 @@ RecurringJob.AddOrUpdate<ISubscriptionJobService>(
     x => x.ProcessExpiredSubscriptions(),
     Cron.Daily
 );
+RecurringJob.AddOrUpdate<IUserService>(
+    "EmployeeCelebrationEmails",
+    x => x.SendEmployeeCelebrationEmailsAsync(),
+    Cron.Daily(9));
 
 app.Run();
 
