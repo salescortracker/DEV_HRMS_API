@@ -28,7 +28,48 @@ namespace BusinessLayer.Implementations
             _notificationService = notificationService;
             _emailService = emailService;
         }
+        public async Task<AdminDashboardCountDto> GetAdminDashboardCountAsync(int userId)
+        {
 
+            // Get Companies created by Admin
+            var companyIds = await _context.Companies
+                .Where(x =>
+                    x.UserId == userId &&
+                    x.IsActive == true)
+                .Select(x => x.CompanyId)
+                .ToListAsync();
+
+
+
+            // Get Regions created by Admin
+            var regionIds = await _context.Regions
+                .Where(x =>
+                    x.UserId == userId &&
+                    x.IsActive == true)
+                .Select(x => x.RegionId)
+                .ToListAsync();
+
+
+
+            // Get Employees under those companies and regions
+            var employeeCount = await _context.Users
+                .Where(x =>
+                    x.Status == "Active" &&
+                    companyIds.Contains(x.CompanyId) &&
+                    regionIds.Contains(x.RegionId))
+                .CountAsync();
+
+
+
+            return new AdminDashboardCountDto
+            {
+                TotalCompanies = companyIds.Count,
+
+                TotalRegions = regionIds.Count,
+
+                TotalEmployees = employeeCount
+            };
+        }
         public async Task<IEnumerable<DataAccessLayer.DBContext.User>> GetAllUsersAsync(int userCompanyId)
         {
             return await _context.Users.Where(x=>x.UserCompanyId==userCompanyId).ToListAsync();

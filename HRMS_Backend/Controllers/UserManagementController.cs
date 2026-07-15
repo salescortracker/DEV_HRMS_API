@@ -715,6 +715,14 @@ namespace HRMS_Backend.Controllers
         }
         #endregion
         #region User Details
+        [HttpGet("AdminDashboardCount/{userId}")]
+        public async Task<IActionResult> GetAdminDashboardCount(int userId)
+        {
+            var result =
+                await _userService.GetAdminDashboardCountAsync(userId);
+
+            return Ok(result);
+        }
         [HttpGet("GetAllUsers/{userId}")]
         public async Task<IActionResult> GetAllUsers(int userId)
         

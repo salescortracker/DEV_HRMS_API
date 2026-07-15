@@ -26,5 +26,6 @@ namespace BusinessLayer.Interfaces
 
         Task<List<UserSubscriptionDto>> GetALLSubcriptionUsers();
         Task SendEmployeeCelebrationEmailsAsync();
+        Task<AdminDashboardCountDto> GetAdminDashboardCountAsync(int userId);
     }
 }
