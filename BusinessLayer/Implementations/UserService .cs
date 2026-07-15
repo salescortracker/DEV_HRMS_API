@@ -18,11 +18,15 @@ namespace BusinessLayer.Implementations
     {
         private readonly DataAccessLayer.DBContext.HRMSContext _context;
         private readonly IConfiguration _configuration;
+        private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
 
-        public UserService(DataAccessLayer.DBContext.HRMSContext context, IConfiguration configuration)
+        public UserService(DataAccessLayer.DBContext.HRMSContext context, IConfiguration configuration, INotificationService notificationService, IEmailService emailService)
         {
             _context = context;
             _configuration = configuration;
+            _notificationService = notificationService;
+            _emailService = emailService;
         }
 
         public async Task<IEnumerable<DataAccessLayer.DBContext.User>> GetAllUsersAsync(int userCompanyId)
@@ -894,6 +898,146 @@ namespace BusinessLayer.Implementations
             await _context.SaveChangesAsync();
 
             return true;
+        }
+        public async Task SendEmployeeCelebrationEmailsAsync()
+        {
+            var today = DateTime.Today;
+
+
+            var anniversaryEmployees = await _context.Users
+                .Where(x =>
+                    x.Status == "Active" &&
+                    x.JoiningDate.HasValue &&
+                    x.JoiningDate.Value.Month == today.Month &&
+                    x.JoiningDate.Value.Day == today.Day &&
+                    !string.IsNullOrEmpty(x.Email))
+                .Select(x => new
+                {
+                    x.UserId,
+                    x.FullName,
+                    x.Email,
+                    x.JoiningDate
+                })
+                .ToListAsync();
+
+
+            foreach (var employee in anniversaryEmployees)
+            {
+                int years = today.Year - employee.JoiningDate.Value.Year;
+
+
+                string subject =
+                    $"Happy Work Anniversary {employee.FullName}";
+
+
+                string body = $@"
+                        <html>
+                        <body style='font-family:Segoe UI'>
+
+                        <h2>🎉 Happy Work Anniversary!</h2>
+
+                        <p>Dear <b>{employee.FullName}</b>,</p>
+
+                        <p>
+                        Congratulations on completing 
+                        <b>{years} year(s)</b> with our organization.
+                        </p>
+
+                        <p>
+                        Thank you for your valuable contribution.
+                        </p>
+
+                        <br/>
+
+                        Regards,<br/>
+                        <b>HR Team</b>
+
+                        </body>
+                        </html>";
+
+
+                await _emailService.SendEmailAsync(
+                    employee.Email,
+                    subject,
+                    body);
+                await _notificationService.CreateNotificationAsync(
+                        new List<int> { employee.UserId },
+                        "Work Anniversary 🎉",
+                        $"Congratulations on completing {years} years!",
+                        "Work Anniversary",
+                        employee.UserId
+                );
+            }
+
+
+            var birthdayEmployees = await
+                (
+                    from emp in _context.EmployeePersonalDetails
+                    join user in _context.Users
+                    on emp.UserId equals user.UserId
+
+                    where user.Status == "Active"
+                    && emp.DateOfBirth.Month == today.Month
+                    && emp.DateOfBirth.Day == today.Day
+                    && !string.IsNullOrEmpty(user.Email)
+
+                    select new
+                    {
+                        UserId = user.UserId,
+                        Name = emp.FirstName + " " + emp.LastName,
+                        Email = user.Email
+                    }
+
+                ).ToListAsync();
+
+
+
+            foreach (var employee in birthdayEmployees)
+            {
+
+                string subject =
+                    $"Happy Birthday {employee.Name}";
+
+
+                string body = $@"
+                        <html>
+                        <body style='font-family:Segoe UI'>
+
+                        <h2>🎂 Happy Birthday!</h2>
+
+                        <p>
+                        Dear <b>{employee.Name}</b>,
+                        </p>
+
+
+                        <p>
+                        Wishing you a very Happy Birthday.
+                        May your day be filled with happiness,
+                        success and good health.
+                        </p>
+
+
+                        <br/>
+
+                        Regards,<br/>
+                        <b>HR Team</b>
+
+                        </body>
+                        </html>";
+
+
+                await _emailService.SendEmailAsync(
+                    employee.Email,
+                    subject,
+                    body);
+                await _notificationService.CreateNotificationAsync(
+                        new List<int> { employee.UserId },
+                        "Happy Birthday 🎂",
+                        "Wishing you a very Happy Birthday!",
+                        "Birthday",
+                        employee.UserId
+                    );
+            }
         }
 
     }

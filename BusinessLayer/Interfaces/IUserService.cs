@@ -25,5 +25,6 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateDemoExpiry(int userId, DateTime demoExpiryDate);
 
         Task<List<UserSubscriptionDto>> GetALLSubcriptionUsers();
+        Task SendEmployeeCelebrationEmailsAsync();
     }
 }
