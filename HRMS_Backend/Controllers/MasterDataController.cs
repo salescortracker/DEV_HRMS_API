@@ -3570,10 +3570,10 @@ int regionId)
 
 
         [HttpGet("GetTodayPolicies")]
-        public async Task<IActionResult> GetTodayPolicies(int companyId, int regionId)
+        public async Task<IActionResult> GetTodayPolicies(int companyId, int regionId, int UserId)
         {
             var result = await _companyNewsPolicyService
-                .GetTodayPoliciesAsync(companyId, regionId);
+                .GetTodayPoliciesAsync(companyId, regionId, UserId);
 
             return Ok(result);
         }
