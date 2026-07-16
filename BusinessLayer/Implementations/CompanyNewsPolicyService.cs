@@ -868,46 +868,112 @@ Regards,<br/>
         //    }
 
 
-        public async Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int companyId, int regionId)
+        public async Task<IEnumerable<CompanyPolicyMasterDto>> GetTodayPoliciesAsync(int companyId, int regionId, int UserId)
         {
-            // Get all users
             var users = await _unitOfWork.Repository<User>().GetAllAsync();
 
-            var user = users.FirstOrDefault(x =>
+            var currentUser = users.FirstOrDefault(x =>
+                x.UserId == UserId &&
                 x.CompanyId == companyId &&
                 x.RegionId == regionId);
 
-            if (user == null)
+            if (currentUser == null)
                 return new List<CompanyPolicyMasterDto>();
 
-            // Get DepartmentId from user
-            var departmentId = user.DepartmentId;
 
-            // Get today's date
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            // Logged-in User Department
+            var departmentId = currentUser.DepartmentId;
 
-            // Get all policies
-            var policies = await _unitOfWork.Repository<CompanyPoliciesMaster>().GetAllAsync();
+            if (departmentId == null)
+                return new List<CompanyPolicyMasterDto>();
 
-            var mappings = await _unitOfWork
+
+            // Get Policy Master Data
+            var policies = await _unitOfWork
+                .Repository<CompanyPoliciesMaster>()
+                .GetAllAsync();
+
+
+            // Get Policy Department Mapping
+            var policyDepartments = await _unitOfWork
                 .Repository<CompanyPolicyDepartment>()
                 .GetAllAsync();
 
-            var policyIds = mappings
+
+
+            // Get PolicyIds based on User Department
+            var policyIds = policyDepartments
                 .Where(x => x.DepartmentId == departmentId)
                 .Select(x => x.PolicyId)
                 .Distinct()
                 .ToList();
 
-            return policies
+
+
+            // Get Active Policies
+            var filteredPolicies = policies
                 .Where(x =>
                     policyIds.Contains(x.PolicyId) &&
-                    x.IsActive == true 
-                    //x.PostedDate.HasValue &&
-                    //x.PostedDate.Value == today
-                    )
-                .Select(MapPolicyToDto)
+                    x.CompanyId == companyId &&
+                    x.RegionId == regionId &&
+                    x.IsActive == true
+                )
                 .ToList();
+
+
+
+            // Map Response
+            var result = filteredPolicies.Select(policy => new CompanyPolicyMasterDto
+            {
+                PolicyId = policy.PolicyId,
+
+                PolicyTitle = policy.PolicyTitle,
+
+                PolicyDescription = policy.PolicyDescription,
+
+                PostedDate = policy.PostedDate,
+
+                EffectiveDate = policy.EffectiveDate,
+
+                ExpiryDate = policy.ExpiryDate,
+
+                IsActive = policy.IsActive,
+
+                UserId = policy.UserId,
+
+                CompanyId = policy.CompanyId,
+
+                RegionId = policy.RegionId,
+
+                CreatedBy = policy.CreatedBy,
+
+                UpdatedBy = policy.UpdatedBy,
+
+                CreatedAt = policy.CreatedAt,
+
+                UpdatedAt = policy.UpdatedAt,
+
+                Category = policy.Category,
+
+                FromDate = policy.FromDate,
+
+                ToDate = policy.ToDate,
+
+                AttachmentName = policy.AttachmentName,
+
+                AttachmentPath = policy.AttachmentPath,
+
+
+                // Get Departments from Mapping Table Only
+                DepartmentIds = policyDepartments
+                    .Where(d => d.PolicyId == policy.PolicyId)
+                    .Select(d => d.DepartmentId)
+                    .ToList()
+
+            }).ToList();
+
+
+            return result;
         }
 
         public async Task<CompanyPolicyMasterDto?> GetPolicyByIdAsync(int id, int userId)
