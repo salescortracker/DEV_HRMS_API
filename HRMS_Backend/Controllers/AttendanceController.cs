@@ -86,7 +86,20 @@ namespace HRMS_Backend.Controllers
         public async Task<IActionResult> UpdateShift([FromBody] ShiftMasterDto dto)
         {
             var status = await _shiftAllocationService.UpdateShiftAsync(dto);
-            return status ? Ok(status) : NotFound("Shift not found");
+            if (status)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Shift updated successfully."
+                });
+            }
+
+            return NotFound(new
+            {
+                success = false,
+                message = "Shift not found."
+            });
         }
 
         [HttpPost("DeleteShift")]
