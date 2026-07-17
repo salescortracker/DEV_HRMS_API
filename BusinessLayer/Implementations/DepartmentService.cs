@@ -84,7 +84,7 @@ namespace BusinessLayer.Implementations
                 {
                     CompanyId = dto.companyId,
                     RegionId = dto.regionId,
-                    DepartmentName = dto.description,
+                    DepartmentName = dto.departmentName,
                     IsActive = dto.isActive,
                     UserId = dto.userId,
                     // CreatedBy =dto.userId,
@@ -99,7 +99,7 @@ namespace BusinessLayer.Implementations
                     departmentId = entity.DepartmentId,
                     companyId = entity.CompanyId,
                     regionId = entity.RegionId,
-                    description = entity.DepartmentName,
+                    departmentName = entity.DepartmentName,
                     isActive = entity.IsActive
                 };
 
@@ -124,7 +124,7 @@ namespace BusinessLayer.Implementations
                     d.DepartmentId != dto.departmentId &&
                     d.CompanyId == dto.companyId &&
                     d.RegionId == dto.regionId &&
-                    d.DepartmentName.ToLower() == dto.description.ToLower())).Any();
+                    d.DepartmentName.ToLower() == dto.departmentName.ToLower())).Any();
 
                 if (dup)
                     return new ApiResponse<DepartmentDto>(null!, "Duplicate department exists.", false);
@@ -135,6 +135,7 @@ namespace BusinessLayer.Implementations
                 entity.IsActive = dto.isActive;
                 //entity.ModifiedBy = dto.userId;
                 entity.ModifiedAt = DateTime.UtcNow;
+                entity.DepartmentName = dto.departmentName;
 
                 _unitOfWork.Repository<Department>().Update(entity);
                 await _unitOfWork.CompleteAsync();
