@@ -3258,8 +3258,8 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
-        [HttpPost("DeletePolicyCategory")]
-        public async Task<IActionResult> DeletePolicyCategory([FromQuery] int id)
+        [HttpPost("DeletePolicyCategory/{id}")]
+        public async Task<IActionResult> DeletePolicyCategory(int id)
         {
             var result = await _policyCategoryService.DeleteAsync(id);
             return Ok(result);
