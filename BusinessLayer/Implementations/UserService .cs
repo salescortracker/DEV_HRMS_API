@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 
 
@@ -260,6 +261,15 @@ namespace BusinessLayer.Implementations
                         Error = "Invalid username or password"
                     };
                 }
+                // Prevent inactive users from logging in
+                if (user.Status != "Active")
+                {
+                    return new LoginResponseDto
+                    {
+                        Error = "ACCOUNT_INACTIVE",
+                        Message = "Your account is inactive. Please contact the administrator."
+                    };
+                }
                 if (user.RoleId == 0)
                 {
                     var superAdminData = await _context.Users
@@ -490,11 +500,20 @@ namespace BusinessLayer.Implementations
                     if (user.PasswordHash != oldHash)
                         return new ApiResponse<bool>(false, "Old password is incorrect", false);
                 }
+                string pattern =@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,13}$";
+
+                if (!Regex.IsMatch(dto.NewPassword, pattern))
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "Password must be 8-13 characters long and contain at least one uppercase letter, one lowercase letter, one number, one special character (@$!%*?&) and no spaces.",
+                        false);
+                }
 
                 user.PasswordHash = dto.NewPassword;
                 user.Userloginstatus = true;
                 user.Passwordchanged = true;
-                _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
                 await SendPasswordChangedEmailAsync(user, user.PasswordHash);
                 return new ApiResponse<bool>(true, "Password updated successfully", true);
@@ -877,6 +896,16 @@ namespace BusinessLayer.Implementations
 
             if (user == null)
                 return new ApiResponse<bool>(false, "Invalid Email", false);
+            string pattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,13}$";
+
+            if (!Regex.IsMatch(newPassword, pattern))
+            {
+                return new ApiResponse<bool>(
+                    false,
+                    "Password must be 8-13 characters and contain at least one uppercase letter, one lowercase letter, one number, one special character (@$!%*?&) and no spaces.",
+                    false);
+            }
+
 
             user.PasswordHash = newPassword;
             user.Passwordchanged = true;
