@@ -1442,6 +1442,7 @@ namespace HRMS_Backend.Controllers
         {
             var dto = new MaritalStatusDto
             {
+                MaritalStatusId = id,
                 CompanyId = companyId,
                 RegionId = regionId,
                 MaritalStatusName = maritalStatusName,
