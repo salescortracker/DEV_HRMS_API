@@ -261,6 +261,28 @@ namespace BusinessLayer.Implementations
                         Error = "Invalid username or password"
                     };
                 }
+                var sessionId = Guid.NewGuid();
+
+                user.LoginSessionId = sessionId;
+                // Browser Session
+                var browserSessionId = Guid.NewGuid();
+
+                // Remove previous browser session
+                var existingBrowserSessions = await _context.ActiveBrowserSessions.ToListAsync();
+
+                if (existingBrowserSessions.Any())
+                {
+                    _context.ActiveBrowserSessions.RemoveRange(existingBrowserSessions);
+                }
+
+                // Insert new browser session
+                _context.ActiveBrowserSessions.Add(new ActiveBrowserSession
+                {
+                    BrowserSessionId = browserSessionId,
+                    UserId = user.UserId,
+                    CreatedDate = DateTime.Now
+                });
+
                 // Prevent inactive users from logging in
                 if (user.Status != "Active")
                 {
@@ -294,7 +316,9 @@ namespace BusinessLayer.Implementations
                     return new LoginResponseDto
                     {
                         User = superAdminData,
-                        AllowedModules = new List<object>()
+                        AllowedModules = new List<object>(),
+                        SessionId = sessionId,
+                        BrowserSessionId = browserSessionId
                     };
                 }
                 int subscriptionUserId = user.UserId;
@@ -331,124 +355,136 @@ namespace BusinessLayer.Implementations
 
                 if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
                     throw new ArgumentException("Username or password cannot be empty.");
-                var result = _context.Users.Where(x => x.Email == username && x.PasswordHash == password).FirstOrDefault();
 
 
-                if (result != null ? result.RoleId == 0 : false)
+
+                if (user.RoleId == 0)
                 {
                     var roledata = await (
-    from u in _context.Users
-        // join r in _context.RoleMasters on u.RoleId equals r.RoleId
-    join reg in _context.Regions on u.RegionId equals reg.RegionId
-    join c in _context.Companies on u.CompanyId equals c.CompanyId
-    join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
-    from d in deptJoin.DefaultIfEmpty()
-    join des in _context.Designations
-        on u.DesignationId equals des.DesignationId into desJoin
-    from des in desJoin.DefaultIfEmpty()
+                        from u in _context.Users
+                            // join r in _context.RoleMasters on u.RoleId equals r.RoleId
+                        join reg in _context.Regions on u.RegionId equals reg.RegionId
+                        join c in _context.Companies on u.CompanyId equals c.CompanyId
+                        join d in _context.Departments on u.DepartmentId equals d.DepartmentId into deptJoin
+                        from d in deptJoin.DefaultIfEmpty()
+                        join des in _context.Designations
+                            on u.DesignationId equals des.DesignationId into desJoin
+                        from des in desJoin.DefaultIfEmpty()
 
 
-    join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
-    from rm in managerJoin.DefaultIfEmpty()
+                        join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
+                        from rm in managerJoin.DefaultIfEmpty()
 
-    where u.Email == username && u.PasswordHash == password
+                        where u.Email == username && u.PasswordHash == password
 
-    select new
-    {
-        u.UserId,
-        u.Email,
-        u.FullName,
+                        select new
+                        {
+                            u.UserId,
+                            u.Email,
+                            u.FullName,
 
-        // RoleName = r.RoleName,
-        RegionName = reg.RegionName,
-        CompanyName = c.CompanyName,
+                            // RoleName = r.RoleName,
+                            RegionName = reg.RegionName,
+                            CompanyName = c.CompanyName,
 
-        roleId = u.RoleId,
-        companyId = u.CompanyId,
-        regionId = u.RegionId,
-        employeeCode = u.EmployeeCode,
+                            roleId = u.RoleId,
+                            companyId = u.CompanyId,
+                            regionId = u.RegionId,
+                            employeeCode = u.EmployeeCode,
 
-        DepartmentId = u.DepartmentId,
-        DepartmentName = d.DepartmentName, // 🔥 STRING
+                            DepartmentId = u.DepartmentId,
+                            DepartmentName = d.DepartmentName, // 🔥 STRING
 
-        ReportingManagerId = u.ReportingTo,
-        ReportingManagerName = rm.FullName, // 🔥 STRING
+                            ReportingManagerId = u.ReportingTo,
+                            ReportingManagerName = rm.FullName, // 🔥 STRING
 
-        DesignationId = u.DesignationId,
-        DesignationName = des.DesignationName,
+                            DesignationId = u.DesignationId,
+                            DesignationName = des.DesignationName,
 
-        personalEmail = u.Email,
-        userLoginStatus = u.Userloginstatus,
-        paswordChanged = u.Passwordchanged,
-        userCompanyId = u.UserCompanyId
-    })
- .FirstOrDefaultAsync();
-                    var loginStatus = await _context.Users.FirstOrDefaultAsync(u => u.Email == username);
-                    loginStatus.Userloginstatus = true;
-                    _context.Users.Update(loginStatus);
+                            personalEmail = u.Email,
+                            userLoginStatus = u.Userloginstatus,
+                            paswordChanged = u.Passwordchanged,
+                            userCompanyId = u.UserCompanyId
+                        })
+                     .FirstOrDefaultAsync();
+                    user.Userloginstatus = true;
+                    user.LoginSessionId = sessionId;
                     await _context.SaveChangesAsync();
 
                     return new LoginResponseDto
                     {
                         User = roledata,
-                        AllowedModules = allowedModules.Cast<object>().ToList()
+                        AllowedModules = allowedModules.Cast<object>().ToList(),
+                        SessionId = sessionId,
+                        BrowserSessionId = browserSessionId
                     };
 
                 }
                 else
                 {
                     var userData = await (
-        from u in _context.Users
-        join r in _context.RoleMasters on u.RoleId equals r.RoleId
+                    from u in _context.Users
 
+                    join r in _context.RoleMasters
+                        on u.RoleId equals r.RoleId
 
+                    join d in _context.Departments
+                        on u.DepartmentId equals d.DepartmentId into deptJoin
+                    from d in deptJoin.DefaultIfEmpty()
 
-        join rm in _context.Users on u.ReportingTo equals rm.UserId into managerJoin
-        from rm in managerJoin.DefaultIfEmpty()
+                    join des in _context.Designations
+                        on u.DesignationId equals des.DesignationId into desJoin
+                    from des in desJoin.DefaultIfEmpty()
 
-        where u.Email == username && u.PasswordHash == password
+                    join rm in _context.Users
+                        on u.ReportingTo equals rm.UserId into managerJoin
+                    from rm in managerJoin.DefaultIfEmpty()
 
-        select new
-        {
-            u.UserId,
-            u.Email,
-            u.FullName,
+                    where u.Email == username && u.PasswordHash == password
 
-            RoleName = r.RoleName,
-            // RegionName = reg.RegionName,
-            //CompanyName = c.CompanyName,
-
-            roleId = u.RoleId,
-            companyId = u.CompanyId,
-            regionId = u.RegionId,
-            employeeCode = u.EmployeeCode,
-
-            DepartmentId = u.DepartmentId,
-            //  DepartmentName = d.DepartmentName, // 🔥 STRING
-
-            ReportingManagerId = u.ReportingTo,
-            ReportingManagerName = rm.FullName, // 🔥 STRING
-
-            DesignationId = u.DesignationId,
-            // DesignationName = des.DesignationName,
-
-
-            personalEmail = u.Email,
-            userLoginStatus = u.Userloginstatus,
-            paswordChanged = u.Passwordchanged,
-            userCompanyId = u.UserCompanyId
-        })
-    .FirstOrDefaultAsync();
-                    var loginStatus = await _context.Users.FirstOrDefaultAsync(u => u.Email == username);
-                    loginStatus.Userloginstatus = true;
-                    _context.Users.Update(loginStatus);
-                    await _context.SaveChangesAsync();
-
-                    return new LoginResponseDto
+                    select new
                     {
-                        User = userData,
-                        AllowedModules = allowedModules.Cast<object>().ToList()
-                    };
+                        u.UserId,
+                        u.Email,
+                        u.FullName,
+
+                        RoleName = r.RoleName,
+
+                        roleId = u.RoleId,
+                        companyId = u.CompanyId,
+                        regionId = u.RegionId,
+                        employeeCode = u.EmployeeCode,
+
+                        // Department
+                        DepartmentId = u.DepartmentId,
+                        DepartmentName = d != null ? d.DepartmentName : "",
+
+                        // Designation
+                        DesignationId = u.DesignationId,
+                        DesignationName = des != null ? des.DesignationName : "",
+
+                        // Reporting Manager
+                        ReportingManagerId = u.ReportingTo,
+                        ReportingManagerName = rm != null ? rm.FullName : "",
+
+
+                        personalEmail = u.Email,
+                        userLoginStatus = u.Userloginstatus,
+                        paswordChanged = u.Passwordchanged,
+                        userCompanyId = u.UserCompanyId
+                    })
+                    .FirstOrDefaultAsync();
+                    user.Userloginstatus = true;
+                        user.LoginSessionId = sessionId;
+                        await _context.SaveChangesAsync();
+
+                        return new LoginResponseDto
+                        {
+                            User = userData,
+                            AllowedModules = allowedModules.Cast<object>().ToList(),
+                            SessionId = sessionId,
+                            BrowserSessionId = browserSessionId
+                        };
 
                 }
             }
