@@ -272,7 +272,12 @@ namespace BusinessLayer.Implementations
 
                 if (existingBrowserSessions.Any())
                 {
-                    _context.ActiveBrowserSessions.RemoveRange(existingBrowserSessions);
+                    _context.ActiveBrowserSessions.Add(new ActiveBrowserSession
+                    {
+                        BrowserSessionId = browserSessionId,
+                        UserId = user.UserId,
+                        CreatedDate = DateTime.Now
+                    });
                 }
 
                 // Insert new browser session
