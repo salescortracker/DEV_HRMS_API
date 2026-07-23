@@ -3156,6 +3156,175 @@
         }
       }
     },
+    "/api/Attendance/CreateLateArrivalRequest": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLateArrivalRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLateArrivalRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLateArrivalRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/GetLateArrivalRequest": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/GetApprovalLateArrivalRequest": {
+      "get": {
+        "tags": [
+          "Attendance"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/UpdateLateArrival": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLateArrivalDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLateArrivalDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLateArrivalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Attendance/BulkApproveRejectLateArrival": {
+      "post": {
+        "tags": [
+          "Attendance"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkApproveRejectLateArrivalDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkApproveRejectLateArrivalDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkApproveRejectLateArrivalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/CompanyEvent/GetAllEvents": {
       "get": {
         "tags": [
@@ -10191,36 +10360,6 @@
         }
       }
     },
-    "/api/Employee/GetTodayNotifications": {
-      "get": {
-        "tags": [
-          "Employee"
-        ],
-        "parameters": [
-          {
-            "name": "companyId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "regionId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/EmployeeKpi/GetAllKpis": {
       "get": {
         "tags": [
@@ -15682,7 +15821,7 @@
         }
       }
     },
-    "/api/MasterData/DeletePolicyCategory": {
+    "/api/MasterData/DeletePolicyCategory/{id}": {
       "post": {
         "tags": [
           "MasterData"
@@ -15690,7 +15829,8 @@
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -16847,6 +16987,14 @@
           },
           {
             "name": "regionId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "UserId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -18692,6 +18840,83 @@
         }
       }
     },
+    "/api/Notification/GetByUser/{userId}": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Notification/MarkAsRead/{notificationId}": {
+      "put": {
+        "tags": [
+          "Notification"
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Notification/Create": {
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Recruitment/GetNoticePeriods/{companyId}/{regionId}": {
       "get": {
         "tags": [
@@ -19056,6 +19281,29 @@
     },
     "/api/Recruitment/DeleteCandidate/{candidateId}": {
       "delete": {
+        "tags": [
+          "Recruitment"
+        ],
+        "parameters": [
+          {
+            "name": "candidateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Recruitment/RejectCandidate/{candidateId}": {
+      "put": {
         "tags": [
           "Recruitment"
         ],
@@ -20522,6 +20770,121 @@
         }
       }
     },
+    "/api/SubscriptionPlan/CreateOrder": {
+      "post": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubscriptionPlan/ActivateSubscription": {
+      "post": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubscriptionPlan/CreateInvoice": {
+      "post": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubscriptionPlan/GetInvoiceByUser": {
+      "get": {
+        "tags": [
+          "SubscriptionPlan"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/SubscriptionPlan/GetPlans": {
       "get": {
         "tags": [
@@ -21949,6 +22312,29 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/UserManagement/AdminDashboardCount/{userId}": {
+      "get": {
+        "tags": [
+          "UserManagement"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -23933,6 +24319,18 @@
         }
       }
     },
+    "/api/UserManagement/SendEmployeeCelebration": {
+      "post": {
+        "tags": [
+          "UserManagement"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [
@@ -24035,6 +24433,32 @@
           "userId": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ActivateDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "planId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paymentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "signature": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -25282,6 +25706,45 @@
         "type": "object",
         "properties": {
           "earlyLogoutRequestIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "managerRemarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "managerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BulkApproveRejectLateArrivalDto": {
+        "type": "object",
+        "properties": {
+          "lateArrivalRequestIds": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -27500,6 +27963,48 @@
         },
         "additionalProperties": false
       },
+      "CreateLateArrivalRequestDto": {
+        "type": "object",
+        "properties": {
+          "employeeID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedLateLoginTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reportingTo": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateMissedPunchRequestDto": {
         "type": "object",
         "properties": {
@@ -27550,6 +28055,20 @@
           "hrEmail": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateOrderRequestDto": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -30981,8 +31500,50 @@
             "format": "date-time",
             "nullable": true
           },
+          "employeeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "managerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedLateLoginTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "managerRemarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          },
           "company": {
             "$ref": "#/components/schemas/Company"
+          },
+          "employee": {
+            "$ref": "#/components/schemas/User"
+          },
+          "manager": {
+            "$ref": "#/components/schemas/User"
           },
           "region": {
             "$ref": "#/components/schemas/Region"
@@ -31883,6 +32444,37 @@
         },
         "additionalProperties": false
       },
+      "NotificationCreateDto": {
+        "type": "object",
+        "properties": {
+          "userIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "PasswordChangeDto": {
         "type": "object",
         "properties": {
@@ -31961,8 +32553,8 @@
             "nullable": true
           },
           "selfRating": {
-            "type": "integer",
-            "format": "int32",
+            "type": "number",
+            "format": "double",
             "nullable": true
           },
           "managerRating": {
@@ -34398,6 +34990,41 @@
         },
         "additionalProperties": false
       },
+      "UpdateLateArrivalDto": {
+        "type": "object",
+        "properties": {
+          "lateArrivalRequestID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "companyID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "regionID": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "requestedLateLoginTime": {
+            "type": "string",
+            "format": "time"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "hrEmail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateMissedPunchDto": {
         "type": "object",
         "properties": {
@@ -34687,6 +35314,11 @@
             "format": "date",
             "nullable": true
           },
+          "currentPlanId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "earlyLogoutRequestEmployees": {
             "type": "array",
             "items": {
@@ -34719,6 +35351,20 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EmployeeMaster"
+            },
+            "nullable": true
+          },
+          "lateLoginEmployees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LateLogin"
+            },
+            "nullable": true
+          },
+          "lateLoginManagers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LateLogin"
             },
             "nullable": true
           },

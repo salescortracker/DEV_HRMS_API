@@ -656,6 +656,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "BulkApproveRejectLateArrival",
+    "RelativePath": "api/Attendance/BulkApproveRejectLateArrival",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.BulkApproveRejectLateArrivalDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "BulkApproveRejectPunch",
     "RelativePath": "api/Attendance/bulkapproverejectpunch",
     "HttpMethod": "POST",
@@ -681,6 +697,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.CreateEarlyLogoutRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "CreateLateArrivalRequest",
+    "RelativePath": "api/Attendance/CreateLateArrivalRequest",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.CreateLateArrivalRequestDto",
         "IsRequired": true
       }
     ],
@@ -1054,6 +1086,32 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetApprovalLateArrivalRequest",
+    "RelativePath": "api/Attendance/GetApprovalLateArrivalRequest",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
     "Method": "GetApprovalMissedPunchRequest",
     "RelativePath": "api/Attendance/getapprovalmissedpunchrequest",
     "HttpMethod": "GET",
@@ -1208,6 +1266,32 @@
       {
         "Name": "date",
         "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "GetLateArrivalRequest",
+    "RelativePath": "api/Attendance/GetLateArrivalRequest",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "companyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "regionId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
         "IsRequired": false
       }
     ],
@@ -1828,6 +1912,22 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.UpdateEarlyLogoutDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.AttendanceController",
+    "Method": "UpdateLateArrival",
+    "RelativePath": "api/Attendance/UpdateLateArrival",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.UpdateLateArrivalDto",
         "IsRequired": true
       }
     ],
@@ -4709,27 +4809,6 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "HRMS_Backend.Controllers.EmployeeController",
-    "Method": "GetTodayNotifications",
-    "RelativePath": "api/Employee/GetTodayNotifications",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "companyId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "regionId",
-        "Type": "System.Int32",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -9537,7 +9616,7 @@
   {
     "ContainingType": "HRMS_Backend.Controllers.MasterDataController",
     "Method": "DeletePolicyCategory",
-    "RelativePath": "api/MasterData/DeletePolicyCategory",
+    "RelativePath": "api/MasterData/DeletePolicyCategory/{id}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -9545,7 +9624,7 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": false
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -10649,6 +10728,11 @@
       },
       {
         "Name": "regionId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "UserId",
         "Type": "System.Int32",
         "IsRequired": false
       }
@@ -12097,6 +12181,54 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "API.Controllers.NotificationController",
+    "Method": "Create",
+    "RelativePath": "api/Notification/Create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.NotificationCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.NotificationController",
+    "Method": "GetByUser",
+    "RelativePath": "api/Notification/GetByUser/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API.Controllers.NotificationController",
+    "Method": "MarkAsRead",
+    "RelativePath": "api/Notification/MarkAsRead/{notificationId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "notificationId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
     "Method": "AssignCompanyRegion",
     "RelativePath": "api/Recruitment/assign-company-region",
@@ -12695,6 +12827,22 @@
         "Name": "regionId",
         "Type": "System.Int32",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.RecruitmentController",
+    "Method": "RejectCandidate",
+    "RelativePath": "api/Recruitment/RejectCandidate/{candidateId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "candidateId",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -13308,6 +13456,22 @@
   },
   {
     "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
+    "Method": "ActivateSubscription",
+    "RelativePath": "api/SubscriptionPlan/ActivateSubscription",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.ActivateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
     "Method": "ApplyPlan",
     "RelativePath": "api/SubscriptionPlan/ApplyPlan",
     "HttpMethod": "POST",
@@ -13317,6 +13481,38 @@
       {
         "Name": "dto",
         "Type": "BusinessLayer.DTOs.UserSubscriptionDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
+    "Method": "CreateInvoice",
+    "RelativePath": "api/SubscriptionPlan/CreateInvoice",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "BusinessLayer.DTOs.ActivateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
+    "Method": "CreateOrder",
+    "RelativePath": "api/SubscriptionPlan/CreateOrder",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "BusinessLayer.DTOs.CreateOrderRequestDto",
         "IsRequired": true
       }
     ],
@@ -13362,6 +13558,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.SubscriptionPlanController",
+    "Method": "GetInvoiceByUser",
+    "RelativePath": "api/SubscriptionPlan/GetInvoiceByUser",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -14052,6 +14264,22 @@
       {
         "Name": "relationship",
         "Type": "BusinessLayer.DTOs.RelationshipDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "GetAdminDashboardCount",
+    "RelativePath": "api/UserManagement/AdminDashboardCount/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
@@ -15151,6 +15379,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "HRMS_Backend.Controllers.UserManagementController",
+    "Method": "SendEmployeeCelebration",
+    "RelativePath": "api/UserManagement/SendEmployeeCelebration",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

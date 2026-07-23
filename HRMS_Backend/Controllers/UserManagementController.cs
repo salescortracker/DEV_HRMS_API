@@ -762,6 +762,8 @@ namespace HRMS_Backend.Controllers
                 return BadRequest("Invalid user data");
 
             var createdUser = await _userService.CreateUserAsync(userDto);
+            if(createdUser == null)
+                return BadRequest("This email already exists in the selected Company and Region.");
 
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
         }
@@ -1325,6 +1327,7 @@ namespace HRMS_Backend.Controllers
 
                 _hRMSContext.Users.Add(entity);
                 await _hRMSContext.SaveChangesAsync();
+
                 // 2. Get Demo Plan
                 var demoPlan = await _hRMSContext.SubscriptionPlans1
                         .FirstOrDefaultAsync(x => x.PlanId == 4);
@@ -1336,8 +1339,6 @@ namespace HRMS_Backend.Controllers
                         message = "Demo plan not configured"
                     });
                 }
-
-
                 // 3. Create User Subscription
                 var subscription = new DataAccessLayer.DBContext.UserSubscription
                 {
@@ -1364,6 +1365,10 @@ namespace HRMS_Backend.Controllers
                 _hRMSContext.UserSubscriptions.Add(subscription);
 
                 await _hRMSContext.SaveChangesAsync();
+               
+
+
+               
                 // ✅ Send Welcome Email
                 await _userService.SendWelcomeEmailAsync(
                    entity, entity.PasswordHash

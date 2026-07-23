@@ -24,4 +24,5 @@ public partial class PerformanceKpi
     public string? Remarks { get; set; }
 
     public decimal? Score { get; set; }
+    public virtual PerformanceReview PerformanceReview { get; set; }
 }

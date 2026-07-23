@@ -96,14 +96,24 @@ namespace BusinessLayer.Implementations
                 
                 if (userDto == null)
                     throw new ArgumentNullException(nameof(userDto));
-                var existingUser = await _context.Users
-                    .AnyAsync(u =>
+
+                var existingUseradmin = _context.Users
+                    .Where(u =>
+                        u.Email == userDto.Email 
+                    );
+                if (existingUseradmin.Count() > 0)
+                {
+                    return null;
+                }             
+
+                var existingUser =  _context.Users
+                    .Where(u =>
                         u.Email == userDto.Email &&
                         u.CompanyId == userDto.CompanyID &&
                         u.RegionId == userDto.RegionID
                     );
 
-                if (existingUser)
+                if (existingUser.Count()>0)
                 {
                     throw new Exception("This email already exists in the selected Company and Region.");
                 }

@@ -94,12 +94,12 @@ namespace BusinessLayer.Implementations
             try
             {
                 // Check duplicate role
-                var isRoleExists = await context.RoleMasters.AnyAsync(x =>
+                var isRoleExists = context.RoleMasters.Where(x =>
                     x.CompanyId == dto.CompanyId &&
                     x.RegionId == dto.RegionId &&
-                    x.RoleName.ToLower().Trim() == dto.RoleName.ToLower().Trim());
+                    x.RoleName.ToLower().Trim() == dto.RoleName.ToLower()).Count();
 
-                if (isRoleExists != null)
+                if (isRoleExists>0)
                 {
                     throw new Exception("Role already exists.");
                 }
