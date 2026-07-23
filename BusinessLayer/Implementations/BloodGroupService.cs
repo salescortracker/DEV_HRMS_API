@@ -131,27 +131,60 @@ namespace BusinessLayer.Implementations
 
 
         #region Get By Id
-        public async Task<ApiResponse<IEnumerable<BloodGroupDto>?>> GetByIdAsync(int id)
+        //public async Task<ApiResponse<IEnumerable<BloodGroupDto>?>> GetByIdAsync(int id)
+        //{
+        //    try
+        //    {
+        //        var entity = _context.BloodGroups
+        //            .Where(x => x.UserId == id && !x.IsDeleted)
+        //            .Select(MapToDto)
+        //            .ToList();
+
+        //        if (!entity.Any())
+        //        {
+        //            return new ApiResponse<IEnumerable<BloodGroupDto>>(
+        //                null,
+        //                "Blood group not found",
+        //                false
+        //            );
+        //        }
+
+        //        return new ApiResponse<IEnumerable<BloodGroupDto>>(
+        //            entity,
+        //            "Blood group fetched successfully",
+        //            true
+        //        );
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ApiResponse<IEnumerable<BloodGroupDto>>(
+        //            null,
+        //            ex.Message,
+        //            false
+        //        );
+        //    }
+        //}
+        public async Task<ApiResponse<IEnumerable<BloodGroupDto>>> GetByIdAsync(int id)
         {
             try
             {
-                var entity = _context.BloodGroups
-                    .Where(x => x.UserId == id && !x.IsDeleted)
-                    .Select(MapToDto)
-                    .ToList();
-
-                if (!entity.Any())
-                {
-                    return new ApiResponse<IEnumerable<BloodGroupDto>>(
-                        null,
-                        "Blood group not found",
-                        false
-                    );
-                }
+                var entity = await _context.BloodGroups
+                    .Where(x => x.UserId == id)
+                    .Select(x => new BloodGroupDto
+                    {
+                        BloodGroupID = x.BloodGroupId,
+                        CompanyID = x.CompanyId,
+                        RegionID = x.RegionId,
+                        BloodGroupName = x.BloodGroupName,
+                        Description = x.Description,
+                        IsActive = x.IsActive,
+                        //UserID = x.UserId
+                    })
+                    .ToListAsync();
 
                 return new ApiResponse<IEnumerable<BloodGroupDto>>(
                     entity,
-                    "Blood group fetched successfully",
+                    "Blood groups fetched successfully",
                     true
                 );
             }
@@ -300,49 +333,38 @@ namespace BusinessLayer.Implementations
         {
             try
             {
-                // Get blood group by ID
-                var bloodGroup = await _context.BloodGroups
+                var entity = await _context.BloodGroups
                     .FirstOrDefaultAsync(x => x.BloodGroupId == id);
 
-                // ❌ FIXED: correct null check
-                if (bloodGroup == null)
+                if (entity == null)
                 {
                     return new ApiResponse<bool>(
                         false,
-                        "Blood Group not found or already deleted.",
-                        false);
+                        "Blood Group not found",
+                        false
+                    );
                 }
 
-                // Check assignment using name (your current DB design)
-                var isAssigned = _context.EmployeePersonalDetails
-                    .Any(x => x.BloodGroup == bloodGroup.BloodGroupName);
+                //entity.IsDeleted = true;
+                //entity.ModifiedAt = DateTime.Now;
 
-                if (isAssigned)
-                {
-                    return new ApiResponse<bool>(
-                        false,
-                        "You cannot delete this blood group. It is assigned to one or more employees.",
-                        false);
-                }
-
-                // Soft delete
-                bloodGroup.IsDeleted = true;
-                bloodGroup.ModifiedAt = DateTime.UtcNow;
-
-                _context.BloodGroups.Update(bloodGroup);
+                //_context.BloodGroups.Update(entity);
+                //await _context.SaveChangesAsync();
+                _context.BloodGroups.Remove(entity);
                 await _context.SaveChangesAsync();
-
                 return new ApiResponse<bool>(
                     true,
-                    "Blood Group deleted successfully.",
-                    true);
+                    "Blood Group deleted successfully",
+                    true
+                );
             }
             catch (Exception ex)
             {
                 return new ApiResponse<bool>(
                     false,
-                    $"Error deleting Blood Group: {ex.Message}",
-                    false);
+                    ex.Message,
+                    false
+                );
             }
         }
         #endregion

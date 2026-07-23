@@ -15,5 +15,7 @@ namespace BusinessLayer.DTOs
         public object? User { get; set; }
 
         public List<object> AllowedModules { get; set; } = new();
+        public Guid SessionId { get; set; }
+        public Guid BrowserSessionId { get; set; }
     }
 }

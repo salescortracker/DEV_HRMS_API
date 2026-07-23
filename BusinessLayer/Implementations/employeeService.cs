@@ -3346,6 +3346,22 @@ namespace BusinessLayer.Implementations
                 equals etm.EmploymenttypeId into etmJoin
                 from etm in etmJoin.DefaultIfEmpty()
 
+                join dept in _context.Departments
+    on new
+    {
+        CompanyId = u.CompanyId,
+        RegionId = u.RegionId,
+        DepartmentId = u.DepartmentId ?? 0
+    }
+    equals new
+    {
+        CompanyId = dept.CompanyId,
+        RegionId = dept.RegionId,
+        DepartmentId = dept.DepartmentId
+    }
+    into deptJoin
+                from dept in deptJoin.DefaultIfEmpty()
+
                 where u.UserId == userId
 
                 select new EmployeeProfileDto
@@ -3354,6 +3370,7 @@ namespace BusinessLayer.Implementations
                     FullName = u.FullName,
                     CompanyName = c.CompanyName,
                     RegionName = reg.RegionName,
+                    DepartmentName = dept.DepartmentName,
                     Email = u.Email,
 
                     Phone = ep.MobileNumber,

@@ -145,14 +145,48 @@ namespace BusinessLayer.Implementations
         //    return MapToDto(entity);
         //}
         // Update existing role
+        //public async Task<RoleMasterDto> UpdateRoleAsync(int id, RoleMasterDto dto)
+        //{
+        //    var entity = await _unitOfWork.Repository<RoleMaster>().GetByIdAsync(id);
+        //    if (entity == null) throw new Exception("Role not found");
+        //    entity.CompanyId = dto.CompanyId;
+        //    entity.RegionId = dto.RegionId;
+
+        //    entity.RoleName = dto.RoleName;
+        //    entity.RoleDescription = dto.RoleDescription;
+        //    entity.IsActive = dto.IsActive;
+        //    entity.ModifiedBy = dto.ModifiedBy;
+        //    entity.ModifiedAt = DateTime.Now;
+
+        //    _unitOfWork.Repository<RoleMaster>().Update(entity);
+        //    await _unitOfWork.CompleteAsync();
+
+        //    return MapToDto(entity);
+
         public async Task<RoleMasterDto> UpdateRoleAsync(int id, RoleMasterDto dto)
         {
             var entity = await _unitOfWork.Repository<RoleMaster>().GetByIdAsync(id);
-            if (entity == null) throw new Exception("Role not found");
+
+            if (entity == null)
+                throw new Exception("Role not found");
+
+            var roleName = dto.RoleName.Trim();
+
+            // Check duplicate role excluding current record
+            var isRoleExists = await context.RoleMasters.AnyAsync(x =>
+                x.RoleId != id &&
+                x.CompanyId == dto.CompanyId &&
+                x.RegionId == dto.RegionId &&
+                x.RoleName.Trim().ToLower() == roleName.ToLower());
+
+            if (isRoleExists)
+            {
+                throw new Exception($"Role '{roleName}' already exists.");
+            }
+
             entity.CompanyId = dto.CompanyId;
             entity.RegionId = dto.RegionId;
-
-            entity.RoleName = dto.RoleName;
+            entity.RoleName = roleName;
             entity.RoleDescription = dto.RoleDescription;
             entity.IsActive = dto.IsActive;
             entity.ModifiedBy = dto.ModifiedBy;
@@ -163,6 +197,9 @@ namespace BusinessLayer.Implementations
 
             return MapToDto(entity);
         }
+
+
+        //}
 
         // Delete role
         public async Task<bool> DeleteRoleAsync(int id)

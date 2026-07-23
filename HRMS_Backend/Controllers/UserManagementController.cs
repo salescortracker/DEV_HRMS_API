@@ -827,7 +827,9 @@ namespace HRMS_Backend.Controllers
                 {
                     message = "Login successful",
                     user = loginResponse.User,
-                    allowedModules = loginResponse.AllowedModules
+                    allowedModules = loginResponse.AllowedModules,
+                    sessionId = loginResponse.SessionId,
+                    browserSessionId = loginResponse.BrowserSessionId
                 });
             }
             catch (Exception ex)
@@ -838,6 +840,21 @@ namespace HRMS_Backend.Controllers
                     message = "An error occurred while processing your login."
                 });
             }
+        }
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout(int userId)
+        {
+            var user = await _hRMSContext.Users.FindAsync(userId);
+
+            if (user != null)
+            {
+                user.Userloginstatus = false;
+                user.LoginSessionId = null;
+
+                await _hRMSContext.SaveChangesAsync();
+            }
+
+            return Ok();
         }
 
         #endregion
@@ -1447,6 +1464,7 @@ namespace HRMS_Backend.Controllers
         {
             var dto = new MaritalStatusDto
             {
+                MaritalStatusId = id,
                 CompanyId = companyId,
                 RegionId = regionId,
                 MaritalStatusName = maritalStatusName,
