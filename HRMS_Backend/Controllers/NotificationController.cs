@@ -42,7 +42,7 @@ namespace API.Controllers
 
 
         // Mark notification as read
-        [HttpPut("MarkAsRead/{notificationId}")]
+        [HttpPost("MarkAsRead/{notificationId}")]
         public async Task<IActionResult> MarkAsRead(int notificationId)
         {
             try

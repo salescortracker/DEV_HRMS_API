@@ -597,20 +597,35 @@ namespace BusinessLayer.Implementations
         public async Task<DataAccessLayer.DBContext.User?> UpdateUserAsync(UserCreateDto updatedUser)
         {
             var existingUser = await _context.Users.FindAsync(updatedUser.userId);
-            if (existingUser == null) return null;
-            var emailExists = await _context.Users
-            .AnyAsync(u =>
+            if (existingUser == null)
+                return null;
+
+            var emailExists = await _context.Users.AnyAsync(u =>
                 u.Email == updatedUser.Email &&
                 u.CompanyId == updatedUser.CompanyID &&
                 u.RegionId == updatedUser.RegionID &&
-                u.UserId != updatedUser.userId
-            );
+                u.UserId != updatedUser.userId);
 
             if (emailExists)
-            {
                 throw new Exception("This email is already assigned to another user.");
-            }
 
+            //===========================
+            // Store Old Values
+            //===========================
+            var oldFullName = existingUser.FullName;
+            var oldEmail = existingUser.Email;
+            var oldRoleId = existingUser.RoleId;
+            var oldReportingTo = existingUser.ReportingTo;
+            var oldReportingHR = existingUser.ReportingHr;
+            var oldDepartmentId = existingUser.DepartmentId;
+            var oldPassword = existingUser.PasswordHash;
+            var oldStatus = existingUser.Status;
+            var oldDesignationId = existingUser.DesignationId;
+            var oldJoiningDate = existingUser.JoiningDate;
+
+            //===========================
+            // Update Values
+            //===========================
             existingUser.FullName = updatedUser.FullName;
             existingUser.Email = updatedUser.Email;
             existingUser.RoleId = updatedUser.RoleId;
@@ -624,6 +639,271 @@ namespace BusinessLayer.Implementations
             existingUser.JoiningDate = updatedUser.JoiningDate;
 
             await _context.SaveChangesAsync();
+
+            //===========================
+            // Get CC Emails
+            //===========================
+            var ccEmails = await _context.Users
+                .Where(u => u.UserId == existingUser.ReportingTo ||
+                            u.UserId == existingUser.ReportingHr)
+                .Select(u => u.Email)
+                .Where(e => !string.IsNullOrWhiteSpace(e))
+                .Distinct()
+                .ToListAsync();
+
+            //===========================
+            // Detect Changes
+            //===========================
+            bool reportingChanged =
+                oldReportingTo != existingUser.ReportingTo ||
+                oldReportingHR != existingUser.ReportingHr;
+
+            bool passwordChanged =
+                oldPassword != existingUser.PasswordHash;
+
+            bool statusChanged =
+                oldStatus != existingUser.Status;
+
+            bool profileChanged =
+                oldFullName != existingUser.FullName ||
+                oldEmail != existingUser.Email ||
+                oldDepartmentId != existingUser.DepartmentId ||
+                oldDesignationId != existingUser.DesignationId ||
+                oldRoleId != existingUser.RoleId ||
+                oldJoiningDate != existingUser.JoiningDate;
+
+            // Count Major Changes
+            int majorChanges = 0;
+
+            if (oldFullName != existingUser.FullName) majorChanges++;
+            if (oldEmail != existingUser.Email) majorChanges++;
+            if (oldDepartmentId != existingUser.DepartmentId) majorChanges++;
+            if (oldDesignationId != existingUser.DesignationId) majorChanges++;
+            if (oldRoleId != existingUser.RoleId) majorChanges++;
+            if (oldReportingTo != existingUser.ReportingTo) majorChanges++;
+            if (oldReportingHR != existingUser.ReportingHr) majorChanges++;
+            if (oldPassword != existingUser.PasswordHash) majorChanges++;
+            if (oldJoiningDate != existingUser.JoiningDate) majorChanges++;
+
+            bool majorUpdate = majorChanges >= 4;
+
+            //===========================
+            // Send Email
+            //===========================
+
+            // Major Update → Welcome Email
+            if (majorUpdate)
+            {
+                await SendWelcomeEmailAsync(
+                    existingUser,
+                    updatedUser.Password,
+                    ccEmails);
+            }
+
+            // Reporting Changed
+            else if (reportingChanged && !profileChanged && !passwordChanged && !statusChanged)
+            {
+                string subject = "Reporting Structure Updated";
+
+                string body = $@"
+                        <html>
+                        <body style='font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#333;'>
+
+                        <p>Dear <strong>{existingUser.FullName}</strong>,</p>
+
+                        <p>
+                        This is to inform you that your reporting structure has been updated successfully.
+                        </p>
+
+                        <table style='border-collapse:collapse;margin-top:15px;'>
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Employee Name</strong></td>
+                        <td>{existingUser.FullName}</td>
+                        </tr>
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Employee Code</strong></td>
+                        <td>{existingUser.EmployeeCode}</td>
+                        </tr>
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Effective Date</strong></td>
+                        <td>{DateTime.Now:dd-MMM-yyyy}</td>
+                        </tr>
+                        </table>
+
+                        <p style='margin-top:20px;'>
+                        Please contact the HR department if you have any questions regarding this update.
+                        </p>
+
+                        <p>
+                        Regards,<br/>
+                        <strong>HR Team</strong>
+                        </p>
+
+                        </body>
+                        </html>";
+
+                await _emailService.SendEmailAsync(
+                    existingUser.Email,
+                    subject,
+                    body,
+                    ccEmails);
+            }
+
+            // Password Changed
+            else if (passwordChanged && !profileChanged && !reportingChanged && !statusChanged)
+            {
+                string subject = "Password Updated Successfully";
+
+                string body = $@"
+                        <html>
+                        <body style='font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#333;'>
+
+                        <p>Dear <strong>{existingUser.FullName}</strong>,</p>
+
+                        <p>
+                        Your HRMS account password has been updated successfully.
+                        </p>
+
+                        <div style='background:#FFF8E1;border-left:4px solid #F4B400;padding:12px;margin:20px 0;'>
+                        <strong>Security Notice</strong><br/>
+                        If you did not request this password change, please contact the HR or IT department immediately.
+                        </div>
+
+                        <p>
+                        Regards,<br/>
+                        <strong>HR Team</strong>
+                        </p>
+
+                        </body>
+                        </html>";
+
+                await _emailService.SendEmailAsync(
+                    existingUser.Email,
+                    subject,
+                    body);
+            }
+
+            // Status Changed
+            else if (statusChanged && !profileChanged && !passwordChanged && !reportingChanged)
+            {
+                string subject = "Account Status Updated";
+
+                string body = $@"
+                        <html>
+                        <body style='font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#333;'>
+
+                        <p>Dear <strong>{existingUser.FullName}</strong>,</p>
+
+                        <p>
+                        Your HRMS account status has been updated.
+                        </p>
+
+                        <table style='border-collapse:collapse;margin-top:15px;'>
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Employee Name</strong></td>
+                        <td>{existingUser.FullName}</td>
+                        </tr>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Current Status</strong></td>
+                        <td><strong>{existingUser.Status}</strong></td>
+                        </tr>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Updated On</strong></td>
+                        <td>{DateTime.Now:dd-MMM-yyyy}</td>
+                        </tr>
+
+                        </table>
+
+                        <p style='margin-top:20px;'>
+                        If you have any questions, please contact HR.
+                        </p>
+
+                        <p>
+                        Regards,<br/>
+                        <strong>HR Team</strong>
+                        </p>
+
+                        </body>
+                        </html>";
+
+                await _emailService.SendEmailAsync(
+                    existingUser.Email,
+                    subject,
+                    body,
+                    ccEmails);
+            }
+
+            // Profile Updated
+            else if (profileChanged || reportingChanged)
+            {
+                string subject = "Employee Profile Updated";
+
+                string body = $@"
+                        <html>
+                        <body style='font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#333;'>
+
+                        <p>Dear <strong>{existingUser.FullName}</strong>,</p>
+
+                        <p>
+                        Your employee profile has been updated successfully. Please review your updated information below.
+                        </p>
+
+                        <table style='border-collapse:collapse;margin-top:15px;'>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Employee Code</strong></td>
+                        <td>{existingUser.EmployeeCode}</td>
+                        </tr>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Employee Name</strong></td>
+                        <td>{existingUser.FullName}</td>
+                        </tr>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Email Address</strong></td>
+                        <td>{existingUser.Email}</td>
+                        </tr>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Joining Date</strong></td>
+                        <td>{existingUser.JoiningDate:dd-MMM-yyyy}</td>
+                        </tr>
+
+                        <tr>
+                        <td style='padding:8px 20px 8px 0;'><strong>Status</strong></td>
+                        <td>{existingUser.Status}</td>
+                        </tr>
+
+                        </table>
+
+                        <p style='margin-top:20px;'>
+                        If any information displayed above is incorrect, please contact the HR department for assistance.
+                        </p>
+
+                        <p>
+                        Regards,<br/>
+                        <strong>HR Team</strong>
+                        </p>
+
+                        <hr style='margin-top:30px;' />
+
+                        <p style='font-size:12px;color:#777;'>
+                        This is an automated email from the HRMS system. Please do not reply to this email.
+                        </p>
+
+                        </body>
+                        </html>";
+
+                await _emailService.SendEmailAsync(
+                    existingUser.Email,
+                    subject,
+                    body,
+                    ccEmails);
+            }
+
             return existingUser;
 
         }
