@@ -2407,10 +2407,10 @@ Date : _____________________________________
 
             string uploadLink =
                 $"{baseUrl}/#/offer-documents" +
-                $"/{offer.OfferId}" +
-                $"/{candidate.CandidateId}" +
                 $"/{offer.CompanyId}" +
-                $"/{offer.RegionId}";
+                $"/{offer.RegionId}" +
+                $"/{candidate.CandidateId}" +
+                $"/{offer.OfferId}";
 
             // ============================================================
             // ======================== EMAIL =============================

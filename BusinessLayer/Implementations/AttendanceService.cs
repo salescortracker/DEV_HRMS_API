@@ -475,7 +475,7 @@ namespace BusinessLayer.Implementations
             };
         }
 
-        // ================================
+        // ===============================
         // GetEmployeesByDate
         // ================================
 
@@ -773,88 +773,99 @@ namespace BusinessLayer.Implementations
         {
             var now = DateTime.Now;
 
-            // STEP 1: Latest active clockin per user
+            // Get latest active attendance record for each employee
             var pendingEmployees = await _hrmsContext.ClockInOuts
-                .Where(x =>
-                    x.ClockInTime != null &&
-                    x.ClockOutTime == null)// &&
-                    //x.ShiftEndReminderSent < 2)
+                .Where(x => x.ClockInTime != null &&
+                            x.ClockOutTime == null)
                 .GroupBy(x => x.CreatedBy)
-                .Select(g => g
-                    .OrderByDescending(x => x.ClockInTime)
-                    .First())
+                .Select(g => g.OrderByDescending(x => x.ClockInTime).First())
                 .ToListAsync();
 
-            foreach (var emp in pendingEmployees)
+
+            foreach (var attendance in pendingEmployees)
             {
-                // ✅ FIX NULL ISSUE
-                if (!emp.CreatedBy.HasValue)
-                    continue;
-
-                int userId = emp.CreatedBy.Value;
-
-                // STEP 2: Shift Allocation
-                var shiftAlloc = await _hrmsContext.ShiftAllocations
+                //if (!attendance.CreatedBy.HasValue)
+                //    continue;
+                int userId = 0;
+                if (attendance != null)
+                {
+                    userId = _hrmsContext.Users.Where(x => x.CompanyId == attendance.CompanyId && x.RegionId == attendance.RegionId && x.EmployeeCode == attendance.EmployeeCode).Select(x => x.UserId).FirstOrDefault();
+                }
+                // Get active shift allocation
+                var shiftAllocation = await _hrmsContext.ShiftAllocations
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(x =>
                         x.UserId == userId &&
                         x.IsActive);
 
-                if (shiftAlloc == null)
+                if (shiftAllocation == null)
                     continue;
 
-                // STEP 3: Shift Master
+                // Get shift details
                 var shift = await _hrmsContext.ShiftMasters
-                    .FirstOrDefaultAsync(x =>
-                        x.ShiftId == shiftAlloc.ShiftId);
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.ShiftId == shiftAllocation.ShiftId);
 
                 if (shift == null)
                     continue;
 
-                // STEP 4: Shift End Time
-                var shiftEnd = emp.AttendanceDate.ToDateTime(shift.ShiftEndTime);
+                // Calculate shift end datetime
+                DateTime shiftEnd = attendance.AttendanceDate.ToDateTime(shift.ShiftEndTime);
 
+                // Night shift (Example: 6:30 PM → 3:30 AM)
                 if (shift.ShiftEndTime < shift.ShiftStartTime)
+                {
                     shiftEnd = shiftEnd.AddDays(1);
+                }
 
-                var firstReminder = shiftEnd.AddMinutes(5);
-                var secondReminder = shiftEnd.AddMinutes(10);
+                DateTime firstReminder = shiftEnd.AddMinutes(5);
+                DateTime secondReminder = shiftEnd.AddMinutes(10);
 
-                // STEP 5: User
+                // Get user details
                 var user = await _hrmsContext.Users
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.UserId == userId);
 
                 if (user == null || string.IsNullOrWhiteSpace(user.Email))
                     continue;
-                var dbRow = await _hrmsContext.ClockInOuts
-                    .FirstOrDefaultAsync(x =>
-                        x.ClockInOutId == emp.ClockInOutId);
 
-                if (dbRow == null || dbRow.ShiftEndReminderSent >= 2)
+                // Get tracked attendance record for update
+                var dbAttendance = await _hrmsContext.ClockInOuts
+                    .FirstOrDefaultAsync(x => x.ClockInOutId == attendance.ClockInOutId);
+
+                if (dbAttendance == null)
                     continue;
 
-                // FIRST REMINDER
-                if (dbRow.ShiftEndReminderSent == 0 && now >= firstReminder)
-                {
-                    await SendMail(userId, dbRow.EmployeeCode, 1);
+                // Already completed reminders
+                if (dbAttendance.ShiftEndReminderSent >= 2)
+                    continue;
 
-                    dbRow.ShiftEndReminderSent = 1;
+                // First reminder
+                if (dbAttendance.ShiftEndReminderSent == 0 &&
+                    now >= firstReminder)
+                {
+                    await SendMail(userId, dbAttendance.EmployeeCode, 1);
+
+                    dbAttendance.ShiftEndReminderSent = 1;
 
                     await _hrmsContext.SaveChangesAsync();
+
+                    continue;
                 }
 
-                else if (dbRow.ShiftEndReminderSent == 1 && now >= secondReminder)
+                // Second reminder
+                if (dbAttendance.ShiftEndReminderSent == 1 &&
+                    now >= secondReminder)
                 {
-                    // 1️⃣ LOCK FIRST
-                    dbRow.ShiftEndReminderSent = 2;
+                    await SendMail(userId, dbAttendance.EmployeeCode, 2);
+
+                    dbAttendance.ShiftEndReminderSent = 2;
+
                     await _hrmsContext.SaveChangesAsync();
 
-                    // 2️⃣ SEND FINAL EMAIL
-                    await SendMail(userId, dbRow.EmployeeCode, 2);
-
+                    continue;
                 }
             }
-
-            await _hrmsContext.SaveChangesAsync();
         }
 
         private async Task SendMail(int? userId, string employeeCode, int reminderType)

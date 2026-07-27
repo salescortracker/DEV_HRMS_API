@@ -125,6 +125,82 @@ GetAttendanceByDateRangeAsync(
         {
             try
             {
+                // Get Employee Shift Allocation
+                var allocation = await _context.ShiftAllocations
+                    .FirstOrDefaultAsync(x =>
+                        x.EmployeeCode == dto.EmployeeCode &&
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId &&
+                        x.IsActive);
+
+                if (allocation == null)
+                {
+                    throw new Exception("Shift not assigned.");
+                }
+
+                // Get Shift Master using ShiftID from Allocation
+                var shift = await _context.ShiftMasters
+                    .FirstOrDefaultAsync(x =>
+                        x.ShiftId == allocation.ShiftId &&
+                        x.CompanyId == dto.CompanyId &&
+                        x.RegionId == dto.RegionId);
+
+                if (shift == null)
+                {
+                    throw new Exception("Shift configuration not found.");
+                }
+
+
+                // Current actual time
+                var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+
+
+                // ================= CLOCK IN VALIDATION =================
+
+                if (dto.ActionType == "ClockIn")
+                {
+                    // Before earliest clock-in
+                    if (currentTime < shift.ShiftStartTime)
+                    {
+                        throw new Exception(
+                            $"Clock-in is not available yet. You can clock in from {shift.ShiftStartTime:hh\\:mm}."
+                        );
+                    }
+
+
+                    // After latest clock-in
+                    if (currentTime > GetLatestClockIn(shift))
+                    {
+                        throw new Exception(
+                            "Clock-in window has closed. Please contact your manager or HR."
+                        );
+                    }
+                }
+
+
+                // ================= CLOCK OUT VALIDATION =================
+
+                if (dto.ActionType == "ClockOut")
+                {
+
+                    // Before allowed clock-out time
+                    if (currentTime < shift.ShiftEndTime)
+                    {
+                        throw new Exception(
+                            $"Early clock-out is not allowed before {shift.ShiftEndTime:hh\\:mm}."
+                        );
+                    }
+
+
+                    // After latest clock-out
+                    if (currentTime > GetLatestClockOut(shift))
+                    {
+                        throw new Exception(
+                            "Clock-out window has closed. Please submit a missed clock-out request."
+                        );
+                    }
+                }
+
                 var entity = new ClockInOut
                 {
                     RegionId = dto.RegionId,
@@ -485,7 +561,35 @@ Cortracker360 HRMS System
                     + ex.Message
                 );
             }
-        }  
+        }
+        private TimeOnly GetLatestClockIn(ShiftMaster shift)
+        {
+            // Allow clock-in until shift start + grace time
+
+            if (shift.GraceTime.HasValue)
+            {
+                return shift.ShiftStartTime.Add(
+                    shift.GraceTime.Value.ToTimeSpan()
+                );
+            }
+
+            return shift.ShiftStartTime;
+        }
+
+
+        private TimeOnly GetLatestClockOut(ShiftMaster shift)
+        {
+            // Allow clock-out until shift end + grace time
+
+            if (shift.GraceTime.HasValue)
+            {
+                return shift.ShiftEndTime.Add(
+                    shift.GraceTime.Value.ToTimeSpan()
+                );
+            }
+
+            return shift.ShiftEndTime;
+        }
         public async Task<bool> DeleteAsync(int id, int userId)
         {
             var entity = await _unitOfWork.Repository<ClockInOut>().GetByIdAsync(id);

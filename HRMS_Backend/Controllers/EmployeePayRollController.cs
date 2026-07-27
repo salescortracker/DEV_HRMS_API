@@ -108,7 +108,7 @@ namespace HRMS_Backend.Controllers
             return Ok(result);
         }
 
-        [HttpPut("UpdateSalaryStructure/{id}/{userId}")]
+        [HttpPost("UpdateSalaryStructure/{id}/{userId}")]
         public async Task<IActionResult> UpdateSalaryStructure(int id, int userId, [FromBody] SalaryStructureDto dto)
         {
             var result = await _structureService.UpdateSalaryStructureAsync(id, dto, userId);
