@@ -281,19 +281,28 @@ namespace HRMS_Backend.Controllers
         //    return Ok(result);
         //}
         [HttpPost("AddclockinOut")]
-        public async Task<IActionResult> AddclockinOut(
-     [FromBody] ClockInOutCreateDto dto)
+        public async Task<IActionResult> AddclockinOut([FromBody] ClockInOutCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result =
-                await _clockInOutService.AddAsync(
-                    dto,
-                    dto.UserId
-                );
+            try
+            {
+                var result =
+                    await _clockInOutService.AddAsync(
+                        dto,
+                        dto.UserId
+                    );
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         // 🔹 DELETE: api/ClockInOut/5
