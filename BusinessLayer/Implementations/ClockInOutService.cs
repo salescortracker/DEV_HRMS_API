@@ -125,6 +125,34 @@ GetAttendanceByDateRangeAsync(
         {
             try
             {
+                // Get Region Time Zone
+                var regions = await _context.Regions
+    .ToListAsync();
+
+                var region = regions
+                    .FirstOrDefault(x => x.RegionId == dto.RegionId);
+                Console.WriteLine($"Total Regions : {regions.Count}");
+                Console.WriteLine($"Found Region : {region?.RegionName}");
+                Console.WriteLine($"Timezone : {region?.TimeZoneId}");
+
+                if (region == null)
+                {
+                    throw new Exception("Region not found.");
+                }
+
+                if (string.IsNullOrWhiteSpace(region.TimeZoneId))
+                {
+                    throw new Exception("Region time zone is not configured.");
+                }
+
+                // Convert server time to Region Local Time
+                TimeZoneInfo regionTimeZone = TimeZoneInfo.FindSystemTimeZoneById(region.TimeZoneId);
+
+                DateTime regionDateTime = TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.UtcNow,
+                    regionTimeZone);
+
+                var currentTime = TimeOnly.FromDateTime(regionDateTime);
                 // Get Employee Shift Allocation
                 var allocation = await _context.ShiftAllocations
                     .FirstOrDefaultAsync(x =>
@@ -149,10 +177,6 @@ GetAttendanceByDateRangeAsync(
                 {
                     throw new Exception("Shift configuration not found.");
                 }
-
-
-                // Current actual time
-                var currentTime = TimeOnly.FromDateTime(DateTime.Now);
 
 
                 // ================= CLOCK IN VALIDATION =================
@@ -231,15 +255,9 @@ GetAttendanceByDateRangeAsync(
                             CultureInfo.InvariantCulture
                         ),
 
-                    ActionTime =
-                        TimeOnly.ParseExact(
-                            dto.ActionTime,
-                            "HH:mm",
-                            CultureInfo.InvariantCulture
-                        ),
+                    ActionTime = TimeOnly.FromDateTime(regionDateTime),
 
-                    AttendanceDate =
-                        DateOnly.FromDateTime(dto.AttendanceDate),
+                    AttendanceDate = DateOnly.FromDateTime(regionDateTime),
 
                     ActionType = dto.ActionType,
 
@@ -247,7 +265,7 @@ GetAttendanceByDateRangeAsync(
 
                     CreatedBy = userId,
 
-                    CreatedAt = DateTime.Now
+                    CreatedAt = regionDateTime
                 };
 
                 // ✅ SAVE RECORD
@@ -292,8 +310,8 @@ GetAttendanceByDateRangeAsync(
                             : "Employee Clock Out";
 
                         string message = dto.ActionType == "ClockIn"
-                            ? $"{employeeUser.FullName} has clocked in at {dto.ActionTime}."
-                            : $"{employeeUser.FullName} has clocked out at {dto.ActionTime}.";
+    ? $"{employeeUser.FullName} has clocked in on {entity.CreatedAt:dd-MM-yyyy} at {entity.ActionTime:HH\\:mm}."
+    : $"{employeeUser.FullName} has clocked out on {entity.CreatedAt:dd-MM-yyyy} at {entity.ActionTime:HH\\:mm}.";
 
                         await _notificationService.CreateNotificationAsync(
                             notifyUsers,
@@ -305,7 +323,7 @@ GetAttendanceByDateRangeAsync(
                     }
                 }
 
-                var attendanceDate = DateOnly.FromDateTime(dto.AttendanceDate);
+                var attendanceDate = DateOnly.FromDateTime(regionDateTime);
 
                 var dayLogs = await _context.ClockInOuts
                     .Where(x =>
@@ -333,7 +351,7 @@ GetAttendanceByDateRangeAsync(
                 var logs = await _context.ClockInOuts
                 .Where(x =>
                     x.EmployeeCode == dto.EmployeeCode &&
-                    x.AttendanceDate == DateOnly.FromDateTime(dto.AttendanceDate))
+                    x.AttendanceDate == DateOnly.FromDateTime(regionDateTime))
                 .OrderBy(x => x.ActionTime)
                 .ToListAsync();
                 var firstClockIn = logs
@@ -501,8 +519,7 @@ Attendance Date
 
 <td style='padding:10px;
 border:1px solid #ddd;'>
-{DateTime.Now:dd-MM-yyyy}
-</td>
+{regionDateTime:dd-MM-yyyy}</td>
 </tr>
 
 </table>
