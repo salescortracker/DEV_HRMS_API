@@ -98,6 +98,7 @@ namespace BusinessLayer.Implementations
                 existing.CompanyId = updateData.CompanyId;
                 existing.RegionName = updateData.RegionName;
                 existing.Country = updateData.Country;
+                existing.TimeZoneId = updateData.TimeZoneId;
                 existing.ModifiedAt = DateTime.Now;
                 existing.UserId = updateData.UserId;
                 existing.IsActive = updateData.IsActive;
@@ -216,7 +217,8 @@ namespace BusinessLayer.Implementations
                 CompanyID = region.CompanyId,
                 RegionName = region.RegionName,
                 Country = region.Country,
-                userId=region.UserId,
+                TimeZoneId = region.TimeZoneId,
+                userId =region.UserId,
                 isActive=region.IsActive
                
             };
