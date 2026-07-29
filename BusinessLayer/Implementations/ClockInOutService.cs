@@ -5,6 +5,7 @@ using DataAccessLayer.Repositories.GeneralRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Globalization;
+using TimeZoneConverter;
 
 namespace BusinessLayer.Implementations
 {
@@ -146,7 +147,7 @@ GetAttendanceByDateRangeAsync(
                 }
 
                 // Convert server time to Region Local Time
-                TimeZoneInfo regionTimeZone = TimeZoneInfo.FindSystemTimeZoneById(region.TimeZoneId);
+                TimeZoneInfo regionTimeZone = TZConvert.GetTimeZoneInfo(region.TimeZoneId);
 
                 DateTime regionDateTime = TimeZoneInfo.ConvertTimeFromUtc(
                     DateTime.UtcNow,
@@ -224,6 +225,27 @@ GetAttendanceByDateRangeAsync(
                         );
                     }
                 }
+                DateOnly attendanceDate;
+
+                if (shift.ShiftEndTime < shift.ShiftStartTime)
+                {
+                    // Night shift
+
+                    if (currentTime < shift.ShiftEndTime)
+                    {
+                        // After midnight, still previous shift
+                        attendanceDate = DateOnly.FromDateTime(regionDateTime.AddDays(-1));
+                    }
+                    else
+                    {
+                        attendanceDate = DateOnly.FromDateTime(regionDateTime);
+                    }
+                }
+                else
+                {
+                    // Normal day shift
+                    attendanceDate = DateOnly.FromDateTime(regionDateTime);
+                }
 
                 var entity = new ClockInOut
                 {
@@ -257,7 +279,7 @@ GetAttendanceByDateRangeAsync(
 
                     ActionTime = TimeOnly.FromDateTime(regionDateTime),
 
-                    AttendanceDate = DateOnly.FromDateTime(regionDateTime),
+                    AttendanceDate = attendanceDate,
 
                     ActionType = dto.ActionType,
 
@@ -323,7 +345,6 @@ GetAttendanceByDateRangeAsync(
                     }
                 }
 
-                var attendanceDate = DateOnly.FromDateTime(regionDateTime);
 
                 var dayLogs = await _context.ClockInOuts
                     .Where(x =>
@@ -351,7 +372,7 @@ GetAttendanceByDateRangeAsync(
                 var logs = await _context.ClockInOuts
                 .Where(x =>
                     x.EmployeeCode == dto.EmployeeCode &&
-                    x.AttendanceDate == DateOnly.FromDateTime(regionDateTime))
+                    x.AttendanceDate == attendanceDate)
                 .OrderBy(x => x.ActionTime)
                 .ToListAsync();
                 var firstClockIn = logs
@@ -374,7 +395,25 @@ GetAttendanceByDateRangeAsync(
                     }
                     else if (log.ActionType == "ClockOut" && lastIn != null)
                     {
-                        totalWorked += (log.ActionTime - lastIn.Value);
+                        TimeSpan duration;
+
+                        if (log.ActionTime < lastIn.Value)
+                        {
+                            // Night shift crossing midnight
+                            duration =
+                                log.ActionTime.ToTimeSpan()
+                                + TimeSpan.FromDays(1)
+                                - lastIn.Value.ToTimeSpan();
+                        }
+                        else
+                        {
+                            duration =
+                                log.ActionTime.ToTimeSpan()
+                                - lastIn.Value.ToTimeSpan();
+                        }
+
+                        totalWorked += duration;
+
                         lastIn = null;
                     }
                 }
