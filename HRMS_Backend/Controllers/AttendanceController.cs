@@ -860,6 +860,131 @@ namespace HRMS_Backend.Controllers
                 Message = $"Successfully {dto.Status} {result} request(s)"
             });
         }
+        // ================= CREATE EARLY DEPARTURE =================
+
+        [HttpPost("createearlydeparturerequest")]
+        public async Task<IActionResult> CreateEarlyDepartureRequest(
+            CreateEarlyDepartureRequestDto dto)
+        {
+            try
+            {
+                var result =
+                    await _earlyLogoutService
+                    .CreateEarlyDepartureRequest(dto);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+        }
+
+
+
+        // ================= GET MY REQUESTS =================
+
+        [HttpGet("getearlydeparturerequest")]
+        public async Task<IActionResult> GetEarlyDepartureRequest(
+            int companyId,
+            int? regionId,
+            int userId)
+        {
+            var result =
+                await _earlyLogoutService
+                .GetEarlyDepartureRequest(
+                    companyId,
+                    regionId,
+                    userId);
+
+            return Ok(result);
+        }
+
+
+
+        // ================= MANAGER / HR APPROVAL =================
+
+        [HttpGet("getapprovalearlydeparturerequest")]
+        public async Task<IActionResult> GetApprovalEarlyDepartureRequest(
+            int companyId,
+            int? regionId,
+            int managerId)
+        {
+            var result =
+                await _earlyLogoutService
+                .GetApprovalEarlyDepartureRequest(
+                    companyId,
+                    regionId,
+                    managerId);
+
+            return Ok(result);
+        }
+
+
+
+        // ================= UPDATE =================
+
+        [HttpPost("updateearlydeparture")]
+        public async Task<IActionResult> UpdateEarlyDeparture(
+            UpdateEarlyDepartureDto dto)
+        {
+            try
+            {
+                var result =
+                    await _earlyLogoutService
+                    .UpdateEarlyDeparture(dto);
+
+
+                if (!result)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Request not found or already processed."
+                    });
+                }
+
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+        }
+
+
+
+        // ================= BULK APPROVE / REJECT =================
+
+
+        [HttpPost("bulkapproverejectearlydeparture")]
+        public async Task<IActionResult> BulkApproveRejectEarlyDeparture(
+            [FromBody] BulkApproveRejectEarlyDepartureDto dto)
+        {
+
+            var result =
+                await _earlyLogoutService
+                .BulkApproveRejectEarlyDeparture(dto);
+
+
+            return Ok(new
+            {
+                Success = true,
+
+                Count = result,
+
+                Message =
+                $"Successfully {dto.Status} {result} request(s)"
+            });
+
+        }
         #endregion
 
         #region

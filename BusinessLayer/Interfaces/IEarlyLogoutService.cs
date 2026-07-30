@@ -16,6 +16,14 @@ namespace BusinessLayer.Interfaces
         Task<bool> UpdateEarlyLogout(UpdateEarlyLogoutDto dto); 
         Task<int> BulkApproveRejectEarlyLogout(BulkApproveRejectEarlyLogoutDto dto);
 
+        // ================= EARLY DEPARTURE =================
+
+        Task<int> CreateEarlyDepartureRequest(CreateEarlyDepartureRequestDto dto);
+        Task<IEnumerable<EarlyLogoutRequest>> GetEarlyDepartureRequest(int companyId,int? regionId,int userId);
+        Task<IEnumerable<EarlyDepartureApprovalListDto>> GetApprovalEarlyDepartureRequest(int companyId,int? regionId,int managerId);
+        Task<bool> UpdateEarlyDeparture(UpdateEarlyDepartureDto dto);
+        Task<int> BulkApproveRejectEarlyDeparture(BulkApproveRejectEarlyDepartureDto dto);
+
 
         #region
 
