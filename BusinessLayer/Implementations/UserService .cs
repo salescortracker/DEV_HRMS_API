@@ -98,28 +98,33 @@ namespace BusinessLayer.Implementations
                 if (userDto == null)
                     throw new ArgumentNullException(nameof(userDto));
 
-                var existingUseradmin = _context.Users
-                    .Where(u =>
-                        u.Email == userDto.Email 
-                    );
-                if (existingUseradmin.Count() > 0)
+                if (userDto.loginType == "Admin")
                 {
-                    return null;
-                }             
+                    var existingUseradmin = await _context.Users
+                        .FirstOrDefaultAsync(u =>
+                            u.Email.ToLower() == userDto.Email.ToLower()
+                        );
 
-                var existingUser =  _context.Users
-                    .Where(u =>
-                        u.Email == userDto.Email &&
-                        u.CompanyId == userDto.CompanyID &&
-                        u.RegionId == userDto.RegionID
-                    );
+                    if (existingUseradmin != null)
+                    {
+                        throw new Exception("Admin email already exists.");
+                    }
+                }
 
-                if (existingUser.Count()>0)
+
+                var existingUser = await _context.Users
+                         .FirstOrDefaultAsync(u =>
+                             u.Email.ToLower() == userDto.Email.ToLower() &&
+                             u.CompanyId == userDto.CompanyID &&
+                             u.RegionId == userDto.RegionID
+                         );
+
+                if (existingUser != null)
                 {
                     throw new Exception("This email already exists in the selected Company and Region.");
                 }
 
-              
+
                 if (string.IsNullOrWhiteSpace(userDto.EmployeeCode))
                 {
                     var employeeCodes = await _context.Users

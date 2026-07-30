@@ -15,11 +15,13 @@ namespace BusinessLayer.Implementations
     {
         private readonly HRMSContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
-        public EarlyLogoutService(HRMSContext context, IEmailService emailService)
+        public EarlyLogoutService(HRMSContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
       
 
@@ -822,7 +824,426 @@ Regards,<br/>
             }
         }
 
+        public async Task<int> CreateEarlyDepartureRequest(CreateEarlyDepartureRequestDto dto)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(x => x.UserId == dto.UserId);
 
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var duplicateRequest = await _context.EarlyLogoutRequests
+                .FirstOrDefaultAsync(x =>
+                    x.UserId == dto.UserId &&
+                    x.CompanyId == dto.CompanyID &&
+                    x.RequestDate == dto.RequestDate &&
+                    x.RequestType == "EarlyDeparture");
+
+            if (duplicateRequest != null)
+            {
+                throw new Exception("Early Departure Request already exists for this date.");
+            }
+
+            var entity = new EarlyLogoutRequest
+            {
+                EmployeeId = dto.UserId,
+                UserId = dto.UserId,
+                ManagerId = user.ReportingTo,
+
+                RequestDate = dto.RequestDate,
+                RequestedLogoutTime = dto.RequestedDepartureTime,
+
+                Reason = dto.Reason,
+
+                Status = "Pending",
+
+                CompanyId = dto.CompanyID,
+                RegionId = dto.RegionID,
+
+                HrEmail = dto.HrEmail,
+
+                RequestType = "EarlyDeparture",
+
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = dto.UserId
+            };
+
+            _context.EarlyLogoutRequests.Add(entity);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception(ex.InnerException?.Message ?? ex.Message);
+            }
+            // ================= NOTIFICATION =================
+
+            var notificationUsers = new List<int>();
+
+            // Manager
+            if (user.ReportingTo != null)
+            {
+                notificationUsers.Add(user.ReportingTo.Value);
+            }
+
+
+            // Reporting HR
+            if (user.ReportingHr != null)
+            {
+                notificationUsers.Add(user.ReportingHr.Value);
+            }
+
+
+            notificationUsers = notificationUsers
+                .Distinct()
+                .ToList();
+
+
+
+            await _notificationService.CreateNotificationAsync(
+                notificationUsers,
+                "Early Departure Request",
+                $"{user.FullName} submitted an Early Departure request.",
+                "EarlyDeparture",
+                entity.EarlyLogoutRequestId
+            );
+
+            try
+            {
+                var saved = await _context.EarlyLogoutRequests
+                    .Include(x => x.Employee)
+                    .Include(x => x.Manager)
+                    .FirstOrDefaultAsync(x =>
+                        x.EarlyLogoutRequestId == entity.EarlyLogoutRequestId);
+
+                // Employee Details
+                var employee = await _context.Users
+                    .Where(x => x.UserId == dto.UserId)
+                    .Select(x => new
+                    {
+                        x.FullName,
+                        x.Email,
+                        x.ReportingHr
+                    })
+                    .FirstOrDefaultAsync();
+
+                // Reporting HR Email
+                string? reportingHrEmail = null;
+
+                if (employee?.ReportingHr != null)
+                {
+                    var reportingHrUser = await _context.Users
+                        .FirstOrDefaultAsync(x => x.UserId == employee.ReportingHr);
+
+                    reportingHrEmail = reportingHrUser?.Email;
+                }
+
+                if (saved?.Manager != null &&
+                    !string.IsNullOrWhiteSpace(saved.Manager.Email))
+                {
+                    var body = $@"
+                        <div style='font-family:Arial'>
+                            <h3>Early Departure Request Notification</h3>
+
+                            <p>Dear {saved.Manager.FullName},</p>
+
+                            <p>A new Early Departure Request has been submitted.</p>
+
+                            <table border='1' cellpadding='6' cellspacing='0'>
+                                <tr>
+                                    <td><b>Employee</b></td>
+                                    <td>{saved.Employee?.FullName}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Date</b></td>
+                                    <td>{saved.RequestDate:dd-MM-yyyy}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Requested Departure Time</b></td>
+                                    <td>{saved.RequestedLogoutTime}</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Reason</b></td>
+                                    <td>{saved.Reason}</td>
+                                </tr>
+                            </table>
+
+                            <br/>
+
+                            <p>Regards,<br/><b>HRMS Team</b></p>
+                        </div>";
+
+                    var ccList = new List<string>();
+
+                    // Reporting HR
+                    if (!string.IsNullOrWhiteSpace(reportingHrEmail))
+                    {
+                        ccList.Add(reportingHrEmail);
+                    }
+
+                    // Additional HR Emails
+                    if (!string.IsNullOrWhiteSpace(dto.HrEmail))
+                    {
+                        ccList.AddRange(
+                            dto.HrEmail
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim())
+                                .Where(x => !string.IsNullOrWhiteSpace(x)));
+                    }
+
+                    ccList = ccList.Distinct().ToList();
+
+                    await _emailService.SendEmailAsync(
+                        saved.Manager.Email,
+                        "New Early Departure Request",
+                        body,
+                        ccList.Any() ? ccList : null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email Error: {ex.Message}");
+            }
+
+            return entity.EarlyLogoutRequestId;
+        }
+
+        public async Task<IEnumerable<EarlyLogoutRequest>> GetEarlyDepartureRequest(int companyId,int? regionId,int userId)
+        {
+
+            return await _context.EarlyLogoutRequests
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.UserId == userId &&
+                    x.RequestType == "EarlyDeparture" &&
+                    (regionId == null ||
+                     x.RegionId == regionId))
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+
+        }
+
+        public async Task<IEnumerable<EarlyDepartureApprovalListDto>>GetApprovalEarlyDepartureRequest(int companyId,int? regionId,int managerId)
+        {
+
+            return await
+            (
+                from e in _context.EarlyLogoutRequests
+
+                join u in _context.Users
+                on e.UserId equals u.UserId
+
+
+                where
+                e.CompanyId == companyId &&
+                e.ManagerId == managerId &&
+                (regionId == null ||
+                 e.RegionId == regionId)
+
+
+                select new EarlyDepartureApprovalListDto
+                {
+
+                    EarlyDepartureRequestId =
+                    e.EarlyLogoutRequestId,
+
+
+                    UserId =
+                    e.UserId,
+
+
+                    EmployeeName =
+                    u.FullName,
+
+
+                    RequestDate =
+                    e.RequestDate,
+
+
+                    RequestedDepartureTime =
+                    e.RequestedLogoutTime,
+
+
+                    Reason =
+                    e.Reason,
+
+
+                    HrEmail =
+                    e.HrEmail,
+
+
+                    Status =
+                    e.Status,
+
+
+                    ManagerRemarks =
+                    e.ManagerRemarks
+                }
+
+            )
+            .OrderByDescending(x => x.RequestDate)
+            .ToListAsync();
+
+        }
+        public async Task<bool> UpdateEarlyDeparture(UpdateEarlyDepartureDto dto)
+        {
+
+            var entity =
+                await _context.EarlyLogoutRequests
+                .FirstOrDefaultAsync(x =>
+
+                    x.EarlyLogoutRequestId ==
+                    dto.EarlyDepartureRequestID
+
+                    &&
+
+                    x.CompanyId ==
+                    dto.CompanyID
+
+                    &&
+
+                    (dto.RegionID == null ||
+                     x.RegionId == dto.RegionID)
+
+                    &&
+
+                    x.Status == "Pending"
+                );
+
+
+
+            if (entity == null)
+                return false;
+
+
+
+            entity.RequestDate =
+                dto.RequestDate;
+
+
+            entity.RequestedLogoutTime =
+                dto.RequestedDepartureTime;
+
+
+            entity.Reason =
+                dto.Reason;
+
+
+            entity.HrEmail =
+                dto.HrEmail;
+
+
+            entity.ModifiedAt =
+                DateTime.UtcNow;
+
+
+            entity.ModifiedBy =
+                entity.UserId;
+
+
+
+            await _context.SaveChangesAsync();
+
+
+            return true;
+
+        }
+
+        public async Task<int>BulkApproveRejectEarlyDeparture(BulkApproveRejectEarlyDepartureDto dto)
+        {
+
+            var records =
+                await _context.EarlyLogoutRequests
+                .Where(x =>
+                    dto.EarlyDepartureRequestIds
+                    .Contains(x.EarlyLogoutRequestId)
+
+                    &&
+                    x.Status == "Pending")
+                .ToListAsync();
+
+
+
+            if (!records.Any())
+                return 0;
+
+
+
+            foreach (var item in records)
+            {
+
+                item.Status =
+                    dto.Status;
+
+
+                item.ManagerRemarks =
+                    dto.ManagerRemarks;
+
+
+                item.ManagerId =
+                    dto.ManagerID;
+
+
+                item.ModifiedAt =
+                    DateTime.UtcNow;
+
+
+                item.ModifiedBy =
+                    dto.ManagerID;
+
+            }
+
+
+
+            await _context.SaveChangesAsync();
+            foreach (var item in records)
+            {
+
+                var employee = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserId == item.UserId);
+
+
+                var notificationUsers = new List<int>();
+
+
+                // Employee
+                notificationUsers.Add(item.UserId);
+
+
+
+                // Reporting HR
+                if (employee?.ReportingHr != null)
+                {
+                    notificationUsers.Add(employee.ReportingHr.Value);
+                }
+
+
+
+                notificationUsers =
+                    notificationUsers
+                    .Distinct()
+                    .ToList();
+
+
+
+                await _notificationService.CreateNotificationAsync(
+                    notificationUsers,
+                    "Early Departure",
+                    $"{employee?.FullName} Early Departure request has been {dto.Status} by Manager.",
+                    "EarlyDeparture",
+                    item.EarlyLogoutRequestId
+                );
+
+            }
+
+
+            return records.Count;
+
+        }
         #endregion
 
     }

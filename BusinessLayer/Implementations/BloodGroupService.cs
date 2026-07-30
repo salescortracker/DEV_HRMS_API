@@ -345,13 +345,26 @@ namespace BusinessLayer.Implementations
                     );
                 }
 
-                //entity.IsDeleted = true;
-                //entity.ModifiedAt = DateTime.Now;
+                // ✅ Check whether this Blood Group is assigned to any active user
+                var isBloodGroupAssigned = await _context.EmployeePersonalDetails
+     .AnyAsync(ep =>
+         ep.CompanyId == entity.CompanyId &&
+         ep.RegionId == entity.RegionId &&
+         ep.BloodGroup == id.ToString());
 
-                //_context.BloodGroups.Update(entity);
-                //await _context.SaveChangesAsync();
+                if (isBloodGroupAssigned)
+                {
+                    return new ApiResponse<bool>(
+                        false,
+                        "This blood group is already assigned to an active employee. You cannot delete it.",
+                        false
+                    );
+                }
+
+                // ✅ Delete only if not assigned
                 _context.BloodGroups.Remove(entity);
                 await _context.SaveChangesAsync();
+
                 return new ApiResponse<bool>(
                     true,
                     "Blood Group deleted successfully",
