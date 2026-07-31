@@ -22,22 +22,33 @@ namespace BusinessLayer.Implementations
 
         public async Task<List<EmployeeSalaryDto>> GetAllAssignedSalariesAsync(int userId)
         {
-            var salaries = await _context.EmployeeSalaries
-                .Where(x => x.UserId == userId)
-                .Select(x => new EmployeeSalaryDto
-                {
-                    EmployeeSalaryId = x.EmployeeSalaryId,
-                    EmployeeId = x.EmployeeId,
-                    StructureId = x.StructureId,
-                    EffectiveFrom = x.EffectiveFrom,
-                    CTC = x.Ctc,
-                    IsActive = x.IsActive,
-                    CompanyId = x.CompanyId,
-                    RegionId = x.RegionId,
-                    UserId = x.UserId,
-                    CreatedAt = x.CreatedAt
-                })
-                .ToListAsync();
+            var salaries = await (
+       from salary in _context.EmployeeSalaries
+       join emp in _context.Users
+           on salary.EmployeeId equals emp.UserId
+       join structure in _context.SalaryStructures
+           on salary.StructureId equals structure.StructureId
+
+       where salary.UserId == userId
+
+       select new EmployeeSalaryDto
+       {
+           EmployeeSalaryId = salary.EmployeeSalaryId,
+           EmployeeId = salary.EmployeeId,
+           EmployeeName = emp.FullName,
+
+           StructureId = salary.StructureId,
+           StructureName = structure.StructureName,
+
+           EffectiveFrom = salary.EffectiveFrom,
+           CTC = salary.Ctc,
+
+           IsActive = salary.IsActive,
+           CompanyId = salary.CompanyId,
+           RegionId = salary.RegionId,
+           UserId = salary.UserId,
+           CreatedAt = salary.CreatedAt
+       }).ToListAsync();
 
             return salaries;
         }
