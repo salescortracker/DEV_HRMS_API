@@ -3,16 +3,19 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Interfaces;
 using DataAccessLayer.DBContext;
 using DataAccessLayer.Repositories.GeneralRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Implementations
 {
     public class CurrencyService : ICurrencyService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly HRMSContext _context;
 
-        public CurrencyService(IUnitOfWork unitOfWork)
+        public CurrencyService(IUnitOfWork unitOfWork, HRMSContext context)
         {
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         public async Task<ApiResponse<IEnumerable<CurrencyDto>>> GetAll(int userId)
@@ -163,5 +166,16 @@ namespace BusinessLayer.Implementations
 
             return new ApiResponse<IEnumerable<CurrencyDto>>(list);
         }
+        public async Task<List<CurrencyMaster>> GetByCompanyAndRegion(int companyId, int regionId)
+        {
+            return await _context.CurrencyMasters
+                .Where(x => x.CompanyId == companyId
+                         && x.RegionId == regionId
+                         && x.IsActive == true
+                         && x.IsDeleted == false)
+                .OrderBy(x => x.CurrencyName)
+                .ToListAsync();
+        }
+
     }
 }

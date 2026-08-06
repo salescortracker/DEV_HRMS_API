@@ -3865,8 +3865,31 @@ int regionId)
         {
             return Ok(await _currencyService.GetAll(userId));
         }
+        [HttpGet("GetcurrencyByCompanyAndRegion")]
+        public async Task<IActionResult> GetcurrencyByCompanyAndRegion(int companyId, int regionId)
+        {
+            try
+            {
+                var data = await _currencyService.GetByCompanyAndRegion(companyId, regionId);
 
-        [HttpPost("CreateCurrency")]
+                return Ok(new
+                {
+                    success = true,
+                    message = "Currencies fetched successfully",
+                    data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+            [HttpPost("CreateCurrency")]
         public async Task<IActionResult> CreateCurrency([FromBody] CurrencyDto dto)
         {
             return Ok(await _currencyService.CreateAsync(dto));

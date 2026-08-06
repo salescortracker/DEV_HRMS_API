@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.Common;
 using BusinessLayer.DTOs;
+using DataAccessLayer.DBContext;
 
 namespace BusinessLayer.Interfaces
 {
@@ -10,5 +11,6 @@ namespace BusinessLayer.Interfaces
         Task<ApiResponse<string>> UpdateAsync(CurrencyDto dto);
         Task<ApiResponse<string>> DeleteAsync(int id);
         Task<ApiResponse<IEnumerable<CurrencyDto>>> CurrencyDropDown(int companyId, int regionId);
+        Task<List<CurrencyMaster>> GetByCompanyAndRegion(int companyId, int regionId);
     }
 }
